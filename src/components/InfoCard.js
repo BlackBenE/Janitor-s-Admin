@@ -1,6 +1,4 @@
 import { Card, CardContent, Box, Typography } from "@mui/material";
-import ButtonBase from "@mui/material/ButtonBase";
-
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 function InfoCard({
@@ -13,7 +11,6 @@ function InfoCard({
   progressTextColor = "text.primary",
 }) {
   return (
-    //<ButtonBase onClick={handleClick} sx={{ width: "100%" }}>
     <Card
       sx={{
         minWidth: 250,
@@ -63,12 +60,7 @@ function InfoCard({
         </Box>
       </CardContent>
     </Card>
-    //</ButtonBase>
   );
 }
 
 export default InfoCard;
-
-function handleClick() {
-  console.log("Card clicked");
-}

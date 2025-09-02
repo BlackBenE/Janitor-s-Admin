@@ -7,19 +7,8 @@ import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 
 import AdminLayout from "../components/AdminLayout";
 import InfoCard from "../components/InfoCard";
-import React, { useState } from "react";
 
 function DashboardPage() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [fieldValue, setFieldValue] = useState("");
-
-  const handleClick = () => setModalOpen(true);
-  const handleChange = (e) => setFieldValue(e.target.value);
-  const handleSave = () => {
-    // save logic here
-    setModalOpen(false);
-  };
-
   return (
     <AdminLayout>
       <Box>
@@ -36,7 +25,6 @@ function DashboardPage() {
             progressText="75% growth"
             showTrending={false}
             progressTextColor="text.secondary"
-            onClick={handleClick}
             sx={{ flex: 1 }}
           />
         </Grid>
@@ -49,7 +37,6 @@ function DashboardPage() {
             progressText="75% growth"
             showTrending={false}
             progressTextColor="text.secondary"
-            onClick={handleClick}
             sx={{ flex: 1 }}
           />
         </Grid>
@@ -62,7 +49,6 @@ function DashboardPage() {
             progressText="75% growth"
             showTrending={false}
             progressTextColor="text.secondary"
-            onClick={handleClick}
             sx={{ flex: 1 }}
           />
         </Grid>
@@ -75,7 +61,6 @@ function DashboardPage() {
             progressText="75% growth"
             showTrending={false}
             progressTextColor="text.secondary"
-            onClick={handleClick}
             sx={{ flex: 1 }}
           />
         </Grid>

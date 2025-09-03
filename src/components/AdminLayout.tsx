@@ -1,31 +1,37 @@
+import { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Sidebar from "./Sidebar";
 import CustomAppBar from "./CustomAppBar";
 import Divider from "@mui/material/Divider";
 
-function AdminLayout({ children }) {
+interface AdminLayoutProps {
+  children: ReactNode;
+}
+
+function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+    <Box sx={{ display: "flex", height: "100vh" }}>
       <Sidebar />
       <Box
+        component="main"
         sx={{
-          flexGrow: 1,
           display: "flex",
           flexDirection: "column",
+          width: "100%",
           height: "100vh",
+          overflow: "hidden",
         }}
       >
-        <CustomAppBar />
-        <Divider sx={{ mb: 2 }} />
+        <Box sx={{ flexShrink: 0 }}>
+          <CustomAppBar />
+          <Divider />
+        </Box>
         <Box
           sx={{
-            flexGrow: 1,
+            flex: 1,
+            overflow: "auto",
             px: { xs: 2, md: 6, lg: 10 },
             py: 2,
-            overflow: "auto",
-            height: "100%",
-            width: "100%",
-            boxSizing: "border-box",
           }}
         >
           {children}
@@ -34,4 +40,5 @@ function AdminLayout({ children }) {
     </Box>
   );
 }
+
 export default AdminLayout;

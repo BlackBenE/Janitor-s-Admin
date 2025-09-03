@@ -1,5 +1,5 @@
 import * as React from "react";
-import Button from "@mui/material/Button";
+import Button, { ButtonProps } from "@mui/material/Button";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Grow from "@mui/material/Grow";
 import Paper from "@mui/material/Paper";
@@ -8,33 +8,41 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Stack from "@mui/material/Stack";
 
-/**
- * Reusable ClickMenu component
- * Props:
- * - buttonLabel: string (label for the button)
- * - menuItems: array of { label: string, onClick: function }
- * - buttonProps: object (optional, props for Button)
- */
+interface MenuItem {
+  label: string;
+  onClick?: (event: React.MouseEvent<HTMLLIElement>) => void;
+}
+
+interface ClickMenuProps {
+  buttonLabel?: React.ReactNode;
+  menuItems: MenuItem[];
+  buttonProps?: ButtonProps;
+}
+
 export default function ClickMenu({
   buttonLabel = "Menu",
   menuItems = [],
   buttonProps = {},
-}) {
+}: ClickMenuProps) {
   const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
+  const anchorRef = React.useRef<HTMLButtonElement | null>(null);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
   };
 
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+  const handleClose = (event: Event | React.SyntheticEvent) => {
+    if (
+      anchorRef.current &&
+      event.target instanceof Node &&
+      anchorRef.current.contains(event.target)
+    ) {
       return;
     }
     setOpen(false);
   };
 
-  function handleListKeyDown(event) {
+  function handleListKeyDown(event: React.KeyboardEvent) {
     if (event.key === "Tab") {
       event.preventDefault();
       setOpen(false);
@@ -46,7 +54,7 @@ export default function ClickMenu({
   // return focus to the button when we transitioned from !open -> open
   const prevOpen = React.useRef(open);
   React.useEffect(() => {
-    if (prevOpen.current === true && open === false) {
+    if (prevOpen.current === true && open === false && anchorRef.current) {
       anchorRef.current.focus();
     }
     prevOpen.current = open;

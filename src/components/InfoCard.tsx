@@ -1,5 +1,22 @@
-import { Card, CardContent, Box, Typography } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Box,
+  Typography,
+  SvgIconProps,
+} from "@mui/material";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import { ComponentType } from "react";
+
+interface InfoCardProps {
+  title: string;
+  icon: ComponentType<SvgIconProps>;
+  value: string | number;
+  bottomLeft: string;
+  progressText: string;
+  showTrending?: boolean;
+  progressTextColor?: string;
+}
 
 function InfoCard({
   title,
@@ -9,7 +26,7 @@ function InfoCard({
   progressText,
   showTrending = true,
   progressTextColor = "text.primary",
-}) {
+}: InfoCardProps) {
   return (
     <Card
       sx={{

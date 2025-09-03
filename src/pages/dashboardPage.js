@@ -17,13 +17,13 @@ function DashboardPage() {
         <h2>Dashboard Overview</h2>
         <p>Welcome back! Here's what's happening with your platform today.</p>
       </Box>
-      <Grid container spacing={3}>
+      <Grid container spacing={3} sx={{ width: "100%", display: "flex" }}>
         <Grid
           item
           xs={12}
           sm={6}
           md={3}
-          sx={{ display: "flex", flex: 1, minWidth: 220 }}
+          sx={{ display: "flex", flex: 1, minWidth: 0 }}
         >
           <DashboardItem>
             <InfoCard

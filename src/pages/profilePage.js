@@ -1,9 +1,8 @@
-import Box from "@mui/material/Box";
-
 function ProfilePage() {
-  return;
+  return(
+    <h2>Profile Page</h2>
+  )
 
-  <h2>Profile Page</h2>;
 }
 
 export default ProfilePage;

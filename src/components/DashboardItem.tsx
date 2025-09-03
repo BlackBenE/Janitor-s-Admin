@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
+import { ReactNode } from "react";
 
-function DashboardItem({ children }) {
+function DashboardItem({ children }: { children: ReactNode }) {
   return (
     <Box
       sx={{

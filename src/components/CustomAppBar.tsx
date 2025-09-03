@@ -1,13 +1,13 @@
+import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import MailIcon from "@mui/icons-material/Mail";
 import Box from "@mui/material/Box";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import IconButtonWithBadge from "./IconButtonWithBadge";
-
 import SearchBar from "./SearchBar";
 
-function CustomAppBar() {
+function CustomAppBar(): React.JSX.Element {
   return (
     <Box sx={{ flexGrow: 2 }}>
       <AppBar
@@ -21,7 +21,7 @@ function CustomAppBar() {
             <SearchBar />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" } }}></Box>
+          <Box sx={{ display: { xs: "none", md: "flex" } }} />
           <IconButtonWithBadge icon={MailIcon} badgeContent={5} color="error" />
           <IconButtonWithBadge
             icon={NotificationsIcon}

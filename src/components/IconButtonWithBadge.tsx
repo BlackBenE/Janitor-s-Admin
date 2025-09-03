@@ -9,12 +9,26 @@ const CustomBadge = styled(Badge)`
   }
 `;
 
+interface IconButtonWithBadgeProps
+  extends React.ComponentProps<typeof IconButton> {
+  icon: React.ElementType;
+  badgeContent: React.ReactNode;
+  color?:
+    | "primary"
+    | "secondary"
+    | "default"
+    | "error"
+    | "info"
+    | "success"
+    | "warning";
+}
+
 function IconButtonWithBadge({
   icon: Icon,
   badgeContent,
   color = "primary",
   ...props
-}) {
+}: IconButtonWithBadgeProps) {
   return (
     <IconButton {...props}>
       <CustomBadge badgeContent={badgeContent} color={color} overlap="circular">

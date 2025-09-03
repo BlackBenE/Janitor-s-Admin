@@ -4,10 +4,11 @@ import EuroOutlinedIcon from "@mui/icons-material/EuroOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
+import { styled } from "@mui/material/styles";
 
 import AdminLayout from "../components/AdminLayout";
 import InfoCard from "../components/InfoCard";
-import SimpleBarChart from "../components/SimpleBarChart";
+import BarCharts from "../components/BarCharts";
 import DashboardItem from "../components/DashboardItem";
 
 function DashboardPage() {
@@ -19,10 +20,7 @@ function DashboardPage() {
       </Box>
       <Grid container spacing={3} sx={{ width: "100%", display: "flex" }}>
         <Grid
-          item
-          xs={12}
-          sm={6}
-          md={3}
+          size={{ xs: 12, sm: 6, md: 3 }}
           sx={{ display: "flex", flex: 1, minWidth: 0 }}
         >
           <DashboardItem>
@@ -38,10 +36,7 @@ function DashboardPage() {
           </DashboardItem>
         </Grid>
         <Grid
-          item
-          xs={12}
-          sm={6}
-          md={3}
+          size={{ xs: 12, sm: 6, md: 3 }}
           sx={{ display: "flex", flex: 1, minWidth: 220 }}
         >
           <DashboardItem>
@@ -57,10 +52,7 @@ function DashboardPage() {
           </DashboardItem>
         </Grid>
         <Grid
-          item
-          xs={12}
-          sm={6}
-          md={3}
+          size={{ xs: 12, sm: 6, md: 3 }}
           sx={{ display: "flex", flex: 1, minWidth: 220 }}
         >
           <DashboardItem>
@@ -76,10 +68,7 @@ function DashboardPage() {
           </DashboardItem>
         </Grid>
         <Grid
-          item
-          xs={12}
-          sm={6}
-          md={3}
+          size={{ xs: 12, sm: 6, md: 3 }}
           sx={{ display: "flex", flex: 1, minWidth: 220 }}
         >
           <DashboardItem>
@@ -102,9 +91,7 @@ function DashboardPage() {
         sx={{ width: "100%", display: "flex", mb: 8 }}
       >
         <Grid
-          item
-          xs={12}
-          md={6}
+          size={{ xs: 12, sm: 6 }}
           sx={{ display: "flex", flex: 1, minWidth: 300 }}
         >
           <DashboardItem>
@@ -125,7 +112,7 @@ function DashboardPage() {
                 <p>Latest actions requiring your attention</p>
               </Box>
               <Box sx={{ width: "100%" }}>
-                <SimpleBarChart
+                <BarCharts
                   dataset={[
                     { month: "Jan", sales: 4000 },
                     { month: "Feb", sales: 3000 },
@@ -134,20 +121,20 @@ function DashboardPage() {
                     { month: "May", sales: 3000 },
                     { month: "Jun", sales: 5000 },
                   ]}
-                  xDataKey="month"
-                  yDataKey="sales"
-                  yLabel="Sales ($)"
-                  seriesLabel="Monthly Sales"
-                  valueFormatter={(value) => `$${value.toLocaleString()}`}
+                  xAxisKey="month"
+                  series={[
+                    {
+                      dataKey: "sales",
+                      label: "Monthly Sales",
+                    },
+                  ]}
                 />
               </Box>
             </Box>
           </DashboardItem>
         </Grid>
         <Grid
-          item
-          xs={12}
-          md={6}
+          size={{ xs: 12, sm: 6 }}
           sx={{ display: "flex", flex: 1, minWidth: 300 }}
         >
           <DashboardItem>
@@ -168,7 +155,7 @@ function DashboardPage() {
                 <p>Active user growth over time</p>
               </Box>
               <Box sx={{ width: "100%" }}>
-                <SimpleBarChart
+                <BarCharts
                   dataset={[
                     { month: "Jan", sales: 4000 },
                     { month: "Feb", sales: 3000 },
@@ -177,11 +164,13 @@ function DashboardPage() {
                     { month: "May", sales: 3000 },
                     { month: "Jun", sales: 5000 },
                   ]}
-                  xDataKey="month"
-                  yDataKey="sales"
-                  yLabel="Sales ($)"
-                  seriesLabel="Monthly Sales"
-                  valueFormatter={(value) => `$${value.toLocaleString()}`}
+                  xAxisKey="month"
+                  series={[
+                    {
+                      dataKey: "sales",
+                      label: "Monthly Sales",
+                    },
+                  ]}
                 />
               </Box>
             </Box>

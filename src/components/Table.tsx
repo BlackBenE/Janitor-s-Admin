@@ -12,6 +12,8 @@ import {
   ColumnsPanelTrigger,
   FilterPanelTrigger,
   Toolbar,
+  GridRenderCellParams,
+  GridColDef,
 } from "@mui/x-data-grid";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -92,31 +94,44 @@ function MyCustomToolbar() {
   );
 }
 
-function DataTable({ columns, data, renderActions }) {
+interface DataTableProps<T> {
+  columns: GridColDef[];
+  data: T[];
+  renderActions?: (row: T) => React.ReactNode;
+}
+
+function DataTable<T extends { [key: string]: any }>({
+  columns,
+  data,
+  renderActions,
+}: DataTableProps<T>) {
   // Convert columns to DataGrid format
-  const gridColumns = [
+  const gridColumns: GridColDef[] = [
     ...columns.map((col) => ({ ...col, flex: 1 })),
-    renderActions
-      ? {
-          field: "actions",
-          headerName: "Actions",
-          sortable: false,
-          filterable: false,
-          renderCell: (params) => renderActions(params.row),
-          flex: 1,
-        }
-      : null,
-  ].filter(Boolean);
+    ...(renderActions
+      ? [
+          {
+            field: "actions",
+            headerName: "Actions",
+            sortable: false,
+            filterable: false,
+            renderCell: (params: GridRenderCellParams<T>) =>
+              renderActions(params.row),
+            flex: 1,
+          },
+        ]
+      : []),
+  ];
 
   // Add id to each row (required by DataGrid)
   const gridRows = data.map((row, idx) => ({ id: idx, ...row }));
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <Box id="filter-panel" />
-      </Grid>
-      <Grid item xs={12} style={{ height: 400, width: "100%" }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%" }}
+    >
+      <Box id="filter-panel" />
+      <Box sx={{ height: 400, width: "100%" }}>
         <DataGrid
           rows={gridRows}
           columns={gridColumns}
@@ -133,8 +148,8 @@ function DataTable({ columns, data, renderActions }) {
           }}
           sx={{ borderRadius: 4 }}
         />
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 }
 

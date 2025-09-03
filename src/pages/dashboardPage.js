@@ -7,6 +7,8 @@ import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 
 import AdminLayout from "../components/AdminLayout";
 import InfoCard from "../components/InfoCard";
+import SimpleBarChart from "../components/SimpleBarChart";
+import DashboardItem from "../components/DashboardItem";
 
 function DashboardPage() {
   return (
@@ -15,56 +17,195 @@ function DashboardPage() {
         <h2>Dashboard Overview</h2>
         <p>Welcome back! Here's what's happening with your platform today.</p>
       </Box>
-      <Grid container spacing={3} alignItems="stretch">
-        <Grid item xs={12} sm={6} md={3} sx={{ display: "flex" }}>
-          <InfoCard
-            title="Pending Property Validations"
-            icon={ApartmentOutlinedIcon}
-            value={1200}
-            bottomLeft="Active this month"
-            progressText="75% growth"
-            showTrending={false}
-            progressTextColor="text.secondary"
-            sx={{ flex: 1 }}
-          />
+      <Grid container spacing={3}>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={3}
+          sx={{ display: "flex", flex: 1, minWidth: 220 }}
+        >
+          <DashboardItem>
+            <InfoCard
+              title="Pending Property Validations"
+              icon={ApartmentOutlinedIcon}
+              value={1200}
+              bottomLeft="Active this month"
+              progressText="75% growth"
+              showTrending={false}
+              progressTextColor="text.secondary"
+            />
+          </DashboardItem>
         </Grid>
-        <Grid item xs={12} sm={6} md={3} sx={{ display: "flex" }}>
-          <InfoCard
-            title="Provider Moderation Cases"
-            icon={HowToRegOutlinedIcon}
-            value={1200}
-            bottomLeft="Active this month"
-            progressText="75% growth"
-            showTrending={false}
-            progressTextColor="text.secondary"
-            sx={{ flex: 1 }}
-          />
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={3}
+          sx={{ display: "flex", flex: 1, minWidth: 220 }}
+        >
+          <DashboardItem>
+            <InfoCard
+              title="Provider Moderation Cases"
+              icon={HowToRegOutlinedIcon}
+              value={1200}
+              bottomLeft="Active this month"
+              progressText="75% growth"
+              showTrending={false}
+              progressTextColor="text.secondary"
+            />
+          </DashboardItem>
         </Grid>
-        <Grid item xs={12} sm={6} md={3} sx={{ display: "flex" }}>
-          <InfoCard
-            title="Active Users"
-            icon={GroupOutlinedIcon}
-            value={1200}
-            bottomLeft="Active this month"
-            progressText="75% growth"
-            showTrending={false}
-            progressTextColor="text.secondary"
-            sx={{ flex: 1 }}
-          />
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={3}
+          sx={{ display: "flex", flex: 1, minWidth: 220 }}
+        >
+          <DashboardItem>
+            <InfoCard
+              title="Active Users"
+              icon={GroupOutlinedIcon}
+              value={1200}
+              bottomLeft="Active this month"
+              progressText="75% growth"
+              showTrending={false}
+              progressTextColor="text.secondary"
+            />
+          </DashboardItem>
         </Grid>
-        <Grid item xs={12} sm={6} md={3} sx={{ display: "flex" }}>
-          <InfoCard
-            title="Monthly Revenue"
-            icon={EuroOutlinedIcon}
-            value={1200}
-            bottomLeft="Active this month"
-            progressText="75% growth"
-            showTrending={false}
-            progressTextColor="text.secondary"
-            sx={{ flex: 1 }}
-          />
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={3}
+          sx={{ display: "flex", flex: 1, minWidth: 220 }}
+        >
+          <DashboardItem>
+            <InfoCard
+              title="Monthly Revenue"
+              icon={EuroOutlinedIcon}
+              value={1200}
+              bottomLeft="Active this month"
+              progressText="75% growth"
+              showTrending={false}
+              progressTextColor="text.secondary"
+            />
+          </DashboardItem>
         </Grid>
       </Grid>
+
+      <Grid
+        container
+        spacing={2}
+        sx={{ width: "100%", display: "flex", mb: 8 }}
+      >
+        <Grid
+          item
+          xs={12}
+          md={6}
+          sx={{ display: "flex", flex: 1, minWidth: 300 }}
+        >
+          <DashboardItem>
+            <Box
+              sx={{
+                mt: 2,
+                border: "1px solid #ddd",
+                borderRadius: 4,
+                p: 2,
+                flex: 1,
+                minWidth: 0,
+                height: "100%",
+                alignItems: "stretch",
+              }}
+            >
+              <Box sx={{ mb: 2, width: "100%" }}>
+                <h3>Recent Activity</h3>
+                <p>Latest actions requiring your attention</p>
+              </Box>
+              <Box sx={{ width: "100%" }}>
+                <SimpleBarChart
+                  dataset={[
+                    { month: "Jan", sales: 4000 },
+                    { month: "Feb", sales: 3000 },
+                    { month: "Mar", sales: 5000 },
+                    { month: "Apr", sales: 4000 },
+                    { month: "May", sales: 3000 },
+                    { month: "Jun", sales: 5000 },
+                  ]}
+                  xDataKey="month"
+                  yDataKey="sales"
+                  yLabel="Sales ($)"
+                  seriesLabel="Monthly Sales"
+                  valueFormatter={(value) => `$${value.toLocaleString()}`}
+                />
+              </Box>
+            </Box>
+          </DashboardItem>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          md={6}
+          sx={{ display: "flex", flex: 1, minWidth: 300 }}
+        >
+          <DashboardItem>
+            <Box
+              sx={{
+                mt: 2,
+                border: "1px solid #ddd",
+                borderRadius: 4,
+                p: 2,
+                flex: 1,
+                minWidth: 0,
+                height: "100%",
+                alignItems: "stretch",
+              }}
+            >
+              <Box sx={{ mb: 2, width: "100%" }}>
+                <h3>User Growth</h3>
+                <p>Active user growth over time</p>
+              </Box>
+              <Box sx={{ width: "100%" }}>
+                <SimpleBarChart
+                  dataset={[
+                    { month: "Jan", sales: 4000 },
+                    { month: "Feb", sales: 3000 },
+                    { month: "Mar", sales: 5000 },
+                    { month: "Apr", sales: 4000 },
+                    { month: "May", sales: 3000 },
+                    { month: "Jun", sales: 5000 },
+                  ]}
+                  xDataKey="month"
+                  yDataKey="sales"
+                  yLabel="Sales ($)"
+                  seriesLabel="Monthly Sales"
+                  valueFormatter={(value) => `$${value.toLocaleString()}`}
+                />
+              </Box>
+            </Box>
+          </DashboardItem>
+        </Grid>
+      </Grid>
+      <Box
+        sx={{
+          mt: 2,
+          border: "1px solid #ddd",
+          borderRadius: 4,
+          p: 2,
+          flex: 1,
+          minWidth: 0,
+          height: "40%",
+          display: "flex",
+          alignItems: "stretch",
+        }}
+      >
+        <Box>
+          <h3>Recent Activity</h3>
+          <p>Latest actions requiring your attention</p>
+        </Box>
+      </Box>
     </AdminLayout>
   );
 }

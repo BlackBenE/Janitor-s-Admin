@@ -13,7 +13,7 @@ function InfoCard({
   return (
     <Card
       sx={{
-        minWidth: 250,
+        width: "100%",
         color: "text.primary",
         boxShadow: "none",
         borderRadius: "8px",

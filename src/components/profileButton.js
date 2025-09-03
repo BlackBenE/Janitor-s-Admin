@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
+import ClickMenu from "./ClickMenu";
 import Typography from "@mui/material/Typography";
 import MoreVertOutlinedIcon from "@mui/icons-material/MoreVertOutlined";
 
@@ -16,19 +16,25 @@ function ProfileButton() {
           user@email.com
         </Typography>
       </Box>
-      <IconButton
-        aria-label="More options"
-        sx={{
-          color: "black",
-          border: "1px solid #ccc",
-          borderRadius: 2,
-          p: 0.5,
-          minWidth: 36,
-          minHeight: 36,
+      <ClickMenu
+        buttonLabel={<MoreVertOutlinedIcon />}
+        buttonProps={{
+          sx: {
+            color: "black",
+            border: "1px solid #ccc",
+            borderRadius: 2,
+            p: 0.5,
+            minWidth: 36,
+            minHeight: 36,
+          },
+          "aria-label": "More options",
         }}
-      >
-        <MoreVertOutlinedIcon />
-      </IconButton>
+        menuItems={[
+          { label: "Profile", onClick: () => console.log("Profile") },
+          { label: "My account", onClick: () => console.log("My account") },
+          { label: "Logout", onClick: () => console.log("Logout") },
+        ]}
+      />
     </Box>
   );
 }

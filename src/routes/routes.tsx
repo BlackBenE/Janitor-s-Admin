@@ -1,3 +1,6 @@
+import React from "react";
+import { SvgIconTypeMap } from "@mui/material";
+import { OverridableComponent } from "@mui/material/OverridableComponent";
 import DashboardPage from "../pages/dashboardPage";
 import FinancialOverviewPage from "../pages/financialOverviewPage";
 import InvoicesPage from "../pages/InvoicesPage";
@@ -19,7 +22,13 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 
-export const routes = [
+interface Route {
+  path: string;
+  element: React.ReactElement;
+  icon?: OverridableComponent<SvgIconTypeMap<{}, "svg">> & { muiName: string };
+}
+
+export const routes: Route[] = [
   { path: "/", element: <DashboardPage />, icon: AppsOutlinedIcon },
   {
     path: "/property-approvals",

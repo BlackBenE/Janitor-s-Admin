@@ -9,8 +9,7 @@ import AdminLayout from "../components/AdminLayout";
 import InfoCard from "../components/InfoCard";
 import DataTable from "../components/Table";
 import DashboardItem from "../components/DashboardItem";
-
-function UserManagementPage() {
+function InvoicesPage() {
   const columns = [
     { field: "Property", headerName: "Property" },
     { field: "Owner", headerName: "Owner" },
@@ -118,19 +117,16 @@ function UserManagementPage() {
   return (
     <AdminLayout>
       <Box>
-        <h2>User Management</h2>
+        <h2>Invoice Management</h2>
         <p>
-          Manage users, subscriptions, and account activities across the
-          platform.
+          Track and manage provider invoices, payments, and billing activities.
         </p>
       </Box>
+
       <Grid container spacing={3} sx={{ width: "100%", display: "flex" }}>
         <Grid
-          item
-          xs={12}
-          sm={6}
-          md={3}
-          sx={{ display: "flex", flex: 1, minWidth: 0 }}
+          size={{ xs: 12, sm: 6, md: 3 }}
+          sx={{ display: "flex", flex: 1, minWidth: 230 }}
         >
           <DashboardItem>
             <InfoCard
@@ -145,11 +141,8 @@ function UserManagementPage() {
           </DashboardItem>
         </Grid>
         <Grid
-          item
-          xs={12}
-          sm={6}
-          md={3}
-          sx={{ display: "flex", flex: 1, minWidth: 0 }}
+          size={{ xs: 12, sm: 6, md: 3 }}
+          sx={{ display: "flex", flex: 1, minWidth: 220 }}
         >
           <DashboardItem>
             <InfoCard
@@ -164,11 +157,8 @@ function UserManagementPage() {
           </DashboardItem>
         </Grid>
         <Grid
-          item
-          xs={12}
-          sm={6}
-          md={3}
-          sx={{ display: "flex", flex: 1, minWidth: 0 }}
+          size={{ xs: 12, sm: 6, md: 3 }}
+          sx={{ display: "flex", flex: 1, minWidth: 220 }}
         >
           <DashboardItem>
             <InfoCard
@@ -183,11 +173,8 @@ function UserManagementPage() {
           </DashboardItem>
         </Grid>
         <Grid
-          item
-          xs={12}
-          sm={6}
-          md={3}
-          sx={{ display: "flex", flex: 1, minWidth: 0 }}
+          size={{ xs: 12, sm: 6, md: 3 }}
+          sx={{ display: "flex", flex: 1, minWidth: 220 }}
         >
           <DashboardItem>
             <InfoCard
@@ -202,6 +189,7 @@ function UserManagementPage() {
           </DashboardItem>
         </Grid>
       </Grid>
+
       <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
         <h3>Property Listings</h3>
         <p>Manage property submissions and approvals</p>
@@ -219,4 +207,5 @@ function UserManagementPage() {
     </AdminLayout>
   );
 }
-export default UserManagementPage;
+
+export default InvoicesPage;

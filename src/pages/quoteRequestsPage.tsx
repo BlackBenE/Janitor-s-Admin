@@ -8,7 +8,9 @@ import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 import AdminLayout from "../components/AdminLayout";
 import InfoCard from "../components/InfoCard";
 import DataTable from "../components/Table";
-function InvoicesPage() {
+import DashboardItem from "../components/DashboardItem";
+
+function QuoteRequestsPage() {
   const columns = [
     { field: "Property", headerName: "Property" },
     { field: "Owner", headerName: "Owner" },
@@ -116,61 +118,79 @@ function InvoicesPage() {
   return (
     <AdminLayout>
       <Box>
-        <h2>Invoice Management</h2>
+        <h2>Quote Requests</h2>
         <p>
-          Track and manage provider invoices, payments, and billing activities.
+          Monitor and manage service quote requests and ongoing interventions.
         </p>
       </Box>
-      <Grid container spacing={3} alignItems="stretch">
-        <Grid item xs={12} sm={6} md={3} sx={{ display: "flex" }}>
-          <InfoCard
-            title="Pending Property Validations"
-            icon={ApartmentOutlinedIcon}
-            value={1200}
-            bottomLeft="Active this month"
-            progressText="75% growth"
-            showTrending={false}
-            progressTextColor="text.secondary"
-            sx={{ flex: 1 }}
-          />
+
+      <Grid container spacing={3} sx={{ width: "100%", display: "flex" }}>
+        <Grid
+          size={{ xs: 12, sm: 6, md: 3 }}
+          sx={{ display: "flex", flex: 1, minWidth: 230 }}
+        >
+          <DashboardItem>
+            <InfoCard
+              title="Pending Property Validations"
+              icon={ApartmentOutlinedIcon}
+              value={1200}
+              bottomLeft="Active this month"
+              progressText="75% growth"
+              showTrending={false}
+              progressTextColor="text.secondary"
+            />
+          </DashboardItem>
         </Grid>
-        <Grid item xs={12} sm={6} md={3} sx={{ display: "flex" }}>
-          <InfoCard
-            title="Provider Moderation Cases"
-            icon={HowToRegOutlinedIcon}
-            value={1200}
-            bottomLeft="Active this month"
-            progressText="75% growth"
-            showTrending={false}
-            progressTextColor="text.secondary"
-            sx={{ flex: 1 }}
-          />
+        <Grid
+          size={{ xs: 12, sm: 6, md: 3 }}
+          sx={{ display: "flex", flex: 1, minWidth: 220 }}
+        >
+          <DashboardItem>
+            <InfoCard
+              title="Provider Moderation Cases"
+              icon={HowToRegOutlinedIcon}
+              value={1200}
+              bottomLeft="Active this month"
+              progressText="75% growth"
+              showTrending={false}
+              progressTextColor="text.secondary"
+            />
+          </DashboardItem>
         </Grid>
-        <Grid item xs={12} sm={6} md={3} sx={{ display: "flex" }}>
-          <InfoCard
-            title="Active Users"
-            icon={GroupOutlinedIcon}
-            value={1200}
-            bottomLeft="Active this month"
-            progressText="75% growth"
-            showTrending={false}
-            progressTextColor="text.secondary"
-            sx={{ flex: 1 }}
-          />
+        <Grid
+          size={{ xs: 12, sm: 6, md: 3 }}
+          sx={{ display: "flex", flex: 1, minWidth: 220 }}
+        >
+          <DashboardItem>
+            <InfoCard
+              title="Active Users"
+              icon={GroupOutlinedIcon}
+              value={1200}
+              bottomLeft="Active this month"
+              progressText="75% growth"
+              showTrending={false}
+              progressTextColor="text.secondary"
+            />
+          </DashboardItem>
         </Grid>
-        <Grid item xs={12} sm={6} md={3} sx={{ display: "flex" }}>
-          <InfoCard
-            title="Monthly Revenue"
-            icon={EuroOutlinedIcon}
-            value={1200}
-            bottomLeft="Active this month"
-            progressText="75% growth"
-            showTrending={false}
-            progressTextColor="text.secondary"
-            sx={{ flex: 1 }}
-          />
+        <Grid
+          size={{ xs: 12, sm: 6, md: 3 }}
+          sx={{ display: "flex", flex: 1, minWidth: 220 }}
+        >
+          <DashboardItem>
+            <InfoCard
+              title="Monthly Revenue"
+              icon={EuroOutlinedIcon}
+              value={1200}
+              bottomLeft="Active this month"
+              progressText="75% growth"
+              showTrending={false}
+              progressTextColor="text.secondary"
+            />
+          </DashboardItem>
         </Grid>
       </Grid>
+
       <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
         <h3>Property Listings</h3>
         <p>Manage property submissions and approvals</p>
@@ -189,4 +209,4 @@ function InvoicesPage() {
   );
 }
 
-export default InvoicesPage;
+export default QuoteRequestsPage;

@@ -1,7 +1,6 @@
 import * as React from "react";
 import Portal from "@mui/material/Portal";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import {
   DataGrid,
   GridPortalWrapper,

@@ -4,7 +4,6 @@ import EuroOutlinedIcon from "@mui/icons-material/EuroOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
-import { styled } from "@mui/material/styles";
 
 import AdminLayout from "../components/AdminLayout";
 import InfoCard from "../components/InfoCard";
@@ -21,7 +20,7 @@ function DashboardPage() {
       <Grid container spacing={3} sx={{ width: "100%", display: "flex" }}>
         <Grid
           size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 0 }}
+          sx={{ display: "flex", flex: 1, minWidth: 230 }}
         >
           <DashboardItem>
             <InfoCard

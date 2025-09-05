@@ -1,9 +1,9 @@
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { routes } from "./routes/routes";
-
 import "./App.css";
 
-function App() {
+function App(): React.ReactElement {
   return (
     <Router>
       <Routes>

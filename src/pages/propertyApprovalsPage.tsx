@@ -11,7 +11,6 @@ function PropertyApprovalsPage() {
     { field: "Price", headerName: "Price" },
     { field: "Status", headerName: "Status" },
     { field: "Submitted", headerName: "Submitted" },
-    { field: "Actions", headerName: "Actions" },
     // ...other columns
   ];
 

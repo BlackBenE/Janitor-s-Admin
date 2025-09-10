@@ -9,11 +9,11 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { ComponentType } from "react";
 
 interface InfoCardProps {
-  title: string;
-  icon: ComponentType<SvgIconProps>;
-  value: string | number;
-  bottomLeft: string;
-  progressText: string;
+  title?: string;
+  icon?: ComponentType<SvgIconProps>;
+  value?: string | number;
+  bottomLeft?: string;
+  progressText?: string;
   showTrending?: boolean;
   progressTextColor?: string;
 }
@@ -46,7 +46,7 @@ function InfoCard({
           }}
         >
           <Typography variant="body2">{title}</Typography>
-          <Icon fontSize="small" />
+          {Icon && <Icon fontSize="small" />}
         </Box>
         <Box
           sx={{

@@ -107,8 +107,8 @@ function DashboardPage() {
               }}
             >
               <Box sx={{ mb: 2, width: "100%" }}>
-                <h3>Recent Activity</h3>
-                <p>Latest actions requiring your attention</p>
+                <h3>Monthly Revenue</h3>
+                <p>Revenue trends over the last 6 months</p>
               </Box>
               <Box sx={{ width: "100%" }}>
                 <BarCharts

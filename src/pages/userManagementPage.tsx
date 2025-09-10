@@ -132,13 +132,10 @@ function UserManagementPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Pending Property Validations"
-              icon={ApartmentOutlinedIcon}
+              title="Total Users"
               value={1200}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              progressText="+170 this month"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
         </Grid>
@@ -148,13 +145,10 @@ function UserManagementPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Provider Moderation Cases"
-              icon={HowToRegOutlinedIcon}
+              title="Active Subscriptions"
               value={1200}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              progressText="+95 this month"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
         </Grid>
@@ -164,13 +158,10 @@ function UserManagementPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Active Users"
-              icon={GroupOutlinedIcon}
-              value={1200}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              title="Revenue (Monthly)"
+              value={"67,000"}
+              progressText="+15.3% from last month"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
         </Grid>
@@ -180,13 +171,10 @@ function UserManagementPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Monthly Revenue"
-              icon={EuroOutlinedIcon}
-              value={1200}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              title="Support Tickets"
+              value={23}
+              progressText="-5 from yesterday"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
         </Grid>

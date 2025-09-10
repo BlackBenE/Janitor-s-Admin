@@ -93,13 +93,13 @@ function MyCustomToolbar() {
   );
 }
 
-interface DataTableProps<T> {
+interface DataTableProps<T extends Record<string, unknown>> {
   columns: GridColDef[];
   data: T[];
   renderActions?: (row: T) => React.ReactNode;
 }
 
-function DataTable<T extends { [key: string]: any }>({
+function DataTable<T extends Record<string, unknown>>({
   columns,
   data,
   renderActions,

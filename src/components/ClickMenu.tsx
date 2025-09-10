@@ -8,14 +8,14 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Stack from "@mui/material/Stack";
 
-interface MenuItem {
+interface MenuItemType {
   label: string;
   onClick?: (event: React.MouseEvent<HTMLLIElement>) => void;
 }
 
 interface ClickMenuProps {
   buttonLabel?: React.ReactNode;
-  menuItems: MenuItem[];
+  menuItems: MenuItemType[];
   buttonProps?: ButtonProps;
 }
 

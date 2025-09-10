@@ -6,9 +6,10 @@ import {
   memo,
   useRef,
   useEffect,
+  useMemo,
 } from "react";
 import { styled } from "@mui/material/styles";
-import InputBase, { InputBaseProps } from "@mui/material/InputBase";
+import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import { debounce } from "lodash";
 import { Box } from "@mui/material";
@@ -83,7 +84,6 @@ const SearchBar: FC<SearchBarProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const { handleSearchResultClick } = useSearchNavigation();
@@ -104,32 +104,31 @@ const SearchBar: FC<SearchBarProps> = ({
   }, []);
 
   // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce(async (query: string) => {
-      if (query.length >= 2) {
-        setIsSearching(true);
-        try {
-          const searchResults = await searchEntities(query);
-          setResults(searchResults);
-          setShowResults(true);
-        } catch (error) {
-          console.error("Search failed:", error);
-          setResults([]);
-        } finally {
-          setIsSearching(false);
-        }
-      } else {
+  const debouncedSearch = useCallback(async (query: string) => {
+    if (query.length >= 2) {
+      try {
+        const searchResults = await searchEntities(query);
+        setResults(searchResults);
+        setShowResults(true);
+      } catch (error) {
+        console.error("Search failed:", error);
         setResults([]);
-        setShowResults(false);
       }
-    }, debounceMs),
-    [debounceMs]
+    } else {
+      setResults([]);
+      setShowResults(false);
+    }
+  }, []);
+
+  const debouncedSearchWithDelay = useMemo(
+    () => debounce(debouncedSearch, debounceMs),
+    [debouncedSearch, debounceMs]
   );
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
     setSearchTerm(newValue);
-    debouncedSearch(newValue);
+    debouncedSearchWithDelay(newValue);
   };
 
   const handleResultClick = (result: SearchResult) => {

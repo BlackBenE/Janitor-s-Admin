@@ -15,12 +15,15 @@ function DashboardPage() {
     <AdminLayout>
       <Box>
         <h2>Dashboard Overview</h2>
-        <p>Welcome back! Here's what's happening with your platform today.</p>
+        <p>
+          Welcome back! Here`&apos;`s what`&apos;`s happening with your platform
+          today.
+        </p>
       </Box>
       <Grid container spacing={3} sx={{ width: "100%", display: "flex" }}>
         <Grid
           size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 230 }}
+          sx={{ display: "flex", flex: 1, minWidth: 0 }}
         >
           <DashboardItem>
             <InfoCard
@@ -107,8 +110,8 @@ function DashboardPage() {
               }}
             >
               <Box sx={{ mb: 2, width: "100%" }}>
-                <h3>Monthly Revenue</h3>
-                <p>Revenue trends over the last 6 months</p>
+                <h3>Recent Activity</h3>
+                <p>Latest actions requiring your attention</p>
               </Box>
               <Box sx={{ width: "100%" }}>
                 <BarCharts

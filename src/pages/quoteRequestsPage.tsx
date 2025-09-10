@@ -197,7 +197,7 @@ function QuoteRequestsPage() {
         <DataTable
           columns={columns}
           data={data}
-          renderActions={(row) => (
+          renderActions={() => (
             <>
               <button>Edit</button>
               <button>Delete</button>

@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
 import Form, { FormField } from "../components/Form";
+import { useAuth } from "../hooks/useAuth";
 
 const loginFields: FormField[] = [
   {
@@ -18,11 +19,11 @@ const loginFields: FormField[] = [
 ];
 
 function Login() {
+  const { signIn } = useAuth();
+
   const handleSubmit = async (data: Record<string, string>) => {
     try {
-      // Add your login logic here
-      console.log("Login attempt with:", data);
-      // Example: await loginUser(data.email, data.password);
+      await signIn(data.email, data.password);
     } catch (error) {
       console.error("Login failed:", error);
     }

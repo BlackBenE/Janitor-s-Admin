@@ -1,9 +1,5 @@
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import EuroOutlinedIcon from "@mui/icons-material/EuroOutlined";
-import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
-import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
-import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 
 import AdminLayout from "../components/AdminLayout";
 import InfoCard from "../components/InfoCard";
@@ -186,7 +182,7 @@ function UserManagementPage() {
         <DataTable
           columns={columns}
           data={data}
-          renderActions={(row) => (
+          renderActions={() => (
             <>
               <button>Edit</button>
               <button>Delete</button>

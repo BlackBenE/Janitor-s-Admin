@@ -25,11 +25,13 @@ import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 interface Route {
   path: string;
   element: React.ReactElement;
-  icon?: OverridableComponent<SvgIconTypeMap<{}, "svg">> & { muiName: string };
+  icon?: OverridableComponent<SvgIconTypeMap<object, "svg">> & {
+    muiName: string;
+  };
 }
 
 export const routes: Route[] = [
-  { path: "/", element: <DashboardPage />, icon: AppsOutlinedIcon },
+  { path: "/dashboard", element: <DashboardPage />, icon: AppsOutlinedIcon },
   {
     path: "/property-approvals",
     element: <PropertyApprovalsPage />,

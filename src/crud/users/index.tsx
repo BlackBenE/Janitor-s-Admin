@@ -64,48 +64,59 @@ const UsersPage = () => {
       field: "role" as keyof Profile,
       label: "Role",
       sortable: true,
-      render: (value: string) => (
-        <Chip
-          label={value}
-          color={
-            value === "admin"
-              ? "primary"
-              : value === "provider"
-              ? "secondary"
-              : "default"
-          }
-          size="small"
-        />
-      ),
+      render: (value: unknown) => {
+        const role = value as string;
+        return (
+          <Chip
+            label={role}
+            color={
+              role === "admin"
+                ? "primary"
+                : role === "provider"
+                ? "secondary"
+                : "default"
+            }
+            size="small"
+          />
+        );
+      },
     },
     {
       field: "profile_validated" as keyof Profile,
       label: "Validated",
-      render: (value: boolean) => (
-        <Chip
-          label={value ? "Yes" : "No"}
-          color={value ? "success" : "warning"}
-          size="small"
-        />
-      ),
+      render: (value: unknown) => {
+        const validated = value as boolean;
+        return (
+          <Chip
+            label={validated ? "Yes" : "No"}
+            color={validated ? "success" : "warning"}
+            size="small"
+          />
+        );
+      },
     },
     {
       field: "vip_subscription" as keyof Profile,
       label: "VIP",
-      render: (value: boolean) => (
-        <Chip
-          label={value ? "VIP" : "Regular"}
-          color={value ? "primary" : "default"}
-          size="small"
-        />
-      ),
+      render: (value: unknown) => {
+        const isVip = value as boolean;
+        return (
+          <Chip
+            label={isVip ? "VIP" : "Regular"}
+            color={isVip ? "primary" : "default"}
+            size="small"
+          />
+        );
+      },
     },
     {
       field: "created_at" as keyof Profile,
       label: "Created",
       sortable: true,
-      render: (value: string) =>
-        value ? new Date(value).toLocaleDateString() : "-",
+      render: (value: unknown) => {
+        const dateValue = value as string;
+        return dateValue ? new Date(dateValue).toLocaleDateString() : "-";
+      },
     },
   ];
 

@@ -194,9 +194,14 @@ const PropertyForm: React.FC = () => {
 
     try {
       if (isEdit && id) {
-        await updateMutation.update(id, formData);
+        await updateMutation.updateResource(
+          id,
+          formData as unknown as Record<string, unknown>
+        );
       } else {
-        await createMutation.create(formData);
+        await createMutation.createResource(
+          formData as unknown as Record<string, unknown>
+        );
       }
       navigate("/property-approvals");
     } catch (error) {

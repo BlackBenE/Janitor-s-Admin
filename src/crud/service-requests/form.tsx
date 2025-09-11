@@ -157,9 +157,14 @@ const ServiceRequestForm: React.FC = () => {
       };
 
       if (isEdit && id) {
-        await updateMutation.update(id, submitData);
+        await updateMutation.updateResource(
+          id,
+          submitData as unknown as Record<string, unknown>
+        );
       } else {
-        await createMutation.create(submitData);
+        await createMutation.createResource(
+          submitData as unknown as Record<string, unknown>
+        );
       }
       navigate("/quote-requests");
     } catch (error) {

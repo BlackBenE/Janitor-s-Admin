@@ -52,60 +52,83 @@ const ServiceRequestsPage = () => {
     {
       field: "id" as keyof ServiceRequest,
       label: "Request ID",
-      render: (value: string) => value.slice(0, 8) + "...",
+      render: (value: unknown) => {
+        const id = value as string;
+        return id.slice(0, 8) + "...";
+      },
     },
     {
       field: "service_id" as keyof ServiceRequest,
       label: "Service",
-      render: (value: string) => value.slice(0, 8) + "...",
+      render: (value: unknown) => {
+        const serviceId = value as string;
+        return serviceId.slice(0, 8) + "...";
+      },
     },
     {
       field: "requester_id" as keyof ServiceRequest,
       label: "Requester",
-      render: (value: string) => value.slice(0, 8) + "...",
+      render: (value: unknown) => {
+        const requesterId = value as string;
+        return requesterId.slice(0, 8) + "...";
+      },
     },
     {
       field: "requested_date" as keyof ServiceRequest,
       label: "Requested Date",
       sortable: true,
-      render: (value: string) => new Date(value).toLocaleDateString(),
+      render: (value: unknown) => {
+        const dateValue = value as string;
+        return new Date(dateValue).toLocaleDateString();
+      },
     },
     {
       field: "total_amount" as keyof ServiceRequest,
       label: "Amount",
       sortable: true,
-      render: (value: number) => `$${value}`,
+      render: (value: unknown) => {
+        const amount = value as number;
+        return `$${amount}`;
+      },
     },
     {
       field: "status" as keyof ServiceRequest,
       label: "Status",
-      render: (value: string) => (
-        <Chip
-          label={value || "pending"}
-          color={
-            value === "completed"
-              ? "success"
-              : value === "cancelled"
-              ? "error"
-              : value === "in_progress"
-              ? "info"
-              : "warning"
-          }
-          size="small"
-        />
-      ),
+      render: (value: unknown) => {
+        const status = value as string;
+        return (
+          <Chip
+            label={status || "pending"}
+            color={
+              status === "completed"
+                ? "success"
+                : status === "cancelled"
+                ? "error"
+                : status === "in_progress"
+                ? "info"
+                : "warning"
+            }
+            size="small"
+          />
+        );
+      },
     },
     {
       field: "duration_minutes" as keyof ServiceRequest,
       label: "Duration",
-      render: (value: number) => (value ? `${value} min` : "-"),
+      render: (value: unknown) => {
+        const duration = value as number;
+        return duration ? `${duration} min` : "-";
+      },
     },
     {
       field: "created_at" as keyof ServiceRequest,
       label: "Created",
       sortable: true,
-      render: (value: string) =>
-        value ? new Date(value).toLocaleDateString() : "-",
+      render: (value: unknown) => {
+        const dateValue = value as string;
+        return dateValue ? new Date(dateValue).toLocaleDateString() : "-";
+      },
     },
   ];
 

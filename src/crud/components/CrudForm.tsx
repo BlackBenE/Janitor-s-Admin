@@ -61,12 +61,12 @@ export function CrudForm<T extends Record<string, unknown>>({
     loading: fetchLoading,
   } = useFormData(resource, id);
   const {
-    create,
+    createResource,
     loading: createLoading,
     error: createError,
   } = useCreate(resource);
   const {
-    update,
+    updateResource,
     loading: updateLoading,
     error: updateError,
   } = useUpdate(resource);
@@ -109,9 +109,9 @@ export function CrudForm<T extends Record<string, unknown>>({
       let result;
 
       if (isEdit && id) {
-        result = await update(id, formData);
+        result = await updateResource(id, formData);
       } else {
-        result = await create(formData);
+        result = await createResource(formData);
       }
 
       if (result && onSave) {
@@ -127,7 +127,13 @@ export function CrudForm<T extends Record<string, unknown>>({
   const renderField = (field: FormField) => {
     const value = formData[field.name] || "";
     const error = errors[field.name];
-    const fieldOptions = values[field.name] || field.options || [];
+    const fieldOptions =
+      (values?.[field.name] as Array<{
+        label: string;
+        value: string | number;
+      }>) ||
+      field.options ||
+      [];
 
     switch (field.type) {
       case "select":

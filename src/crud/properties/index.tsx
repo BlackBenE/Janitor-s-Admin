@@ -68,48 +68,64 @@ const PropertiesPage = () => {
       field: "city" as keyof Property,
       label: "Location",
       sortable: true,
-      render: (value: string, record: Property) =>
-        `${value}, ${record.address}`,
+      render: (value: unknown, record: Property) => {
+        const cityValue = value as string;
+        return `${cityValue}, ${record.address}`;
+      },
     },
     {
       field: "nightly_rate" as keyof Property,
       label: "Nightly Rate",
       sortable: true,
-      render: (value: number) => `$${value}`,
+      render: (value: unknown) => {
+        const rate = value as number;
+        return `$${rate}`;
+      },
     },
     {
       field: "bedrooms" as keyof Property,
       label: "Bedrooms",
-      render: (value: number) => value || "-",
+      render: (value: unknown) => {
+        const bedrooms = value as number;
+        return bedrooms || "-";
+      },
     },
     {
       field: "capacity" as keyof Property,
       label: "Capacity",
-      render: (value: number) => `${value} guests`,
+      render: (value: unknown) => {
+        const capacity = value as number;
+        return `${capacity} guests`;
+      },
     },
     {
       field: "validation_status" as keyof Property,
       label: "Status",
-      render: (value: string) => (
-        <Chip
-          label={value || "pending"}
-          color={
-            value === "approved"
-              ? "success"
-              : value === "rejected"
-              ? "error"
-              : "warning"
-          }
-          size="small"
-        />
-      ),
+      render: (value: unknown) => {
+        const status = value as string;
+        return (
+          <Chip
+            label={status || "pending"}
+            color={
+              status === "approved"
+                ? "success"
+                : status === "rejected"
+                ? "error"
+                : "warning"
+            }
+            size="small"
+          />
+        );
+      },
     },
     {
       field: "created_at" as keyof Property,
       label: "Submitted",
       sortable: true,
-      render: (value: string) =>
-        value ? new Date(value).toLocaleDateString() : "-",
+      render: (value: unknown) => {
+        const dateValue = value as string;
+        return dateValue ? new Date(dateValue).toLocaleDateString() : "-";
+      },
     },
   ];
 

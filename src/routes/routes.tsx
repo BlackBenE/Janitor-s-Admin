@@ -4,7 +4,7 @@ import { OverridableComponent } from "@mui/material/OverridableComponent";
 import DashboardPage from "../pages/dashboardPage";
 import FinancialOverviewPage from "../pages/financialOverviewPage";
 import InvoicesPage from "../pages/InvoicesPage";
-import Login from "../pages/loginPage";
+import AuthPage from "../pages/authPage";
 import ProfilePage from "../pages/profilePage";
 import PropertyApprovalsPage from "../pages/propertyApprovalsPage";
 import ProvidersModerationPage from "../pages/providersModerationPage";
@@ -12,6 +12,11 @@ import QuoteRequestsPage from "../pages/quoteRequestsPage";
 import ServicesCatalogPage from "../pages/servicesCatalogPage";
 import SettingsPage from "../pages/settingsPage";
 import UserManagementPage from "../pages/userManagementPage";
+import ProtectedRoute from "../components/ProtectedRoute";
+import AdminLayout from "../components/AdminLayout";
+import UserForm from "../crud/users/form";
+import PropertyForm from "../crud/properties/form";
+import ServiceRequestForm from "../crud/service-requests/form";
 import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
@@ -28,49 +33,208 @@ interface Route {
   icon?: OverridableComponent<SvgIconTypeMap<object, "svg">> & {
     muiName: string;
   };
+  protected?: boolean;
 }
 
 export const routes: Route[] = [
-  { path: "/dashboard", element: <DashboardPage />, icon: AppsOutlinedIcon },
+  {
+    path: "/dashboard",
+    element: (
+      <ProtectedRoute>
+        <DashboardPage />
+      </ProtectedRoute>
+    ),
+    icon: AppsOutlinedIcon,
+    protected: true,
+  },
   {
     path: "/property-approvals",
-    element: <PropertyApprovalsPage />,
+    element: (
+      <ProtectedRoute>
+        <PropertyApprovalsPage />
+      </ProtectedRoute>
+    ),
     icon: ApartmentOutlinedIcon,
+    protected: true,
+  },
+  // Property CRUD routes
+  {
+    path: "/property-approvals/create",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout>
+          <PropertyForm />
+        </AdminLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/property-approvals/:id/edit",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout>
+          <PropertyForm />
+        </AdminLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/property-approvals/:id",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout>
+          <PropertyForm />
+        </AdminLayout>
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/providers-moderation",
-    element: <ProvidersModerationPage />,
+    element: (
+      <ProtectedRoute>
+        <ProvidersModerationPage />
+      </ProtectedRoute>
+    ),
     icon: HowToRegOutlinedIcon,
+    protected: true,
   },
   {
     path: "/user-management",
-    element: <UserManagementPage />,
+    element: (
+      <ProtectedRoute>
+        <UserManagementPage />
+      </ProtectedRoute>
+    ),
     icon: GroupOutlinedIcon,
+    protected: true,
   },
-
+  // User CRUD routes
+  {
+    path: "/user-management/create",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout>
+          <UserForm />
+        </AdminLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/user-management/:id/edit",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout>
+          <UserForm />
+        </AdminLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/user-management/:id",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout>
+          <UserForm />
+        </AdminLayout>
+      </ProtectedRoute>
+    ),
+  },
   {
     path: "/financial-overview",
-    element: <FinancialOverviewPage />,
+    element: (
+      <ProtectedRoute>
+        <FinancialOverviewPage />
+      </ProtectedRoute>
+    ),
     icon: EuroOutlinedIcon,
+    protected: true,
   },
   {
     path: "/services-catalog",
-    element: <ServicesCatalogPage />,
+    element: (
+      <ProtectedRoute>
+        <ServicesCatalogPage />
+      </ProtectedRoute>
+    ),
     icon: MedicalInformationOutlinedIcon,
+    protected: true,
   },
   {
     path: "/invoices",
-    element: <InvoicesPage />,
+    element: (
+      <ProtectedRoute>
+        <InvoicesPage />
+      </ProtectedRoute>
+    ),
     icon: DescriptionOutlinedIcon,
+    protected: true,
   },
-  { path: "/login", element: <Login /> },
-  { path: "/profile", element: <ProfilePage /> },
-
   {
     path: "/quote-requests",
-    element: <QuoteRequestsPage />,
+    element: (
+      <ProtectedRoute>
+        <QuoteRequestsPage />
+      </ProtectedRoute>
+    ),
     icon: ChatBubbleOutlineOutlinedIcon,
+    protected: true,
   },
-
-  { path: "/settings", element: <SettingsPage />, icon: SettingsOutlinedIcon },
+  // Service Request CRUD routes
+  {
+    path: "/quote-requests/create",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout>
+          <ServiceRequestForm />
+        </AdminLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/quote-requests/:id/edit",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout>
+          <ServiceRequestForm />
+        </AdminLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/quote-requests/:id",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout>
+          <ServiceRequestForm />
+        </AdminLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/profile",
+    element: (
+      <ProtectedRoute>
+        <ProfilePage />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  {
+    path: "/settings",
+    element: (
+      <ProtectedRoute>
+        <SettingsPage />
+      </ProtectedRoute>
+    ),
+    icon: SettingsOutlinedIcon,
+    protected: true,
+  },
+  // Public routes
+  { path: "/auth", element: <AuthPage /> },
+  { path: "/login", element: <AuthPage /> }, // Redirect old login path
 ];
+
+// Export only protected routes for sidebar navigation
+export const protectedRoutes = routes.filter(
+  (route) => route.protected && route.icon
+);

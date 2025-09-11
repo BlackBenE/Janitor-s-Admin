@@ -78,17 +78,35 @@ export const useAuth = create<AuthState>((set) => ({
     if (error) throw error;
 
     if (data.user) {
-      // Create admin profile
-      const { error: profileError } = await supabase.from("profiles").insert({
-        id: data.user.id,
-        email: data.user.email!,
-        full_name: fullName,
-        role: "admin",
-        profile_validated: true,
-      });
+      // Wait for automatic profile creation trigger to complete
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      if (profileError) {
-        throw new Error("Failed to create admin profile");
+      // Use database function to set admin role with elevated privileges
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: functionError } = await (supabase.rpc as any)(
+        "set_user_admin_role",
+        {
+          user_id: data.user.id,
+          user_email: data.user.email!,
+          user_name: fullName,
+        }
+      );
+
+      if (functionError) {
+        console.error("Function error:", functionError);
+        // Fallback to direct update
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({
+            full_name: fullName,
+            role: "admin",
+            profile_validated: true,
+          })
+          .eq("id", data.user.id);
+
+        if (updateError) {
+          throw new Error("Failed to set admin role. Please contact support.");
+        }
       }
     }
 

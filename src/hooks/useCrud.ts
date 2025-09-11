@@ -16,25 +16,30 @@ export function useList<
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const refetch = async (newParams?: GetListParams) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await dataProvider.getList<T>(
-        resource,
-        newParams || params || {}
-      );
-      setData(result);
-    } catch (err) {
-      setError(err as Error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const refetch = useCallback(
+    async (newParams?: GetListParams) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const result = await dataProvider.getList<T>(
+          resource,
+          newParams || params || {}
+        );
+        setData(result);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [resource, params]
+  );
+
+  const paramsString = JSON.stringify(params);
 
   useEffect(() => {
     refetch();
-  }, [resource, JSON.stringify(params)]);
+  }, [refetch, resource, paramsString]);
 
   return {
     data: data?.items || [],
@@ -54,7 +59,7 @@ export function useGetOne<
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -66,13 +71,13 @@ export function useGetOne<
     } finally {
       setLoading(false);
     }
-  };
+  }, [resource, id]);
 
   useEffect(() => {
     if (id) {
       refetch();
     }
-  }, [resource, id]);
+  }, [refetch, resource, id]);
 
   return {
     data,
@@ -182,7 +187,7 @@ export function useFormData<
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchFormData = async () => {
+  const fetchFormData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -201,11 +206,11 @@ export function useFormData<
     } finally {
       setLoading(false);
     }
-  };
+  }, [resource, id]);
 
   useEffect(() => {
     fetchFormData();
-  }, [resource, id]);
+  }, [fetchFormData, resource, id]);
 
   return {
     data,

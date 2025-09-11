@@ -1,4 +1,4 @@
-function ProfileMenu() {
+export default function ProfileMenu() {
   return (
     <div>
       <h2>Profile Menu</h2>

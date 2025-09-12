@@ -64,7 +64,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
           {routes
             .filter(
               (route: Route) =>
-                route.path !== "/login" &&
+                route.path !== "/auth" &&
                 route.path !== "/settings" &&
                 route.path !== "/profile"
             )
@@ -131,8 +131,8 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
       </Box>
       <Box sx={{ mb: 2 }}>
         <Divider sx={{ my: 2 }} />
-        <Box sx={{ width: "100%", display: "flex", px: 2 }}>
-          <ProfileButton />
+        <Box sx={{ width: "100%", px: 1 }}>
+          <ProfileButton compact />
         </Box>
       </Box>
     </Box>

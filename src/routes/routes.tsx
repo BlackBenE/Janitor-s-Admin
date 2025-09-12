@@ -13,10 +13,6 @@ import ServicesCatalogPage from "../pages/servicesCatalogPage";
 import SettingsPage from "../pages/settingsPage";
 import UserManagementPage from "../pages/userManagementPage";
 import ProtectedRoute from "../components/ProtectedRoute";
-import AdminLayout from "../components/AdminLayout";
-import UserForm from "../crud/users/form";
-import PropertyForm from "../crud/properties/form";
-import ServiceRequestForm from "../crud/service-requests/form";
 import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
@@ -57,37 +53,6 @@ export const routes: Route[] = [
     icon: ApartmentOutlinedIcon,
     protected: true,
   },
-  // Property CRUD routes
-  {
-    path: "/property-approvals/create",
-    element: (
-      <ProtectedRoute>
-        <AdminLayout>
-          <PropertyForm />
-        </AdminLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/property-approvals/:id/edit",
-    element: (
-      <ProtectedRoute>
-        <AdminLayout>
-          <PropertyForm />
-        </AdminLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/property-approvals/:id",
-    element: (
-      <ProtectedRoute>
-        <AdminLayout>
-          <PropertyForm />
-        </AdminLayout>
-      </ProtectedRoute>
-    ),
-  },
   {
     path: "/providers-moderation",
     element: (
@@ -107,37 +72,6 @@ export const routes: Route[] = [
     ),
     icon: GroupOutlinedIcon,
     protected: true,
-  },
-  // User CRUD routes
-  {
-    path: "/user-management/create",
-    element: (
-      <ProtectedRoute>
-        <AdminLayout>
-          <UserForm />
-        </AdminLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/user-management/:id/edit",
-    element: (
-      <ProtectedRoute>
-        <AdminLayout>
-          <UserForm />
-        </AdminLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/user-management/:id",
-    element: (
-      <ProtectedRoute>
-        <AdminLayout>
-          <UserForm />
-        </AdminLayout>
-      </ProtectedRoute>
-    ),
   },
   {
     path: "/financial-overview",
@@ -179,37 +113,6 @@ export const routes: Route[] = [
     icon: ChatBubbleOutlineOutlinedIcon,
     protected: true,
   },
-  // Service Request CRUD routes
-  {
-    path: "/quote-requests/create",
-    element: (
-      <ProtectedRoute>
-        <AdminLayout>
-          <ServiceRequestForm />
-        </AdminLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/quote-requests/:id/edit",
-    element: (
-      <ProtectedRoute>
-        <AdminLayout>
-          <ServiceRequestForm />
-        </AdminLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/quote-requests/:id",
-    element: (
-      <ProtectedRoute>
-        <AdminLayout>
-          <ServiceRequestForm />
-        </AdminLayout>
-      </ProtectedRoute>
-    ),
-  },
   {
     path: "/profile",
     element: (
@@ -231,7 +134,6 @@ export const routes: Route[] = [
   },
   // Public routes
   { path: "/auth", element: <AuthPage /> },
-  { path: "/login", element: <AuthPage /> }, // Redirect old login path
 ];
 
 // Export only protected routes for sidebar navigation

@@ -1,320 +1,187 @@
-import { supabase } from "../lib/supabase";
-import { Database } from "../types/database.types";
+import type { Database } from "../types/database.types";
+import { supabase } from "../lib/supabaseClient";
 
-// Admiral-style interfaces
-export interface GetListParams {
-  pagination?: { page: number; perPage: number };
-  sort?: { field: string; order: "ASC" | "DESC" };
-  filter?: Record<string, unknown>;
+type TableName = keyof Database["public"]["Tables"];
+type RowType<T extends TableName> = Database["public"]["Tables"][T]["Row"];
+type InsertType<T extends TableName> =
+  Database["public"]["Tables"][T]["Insert"];
+type UpdateType<T extends TableName> =
+  Database["public"]["Tables"][T]["Update"];
+
+export class DataProviderError<T extends TableName = TableName> extends Error {
+  constructor(
+    message: string,
+    public table: T,
+    public operation:
+      | "getList"
+      | "getOne"
+      | "create"
+      | "createMany"
+      | "update"
+      | "delete"
+      | "deleteMany",
+    public details?: unknown
+  ) {
+    super(`[${operation.toUpperCase()}] ${message}`);
+    this.name = "DataProviderError";
+  }
 }
 
-export interface GetListResult<T = Record<string, unknown>> {
-  items: T[];
-  meta: {
-    current_page: number;
-    from: number;
-    last_page: number;
-    per_page: number;
-    to: number;
-    total: number;
-  };
-}
+export type DataProviderResponse<T> = {
+  success: boolean;
+  data: T | null;
+  error?: DataProviderError;
+};
 
-export interface GetOneParams {
-  id: string;
-}
+export const dataProvider = {
+  async getList<T extends TableName>(
+    table: T,
+    options?: { limit?: number; offset?: number; orderBy?: keyof RowType<T> },
+    filters?: Partial<RowType<T>>
+  ): Promise<DataProviderResponse<RowType<T>[]>> {
+    let query = supabase.from(table).select("*");
 
-export interface GetOneResult<T = Record<string, unknown>> {
-  data: T;
-  values?: Record<string, unknown>;
-}
-
-export interface CreateParams {
-  data: Record<string, unknown>;
-}
-
-export interface CreateResult<T = Record<string, unknown>> {
-  data: T;
-}
-
-export interface UpdateParams {
-  id: string;
-  data: Record<string, unknown>;
-}
-
-export interface UpdateResult<T = Record<string, unknown>> {
-  data: T;
-}
-
-export interface DeleteParams {
-  id: string;
-}
-
-export interface DeleteResult<T = Record<string, unknown>> {
-  data: T;
-}
-
-export interface GetFormDataResult<T = Record<string, unknown>> {
-  data?: T;
-  values: Record<string, unknown>;
-}
-
-export interface GetFiltersFormDataResult {
-  filters: Record<string, unknown>;
-}
-
-// Valid table names from your schema
-type ValidTableName = keyof Database["public"]["Tables"];
-
-// Main DataProvider interface (Admiral-style)
-export interface DataProvider {
-  getList: <T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: GetListParams
-  ) => Promise<GetListResult<T>>;
-
-  getOne: <T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: GetOneParams
-  ) => Promise<GetOneResult<T>>;
-
-  getCreateFormData: <T = Record<string, unknown>>(
-    resource: ValidTableName
-  ) => Promise<GetFormDataResult<T>>;
-
-  getUpdateFormData: <T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: GetOneParams
-  ) => Promise<GetFormDataResult<T>>;
-
-  getFiltersFormData: (
-    resource: ValidTableName
-  ) => Promise<GetFiltersFormDataResult>;
-
-  create: <T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: CreateParams
-  ) => Promise<CreateResult<T>>;
-
-  update: <T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: UpdateParams
-  ) => Promise<UpdateResult<T>>;
-
-  deleteOne: <T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: DeleteParams
-  ) => Promise<DeleteResult<T>>;
-}
-
-// Supabase DataProvider implementation
-class SupabaseDataProvider implements DataProvider {
-  async getList<T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: GetListParams
-  ): Promise<GetListResult<T>> {
-    const { pagination = { page: 1, perPage: 10 }, sort, filter = {} } = params;
-
-    let query = supabase.from(resource).select("*", { count: "exact" });
-
-    // Apply filters
-    Object.entries(filter).forEach(([field, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        if (typeof value === "string") {
-          query = query.ilike(field, `%${value}%`);
-        } else {
-          query = query.eq(field, value);
-        }
-      }
-    });
-
-    // Apply sorting
-    if (sort) {
-      query = query.order(sort.field, { ascending: sort.order === "ASC" });
+    if (filters) {
+      (
+        Object.entries(filters) as [
+          keyof RowType<T>,
+          RowType<T>[keyof RowType<T>]
+        ][]
+      ).forEach(([key, value]) => {
+        query = query.eq(key as string, value);
+      });
     }
 
-    // Apply pagination
-    const from = (pagination.page - 1) * pagination.perPage;
-    const to = from + pagination.perPage - 1;
-    query = query.range(from, to);
+    if (options?.orderBy) query = query.order(options.orderBy as string);
+    if (options?.limit) query = query.limit(options.limit);
+    if (options?.offset)
+      query = query.range(
+        options.offset,
+        options.offset + (options.limit ?? 10) - 1
+      );
 
-    const { data, error, count } = await query;
+    const { data, error } = await query;
 
-    if (error) throw error;
+    if (error)
+      return {
+        success: false,
+        data: null,
+        error: new DataProviderError(error.message, table, "getList", error),
+      };
 
-    const total = count || 0;
-    const totalPages = Math.ceil(total / pagination.perPage);
+    return { success: true, data: data ?? [] };
+  },
 
-    return {
-      items: data as T[],
-      meta: {
-        current_page: pagination.page,
-        from: from + 1,
-        last_page: totalPages,
-        per_page: pagination.perPage,
-        to: Math.min(to + 1, total),
-        total,
-      },
-    };
-  }
-
-  async getOne<T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: GetOneParams
-  ): Promise<GetOneResult<T>> {
+  async getOne<T extends TableName>(
+    table: T,
+    id: string
+  ): Promise<DataProviderResponse<RowType<T>>> {
     const { data, error } = await supabase
-      .from(resource)
+      .from(table)
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
-    if (error) throw error;
+    if (error)
+      return {
+        success: false,
+        data: null,
+        error: new DataProviderError(error.message, table, "getOne", error),
+      };
 
-    return {
-      data: data as T,
-      values: await this.getRelatedData(resource),
-    };
-  }
+    return { success: true, data: data ?? null };
+  },
 
-  async getCreateFormData<T = Record<string, unknown>>(
-    resource: ValidTableName
-  ): Promise<GetFormDataResult<T>> {
-    return {
-      values: await this.getRelatedData(resource),
-    };
-  }
-
-  async getUpdateFormData<T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: GetOneParams
-  ): Promise<GetFormDataResult<T>> {
+  async create<T extends TableName>(
+    table: T,
+    payload: InsertType<T>
+  ): Promise<DataProviderResponse<RowType<T>>> {
     const { data, error } = await supabase
-      .from(resource)
-      .select("*")
-      .eq("id", params.id)
-      .single();
-
-    if (error) throw error;
-
-    return {
-      data: data as T,
-      values: await this.getRelatedData(resource),
-    };
-  }
-
-  async getFiltersFormData(
-    resource: ValidTableName
-  ): Promise<GetFiltersFormDataResult> {
-    return {
-      filters: await this.getRelatedData(resource),
-    };
-  }
-
-  async create<T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: CreateParams
-  ): Promise<CreateResult<T>> {
-    const { data, error } = await supabase
-      .from(resource)
-      .insert(params.data as never)
+      .from(table)
+      .insert(payload)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error)
+      return {
+        success: false,
+        data: null,
+        error: new DataProviderError(error.message, table, "create", error),
+      };
 
-    return { data: data as T };
-  }
+    return { success: true, data: data ?? null };
+  },
 
-  async update<T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: UpdateParams
-  ): Promise<UpdateResult<T>> {
+  async createMany<T extends TableName>(
+    table: T,
+    payloads: InsertType<T>[]
+  ): Promise<DataProviderResponse<RowType<T>[]>> {
     const { data, error } = await supabase
-      .from(resource)
-      .update(params.data as never)
-      .eq("id", params.id)
+      .from(table)
+      .insert(payloads)
+      .select();
+
+    if (error)
+      return {
+        success: false,
+        data: null,
+        error: new DataProviderError(error.message, table, "createMany", error),
+      };
+
+    return { success: true, data: data ?? [] };
+  },
+
+  async update<T extends TableName>(
+    table: T,
+    id: string,
+    payload: UpdateType<T>
+  ): Promise<DataProviderResponse<RowType<T>>> {
+    const { data, error } = await supabase
+      .from(table)
+      .update(payload)
+      .eq("id", id)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error)
+      return {
+        success: false,
+        data: null,
+        error: new DataProviderError(error.message, table, "update", error),
+      };
 
-    return { data: data as T };
-  }
+    return { success: true, data: data ?? null };
+  },
 
-  async deleteOne<T = Record<string, unknown>>(
-    resource: ValidTableName,
-    params: DeleteParams
-  ): Promise<DeleteResult<T>> {
-    const { data, error } = await supabase
-      .from(resource)
-      .delete()
-      .eq("id", params.id)
-      .select()
-      .single();
+  async delete<T extends TableName>(
+    table: T,
+    id: string
+  ): Promise<DataProviderResponse<{ id: string }>> {
+    const { error } = await supabase.from(table).delete().eq("id", id);
 
-    if (error) throw error;
+    if (error)
+      return {
+        success: false,
+        data: null,
+        error: new DataProviderError(error.message, table, "delete", error),
+      };
 
-    return { data: data as T };
-  }
+    return { success: true, data: { id } };
+  },
 
-  // Helper method to get related data for selects
-  private async getRelatedData(
-    resource: ValidTableName
-  ): Promise<Record<string, unknown>> {
-    const relatedData: Record<string, unknown> = {};
+  async deleteMany<T extends TableName>(
+    table: T,
+    ids: string[]
+  ): Promise<DataProviderResponse<{ ids: string[] }>> {
+    const { error } = await supabase.from(table).delete().in("id", ids);
 
-    // Define relationships based on your schema
-    const relationships: Record<string, string[]> = {
-      properties: ["profiles:owner_id", "profiles:validated_by"],
-      bookings: ["profiles:traveler_id", "properties:property_id"],
-      service_requests: [
-        "profiles:requester_id",
-        "properties:property_id",
-        "services:service_id",
-      ],
-      services: ["profiles:provider_id"],
-      payments: ["profiles:payer_id", "profiles:payee_id"],
-      interventions: [
-        "profiles:provider_id",
-        "service_requests:service_request_id",
-      ],
-      reviews: ["profiles:reviewer_id", "profiles:reviewee_id"],
-      notifications: ["profiles:user_id"],
-      subscriptions: ["profiles:user_id"],
-    };
+    if (error)
+      return {
+        success: false,
+        data: null,
+        error: new DataProviderError(error.message, table, "deleteMany", error),
+      };
 
-    if (relationships[resource]) {
-      for (const relation of relationships[resource]) {
-        const [table, field] = relation.split(":");
-        try {
-          const { data } = await supabase
-            .from(table as ValidTableName)
-            .select("id, email, full_name, title, name")
-            .limit(100);
-
-          if (data) {
-            relatedData[field] = data.map((item) => {
-              const itemData = item as unknown as Record<string, unknown>;
-              return {
-                label:
-                  itemData.email ||
-                  itemData.full_name ||
-                  itemData.title ||
-                  itemData.name ||
-                  `ID: ${itemData.id}`,
-                value: itemData.id,
-              };
-            });
-          }
-        } catch (error) {
-          console.warn(`Failed to load related data for ${table}:`, error);
-        }
-      }
-    }
-
-    return relatedData;
-  }
-}
-
-// Export singleton instance
-export const dataProvider = new SupabaseDataProvider();
+    return { success: true, data: { ids } };
+  },
+};

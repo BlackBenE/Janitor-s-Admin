@@ -1,11 +1,10 @@
 import React from "react";
 import AdminLayout from "../components/AdminLayout";
-import PropertiesPage from "../crud/properties";
 
 const PropertyApprovalsPage = () => {
   return (
     <AdminLayout>
-      <PropertiesPage />
+      <h1>ok</h1>
     </AdminLayout>
   );
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -8,9 +8,11 @@ import {
   Typography,
   Alert,
   Button,
+  CircularProgress,
 } from "@mui/material";
+import { Navigate } from "react-router-dom";
 import Form, { FormField } from "../components/Form";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../providers/authProvider";
 
 type AuthView = "signin" | "signup" | "forgot-password";
 
@@ -57,6 +59,13 @@ const signupFields: FormField[] = [
     type: "text",
     required: true,
   },
+
+  {
+    name: "phone",
+    label: "Phone number",
+    type: "number",
+    required: true,
+  },
 ];
 
 const forgotPasswordFields: FormField[] = [
@@ -74,54 +83,143 @@ function AuthPage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
-  const { signIn, signUp, resetPassword } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { signIn, signUp, resetPassword, session, isAdmin, loading, error } =
+    useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!loading && session && isAdmin()) {
+      console.log("User already authenticated, should redirect to dashboard");
+    }
+  }, [session, isAdmin, loading]);
+
+  // Show global auth errors
+  useEffect(() => {
+    if (error) {
+      setMessage({
+        type: "error",
+        text: error,
+      });
+    }
+  }, [error]);
+
+  // Redirect authenticated admin users
+  if (!loading && session && isAdmin()) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // Show loading while auth is initializing
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        }}
+      >
+        <CircularProgress size={60} sx={{ color: "white" }} />
+      </Box>
+    );
+  }
 
   const handleSignIn = async (data: Record<string, string>) => {
     try {
       setMessage(null);
-      await signIn(data.email, data.password);
+      setIsSubmitting(true);
+
+      const result = await signIn(data.email, data.password);
+
+      if (result.error) {
+        setMessage({
+          type: "error",
+          text: result.error.message,
+        });
+      } else {
+        setMessage({
+          type: "success",
+          text: "Sign in successful! Redirecting...",
+        });
+        // Navigation will be handled by the useEffect/Navigate component
+      }
     } catch (error: unknown) {
       setMessage({
         type: "error",
         text: (error as Error).message || "Sign in failed",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleSignUp = async (data: Record<string, string>) => {
     try {
       setMessage(null);
+      setIsSubmitting(true);
+
       if (data.password !== data.confirmPassword) {
         setMessage({ type: "error", text: "Passwords don't match" });
         return;
       }
-      await signUp(data.email, data.password, data.fullName);
-      setMessage({
-        type: "success",
-        text: "Admin account created successfully. Please sign in.",
-      });
-      setCurrentView("signin");
+
+      const result = await signUp(
+        data.email,
+        data.password,
+        data.fullName,
+        data.phone
+      );
+
+      if (result.error) {
+        setMessage({
+          type: "error",
+          text: result.error.message,
+        });
+      } else {
+        setMessage({
+          type: "success",
+          text: "Admin account created successfully. Please sign in.",
+        });
+        setCurrentView("signin");
+      }
     } catch (error: unknown) {
       setMessage({
         type: "error",
         text: (error as Error).message || "Sign up failed",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleForgotPassword = async (data: Record<string, string>) => {
     try {
       setMessage(null);
-      await resetPassword(data.email);
-      setMessage({
-        type: "success",
-        text: "Password reset email sent. Check your inbox.",
-      });
+      setIsSubmitting(true);
+
+      const result = await resetPassword(data.email);
+
+      if (result.error) {
+        setMessage({
+          type: "error",
+          text: result.error.message,
+        });
+      } else {
+        setMessage({
+          type: "success",
+          text: "Password reset email sent. Check your inbox.",
+        });
+      }
     } catch (error: unknown) {
       setMessage({
         type: "error",
         text: (error as Error).message || "Password reset failed",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -133,7 +231,7 @@ function AuthPage() {
             title="Admin Sign In"
             fields={signinFields}
             onSubmit={handleSignIn}
-            submitButtonText="Sign In"
+            submitButtonText={isSubmitting ? "Signing In..." : "Sign In"}
           />
         );
       case "signup":
@@ -142,7 +240,9 @@ function AuthPage() {
             title="Create Admin Account"
             fields={signupFields}
             onSubmit={handleSignUp}
-            submitButtonText="Create Account"
+            submitButtonText={
+              isSubmitting ? "Creating Account..." : "Create Account"
+            }
           />
         );
       case "forgot-password":
@@ -151,7 +251,7 @@ function AuthPage() {
             title="Reset Password"
             fields={forgotPasswordFields}
             onSubmit={handleForgotPassword}
-            submitButtonText="Send Reset Email"
+            submitButtonText={isSubmitting ? "Sending..." : "Send Reset Email"}
           />
         );
       default:

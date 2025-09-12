@@ -6,6 +6,7 @@ import {
   SvgIconProps,
 } from "@mui/material";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import { ComponentType } from "react";
 
 interface InfoCardProps {
@@ -15,6 +16,7 @@ interface InfoCardProps {
   bottomLeft?: string;
   progressText?: string;
   showTrending?: boolean;
+  trendingType?: "up" | "down";
   progressTextColor?: string;
 }
 
@@ -25,6 +27,7 @@ function InfoCard({
   bottomLeft,
   progressText,
   showTrending = true,
+  trendingType = "up",
   progressTextColor = "text.primary",
 }: InfoCardProps) {
   return (
@@ -70,7 +73,12 @@ function InfoCard({
           <Typography color="text.secondary">{bottomLeft}</Typography>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          {showTrending && <TrendingUpIcon color="success" sx={{ mr: 1 }} />}
+          {showTrending &&
+            (trendingType === "up" ? (
+              <TrendingUpIcon color="success" sx={{ mr: 1 }} />
+            ) : (
+              <TrendingDownIcon color="error" sx={{ mr: 1 }} />
+            ))}
           <Typography variant="body2" color={progressTextColor}>
             {progressText}
           </Typography>

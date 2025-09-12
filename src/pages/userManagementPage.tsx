@@ -1,10 +1,5 @@
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import EuroOutlinedIcon from "@mui/icons-material/EuroOutlined";
-import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
-import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
-import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
-
 import AdminLayout from "../components/AdminLayout";
 import InfoCard from "../components/InfoCard";
 import DashboardItem from "../components/DashboardItem";
@@ -12,12 +7,12 @@ import DataTable from "../components/Table";
 
 function DashboardPage() {
   const columns = [
-    { field: "Provider", headerName: "Provider" },
-    { field: "Service", headerName: "Service" },
-    { field: "Location", headerName: "Location" },
-    { field: "Rating", headerName: "Rating" },
+    { field: "User", headerName: "User" },
+    { field: "Role", headerName: "Role" },
+    { field: "Subscription", headerName: "Subscription" },
     { field: "Status", headerName: "Status" },
-    { field: "Documents", headerName: "Submitted" },
+    { field: "Activity", headerName: "Activity" },
+    { field: "Spending", headerName: "Spending" },
 
     // ...other columns
   ];
@@ -105,11 +100,9 @@ function DashboardPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Pending Property Validations"
-              icon={ApartmentOutlinedIcon}
+              title="Total Users"
               value={1200}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              progressText="+170 this month"
               showTrending={false}
               progressTextColor="text.secondary"
             />
@@ -122,10 +115,8 @@ function DashboardPage() {
           <DashboardItem>
             <InfoCard
               title="Provider Moderation Cases"
-              icon={HowToRegOutlinedIcon}
               value={1200}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              progressText="+95 this month"
               showTrending={false}
               progressTextColor="text.secondary"
             />
@@ -138,10 +129,8 @@ function DashboardPage() {
           <DashboardItem>
             <InfoCard
               title="Active Users"
-              icon={GroupOutlinedIcon}
               value={1200}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              progressText="+15.3% from last month"
               showTrending={false}
               progressTextColor="text.secondary"
             />
@@ -154,10 +143,8 @@ function DashboardPage() {
           <DashboardItem>
             <InfoCard
               title="Monthly Revenue"
-              icon={EuroOutlinedIcon}
               value={1200}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              progressText="-5 from yesterday"
               showTrending={false}
               progressTextColor="text.secondary"
             />
@@ -166,8 +153,8 @@ function DashboardPage() {
       </Grid>
 
       <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
-        <h3>Property Listings</h3>
-        <p>Manage property submissions and approvals</p>
+        <h3>Users</h3>
+        <p>Manage user accounts and subscriptions</p>
         <DataTable
           columns={columns}
           data={data}

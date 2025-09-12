@@ -15,13 +15,13 @@ import DataTable from "../components/Table";
 
 function FinancialOverviewPage() {
   const columns = [
-    { field: "Property", headerName: "Property" },
-    { field: "Owner", headerName: "Owner" },
-    { field: "Location", headerName: "Location" },
-    { field: "Price", headerName: "Price" },
+    { field: "Transaction ID", headerName: "Transaction ID" },
+    { field: "Type", headerName: "Type" },
+    { field: "User", headerName: "User" },
+    { field: "Amount", headerName: "Amount" },
     { field: "Status", headerName: "Status" },
-    { field: "Submitted", headerName: "Submitted" },
-    { field: "Actions", headerName: "Actions" },
+    { field: "Method", headerName: "Method" },
+    { field: "Date", headerName: "Date" },
     // ...other columns
   ];
 
@@ -134,12 +134,12 @@ function FinancialOverviewPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Pending Property Validations"
+              title="Total Revenue"
               icon={ApartmentOutlinedIcon}
               value={1200}
-              bottomLeft="Active this month"
               progressText="75% growth"
-              showTrending={false}
+              showTrending={true}
+              trendingType="down"
               progressTextColor="text.secondary"
             />
           </DashboardItem>
@@ -150,12 +150,11 @@ function FinancialOverviewPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Provider Moderation Cases"
+              title="Monthly Expenses"
               icon={HowToRegOutlinedIcon}
               value={1200}
-              bottomLeft="Active this month"
               progressText="75% growth"
-              showTrending={false}
+              showTrending={true}
               progressTextColor="text.secondary"
             />
           </DashboardItem>
@@ -166,12 +165,11 @@ function FinancialOverviewPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Active Users"
+              title="Net Profit"
               icon={GroupOutlinedIcon}
               value={1200}
-              bottomLeft="Active this month"
               progressText="75% growth"
-              showTrending={false}
+              showTrending={true}
               progressTextColor="text.secondary"
             />
           </DashboardItem>
@@ -182,12 +180,11 @@ function FinancialOverviewPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Monthly Revenue"
+              title="Active Subscriptions"
               icon={EuroOutlinedIcon}
               value={1200}
-              bottomLeft="Active this month"
               progressText="75% growth"
-              showTrending={false}
+              showTrending={true}
               progressTextColor="text.secondary"
             />
           </DashboardItem>
@@ -288,8 +285,8 @@ function FinancialOverviewPage() {
       </Grid>
 
       <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
-        <h3>Property Listings</h3>
-        <p>Manage property submissions and approvals</p>
+        <h3>Recent Transactions</h3>
+        <p>Latest payment activities and transactions</p>
         <DataTable
           columns={columns}
           data={data}

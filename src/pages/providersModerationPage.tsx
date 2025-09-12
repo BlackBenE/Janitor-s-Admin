@@ -91,8 +91,8 @@ function ProvidersModerationPage() {
         </p>
       </Box>
       <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
-        <h3>Property Listings</h3>
-        <p>Manage property submissions and approvals</p>
+        <h3>Service Providers</h3>
+        <p>Moderate provider applications and profiles</p>
         <DataTable
           columns={columns}
           data={data}

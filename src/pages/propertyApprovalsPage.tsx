@@ -134,3 +134,23 @@ const PropertyApprovalsPage = () => {
 };
 
 export default PropertyApprovalsPage;
+
+// // Example usage in Property Approvals Page
+// const {
+//   usePendingProperties,
+//   usePropertyStats,
+//   approveProperty,
+//   rejectProperty,
+//   approveManyProperties
+// } = useProperties();
+
+// const { data: pendingProperties, isLoading } = usePendingProperties();
+// const { data: stats } = usePropertyStats();
+
+// // Approve a property
+// const handleApprove = (propertyId: string) => {
+//   approveProperty.mutate({
+//     id: propertyId,
+//     validatedBy: currentUserId
+//   });
+// };

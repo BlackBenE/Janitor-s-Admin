@@ -10,7 +10,7 @@ type UserUpdate = Database["public"]["Tables"]["profiles"]["Update"];
 const USERS_QUERY_KEYS = {
   all: ["users"] as const,
   lists: () => [...USERS_QUERY_KEYS.all, "list"] as const,
-  list: (filters?: Record<string, any>) =>
+  list: (filters?: Partial<UserProfile>) =>
     [...USERS_QUERY_KEYS.lists(), { filters }] as const,
   details: () => [...USERS_QUERY_KEYS.all, "detail"] as const,
   detail: (id: string) => [...USERS_QUERY_KEYS.details(), id] as const,
@@ -53,8 +53,8 @@ export const useUsers = (options?: {
 
       return response.data;
     },
-    staleTime: 10 * 60 * 1000, // 10 minutes (increased from 5)
-    gcTime: 15 * 60 * 1000, // 15 minutes garbage collection
+    staleTime: 10 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
     enabled: options?.enabled !== false, // Allow disabling
     refetchOnWindowFocus: options?.refetchOnWindowFocus ?? false, // Disable by default
     refetchInterval: options?.refetchInterval, // Optional polling

@@ -209,3 +209,34 @@ function InvoicesPage() {
 }
 
 export default InvoicesPage;
+
+// // Example usage in Invoices Page
+// const {
+//   invoices,
+//   usePendingInvoices,
+//   useRevenueStats,
+//   markAsPaid,
+//   processRefund,
+//   markManyAsPaid
+// } = useInvoices({
+//   paymentType: "booking_payment", // Filter by payment type
+//   status: "pending" // Show only pending payments
+// });
+
+// const { data: pendingInvoices } = usePendingInvoices();
+// const { data: revenueStats } = useRevenueStats();
+
+// // Mark payment as completed
+// const handleMarkPaid = (invoiceId: string) => {
+//   markAsPaid.mutate(invoiceId);
+// };
+
+// // Process refund
+// const handleRefund = (invoiceId: string) => {
+//   processRefund.mutate(invoiceId);
+// };
+
+// // View financial metrics
+// console.log(`Total Revenue: $${revenueStats?.totalRevenue}`);
+// console.log(`Monthly Revenue: $${revenueStats?.monthlyRevenue}`);
+// console.log(`Pending Revenue: $${revenueStats?.pendingRevenue}`);

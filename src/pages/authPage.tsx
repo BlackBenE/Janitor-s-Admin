@@ -88,7 +88,6 @@ function AuthPage() {
   const { signIn, signUp, resetPassword, session, isAdmin, loading, error } =
     useAuth();
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (!loading && session && isAdmin()) {
       console.log("User already authenticated, should redirect to dashboard");

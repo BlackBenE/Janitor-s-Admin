@@ -171,3 +171,24 @@ const QuoteRequestsPage = () => {
 };
 
 export default QuoteRequestsPage;
+
+// // Example usage in Quote Requests Page
+// const {
+//   usePendingServiceRequests,
+//   useServiceRequestStats,
+//   acceptServiceRequest,
+//   rejectServiceRequest,
+//   acceptManyServiceRequests
+// } = useQuoteRequests();
+
+// const { data: pendingRequests, isLoading } = usePendingServiceRequests();
+// const { data: stats } = useServiceRequestStats();
+
+// // Accept a quote request
+// const handleAccept = (requestId: string) => {
+//   acceptServiceRequest.mutate(requestId);
+// };
+
+// // View stats
+// console.log(`Total Revenue: $${stats?.totalRevenue}`);
+// console.log(`Pending: ${stats?.pending}`);

@@ -303,3 +303,14 @@ function FinancialOverviewPage() {
 }
 
 export default FinancialOverviewPage;
+
+// const { useFinancialMetrics, useRevenueTimeSeries, useFinancialSummary } = useFinancialData();
+
+// // Get comprehensive financial metrics
+// const { data: metrics } = useFinancialMetrics();
+
+// // Get time series data for charts
+// const { data: chartData } = useRevenueTimeSeries("30d");
+
+// // Get dashboard summary cards
+// const { data: summary } = useFinancialSummary();

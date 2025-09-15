@@ -210,3 +210,34 @@ function ServicesCatalogPage() {
   );
 }
 export default ServicesCatalogPage;
+
+// // Example usage in Services Catalog Page
+// const {
+//   services,
+//   useServiceCategories,
+//   useServiceStats,
+//   activateService,
+//   deactivateService,
+//   activateManyServices,
+//   createService
+// } = useServices({
+//   onlyActive: true, // Show only active services
+//   category: selectedCategory // Filter by category
+// });
+
+// const { data: categories } = useServiceCategories();
+// const { data: stats } = useServiceStats();
+
+// // Toggle service status
+// const handleToggleStatus = (serviceId: string, isActive: boolean) => {
+//   if (isActive) {
+//     deactivateService.mutate(serviceId);
+//   } else {
+//     activateService.mutate(serviceId);
+//   }
+// };
+
+// // View stats
+// console.log(`Total Services: ${stats?.total}`);
+// console.log(`Average Price: $${stats?.averagePrice}`);
+// console.log(`Categories: ${stats?.categoriesCount}`);

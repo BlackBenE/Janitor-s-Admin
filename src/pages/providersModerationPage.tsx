@@ -109,3 +109,31 @@ function ProvidersModerationPage() {
 }
 
 export default ProvidersModerationPage;
+
+// // Example usage in Providers Moderation Page
+// const {
+//   usePendingProviders,
+//   useProviderStats,
+//   verifyProvider,
+//   rejectProvider,
+//   suspendProvider,
+//   verifyManyProviders
+// } = useProviders();
+
+// const { data: pendingProviders, isLoading } = usePendingProviders();
+// const { data: stats } = useProviderStats();
+
+// // Verify a provider
+// const handleVerify = (providerId: string) => {
+//   verifyProvider.mutate(providerId);
+// };
+
+// // Reject a provider
+// const handleReject = (providerId: string) => {
+//   rejectProvider.mutate(providerId);
+// };
+
+// // View stats
+// console.log(`Pending Verification: ${stats?.pending}`);
+// console.log(`Total Verified: ${stats?.verified}`);
+// console.log(`Active Services: ${stats?.activeServices}`);

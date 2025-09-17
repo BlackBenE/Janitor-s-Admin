@@ -3,9 +3,6 @@ import { dataProvider } from "../providers/dataProvider";
 import type { Database } from "../types/database.types";
 
 type Payment = Database["public"]["Tables"]["payments"]["Row"];
-type Booking = Database["public"]["Tables"]["bookings"]["Row"];
-type ServiceRequest = Database["public"]["Tables"]["service_requests"]["Row"];
-type Subscription = Database["public"]["Tables"]["subscriptions"]["Row"];
 
 // Financial metrics interface
 export interface FinancialMetrics {
@@ -159,7 +156,7 @@ export const useFinancialData = () => {
           previousWeekPayments,
           bookings,
           serviceRequests,
-          subscriptions,
+          // subscriptions,
         ] = await Promise.all([
           dataProvider.getList("payments", {}),
           dataProvider.getList(
@@ -439,7 +436,7 @@ export const useFinancialData = () => {
       queryKey: FINANCIAL_DATA_QUERY_KEYS.summary(),
       queryFn: async (): Promise<FinancialSummary> => {
         // Get financial metrics data
-        const { today, weekAgo, monthAgo, twoMonthsAgo } = getDateRanges();
+        const { weekAgo, monthAgo, twoMonthsAgo } = getDateRanges();
 
         const [
           allPayments,
@@ -447,7 +444,7 @@ export const useFinancialData = () => {
           weeklyPayments,
           previousMonthPayments,
           users,
-          subscriptions,
+          // subscriptions,
         ] = await Promise.all([
           dataProvider.getList("payments", {}),
           dataProvider.getList(
@@ -541,10 +538,10 @@ export const useFinancialData = () => {
 
         // Get user data for subscriber metrics
         const totalUsers = users.success && users.data ? users.data.length : 0;
-        const activeSubscribers =
-          subscriptions.success && subscriptions.data
-            ? subscriptions.data.length
-            : 0;
+        const activeSubscribers = 0; // TODO: Implement subscription counting
+        // _subscriptions.success && _subscriptions.data
+        //   ? _subscriptions.data.length
+        //   : 0;
         const payingUsers =
           completedPayments.length > 0
             ? Math.min(totalUsers, completedPayments.length)

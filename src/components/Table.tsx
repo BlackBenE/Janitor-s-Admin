@@ -1,12 +1,7 @@
 import * as React from "react";
-import Portal from "@mui/material/Portal";
 import Box from "@mui/material/Box";
 import {
   DataGrid,
-  GridPortalWrapper,
-  QuickFilter,
-  QuickFilterClear,
-  QuickFilterControl,
   ToolbarButton,
   ColumnsPanelTrigger,
   FilterPanelTrigger,
@@ -14,10 +9,7 @@ import {
   GridRenderCellParams,
   GridColDef,
 } from "@mui/x-data-grid";
-import TextField from "@mui/material/TextField";
-import InputAdornment from "@mui/material/InputAdornment";
-import SearchIcon from "@mui/icons-material/Search";
-import CancelIcon from "@mui/icons-material/Cancel";
+
 import Tooltip from "@mui/material/Tooltip";
 import Badge from "@mui/material/Badge";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -26,46 +18,6 @@ import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 function MyCustomToolbar() {
   return (
     <React.Fragment>
-      <Portal container={() => document.getElementById("filter-panel")}>
-        <GridPortalWrapper>
-          <QuickFilter expanded>
-            <QuickFilterControl
-              render={({ ref, ...other }) => (
-                <TextField
-                  {...other}
-                  sx={{ width: 260 }}
-                  inputRef={ref}
-                  aria-label="Search"
-                  placeholder="Search..."
-                  size="small"
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon fontSize="small" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: other.value ? (
-                        <InputAdornment position="end">
-                          <QuickFilterClear
-                            edge="end"
-                            size="small"
-                            aria-label="Clear search"
-                            material={{ sx: { marginRight: -0.75 } }}
-                          >
-                            <CancelIcon fontSize="small" />
-                          </QuickFilterClear>
-                        </InputAdornment>
-                      ) : null,
-                    },
-                  }}
-                />
-              )}
-            />
-          </QuickFilter>
-        </GridPortalWrapper>
-      </Portal>
-
       <Toolbar>
         <Tooltip title="Columns">
           <ColumnsPanelTrigger render={<ToolbarButton />}>
@@ -104,9 +56,12 @@ function DataTable<T extends Record<string, unknown>>({
   data,
   renderActions,
 }: DataTableProps<T>) {
-  // Convert columns to DataGrid format
   const gridColumns: GridColDef[] = [
-    ...columns.map((col) => ({ ...col, flex: 1 })),
+    ...columns.map((col) => ({
+      ...col,
+      flex: col.width ? 0 : 1,
+      minWidth: col.width || 100,
+    })),
     ...(renderActions
       ? [
           {
@@ -116,7 +71,8 @@ function DataTable<T extends Record<string, unknown>>({
             filterable: false,
             renderCell: (params: GridRenderCellParams<T>) =>
               renderActions(params.row),
-            flex: 1,
+            width: 120,
+            flex: 0,
           },
         ]
       : []),
@@ -135,16 +91,22 @@ function DataTable<T extends Record<string, unknown>>({
           rows={gridRows}
           columns={gridColumns}
           slots={{ toolbar: MyCustomToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: false } }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
           showToolbar
           initialState={{
             filter: {
               filterModel: {
                 items: [],
-                quickFilterExcludeHiddenColumns: true,
+                quickFilterExcludeHiddenColumns: false,
+                quickFilterValues: [],
               },
             },
+            pagination: {
+              paginationModel: { pageSize: 25 },
+            },
           }}
+          pageSizeOptions={[10, 25, 50]}
+          disableRowSelectionOnClick
           sx={{ borderRadius: 4 }}
         />
       </Box>

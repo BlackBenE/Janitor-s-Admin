@@ -55,7 +55,7 @@ export type PaymentType =
 const INVOICES_QUERY_KEYS = {
   all: ["invoices"] as const,
   lists: () => [...INVOICES_QUERY_KEYS.all, "list"] as const,
-  list: (filters?: Record<string, any>) =>
+  list: (filters?: Record<string, unknown>) =>
     [...INVOICES_QUERY_KEYS.lists(), { filters }] as const,
   details: () => [...INVOICES_QUERY_KEYS.all, "detail"] as const,
   detail: (id: string) => [...INVOICES_QUERY_KEYS.details(), id] as const,

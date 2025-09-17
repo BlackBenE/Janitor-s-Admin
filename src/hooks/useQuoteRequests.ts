@@ -49,7 +49,7 @@ export type ServiceRequestStatus =
 const SERVICE_REQUESTS_QUERY_KEYS = {
   all: ["service-requests"] as const,
   lists: () => [...SERVICE_REQUESTS_QUERY_KEYS.all, "list"] as const,
-  list: (filters?: Record<string, any>) =>
+  list: (filters?: Record<string, unknown>) =>
     [...SERVICE_REQUESTS_QUERY_KEYS.lists(), { filters }] as const,
   details: () => [...SERVICE_REQUESTS_QUERY_KEYS.all, "detail"] as const,
   detail: (id: string) =>

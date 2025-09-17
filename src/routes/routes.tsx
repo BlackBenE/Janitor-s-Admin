@@ -12,6 +12,7 @@ import QuoteRequestsPage from "../pages/quoteRequestsPage";
 import ServicesCatalogPage from "../pages/servicesCatalogPage";
 import SettingsPage from "../pages/settingsPage";
 import UserManagementPage from "../pages/userManagementPage";
+import AnalyticsPage from "../pages/AnalyticsPage";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
@@ -22,6 +23,7 @@ import MedicalInformationOutlinedIcon from "@mui/icons-material/MedicalInformati
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
 
 interface Route {
   path: string;
@@ -71,6 +73,16 @@ export const routes: Route[] = [
       </ProtectedRoute>
     ),
     icon: GroupOutlinedIcon,
+    protected: true,
+  },
+  {
+    path: "/analytics",
+    element: (
+      <ProtectedRoute>
+        <AnalyticsPage />
+      </ProtectedRoute>
+    ),
+    icon: AnalyticsOutlinedIcon,
     protected: true,
   },
   {

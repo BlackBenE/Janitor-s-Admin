@@ -31,7 +31,7 @@ export type ProviderVerificationStatus =
 const PROVIDERS_QUERY_KEYS = {
   all: ["providers"] as const,
   lists: () => [...PROVIDERS_QUERY_KEYS.all, "list"] as const,
-  list: (filters?: Record<string, any>) =>
+  list: (filters?: Record<string, unknown>) =>
     [...PROVIDERS_QUERY_KEYS.lists(), { filters }] as const,
   details: () => [...PROVIDERS_QUERY_KEYS.all, "detail"] as const,
   detail: (id: string) => [...PROVIDERS_QUERY_KEYS.details(), id] as const,

@@ -32,7 +32,7 @@ export type PropertyStatus =
 const PROPERTIES_QUERY_KEYS = {
   all: ["properties"] as const,
   lists: () => [...PROPERTIES_QUERY_KEYS.all, "list"] as const,
-  list: (filters?: Record<string, any>) =>
+  list: (filters?: Record<string, unknown>) =>
     [...PROPERTIES_QUERY_KEYS.lists(), { filters }] as const,
   details: () => [...PROPERTIES_QUERY_KEYS.all, "detail"] as const,
   detail: (id: string) => [...PROPERTIES_QUERY_KEYS.details(), id] as const,

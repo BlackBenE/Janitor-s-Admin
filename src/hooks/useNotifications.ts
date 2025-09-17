@@ -5,8 +5,6 @@ import type { Database } from "../types/database.types";
 type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 type NotificationInsert =
   Database["public"]["Tables"]["notifications"]["Insert"];
-type NotificationUpdate =
-  Database["public"]["Tables"]["notifications"]["Update"];
 
 // Notification statistics interface
 export interface NotificationStats {
@@ -55,7 +53,7 @@ export interface BulkNotificationAction {
 // Query keys for cache management
 const NOTIFICATIONS_QUERY_KEYS = {
   all: ["notifications"] as const,
-  list: (filters?: Record<string, any>) =>
+  list: (filters?: Record<string, unknown>) =>
     [...NOTIFICATIONS_QUERY_KEYS.all, "list", filters] as const,
   user: (userId: string) =>
     [...NOTIFICATIONS_QUERY_KEYS.all, "user", userId] as const,
@@ -82,7 +80,7 @@ export const useNotifications = () => {
   };
 
   // Get all notifications with optional filters
-  const useNotificationsList = (filters?: Record<string, any>) => {
+  const useNotificationsList = (filters?: Record<string, unknown>) => {
     return useQuery({
       queryKey: NOTIFICATIONS_QUERY_KEYS.list(filters),
       queryFn: async (): Promise<Notification[]> => {

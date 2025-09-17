@@ -34,7 +34,7 @@ export type ServiceCategory = string; // Dynamic based on your categories
 const SERVICES_QUERY_KEYS = {
   all: ["services"] as const,
   lists: () => [...SERVICES_QUERY_KEYS.all, "list"] as const,
-  list: (filters?: Record<string, any>) =>
+  list: (filters?: Record<string, unknown>) =>
     [...SERVICES_QUERY_KEYS.lists(), { filters }] as const,
   details: () => [...SERVICES_QUERY_KEYS.all, "detail"] as const,
   detail: (id: string) => [...SERVICES_QUERY_KEYS.details(), id] as const,
@@ -196,11 +196,11 @@ export const useServices = (options?: {
       queryKey: SERVICES_QUERY_KEYS.stats(),
       queryFn: async () => {
         // Get counts for different service statuses
-        const [active, inactive, total, categories] = await Promise.all([
+        const [active, inactive, total] = await Promise.all([
           dataProvider.getList("services", {}, { is_active: true }),
           dataProvider.getList("services", {}, { is_active: false }),
           dataProvider.getList("services", {}),
-          dataProvider.getList("services", {}),
+          // dataProvider.getList("services", {}), // TODO: Categories implementation
         ]);
 
         // Calculate average price

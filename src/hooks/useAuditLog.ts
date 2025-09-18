@@ -1,12 +1,17 @@
 import { useState } from "react";
+import { supabaseAdmin } from "../lib/supabaseClient";
+import { Database, type Json } from "../types/database.types";
+
+type AuditLogRow = Database["public"]["Tables"]["audit_logs"]["Row"];
+type AuditLogInsert = Database["public"]["Tables"]["audit_logs"]["Insert"];
 
 export interface AuditLog {
-  id: number;
+  id: string;
   action: string;
-  details: string;
-  timestamp: string;
-  admin_user: string;
-  user_id: string;
+  details: string | null;
+  created_at: string;
+  performed_by_email: string | null;
+  user_id: string | null;
   metadata?: Record<string, unknown>;
 }
 
@@ -26,21 +31,28 @@ export const useAuditLog = () => {
       setLoading(true);
       setError(null);
 
-      // En production, ceci sauvegarderait dans une table audit_logs
-      const auditEntry = {
+      if (!supabaseAdmin) {
+        throw new Error("Supabase admin client not available");
+      }
+
+      const auditEntry: AuditLogInsert = {
         action,
         user_id: userId,
         details,
-        admin_user: adminUser,
-        timestamp: new Date().toISOString(),
-        metadata: metadata || {},
+        performed_by_email: adminUser,
+        metadata: (metadata as Json) || {},
       };
 
-      // TODO: Implémenter l'insertion en base de données
-      // await supabaseAdmin.from('audit_logs').insert(auditEntry);
+      const { data, error } = await supabaseAdmin
+        .from("audit_logs")
+        .insert(auditEntry)
+        .select()
+        .single();
 
-      console.log("Audit log created:", auditEntry);
-      return auditEntry;
+      if (error) throw error;
+
+      console.log("Audit log created:", data);
+      return data;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
       setError(errorMessage);
@@ -56,74 +68,30 @@ export const useAuditLog = () => {
       setLoading(true);
       setError(null);
 
-      // En production, ceci récupérerait depuis la table audit_logs
-      // const { data, error } = await supabaseAdmin
-      //   .from('audit_logs')
-      //   .select('*')
-      //   .eq('user_id', userId)
-      //   .order('timestamp', { ascending: false });
+      if (!supabaseAdmin) {
+        throw new Error("Supabase admin client not available");
+      }
 
-      // if (error) throw error;
+      const { data, error } = await supabaseAdmin
+        .from("audit_logs")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
 
-      // Mock data pour la démonstration
-      const mockLogs: AuditLog[] = [
-        {
-          id: 1,
-          action: "Profil Modifié",
-          details: "Email changé de ancien@email.com vers nouveau@email.com",
-          timestamp: new Date().toISOString(),
-          admin_user: "admin@example.com",
-          user_id: userId,
-          metadata: {
-            field: "email",
-            oldValue: "ancien@email.com",
-            newValue: "nouveau@email.com",
-          },
-        },
-        {
-          id: 2,
-          action: "Compte Suspendu",
-          details:
-            "Compte suspendu pour violation des conditions d'utilisation",
-          timestamp: new Date(Date.now() - 86400000).toISOString(),
-          admin_user: "admin@example.com",
-          user_id: userId,
-          metadata: { reason: "policy_violation", duration: "indefinite" },
-        },
-        {
-          id: 3,
-          action: "Mot de Passe Réinitialisé",
-          details: "Réinitialisation de mot de passe demandée et effectuée",
-          timestamp: new Date(Date.now() - 172800000).toISOString(),
-          admin_user: "system",
-          user_id: userId,
-          metadata: { method: "email_link", ip_address: "192.168.1.1" },
-        },
-        {
-          id: 4,
-          action: "Connexion Forcée Terminée",
-          details: "Toutes les sessions utilisateur ont été invalidées",
-          timestamp: new Date(Date.now() - 259200000).toISOString(),
-          admin_user: "admin@example.com",
-          user_id: userId,
-          metadata: { sessions_terminated: 3, reason: "security_concern" },
-        },
-        {
-          id: 5,
-          action: "Rôle Modifié",
-          details: 'Rôle changé de "user" vers "vip"',
-          timestamp: new Date(Date.now() - 345600000).toISOString(),
-          admin_user: "admin@example.com",
-          user_id: userId,
-          metadata: {
-            oldRole: "user",
-            newRole: "vip",
-            upgrade_reason: "manual_promotion",
-          },
-        },
-      ];
+      if (error) throw error;
 
-      return mockLogs;
+      // Convertir les données pour correspondre à l'interface AuditLog
+      const logs: AuditLog[] = (data || []).map((log: AuditLogRow) => ({
+        id: log.id,
+        action: log.action,
+        details: log.details,
+        created_at: log.created_at,
+        performed_by_email: log.performed_by_email,
+        user_id: log.user_id,
+        metadata: (log.metadata as Record<string, unknown>) || {},
+      }));
+
+      return logs;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
       setError(errorMessage);

@@ -1,4 +1,4 @@
-import { Database } from "./database.types";
+import { Database } from "../types/database.types";
 
 export type Tables<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Row"];

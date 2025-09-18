@@ -1,5 +1,7 @@
 import { useState } from "react";
-// import { supabaseAdmin } from "../lib/supabaseClient"; // TODO: Uncomment when implementing real backend
+import { supabaseAdmin } from "../lib/supabaseClient";
+import { Tables } from "../types/database.types";
+import { useAuditLog } from "./useAuditLog";
 
 export interface SecurityAction {
   type: "password_reset" | "force_logout" | "account_lock" | "account_unlock";
@@ -8,19 +10,36 @@ export interface SecurityAction {
   duration?: number; // en minutes pour les blocages temporaires
 }
 
-export interface UserSession {
-  id: string;
-  user_id: string;
-  ip_address: string;
-  user_agent: string;
-  location: string;
-  last_activity: string;
-  device_type: "web" | "mobile" | "desktop";
-}
+// Utilise les types de la base de données
+export type UserSession = Tables<"user_sessions">;
+export type UserProfile = Tables<"profiles">;
 
 export const useSecurityActions = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { logAction } = useAuditLog();
+
+  // Récupère les informations utilisateur pour les actions de sécurité
+  const getUserProfile = async (
+    userId: string
+  ): Promise<UserProfile | null> => {
+    if (!supabaseAdmin) {
+      throw new Error("Configuration Supabase manquante");
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching user profile:", error);
+      return null;
+    }
+
+    return data;
+  };
 
   // Réinitialise le mot de passe d'un utilisateur
   const resetPassword = async (userId: string, reason?: string) => {
@@ -28,24 +47,40 @@ export const useSecurityActions = () => {
       setLoading(true);
       setError(null);
 
-      // En production, ceci utiliserait l'API Supabase Auth
-      // const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-      //   userEmail,
-      //   {
-      //     data: { password_reset: true },
-      //     redirectTo: `${window.location.origin}/reset-password`
-      //   }
-      // );
+      if (!supabaseAdmin) {
+        throw new Error("Configuration Supabase manquante");
+      }
 
-      // if (error) throw error;
+      // Récupère les informations utilisateur
+      const userProfile = await getUserProfile(userId);
+      if (!userProfile) {
+        throw new Error("Utilisateur non trouvé");
+      }
 
-      // Simulation de l'envoi d'email
-      console.log(`Password reset email sent for user ${userId}`, { reason });
+      // Utilise l'API Supabase Auth pour envoyer un email de réinitialisation
+      const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+        userProfile.email,
+        {
+          data: { password_reset: true },
+          redirectTo: `${window.location.origin}/reset-password`,
+        }
+      );
+
+      if (error) throw error;
+
+      // Log l'action dans l'audit
+      await logAction(
+        "password_reset",
+        `Réinitialisation de mot de passe envoyée à ${userProfile.email}`,
+        userId,
+        JSON.stringify({ reason, email: userProfile.email })
+      );
 
       return {
         success: true,
         message: "Email de réinitialisation envoyé avec succès",
         userId,
+        email: userProfile.email,
         timestamp: new Date().toISOString(),
       };
     } catch (err) {
@@ -63,18 +98,39 @@ export const useSecurityActions = () => {
       setLoading(true);
       setError(null);
 
-      // En production, ceci invaliderait toutes les sessions JWT
-      // const { error } = await supabaseAdmin.auth.admin.signOut(userId, 'global');
-      // if (error) throw error;
+      if (!supabaseAdmin) {
+        throw new Error("Configuration Supabase manquante");
+      }
 
-      // Simulation de l'invalidation des sessions
-      console.log(`All sessions invalidated for user ${userId}`, { reason });
+      // Termine toutes les sessions actives dans la base de données
+      const { error: sessionsError } = await supabaseAdmin
+        .from("user_sessions")
+        .update({
+          is_active: false,
+          terminated_at: new Date().toISOString(),
+        })
+        .eq("user_id", userId)
+        .eq("is_active", true);
+
+      if (sessionsError) throw sessionsError;
+
+      // Récupère les informations utilisateur pour les logs
+      const userProfile = await getUserProfile(userId);
+
+      // Log l'action dans l'audit
+      await logAction(
+        "force_logout",
+        `Déconnexion forcée de tous les appareils${
+          userProfile ? ` pour ${userProfile.email}` : ""
+        }`,
+        userId,
+        JSON.stringify({ reason })
+      );
 
       return {
         success: true,
         message: "Utilisateur déconnecté de tous les appareils",
         userId,
-        sessionsTerminated: 3, // Mock data
         timestamp: new Date().toISOString(),
       };
     } catch (err) {
@@ -96,24 +152,50 @@ export const useSecurityActions = () => {
       setLoading(true);
       setError(null);
 
-      // En production, ceci mettrait à jour le profil utilisateur
+      if (!supabaseAdmin) {
+        throw new Error("Configuration Supabase manquante");
+      }
+
       const lockUntil = new Date(Date.now() + duration * 60000);
 
-      // const { error } = await supabaseAdmin
-      //   .from('user_profiles')
-      //   .update({
-      //     account_locked: true,
-      //     locked_until: lockUntil.toISOString(),
-      //     lock_reason: reason
-      //   })
-      //   .eq('id', userId);
+      // Met à jour le profil utilisateur pour verrouiller le compte
+      const { error } = await supabaseAdmin
+        .from("profiles")
+        .update({
+          account_locked: true,
+          locked_until: lockUntil.toISOString(),
+          lock_reason: reason || "Verrouillage temporaire",
+        })
+        .eq("id", userId);
 
-      // if (error) throw error;
+      if (error) throw error;
 
-      console.log(`Account locked for user ${userId} until ${lockUntil}`, {
-        reason,
-        duration,
-      });
+      // Termine également toutes les sessions actives
+      await supabaseAdmin
+        .from("user_sessions")
+        .update({
+          is_active: false,
+          terminated_at: new Date().toISOString(),
+        })
+        .eq("user_id", userId)
+        .eq("is_active", true);
+
+      // Récupère les informations utilisateur pour les logs
+      const userProfile = await getUserProfile(userId);
+
+      // Log l'action dans l'audit
+      await logAction(
+        "account_lock",
+        `Compte verrouillé jusqu'à ${lockUntil.toLocaleString()}${
+          userProfile ? ` pour ${userProfile.email}` : ""
+        }`,
+        userId,
+        JSON.stringify({
+          reason,
+          duration,
+          lockedUntil: lockUntil.toISOString(),
+        })
+      );
 
       return {
         success: true,
@@ -138,19 +220,32 @@ export const useSecurityActions = () => {
       setLoading(true);
       setError(null);
 
-      // En production, ceci mettrait à jour le profil utilisateur
-      // const { error } = await supabaseAdmin
-      //   .from('user_profiles')
-      //   .update({
-      //     account_locked: false,
-      //     locked_until: null,
-      //     lock_reason: null
-      //   })
-      //   .eq('id', userId);
+      if (!supabaseAdmin) {
+        throw new Error("Configuration Supabase manquante");
+      }
 
-      // if (error) throw error;
+      // Met à jour le profil utilisateur pour déverrouiller le compte
+      const { error } = await supabaseAdmin
+        .from("profiles")
+        .update({
+          account_locked: false,
+          locked_until: null,
+          lock_reason: null,
+        })
+        .eq("id", userId);
 
-      console.log(`Account unlocked for user ${userId}`, { reason });
+      if (error) throw error;
+
+      // Récupère les informations utilisateur pour les logs
+      const userProfile = await getUserProfile(userId);
+
+      // Log l'action dans l'audit
+      await logAction(
+        "account_unlock",
+        `Compte déverrouillé${userProfile ? ` pour ${userProfile.email}` : ""}`,
+        userId,
+        JSON.stringify({ reason })
+      );
 
       return {
         success: true,
@@ -174,39 +269,21 @@ export const useSecurityActions = () => {
       setLoading(true);
       setError(null);
 
-      // En production, ceci récupérerait les sessions depuis la base de données
-      // const { data, error } = await supabaseAdmin
-      //   .from('user_sessions')
-      //   .select('*')
-      //   .eq('user_id', userId)
-      //   .eq('active', true);
+      if (!supabaseAdmin) {
+        throw new Error("Configuration Supabase manquante");
+      }
 
-      // if (error) throw error;
+      // Récupère les sessions depuis la base de données
+      const { data, error } = await supabaseAdmin
+        .from("user_sessions")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("is_active", true)
+        .order("last_activity", { ascending: false });
 
-      // Mock data pour la démonstration
-      const mockSessions: UserSession[] = [
-        {
-          id: "session_1",
-          user_id: userId,
-          ip_address: "192.168.1.100",
-          user_agent:
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          location: "Paris, France",
-          last_activity: new Date(Date.now() - 300000).toISOString(), // 5 min ago
-          device_type: "web",
-        },
-        {
-          id: "session_2",
-          user_id: userId,
-          ip_address: "10.0.0.50",
-          user_agent: "PA Mobile App v1.2.3",
-          location: "Lyon, France",
-          last_activity: new Date(Date.now() - 1800000).toISOString(), // 30 min ago
-          device_type: "mobile",
-        },
-      ];
+      if (error) throw error;
 
-      return mockSessions;
+      return data || [];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
       setError(errorMessage);
@@ -222,16 +299,32 @@ export const useSecurityActions = () => {
       setLoading(true);
       setError(null);
 
-      // En production, ceci invaliderait une session spécifique
-      // const { error } = await supabaseAdmin
-      //   .from('user_sessions')
-      //   .update({ active: false, terminated_at: new Date().toISOString() })
-      //   .eq('id', sessionId)
-      //   .eq('user_id', userId);
+      if (!supabaseAdmin) {
+        throw new Error("Configuration Supabase manquante");
+      }
 
-      // if (error) throw error;
+      // Termine la session spécifique dans la base de données
+      const { error } = await supabaseAdmin
+        .from("user_sessions")
+        .update({
+          is_active: false,
+          terminated_at: new Date().toISOString(),
+        })
+        .eq("id", sessionId)
+        .eq("user_id", userId);
 
-      console.log(`Session ${sessionId} terminated for user ${userId}`);
+      if (error) throw error;
+
+      // Récupère les informations utilisateur pour les logs
+      const userProfile = await getUserProfile(userId);
+
+      // Log l'action dans l'audit
+      await logAction(
+        "session_terminate",
+        `Session terminée${userProfile ? ` pour ${userProfile.email}` : ""}`,
+        userId,
+        JSON.stringify({ sessionId })
+      );
 
       return {
         success: true,

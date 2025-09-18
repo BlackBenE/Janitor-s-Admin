@@ -1,4 +1,4 @@
-import type { Database } from "../types/database.types";
+import { Database } from "../types/database.types";
 import { supabase, supabaseAdmin } from "../lib/supabaseClient";
 
 type TableName = keyof Database["public"]["Tables"];

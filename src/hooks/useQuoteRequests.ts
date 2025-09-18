@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { dataProvider } from "../providers/dataProvider";
-import type { Database } from "../types/database.types";
+import { Database } from "../types/database.types";
 
 type ServiceRequest = Database["public"]["Tables"]["service_requests"]["Row"];
 type ServiceRequestInsert =

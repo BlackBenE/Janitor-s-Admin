@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: string | null
+          id: string
+          metadata: Json | null
+          performed_by: string | null
+          performed_by_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          metadata?: Json | null
+          performed_by?: string | null
+          performed_by_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          metadata?: Json | null
+          performed_by?: string | null
+          performed_by_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           check_in: string
@@ -254,10 +302,13 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_locked: boolean
           created_at: string | null
           email: string
           full_name: string | null
           id: string
+          lock_reason: string | null
+          locked_until: string | null
           phone: string | null
           profile_validated: boolean | null
           role: string
@@ -265,10 +316,13 @@ export type Database = {
           vip_subscription: boolean | null
         }
         Insert: {
+          account_locked?: boolean
           created_at?: string | null
           email: string
           full_name?: string | null
           id: string
+          lock_reason?: string | null
+          locked_until?: string | null
           phone?: string | null
           profile_validated?: boolean | null
           role: string
@@ -276,10 +330,13 @@ export type Database = {
           vip_subscription?: boolean | null
         }
         Update: {
+          account_locked?: boolean
           created_at?: string | null
           email?: string
           full_name?: string | null
           id?: string
+          lock_reason?: string | null
+          locked_until?: string | null
           phone?: string | null
           profile_validated?: boolean | null
           role?: string
@@ -594,6 +651,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          device_type: string | null
+          id: string
+          ip_address: unknown | null
+          is_active: boolean
+          last_activity: string
+          location: string | null
+          terminated_at: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean
+          last_activity?: string
+          location?: string | null
+          terminated_at?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean
+          last_activity?: string
+          location?: string | null
+          terminated_at?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sessions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"

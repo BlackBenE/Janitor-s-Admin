@@ -6,7 +6,7 @@ import DashboardItem from "../components/DashboardItem";
 import DataTable from "../components/Table";
 import { useUsers } from "../hooks/useUsers";
 import { useUserActivity } from "../hooks/useUserActivity";
-import { useAuditLog } from "../hooks/useAuditLog";
+import { useAuditLog, type AuditLog } from "../hooks/useAuditLog";
 import { useSecurityActions } from "../hooks/useSecurityActions";
 import { Database } from "../types/database.types";
 import {
@@ -74,15 +74,7 @@ function UserManagementPage() {
 
   // États pour Phase 2 - Audit et Sécurité
   const [showAuditModal, setShowAuditModal] = useState(false);
-  const [auditLogs, setAuditLogs] = useState<
-    {
-      id: number;
-      action: string;
-      details: string;
-      timestamp: string;
-      admin_user: string;
-    }[]
-  >([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
   const [passwordResetUserId, setPasswordResetUserId] = useState<string | null>(
     null
@@ -297,7 +289,7 @@ function UserManagementPage() {
       },
     },
     {
-      field: "actions",
+      field: "Actions",
       headerName: "Actions",
       width: 200,
       sortable: false,
@@ -337,12 +329,6 @@ function UserManagementPage() {
       ),
     },
   ];
-
-  const handleEditUser = (user: UserProfile) => {
-    setSelectedUser(user);
-    setEditForm(user);
-    setModalOpen(true);
-  };
 
   const handleCloseModal = () => {
     setModalOpen(false);
@@ -925,32 +911,7 @@ function UserManagementPage() {
           )}
         </Box>
 
-        <DataTable
-          columns={columns}
-          data={filteredUsers}
-          renderActions={(row: UserProfile) => (
-            <Box
-              sx={{ display: "flex", justifyContent: "center", width: "100%" }}
-            >
-              <Button
-                size="small"
-                variant="contained"
-                color="primary"
-                startIcon={<RemoveRedEyeOutlinedIcon />}
-                onClick={() => handleEditUser(row)}
-                sx={{
-                  minWidth: "80px",
-                  textTransform: "none",
-                  fontSize: "0.75rem",
-                  px: 1.5,
-                  py: 0.5,
-                }}
-              >
-                View
-              </Button>
-            </Box>
-          )}
-        />
+        <DataTable columns={columns} data={filteredUsers} />
         {(isLoading || activityLoading) && (
           <Box sx={{ textAlign: "center", py: 2 }}>
             Loading {isLoading ? "users" : "activity data"}...
@@ -1320,8 +1281,8 @@ function UserManagementPage() {
                           {log.details}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {new Date(log.timestamp).toLocaleString()} - Par:{" "}
-                          {log.admin_user}
+                          {new Date(log.created_at).toLocaleString()} - Par:{" "}
+                          {log.performed_by_email || "Système"}
                         </Typography>
                       </Box>
                     }

@@ -1,18 +1,17 @@
 import React from "react";
 import { SvgIconTypeMap } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
-import DashboardPage from "../pages/dashboardPage";
-import FinancialOverviewPage from "../pages/financialOverviewPage";
-import InvoicesPage from "../pages/InvoicesPage";
-import AuthPage from "../pages/authPage";
-import ProfilePage from "../pages/profilePage";
-import PropertyApprovalsPage from "../pages/propertyApprovalsPage";
-import ProvidersModerationPage from "../pages/providersModerationPage";
-import QuoteRequestsPage from "../pages/quoteRequestsPage";
-import ServicesCatalogPage from "../pages/servicesCatalogPage";
-import SettingsPage from "../pages/settingsPage";
-import UserManagementPage from "../pages/userManagementPage";
-import AnalyticsPage from "../pages/AnalyticsPage";
+import DashboardPage from "../components/dashboard/DashboardPage";
+import FinancialOverviewPage from "../components/financialoverview/FinancialOverviewPage";
+import InvoicesPage from "../components/invoices/InvoicesPage";
+import { AuthPage as RefactoredAuthPage } from "../components/auth/AuthPage";
+import { ProfilePage as RefactoredProfilePage } from "../components/profile/ProfilePage";
+import PropertyApprovalsPage from "../components/property-approvals/PropertyApprovalsPage";
+import ProvidersModerationPage from "../components/providers-moderation/ProvidersModerationPage";
+import QuoteRequestsPage from "../components/quote-requests/QuoteRequestsPage";
+import ServicesCatalogPage from "../components/services-catalog/ServicesCatalogPage";
+import UserManagementPage from "../components/userManagement/UserManagementPage";
+import AnalyticsPage from "../components/analytics/AnalyticsPage";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
@@ -129,23 +128,13 @@ export const routes: Route[] = [
     path: "/profile",
     element: (
       <ProtectedRoute>
-        <ProfilePage />
+        <RefactoredProfilePage />
       </ProtectedRoute>
     ),
-    protected: true,
-  },
-  {
-    path: "/settings",
-    element: (
-      <ProtectedRoute>
-        <SettingsPage />
-      </ProtectedRoute>
-    ),
-    icon: SettingsOutlinedIcon,
     protected: true,
   },
   // Public routes
-  { path: "/auth", element: <AuthPage /> },
+  { path: "/auth", element: <RefactoredAuthPage /> },
 ];
 
 // Export only protected routes for sidebar navigation

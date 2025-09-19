@@ -5,7 +5,7 @@ import MailIcon from "@mui/icons-material/Mail";
 import Box from "@mui/material/Box";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import IconButtonWithBadge from "./IconButtonWithBadge";
-import { useNotifications } from "../hooks/useNotifications";
+import { useNotifications } from "../hooks/shared/useNotifications";
 import CommunicationDrawer from "./CommunicationDrawer";
 import NotificationDrawer from "./NotificationDrawer";
 import SearchBar from "./SearchBar";

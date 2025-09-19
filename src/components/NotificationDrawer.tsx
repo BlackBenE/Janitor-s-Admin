@@ -40,7 +40,7 @@ import {
 } from "@mui/icons-material";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useNotifications } from "../hooks/useNotifications";
+import { useNotifications } from "../hooks/shared/useNotifications";
 import { useNavigate } from "react-router-dom";
 
 interface NotificationDrawerProps {

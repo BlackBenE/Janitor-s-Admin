@@ -45,7 +45,7 @@ import {
   FileCopy,
   Campaign,
 } from "@mui/icons-material";
-import { useNotifications } from "../hooks/useNotifications";
+import { useNotifications } from "../hooks/shared/useNotifications";
 
 interface CommunicationDrawerProps {
   open: boolean;

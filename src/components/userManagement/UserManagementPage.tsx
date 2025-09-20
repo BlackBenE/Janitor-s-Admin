@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, Button, Fab, Tooltip, Snackbar, Alert } from "@mui/material";
+import {
+  Box,
+  Button,
+  Tooltip,
+  Snackbar,
+  Alert,
+  Typography,
+} from "@mui/material";
 import { Add as AddIcon, Download as DownloadIcon } from "@mui/icons-material";
 
 import AdminLayout from "../AdminLayout";
@@ -7,6 +14,10 @@ import DataTable from "../Table";
 import { UserStatsCards } from "./UserStatsCards";
 import { UserFiltersComponent } from "./UserFilters";
 import { UserActions } from "./UserActions";
+import { UserTabs } from "./UserTabs";
+
+// Configuration
+import { USER_TABS, UserRole } from "./config/userTabs";
 
 // Modales
 import {
@@ -18,7 +29,7 @@ import {
   BulkActionModal,
 } from "./modals";
 
-// Hooks - Import optimisé depuis index
+// Hooks
 import {
   useUserManagement,
   useUsers,
@@ -28,21 +39,27 @@ import {
   useUserModals,
 } from "../../hooks";
 import { useAuth } from "../../providers/authProvider";
+import { createUserTableColumns } from "./UserTableColumns";
+import { useUserActions } from "./hooks/useUserActions";
+import { useModalHandlers } from "./hooks/useModalHandlers";
 
 // Types
 import { UserProfile } from "../../types/userManagement";
 
-// Colonnes et logique métier
-import { createUserTableColumns } from "./UserTableColumns";
-import { useUserActions } from "./hooks/useUserActions";
-
 export const UserManagementPage: React.FC = () => {
+  // State pour les onglets
+  const [activeTab, setActiveTab] = React.useState(0);
+  const [selectedUserRole, setSelectedUserRole] =
+    React.useState<UserRole | null>(
+      null // null pour "All Users"
+    );
+
   // Hooks principaux
   const userManagement = useUserManagement();
   const modals = useUserModals();
   const { getEmail } = useAuth();
 
-  // Hooks de données
+  // Hooks de données avec filtrage par rôle
   const {
     users,
     isLoading,
@@ -52,6 +69,7 @@ export const UserManagementPage: React.FC = () => {
     deleteManyUsers,
     refetch,
   } = useUsers({
+    filters: selectedUserRole ? { role: selectedUserRole } : {}, // Pas de filtre si "All Users"
     orderBy: "created_at",
   });
   const userIds = users.map((user: UserProfile) => user.id);
@@ -73,7 +91,29 @@ export const UserManagementPage: React.FC = () => {
     refetch,
   });
 
-  // Données filtrées
+  // Handlers de modales
+  const modalHandlers = useModalHandlers({
+    userManagement,
+    updateUser,
+    logAction,
+    auditActions,
+    securityActions,
+    modals,
+    refetch,
+  });
+
+  // Handler pour changer d'onglet
+  const handleTabChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newValue: number | null
+  ) => {
+    if (newValue !== null) {
+      setActiveTab(newValue);
+      setSelectedUserRole(USER_TABS[newValue].role);
+    }
+  };
+
+  // Données filtrées par rôle actuel
   const filteredUsers = userManagement.filterUsers(users);
 
   // Colonnes du tableau
@@ -101,346 +141,20 @@ export const UserManagementPage: React.FC = () => {
     );
   };
 
-  // Gestion des modales - Actions utilisateur
-  const handleSaveUser = () => {
-    if (
-      !userManagement.selectedUser ||
-      Object.keys(userManagement.editForm).length === 0
-    ) {
-      userManagement.showNotification("No changes detected", "info");
-      return;
-    }
-
-    const changedFields = Object.keys(userManagement.editForm).filter((key) => {
-      const editValue = userManagement.editForm[key as keyof UserProfile];
-      const originalValue =
-        userManagement.selectedUser![key as keyof UserProfile];
-      return editValue !== originalValue;
-    });
-
-    if (changedFields.length === 0) {
-      userManagement.showNotification("No changes detected", "info");
-      return;
-    }
-
-    // Helper function pour l'assignation type-safe
-    const safeAssign = <K extends keyof UserProfile>(
-      target: Partial<UserProfile>,
-      key: K,
-      value: unknown
-    ): void => {
-      if (value !== undefined) {
-        (target as Record<K, unknown>)[key] = value;
-      }
-    };
-
-    const updatePayload: Partial<UserProfile> = {};
-    changedFields.forEach((field) => {
-      const key = field as keyof UserProfile;
-      const value = userManagement.editForm[key];
-      safeAssign(updatePayload, key, value);
-    });
-
-    updateUser.mutate(
-      {
-        id: userManagement.selectedUser.id,
-        payload: updatePayload,
-      },
-      {
-        onSuccess: async () => {
-          await logAction(
-            auditActions.USER_UPDATED,
-            userManagement.selectedUser!.id,
-            `Fields modified: ${changedFields.join(", ")}`,
-            getEmail() || "system",
-            {
-              changedFields,
-              oldValues: changedFields.reduce((acc, field) => {
-                acc[field] =
-                  userManagement.selectedUser![field as keyof UserProfile];
-                return acc;
-              }, {} as Record<string, unknown>),
-              newValues: changedFields.reduce((acc, field) => {
-                acc[field] =
-                  userManagement.editForm[field as keyof UserProfile];
-                return acc;
-              }, {} as Record<string, unknown>),
-            }
-          );
-
-          userManagement.showNotification(
-            `User updated successfully (${changedFields.length} field${
-              changedFields.length > 1 ? "s" : ""
-            } modified)`,
-            "success"
-          );
-          modals.closeUserDetailsModal();
-          userManagement.resetEditForm();
-        },
-        onError: (error) => {
-          userManagement.showNotification(
-            `Error updating user: ${error.message}`,
-            "error"
-          );
-        },
-      }
-    );
-  };
-
-  const handleSuspendUser = () => {
-    if (!userManagement.selectedUser) return;
-
-    updateUser.mutate(
-      {
-        id: userManagement.selectedUser.id,
-        payload: { profile_validated: false },
-      },
-      {
-        onSuccess: async () => {
-          await logAction(
-            auditActions.USER_SUSPENDED,
-            userManagement.selectedUser!.id,
-            "Account suspended by administrator",
-            getEmail() || "system",
-            {
-              reason: "admin_action",
-              previousStatus: userManagement.selectedUser!.profile_validated,
-            }
-          );
-
-          userManagement.showNotification(
-            "User suspended successfully",
-            "success"
-          );
-          modals.closeUserDetailsModal();
-          userManagement.resetEditForm();
-        },
-        onError: (error) => {
-          userManagement.showNotification(
-            `Error suspending user: ${error.message}`,
-            "error"
-          );
-        },
-      }
-    );
-  };
-
-  const handleCreateUser = async () => {
-    if (
-      Object.keys(userManagement.editForm).length === 0 ||
-      !userManagement.editForm.email ||
-      !userManagement.editForm.role
-    ) {
-      userManagement.showNotification("Email and role are required", "warning");
-      return;
-    }
-
-    try {
-      const userData = {
-        email: userManagement.editForm.email!,
-        role: userManagement.editForm.role!,
-        full_name: userManagement.editForm.full_name || null,
-        phone: userManagement.editForm.phone || null,
-        profile_validated: userManagement.editForm.profile_validated || false,
-        vip_subscription: userManagement.editForm.vip_subscription || false,
-      };
-
-      const result = await securityActions.createUserWithAuth(userData);
-
-      if (result.success && result.profile) {
-        await logAction(
-          auditActions.USER_CREATED,
-          result.profile.id,
-          `New user created: ${userData.email}`,
-          getEmail() || "system",
-          { userData }
-        );
-
-        userManagement.showNotification("User created successfully", "success");
-        modals.closeCreateUserModal();
-        userManagement.resetEditForm();
-      } else {
-        throw new Error("Failed to create user profile");
-      }
-    } catch (error) {
-      console.error("Creation error:", error);
-      userManagement.showNotification(
-        `Error creating user: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-        "error"
-      );
-    }
-  };
-
-  const handleConfirmPasswordReset = async () => {
-    if (!modals.passwordResetUserId) return;
-
-    try {
-      await securityActions.resetPassword(
-        modals.passwordResetUserId,
-        "Admin-initiated password reset"
-      );
-
-      await logAction(
-        auditActions.PASSWORD_RESET,
-        modals.passwordResetUserId,
-        "Password reset email sent by administrator",
-        getEmail() || "system",
-        { reason: "Admin-initiated password reset" }
-      );
-
-      userManagement.showNotification(
-        "Password reset email sent successfully",
-        "success"
-      );
-      modals.closePasswordResetModal();
-    } catch {
-      userManagement.showNotification(
-        "Error sending password reset email",
-        "error"
-      );
-    }
-  };
-
-  // Handler pour verrouiller un compte
-  const handleLockAccount = async () => {
-    if (!modals.lockAccount.userId || !modals.lockAccount.reason.trim()) {
-      userManagement.showNotification(
-        "Raison requise pour verrouiller le compte",
-        "warning"
-      );
-      return;
-    }
-
-    try {
-      // Utilisons updateUser.mutateAsync comme pour l'action VIP
-      const lockUntil = new Date(
-        Date.now() + modals.lockAccount.duration * 60000
-      );
-
-      await updateUser.mutateAsync({
-        id: modals.lockAccount.userId,
-        payload: {
-          account_locked: true,
-          locked_until: lockUntil.toISOString(),
-          lock_reason: modals.lockAccount.reason,
-        },
-      });
-
-      await logAction(
-        auditActions.USER_SUSPENDED,
-        modals.lockAccount.userId,
-        `Account locked for ${modals.lockAccount.duration} minutes: ${modals.lockAccount.reason}`,
-        getEmail() || "system",
-        {
-          duration: modals.lockAccount.duration,
-          reason: modals.lockAccount.reason,
-          lockedUntil: lockUntil.toISOString(),
-        }
-      );
-
-      userManagement.showNotification(
-        "Compte verrouillé avec succès",
-        "success"
-      );
-      modals.closeLockModal();
-
-      // Rafraîchir les données pour refléter les changements
-      refetch();
-    } catch (error) {
-      userManagement.showNotification(
-        `Erreur lors du verrouillage: ${
-          error instanceof Error ? error.message : "Erreur inconnue"
-        }`,
-        "error"
-      );
-    }
-  };
-
-  // Handler pour les actions en masse
-  const handleBulkAction = async () => {
-    if (userManagement.selectedUsers.length === 0) {
-      userManagement.showNotification(
-        "Aucun utilisateur sélectionné",
-        "warning"
-      );
-      return;
-    }
-
-    try {
-      switch (modals.bulkAction.type) {
-        case "delete":
-          await deleteManyUsers.mutateAsync(userManagement.selectedUsers);
-          break;
-        case "role":
-          if (!modals.bulkAction.roleChange) {
-            userManagement.showNotification("Sélectionnez un rôle", "warning");
-            return;
-          }
-          await Promise.all(
-            userManagement.selectedUsers.map((userId) =>
-              updateUser.mutateAsync({
-                id: userId,
-                payload: { role: modals.bulkAction.roleChange },
-              })
-            )
-          );
-          break;
-        case "vip":
-          await Promise.all(
-            userManagement.selectedUsers.map((userId) =>
-              updateUser.mutateAsync({
-                id: userId,
-                payload: { vip_subscription: modals.bulkAction.vipChange },
-              })
-            )
-          );
-          break;
-      }
-
-      await logAction(
-        auditActions.BULK_ACTION,
-        "system",
-        `Bulk action ${modals.bulkAction.type} applied to ${userManagement.selectedUsers.length} users`,
-        getEmail() || "system",
-        {
-          action: modals.bulkAction.type,
-          userIds: userManagement.selectedUsers,
-          details: modals.bulkAction,
-        }
-      );
-
-      userManagement.showNotification(
-        `Action en masse réalisée avec succès sur ${
-          userManagement.selectedUsers.length
-        } utilisateur${userManagement.selectedUsers.length > 1 ? "s" : ""}`,
-        "success"
-      );
-
-      modals.closeBulkActionModal();
-      userManagement.clearUserSelection();
-    } catch (error) {
-      userManagement.showNotification(
-        `Erreur lors de l'action en masse: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-        "error"
-      );
-    }
-  };
-
   return (
     <AdminLayout>
+      {/* En-tête de la page */}
       <Box>
-        <h2>User Management</h2>
-        <p>
-          Manage users, subscriptions, and account activities across the
-          platform.
-        </p>
+        <Typography variant="h4" component="h1" gutterBottom>
+          User Management
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          Manage all user types including tenants, landlords, and service
+          providers across the platform.
+        </Typography>
       </Box>
 
-      {/* Cartes de statistiques */}
+      {/* Cartes de statistiques globales */}
       <UserStatsCards
         filteredUsers={filteredUsers}
         activityData={activityData}
@@ -448,28 +162,43 @@ export const UserManagementPage: React.FC = () => {
 
       {/* Message d'erreur */}
       {error && (
-        <Box sx={{ color: "error.main", mb: 2 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           Error loading users:{" "}
           {error instanceof Error ? error.message : "Unknown error"}
-        </Box>
+        </Alert>
       )}
 
-      {/* Section principale */}
       <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
+        {/* Filtres simplifiés - seulement le statut */}
+        <h3>All Users</h3>
+        <p>Manage users across all categories with specialized views</p>
+        <Box sx={{ mb: 3 }}>
+          <UserFiltersComponent
+            filters={userManagement.filters}
+            onUpdateFilter={userManagement.updateFilter}
+            simplified={true}
+          />
+        </Box>
+
+        {/* Onglets en style toggle sous les filtres avec boutons d'action */}
         <Box
           sx={{
+            mb: 3,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            mb: 2,
+            flexWrap: "wrap",
+            gap: 2,
           }}
         >
-          <Box>
-            <h3>Users</h3>
-            <p>Manage user accounts and subscriptions</p>
-          </Box>
+          <UserTabs
+            activeTab={activeTab}
+            users={users}
+            onTabChange={handleTabChange}
+          />
+
           <Box sx={{ display: "flex", gap: 1 }}>
-            <Tooltip title="Exporter en CSV">
+            <Tooltip title="Export to CSV">
               <Button
                 variant="outlined"
                 size="small"
@@ -479,135 +208,177 @@ export const UserManagementPage: React.FC = () => {
                 CSV
               </Button>
             </Tooltip>
-            <Fab
-              color="primary"
-              size="medium"
-              onClick={modals.openCreateUserModal}
-              sx={{ ml: 1 }}
+
+            <Tooltip
+              title={`Create new ${USER_TABS[activeTab].label
+                .slice(0, -1)
+                .toLowerCase()}`}
             >
-              <AddIcon />
-            </Fab>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => modals.openCreateUserModal()}
+                size="small"
+              >
+                New{" "}
+                {activeTab === 0
+                  ? "User"
+                  : USER_TABS[activeTab].label.slice(0, -1)}
+              </Button>
+            </Tooltip>
           </Box>
         </Box>
 
-        {/* Filtres et Actions */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <UserFiltersComponent
-            filters={userManagement.filters}
-            onUpdateFilter={userManagement.updateFilter}
-          />
-
-          <UserActions
-            selectedUsers={userManagement.selectedUsers}
-            onBulkValidate={userActions.handleBulkValidate}
-            onBulkSuspend={userActions.handleBulkSuspend}
-            onBulkAction={modals.openBulkActionModal}
-          />
+        {/* Actions et contrôles */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          {/* Actions en lot si des utilisateurs sont sélectionnés */}
+          {userManagement.selectedUsers.length > 0 && (
+            <UserActions
+              selectedUsers={userManagement.selectedUsers}
+              onBulkValidate={userActions.handleBulkValidate}
+              onBulkSuspend={userActions.handleBulkSuspend}
+              onBulkAction={modals.openBulkActionModal}
+            />
+          )}
         </Box>
 
-        {/* Tableau */}
-        <DataTable columns={columns} data={filteredUsers} />
+        {/* Table des utilisateurs */}
+        <DataTable
+          columns={createUserTableColumns({
+            selectedUsers: userManagement.selectedUsers,
+            activityData,
+            onToggleUserSelection: (userId: string) => {
+              userManagement.toggleUserSelection(userId);
+            },
+            onShowUser: (user: UserProfile) => {
+              userManagement.setSelectedUser(user);
+              modals.openUserDetailsModal();
+            },
+            onShowAudit: (userId: string) => {
+              modals.openAuditModal(userId);
+            },
+            onPasswordReset: (userId: string) => {
+              modals.openPasswordResetModal(userId);
+            },
+            onForceLogout: userActions.handleForceLogout,
+            onLockAccount: (userId: string) => {
+              modals.openLockModal(userId);
+            },
+            onUnlockAccount: userActions.handleUnlockAccount,
+          })}
+          data={filteredUsers}
+        />
 
-        {/* Loading */}
         {(isLoading || activityLoading) && (
-          <Box sx={{ textAlign: "center", py: 2 }}>
-            Loading {isLoading ? "users" : "activity data"}...
+          <Box sx={{ textAlign: "center", py: 2 }}>Loading...</Box>
+        )}
+
+        {filteredUsers.length === 0 && !isLoading && (
+          <Box sx={{ textAlign: "center", py: 2, color: "text.secondary" }}>
+            No {USER_TABS[activeTab].label.toLowerCase()} found
           </Box>
         )}
-      </Box>
 
-      {/* Modales - À implémenter dans les prochains composants */}
+        {/* Modales */}
 
-      {/* User Details Modal */}
-      <UserDetailsModal
-        open={modals.showUserDetailsModal}
-        user={userManagement.selectedUser}
-        editForm={userManagement.editForm}
-        onClose={modals.closeUserDetailsModal}
-        onSave={handleSaveUser}
-        onSuspend={handleSuspendUser}
-        onInputChange={userManagement.updateEditForm}
-      />
+        {/* User Details Modal */}
+        <UserDetailsModal
+          open={modals.showUserDetailsModal}
+          user={userManagement.selectedUser}
+          editForm={userManagement.editForm}
+          onClose={modals.closeUserDetailsModal}
+          onSave={modalHandlers.handleSaveUser}
+          onSuspend={modalHandlers.handleSuspendUser}
+          onInputChange={userManagement.updateEditForm}
+        />
 
-      {/* Create User Modal */}
-      <CreateUserModal
-        open={modals.showCreateUserModal}
-        editForm={userManagement.editForm}
-        onClose={() => {
-          modals.closeCreateUserModal();
-          userManagement.resetEditForm();
-        }}
-        onCreate={handleCreateUser}
-        onInputChange={userManagement.updateEditForm}
-      />
+        {/* Create User Modal */}
+        <CreateUserModal
+          open={modals.showCreateUserModal}
+          editForm={userManagement.editForm}
+          onClose={() => {
+            modals.closeCreateUserModal();
+            userManagement.resetEditForm();
+          }}
+          onCreate={modalHandlers.handleCreateUser}
+          onInputChange={userManagement.updateEditForm}
+        />
 
-      {/* Password Reset Modal */}
-      <PasswordResetModal
-        open={modals.showPasswordResetModal}
-        userId={modals.passwordResetUserId}
-        userEmail={
-          modals.passwordResetUserId
-            ? users.find((u) => u.id === modals.passwordResetUserId)?.email
-            : undefined
-        }
-        onClose={modals.closePasswordResetModal}
-        onConfirm={handleConfirmPasswordReset}
-      />
+        {/* Password Reset Modal */}
+        <PasswordResetModal
+          open={modals.showPasswordResetModal}
+          userId={modals.passwordResetUserId}
+          userEmail={
+            modals.passwordResetUserId
+              ? users.find((u) => u.id === modals.passwordResetUserId)?.email
+              : undefined
+          }
+          onClose={modals.closePasswordResetModal}
+          onConfirm={modalHandlers.handleConfirmPasswordReset}
+        />
 
-      {/* Audit Modal */}
-      <AuditModal
-        open={modals.showAuditModal}
-        audit={modals.audit}
-        userEmail={
-          modals.audit.userId
-            ? users.find((u) => u.id === modals.audit.userId)?.email
-            : undefined
-        }
-        onClose={modals.closeAuditModal}
-        onUpdateTab={modals.updateAuditTab}
-      />
+        {/* Audit Modal */}
+        <AuditModal
+          open={modals.showAuditModal}
+          audit={modals.audit}
+          userEmail={
+            modals.audit.userId
+              ? users.find((u) => u.id === modals.audit.userId)?.email
+              : undefined
+          }
+          onClose={modals.closeAuditModal}
+          onUpdateTab={modals.updateAuditTab}
+        />
 
-      {/* Lock Account Modal */}
-      <LockAccountModal
-        open={modals.showLockModal}
-        lockAccount={modals.lockAccount}
-        userEmail={
-          modals.lockAccount.userId
-            ? users.find((u) => u.id === modals.lockAccount.userId)?.email
-            : undefined
-        }
-        onClose={modals.closeLockModal}
-        onConfirm={handleLockAccount}
-        onUpdateDuration={modals.updateLockDuration}
-        onUpdateReason={modals.updateLockReason}
-      />
+        {/* Lock Account Modal */}
+        <LockAccountModal
+          open={modals.showLockModal}
+          lockAccount={modals.lockAccount}
+          userEmail={
+            modals.lockAccount.userId
+              ? users.find((u) => u.id === modals.lockAccount.userId)?.email
+              : undefined
+          }
+          onClose={modals.closeLockModal}
+          onConfirm={modalHandlers.handleLockAccount}
+          onUpdateDuration={modals.updateLockDuration}
+          onUpdateReason={modals.updateLockReason}
+        />
 
-      {/* Bulk Action Modal */}
-      <BulkActionModal
-        open={modals.showBulkActionModal}
-        bulkAction={modals.bulkAction}
-        selectedUsers={userManagement.selectedUsers}
-        onClose={modals.closeBulkActionModal}
-        onConfirm={handleBulkAction}
-        onUpdateRoleChange={modals.updateBulkRoleChange}
-        onUpdateVipChange={modals.updateBulkVipChange}
-      />
+        {/* Bulk Action Modal */}
+        <BulkActionModal
+          open={modals.showBulkActionModal}
+          bulkAction={modals.bulkAction}
+          selectedUsers={userManagement.selectedUsers}
+          onClose={modals.closeBulkActionModal}
+          onConfirm={modalHandlers.handleBulkAction}
+          onUpdateRoleChange={modals.updateBulkRoleChange}
+          onUpdateVipChange={modals.updateBulkVipChange}
+        />
 
-      {/* Notifications */}
-      <Snackbar
-        open={userManagement.notification.open}
-        autoHideDuration={6000}
-        onClose={userManagement.hideNotification}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert
+        {/* Notifications */}
+        <Snackbar
+          open={userManagement.notification.open}
+          autoHideDuration={6000}
           onClose={userManagement.hideNotification}
-          severity={userManagement.notification.severity}
-          sx={{ width: "100%" }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         >
-          {userManagement.notification.message}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={userManagement.hideNotification}
+            severity={userManagement.notification.severity}
+            sx={{ width: "100%" }}
+          >
+            {userManagement.notification.message}
+          </Alert>
+        </Snackbar>
+      </Box>
     </AdminLayout>
   );
 };

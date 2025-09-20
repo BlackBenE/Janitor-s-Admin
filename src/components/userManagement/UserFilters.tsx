@@ -12,11 +12,13 @@ import { UserFilters } from "../../types/userManagement";
 interface UserFiltersProps {
   filters: UserFilters;
   onUpdateFilter: (key: keyof UserFilters, value: string) => void;
+  simplified?: boolean; // Nouvelle prop pour version simplifiée
 }
 
 export const UserFiltersComponent: React.FC<UserFiltersProps> = ({
   filters,
   onUpdateFilter,
+  simplified = false, // Par défaut, afficher tous les filtres
 }) => {
   return (
     <Box
@@ -37,21 +39,6 @@ export const UserFiltersComponent: React.FC<UserFiltersProps> = ({
       />
 
       <FormControl size="small" sx={{ minWidth: 120 }}>
-        <InputLabel>Role</InputLabel>
-        <Select
-          value={filters.role}
-          label="Role"
-          onChange={(e) => onUpdateFilter("role", e.target.value)}
-        >
-          <MenuItem value="">All</MenuItem>
-          <MenuItem value="traveler">traveler</MenuItem>
-          <MenuItem value="property_owner">Property Owner</MenuItem>
-          <MenuItem value="service_provider">Service Provider</MenuItem>
-          <MenuItem value="admin">Admin</MenuItem>
-        </Select>
-      </FormControl>
-
-      <FormControl size="small" sx={{ minWidth: 120 }}>
         <InputLabel>Status</InputLabel>
         <Select
           value={filters.status}
@@ -65,18 +52,38 @@ export const UserFiltersComponent: React.FC<UserFiltersProps> = ({
         </Select>
       </FormControl>
 
-      <FormControl size="small" sx={{ minWidth: 140 }}>
-        <InputLabel>Subscription</InputLabel>
-        <Select
-          value={filters.subscription}
-          label="Subscription"
-          onChange={(e) => onUpdateFilter("subscription", e.target.value)}
-        >
-          <MenuItem value="">All</MenuItem>
-          <MenuItem value="vip">VIP</MenuItem>
-          <MenuItem value="standard">Standard</MenuItem>
-        </Select>
-      </FormControl>
+      {/* Afficher les filtres Role et Subscription seulement si pas en mode simplifié */}
+      {!simplified && (
+        <>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Role</InputLabel>
+            <Select
+              value={filters.role}
+              label="Role"
+              onChange={(e) => onUpdateFilter("role", e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="traveler">traveler</MenuItem>
+              <MenuItem value="property_owner">Property Owner</MenuItem>
+              <MenuItem value="service_provider">Service Provider</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <InputLabel>Subscription</InputLabel>
+            <Select
+              value={filters.subscription}
+              label="Subscription"
+              onChange={(e) => onUpdateFilter("subscription", e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="vip">VIP</MenuItem>
+              <MenuItem value="standard">Standard</MenuItem>
+            </Select>
+          </FormControl>
+        </>
+      )}
     </Box>
   );
 };

@@ -7,7 +7,6 @@ import InvoicesPage from "../components/invoices/InvoicesPage";
 import { AuthPage as RefactoredAuthPage } from "../components/auth/AuthPage";
 import { ProfilePage as RefactoredProfilePage } from "../components/profile/ProfilePage";
 import PropertyApprovalsPage from "../components/property-approvals/PropertyApprovalsPage";
-import ProvidersModerationPage from "../components/providers-moderation/ProvidersModerationPage";
 import QuoteRequestsPage from "../components/quote-requests/QuoteRequestsPage";
 import ServicesCatalogPage from "../components/services-catalog/ServicesCatalogPage";
 import UserManagementPage from "../components/userManagement/UserManagementPage";
@@ -15,11 +14,9 @@ import AnalyticsPage from "../components/analytics/AnalyticsPage";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
-import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import EuroOutlinedIcon from "@mui/icons-material/EuroOutlined";
 import MedicalInformationOutlinedIcon from "@mui/icons-material/MedicalInformationOutlined";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
@@ -52,16 +49,6 @@ export const routes: Route[] = [
       </ProtectedRoute>
     ),
     icon: ApartmentOutlinedIcon,
-    protected: true,
-  },
-  {
-    path: "/providers-moderation",
-    element: (
-      <ProtectedRoute>
-        <ProvidersModerationPage />
-      </ProtectedRoute>
-    ),
-    icon: HowToRegOutlinedIcon,
     protected: true,
   },
   {

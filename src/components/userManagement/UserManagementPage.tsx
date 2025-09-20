@@ -27,6 +27,9 @@ import {
   AuditModal,
   LockAccountModal,
   BulkActionModal,
+  BookingsModal,
+  SubscriptionModal,
+  ServicesModal,
 } from "./modals";
 
 // Hooks
@@ -53,6 +56,23 @@ export const UserManagementPage: React.FC = () => {
     React.useState<UserRole | null>(
       null // null pour "All Users"
     );
+
+  // State pour les nouvelles modals role-spécifiques
+  const [bookingsModal, setBookingsModal] = React.useState({
+    open: false,
+    userId: "",
+    userName: "",
+  });
+  const [subscriptionModal, setSubscriptionModal] = React.useState({
+    open: false,
+    userId: "",
+    userName: "",
+  });
+  const [servicesModal, setServicesModal] = React.useState({
+    open: false,
+    userId: "",
+    userName: "",
+  });
 
   // Hooks principaux
   const userManagement = useUserManagement();
@@ -113,13 +133,39 @@ export const UserManagementPage: React.FC = () => {
     }
   };
 
+  // Handlers pour les nouvelles modals
+  const handleOpenBookingsModal = (userId: string, userName: string) => {
+    setBookingsModal({ open: true, userId, userName });
+  };
+
+  const handleOpenSubscriptionModal = (userId: string, userName: string) => {
+    setSubscriptionModal({ open: true, userId, userName });
+  };
+
+  const handleOpenServicesModal = (userId: string, userName: string) => {
+    setServicesModal({ open: true, userId, userName });
+  };
+
+  const handleCloseBookingsModal = () => {
+    setBookingsModal({ open: false, userId: "", userName: "" });
+  };
+
+  const handleCloseSubscriptionModal = () => {
+    setSubscriptionModal({ open: false, userId: "", userName: "" });
+  };
+
+  const handleCloseServicesModal = () => {
+    setServicesModal({ open: false, userId: "", userName: "" });
+  };
+
   // Données filtrées par rôle actuel
   const filteredUsers = userManagement.filterUsers(users);
 
-  // Colonnes du tableau
+  // Colonnes du tableau avec actions role-spécifiques
   const columns = createUserTableColumns({
     selectedUsers: userManagement.selectedUsers,
     activityData,
+    currentUserRole: selectedUserRole,
     onToggleUserSelection: userManagement.toggleUserSelection,
     onShowUser: (user: UserProfile) => {
       userManagement.setUserForEdit(user);
@@ -130,6 +176,12 @@ export const UserManagementPage: React.FC = () => {
     onForceLogout: userActions.handleForceLogout,
     onLockAccount: modals.openLockModal,
     onUnlockAccount: userActions.handleUnlockAccount,
+    // Nouvelles actions role-spécifiques
+    onViewBookings: handleOpenBookingsModal,
+    onManageSubscription: handleOpenSubscriptionModal,
+    onManageServices: handleOpenServicesModal,
+    onToggleVIP: userActions.handleToggleVIP,
+    onValidateProvider: userActions.handleValidateProvider,
   });
 
   // Gestion de l'export
@@ -250,31 +302,7 @@ export const UserManagementPage: React.FC = () => {
         </Box>
 
         {/* Table des utilisateurs */}
-        <DataTable
-          columns={createUserTableColumns({
-            selectedUsers: userManagement.selectedUsers,
-            activityData,
-            onToggleUserSelection: (userId: string) => {
-              userManagement.toggleUserSelection(userId);
-            },
-            onShowUser: (user: UserProfile) => {
-              userManagement.setSelectedUser(user);
-              modals.openUserDetailsModal();
-            },
-            onShowAudit: (userId: string) => {
-              modals.openAuditModal(userId);
-            },
-            onPasswordReset: (userId: string) => {
-              modals.openPasswordResetModal(userId);
-            },
-            onForceLogout: userActions.handleForceLogout,
-            onLockAccount: (userId: string) => {
-              modals.openLockModal(userId);
-            },
-            onUnlockAccount: userActions.handleUnlockAccount,
-          })}
-          data={filteredUsers}
-        />
+        <DataTable columns={columns} data={filteredUsers} />
 
         {(isLoading || activityLoading) && (
           <Box sx={{ textAlign: "center", py: 2 }}>Loading...</Box>
@@ -361,6 +389,32 @@ export const UserManagementPage: React.FC = () => {
           onConfirm={modalHandlers.handleBulkAction}
           onUpdateRoleChange={modals.updateBulkRoleChange}
           onUpdateVipChange={modals.updateBulkVipChange}
+        />
+
+        {/* Nouvelles modals role-spécifiques */}
+
+        {/* Bookings Modal */}
+        <BookingsModal
+          open={bookingsModal.open}
+          onClose={handleCloseBookingsModal}
+          userId={bookingsModal.userId}
+          userName={bookingsModal.userName}
+        />
+
+        {/* Subscription Modal */}
+        <SubscriptionModal
+          open={subscriptionModal.open}
+          onClose={handleCloseSubscriptionModal}
+          userId={subscriptionModal.userId}
+          userName={subscriptionModal.userName}
+        />
+
+        {/* Services Modal */}
+        <ServicesModal
+          open={servicesModal.open}
+          onClose={handleCloseServicesModal}
+          userId={servicesModal.userId}
+          userName={servicesModal.userName}
         />
 
         {/* Notifications */}

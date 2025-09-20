@@ -1,5 +1,15 @@
 import React from "react";
-import { Box, Chip, Checkbox, IconButton, Tooltip } from "@mui/material";
+import {
+  Box,
+  Chip,
+  Checkbox,
+  IconButton,
+  Tooltip,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import {
   RemoveRedEyeOutlined as RemoveRedEyeOutlinedIcon,
   History as HistoryIcon,
@@ -7,13 +17,23 @@ import {
   ExitToApp as ExitToAppIcon,
   Lock as LockIcon,
   LockOpen as LockOpenIcon,
+  CalendarToday as CalendarTodayIcon,
+  Payment as PaymentIcon,
+  Build as BuildIcon,
+  Star as StarIcon,
+  StarBorder as StarBorderIcon,
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
+  MoreVert as MoreVertIcon,
 } from "@mui/icons-material";
 import { GridRenderCellParams } from "@mui/x-data-grid";
 import { UserProfile, UserActivityData } from "../../types/userManagement";
+import { UserRole } from "./config/userTabs";
 
 interface UserTableColumnsProps {
   selectedUsers: string[];
   activityData: Record<string, UserActivityData> | undefined;
+  currentUserRole: UserRole | null;
   onToggleUserSelection: (userId: string) => void;
   onShowUser: (user: UserProfile) => void;
   onShowAudit: (userId: string) => void;
@@ -21,11 +41,18 @@ interface UserTableColumnsProps {
   onForceLogout: (userId: string) => void;
   onLockAccount: (userId: string) => void;
   onUnlockAccount: (userId: string) => void;
+  // Nouvelles actions role-spécifiques
+  onViewBookings: (userId: string, userName: string) => void;
+  onManageSubscription: (userId: string, userName: string) => void;
+  onManageServices: (userId: string, userName: string) => void;
+  onToggleVIP: (userId: string, isVIP: boolean) => void;
+  onValidateProvider: (userId: string, approved: boolean) => void;
 }
 
 export const createUserTableColumns = ({
   selectedUsers,
   activityData,
+  currentUserRole,
   onToggleUserSelection,
   onShowUser,
   onShowAudit,
@@ -33,6 +60,11 @@ export const createUserTableColumns = ({
   onForceLogout,
   onLockAccount,
   onUnlockAccount,
+  onViewBookings,
+  onManageSubscription,
+  onManageServices,
+  onToggleVIP,
+  onValidateProvider,
 }: UserTableColumnsProps) => {
   const getRoleColor = (
     role: string
@@ -159,17 +191,70 @@ export const createUserTableColumns = ({
     },
     {
       field: "activity",
-      headerName: "Activity",
+      headerName:
+        currentUserRole === UserRole.TRAVELER
+          ? "Bookings"
+          : currentUserRole === UserRole.PROPERTY_OWNER
+          ? "Properties"
+          : currentUserRole === UserRole.SERVICE_PROVIDER
+          ? "Services"
+          : "Activity",
       sortable: false,
       filterable: false,
       valueGetter: (value: string | null, row: UserProfile) => {
         const activity = activityData?.[row.id];
+        if (currentUserRole === UserRole.TRAVELER) {
+          return activity ? `${activity.totalBookings} bookings` : "0 bookings";
+        } else if (currentUserRole === UserRole.PROPERTY_OWNER) {
+          return activity
+            ? `${activity.totalProperties || 0} properties`
+            : "0 properties";
+        } else if (currentUserRole === UserRole.SERVICE_PROVIDER) {
+          return activity
+            ? `${activity.totalServices || 0} services`
+            : "0 services";
+        }
         return activity ? `${activity.totalBookings} bookings` : "0 bookings";
       },
       renderCell: (params: GridRenderCellParams<UserProfile>) => {
         const activity = activityData?.[params.row.id];
         if (!activity) {
           return <Box sx={{ color: "text.secondary" }}>Loading...</Box>;
+        }
+
+        if (currentUserRole === UserRole.TRAVELER) {
+          return (
+            <Box>
+              <Box sx={{ fontWeight: "medium", fontSize: "0.875rem" }}>
+                {activity.totalBookings} bookings
+              </Box>
+              <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                Last: {formatDate(activity.lastBookingDate)}
+              </Box>
+            </Box>
+          );
+        } else if (currentUserRole === UserRole.PROPERTY_OWNER) {
+          return (
+            <Box>
+              <Box sx={{ fontWeight: "medium", fontSize: "0.875rem" }}>
+                {activity.totalProperties || 0} properties
+              </Box>
+              <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                Earnings: {formatCurrency(activity.totalEarned || 0)}
+              </Box>
+            </Box>
+          );
+        } else if (currentUserRole === UserRole.SERVICE_PROVIDER) {
+          return (
+            <Box>
+              <Box sx={{ fontWeight: "medium", fontSize: "0.875rem" }}>
+                {activity.totalServices || 0} services
+              </Box>
+              <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                {activity.totalInterventions || 0} interventions
+              </Box>
+            </Box>
+          );
         }
 
         return (
@@ -209,60 +294,277 @@ export const createUserTableColumns = ({
     {
       field: "Actions",
       headerName: "Actions",
-      width: 280,
+      width: 200,
       sortable: false,
       filterable: false,
-      renderCell: (params: GridRenderCellParams<UserProfile>) => (
-        <Box sx={{ display: "flex", gap: 0.5 }}>
-          <Tooltip title="See details">
-            <IconButton size="small" onClick={() => onShowUser(params.row)}>
-              <RemoveRedEyeOutlinedIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Audit & History">
-            <IconButton size="small" onClick={() => onShowAudit(params.row.id)}>
-              <HistoryIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Reset password">
-            <IconButton
-              size="small"
-              onClick={() => onPasswordReset(params.row.id)}
+      renderCell: (params: GridRenderCellParams<UserProfile>) => {
+        const userName = params.row.full_name || "Unnamed User";
+        const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(
+          null
+        );
+        const open = Boolean(anchorEl);
+
+        const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+          setAnchorEl(event.currentTarget);
+        };
+
+        const handleMenuClose = () => {
+          setAnchorEl(null);
+        };
+
+        // Action principale selon le rôle
+        const getPrimaryAction = () => {
+          if (
+            params.row.role === "TRAVELER" ||
+            params.row.role === "traveler"
+          ) {
+            return (
+              <Tooltip title="View Bookings">
+                <IconButton
+                  size="small"
+                  onClick={() => onViewBookings(params.row.id, userName)}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { color: "primary.main" },
+                  }}
+                >
+                  <CalendarTodayIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            );
+          } else if (
+            params.row.role === "PROPERTY_OWNER" ||
+            params.row.role === "property_owner"
+          ) {
+            return (
+              <Tooltip title="Manage Subscription">
+                <IconButton
+                  size="small"
+                  onClick={() => onManageSubscription(params.row.id, userName)}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { color: "primary.main" },
+                  }}
+                >
+                  <PaymentIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            );
+          } else if (
+            params.row.role === "SERVICE_PROVIDER" ||
+            params.row.role === "service_provider"
+          ) {
+            return (
+              <Tooltip title="Manage Services">
+                <IconButton
+                  size="small"
+                  onClick={() => onManageServices(params.row.id, userName)}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { color: "primary.main" },
+                  }}
+                >
+                  <BuildIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            );
+          }
+          return null;
+        };
+
+        return (
+          <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
+            {/* Action principale - Voir détails */}
+            <Tooltip title="See details">
+              <IconButton
+                size="small"
+                onClick={() => onShowUser(params.row)}
+                sx={{
+                  color: "text.secondary",
+                  "&:hover": { color: "primary.main" },
+                }}
+              >
+                <RemoveRedEyeOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            {/* Action spécifique au rôle */}
+            {getPrimaryAction()}
+
+            {/* Indicateur de statut rapide */}
+            {params.row.account_locked && (
+              <Tooltip title="Account locked">
+                <Box
+                  sx={{
+                    color: "error.main",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <LockIcon fontSize="small" />
+                </Box>
+              </Tooltip>
+            )}
+
+            {/* Menu des actions secondaires */}
+            <Tooltip title="More actions">
+              <IconButton
+                size="small"
+                onClick={handleMenuClick}
+                sx={{
+                  color: "text.secondary",
+                  "&:hover": { color: "primary.main" },
+                }}
+              >
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
             >
-              <LockResetIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Forced disconnection">
-            <IconButton
-              size="small"
-              onClick={() => onForceLogout(params.row.id)}
-            >
-              <ExitToAppIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip
-            title={
-              params.row.account_locked ? "Unlock account" : "Lock account"
-            }
-          >
-            <IconButton
-              size="small"
-              onClick={() =>
-                params.row.account_locked
-                  ? onUnlockAccount(params.row.id)
-                  : onLockAccount(params.row.id)
-              }
-              color={params.row.account_locked ? "warning" : "default"}
-            >
-              {params.row.account_locked ? (
-                <LockOpenIcon fontSize="small" />
-              ) : (
-                <LockIcon fontSize="small" />
+              <MenuItem
+                onClick={() => {
+                  onShowAudit(params.row.id);
+                  handleMenuClose();
+                }}
+              >
+                <ListItemIcon>
+                  <HistoryIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Audit & History" />
+              </MenuItem>
+
+              {/* Actions spécifiques aux Travelers */}
+              {(params.row.role === "TRAVELER" ||
+                params.row.role === "traveler") && (
+                <MenuItem
+                  onClick={() => {
+                    onToggleVIP(params.row.id, !params.row.vip_subscription);
+                    handleMenuClose();
+                  }}
+                >
+                  <ListItemIcon>
+                    {params.row.vip_subscription ? (
+                      <StarIcon fontSize="small" />
+                    ) : (
+                      <StarBorderIcon fontSize="small" />
+                    )}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      params.row.vip_subscription ? "Remove VIP" : "Make VIP"
+                    }
+                  />
+                </MenuItem>
               )}
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
+
+              {/* Actions spécifiques aux Property Owners */}
+              {(params.row.role === "PROPERTY_OWNER" ||
+                params.row.role === "property_owner") && (
+                <MenuItem
+                  onClick={() => {
+                    onViewBookings(params.row.id, userName);
+                    handleMenuClose();
+                  }}
+                >
+                  <ListItemIcon>
+                    <CalendarTodayIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="View Bookings & Disputes" />
+                </MenuItem>
+              )}
+
+              {/* Actions spécifiques aux Service Providers */}
+              {(params.row.role === "SERVICE_PROVIDER" ||
+                params.row.role === "service_provider") && (
+                <MenuItem
+                  onClick={() => {
+                    onValidateProvider(
+                      params.row.id,
+                      !params.row.profile_validated
+                    );
+                    handleMenuClose();
+                  }}
+                >
+                  <ListItemIcon>
+                    {params.row.profile_validated ? (
+                      <CheckCircleIcon fontSize="small" />
+                    ) : (
+                      <CancelIcon fontSize="small" />
+                    )}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      params.row.profile_validated
+                        ? "Reject Provider"
+                        : "Approve Provider"
+                    }
+                  />
+                </MenuItem>
+              )}
+
+              <MenuItem
+                onClick={() => {
+                  onPasswordReset(params.row.id);
+                  handleMenuClose();
+                }}
+              >
+                <ListItemIcon>
+                  <LockResetIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Reset password" />
+              </MenuItem>
+
+              <MenuItem
+                onClick={() => {
+                  onForceLogout(params.row.id);
+                  handleMenuClose();
+                }}
+              >
+                <ListItemIcon>
+                  <ExitToAppIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Force logout" />
+              </MenuItem>
+
+              <MenuItem
+                onClick={() => {
+                  params.row.account_locked
+                    ? onUnlockAccount(params.row.id)
+                    : onLockAccount(params.row.id);
+                  handleMenuClose();
+                }}
+              >
+                <ListItemIcon>
+                  {params.row.account_locked ? (
+                    <LockOpenIcon fontSize="small" />
+                  ) : (
+                    <LockIcon fontSize="small" />
+                  )}
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    params.row.account_locked
+                      ? "Unlock account"
+                      : "Lock account"
+                  }
+                />
+              </MenuItem>
+            </Menu>
+          </Box>
+        );
+      },
     },
   ];
 };

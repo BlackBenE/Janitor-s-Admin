@@ -49,6 +49,11 @@ export interface UserActivityData {
   lastBookingDate: string | null;
   averageRating?: number;
   totalReviews?: number;
+  // Nouvelles propriétés pour les rôles spécifiques
+  totalProperties?: number;
+  totalEarned?: number;
+  totalServices?: number;
+  totalInterventions?: number;
 }
 
 export interface UserManagementState {

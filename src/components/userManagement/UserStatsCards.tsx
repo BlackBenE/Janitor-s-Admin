@@ -2,18 +2,17 @@ import React from "react";
 import { Grid } from "@mui/material";
 import DashboardItem from "../DashboardItem";
 import InfoCard from "../InfoCard";
-import { UserProfile } from "../../types/userManagement";
+import { UserProfile, UserActivityData } from "../../types/userManagement";
 
 interface UserStatsCardsProps {
   filteredUsers: UserProfile[];
-  activityData: Record<string, any> | undefined;
+  activityData: Record<string, UserActivityData> | undefined;
 }
 
 export const UserStatsCards: React.FC<UserStatsCardsProps> = ({
   filteredUsers,
   activityData,
 }) => {
-  // Calculer les statistiques
   const totalUsers = filteredUsers.length;
   const activeUsers = filteredUsers.filter(
     (user: UserProfile) => user.profile_validated
@@ -22,16 +21,16 @@ export const UserStatsCards: React.FC<UserStatsCardsProps> = ({
     (user: UserProfile) => !user.profile_validated
   ).length;
 
-  // Calculer les statistiques d'activité
   const totalRevenue = activityData
     ? Object.values(activityData).reduce(
-        (sum: number, activity: any) => sum + activity.totalSpent,
+        (sum: number, activity: UserActivityData) => sum + activity.totalSpent,
         0
       )
     : 0;
   const totalBookings = activityData
     ? Object.values(activityData).reduce(
-        (sum: number, activity: any) => sum + activity.totalBookings,
+        (sum: number, activity: UserActivityData) =>
+          sum + activity.totalBookings,
         0
       )
     : 0;

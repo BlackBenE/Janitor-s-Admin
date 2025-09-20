@@ -29,7 +29,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
     <Box
       className={className}
       sx={{
-        width: 230,
+        width: 300,
         bgcolor: "#FAFAFA",
         minHeight: "100vh",
         boxShadow: 2,

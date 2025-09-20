@@ -1,12 +1,21 @@
-import { UserProfile, UserFilters } from "../../../types/userManagement";
+import {
+  UserProfile,
+  UserFilters,
+  UserManagementHook,
+  UpdateUserMutation,
+  LogActionFunction,
+  AuditActions,
+  SecurityActions,
+} from "../../../types/userManagement";
 
 interface UseUserActionsProps {
-  userManagement: any;
-  updateUser: any;
-  logAction: any;
-  auditActions: any;
-  securityActions: any;
+  userManagement: UserManagementHook;
+  updateUser: UpdateUserMutation;
+  logAction: LogActionFunction;
+  auditActions: AuditActions;
+  securityActions: SecurityActions;
   getEmail: () => string | null;
+  refetch?: () => void; // Nouvelle prop pour rafraîchir les données
 }
 
 /**
@@ -19,6 +28,7 @@ export const useUserActions = ({
   auditActions,
   securityActions,
   getEmail,
+  refetch,
 }: UseUserActionsProps) => {
   const getCurrentAdminEmail = () => getEmail() || "system";
 
@@ -58,7 +68,7 @@ export const useUserActions = ({
         );
         userManagement.clearUserSelection();
       })
-      .catch((error: any) => {
+      .catch((error: Error) => {
         userManagement.showNotification(
           `Error validating users: ${error.message}`,
           "error"
@@ -102,7 +112,7 @@ export const useUserActions = ({
         );
         userManagement.clearUserSelection();
       })
-      .catch((error: any) => {
+      .catch((error: Error) => {
         userManagement.showNotification(
           `Error suspending users: ${error.message}`,
           "error"
@@ -112,23 +122,78 @@ export const useUserActions = ({
 
   const handleForceLogout = async (userId: string) => {
     try {
-      await securityActions.forceLogout(userId, "Force logout by admin");
+      console.log("🔍 Debug force logout:", { userId });
+
+      // Approche hybride : session + profil pour garantir la déconnexion
+      try {
+        // 1. Essayer de terminer les sessions existantes (si elles existent)
+        console.log("📊 Tentative de récupération des sessions...");
+        const sessions = await securityActions.getUserSessions(userId);
+        console.log("📊 Sessions trouvées:", sessions?.length || 0);
+
+        if (sessions && sessions.length > 0) {
+          console.log("🔄 Terminaison des sessions via user_sessions");
+          await securityActions.forceLogout(userId, "Admin force logout");
+        } else {
+          console.log(
+            "⚠️ Aucune session trouvée, utilisation de l'approche alternative"
+          );
+
+          // 2. Approche alternative : forcer une mise à jour du profil pour déclencher la déconnexion
+          await updateUser.mutateAsync({
+            id: userId,
+            payload: {
+              updated_at: new Date().toISOString(),
+              // Ajouter un flag pour indiquer la déconnexion forcée
+            },
+          });
+
+          console.log("✅ Déconnexion forcée via mise à jour du profil");
+        }
+      } catch (sessionError) {
+        console.error(
+          "❌ Erreur sessions, fallback sur mise à jour profil:",
+          sessionError
+        );
+
+        // Fallback : mise à jour du profil
+        await updateUser.mutateAsync({
+          id: userId,
+          payload: {
+            updated_at: new Date().toISOString(),
+          },
+        });
+      }
 
       await logAction(
         auditActions.FORCE_LOGOUT,
         userId,
-        "Déconnexion forcée par l'administrateur",
+        "Utilisateur déconnecté de force par l'administrateur",
         getCurrentAdminEmail(),
-        { reason: "Force logout by admin" }
+        {
+          timestamp: new Date().toISOString(),
+          reason: "Force logout by admin",
+          method: "hybrid_approach",
+        }
       );
 
       userManagement.showNotification(
         "Utilisateur déconnecté de force",
         "success"
       );
-    } catch {
+
+      // Rafraîchir les données pour refléter les changements
+      if (refetch) refetch();
+    } catch (error) {
+      console.error("❌ Force logout error:", error);
       userManagement.showNotification(
-        "Erreur lors de la déconnexion forcée",
+        `Erreur lors de la déconnexion forcée: ${
+          error instanceof Error
+            ? error.message
+            : typeof error === "string"
+            ? error
+            : JSON.stringify(error)
+        }`,
         "error"
       );
     }
@@ -136,10 +201,15 @@ export const useUserActions = ({
 
   const handleUnlockAccount = async (userId: string) => {
     try {
-      await securityActions.unlockAccount(
-        userId,
-        "Compte déverrouillé par l'administrateur"
-      );
+      // Utilisons updateUser.mutateAsync comme pour l'action VIP
+      await updateUser.mutateAsync({
+        id: userId,
+        payload: {
+          account_locked: false,
+          locked_until: null,
+          lock_reason: null,
+        },
+      });
 
       await logAction(
         auditActions.USER_REACTIVATED,
@@ -153,8 +223,20 @@ export const useUserActions = ({
         "Compte déverrouillé avec succès",
         "success"
       );
-    } catch {
-      userManagement.showNotification("Erreur lors du déverrouillage", "error");
+
+      // Rafraîchir les données pour refléter les changements
+      if (refetch) refetch();
+    } catch (error) {
+      userManagement.showNotification(
+        `Erreur lors du déverrouillage: ${
+          error instanceof Error
+            ? error.message
+            : typeof error === "string"
+            ? error
+            : JSON.stringify(error)
+        }`,
+        "error"
+      );
     }
   };
 

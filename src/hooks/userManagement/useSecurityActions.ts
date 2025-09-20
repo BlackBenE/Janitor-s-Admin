@@ -71,9 +71,10 @@ export const useSecurityActions = () => {
       // Log l'action dans l'audit
       await logAction(
         "password_reset",
-        `Réinitialisation de mot de passe envoyée à ${userProfile.email}`,
         userId,
-        JSON.stringify({ reason, email: userProfile.email })
+        `Réinitialisation de mot de passe envoyée à ${userProfile.email}`,
+        "system",
+        { reason, email: userProfile.email }
       );
 
       return {
@@ -120,11 +121,12 @@ export const useSecurityActions = () => {
       // Log l'action dans l'audit
       await logAction(
         "force_logout",
+        userId,
         `Déconnexion forcée de tous les appareils${
           userProfile ? ` pour ${userProfile.email}` : ""
         }`,
-        userId,
-        JSON.stringify({ reason })
+        "system", // adminUser
+        { reason }
       );
 
       return {
@@ -186,15 +188,16 @@ export const useSecurityActions = () => {
       // Log l'action dans l'audit
       await logAction(
         "account_lock",
+        userId,
         `Compte verrouillé jusqu'à ${lockUntil.toLocaleString()}${
           userProfile ? ` pour ${userProfile.email}` : ""
         }`,
-        userId,
-        JSON.stringify({
+        "system",
+        {
           reason,
           duration,
           lockedUntil: lockUntil.toISOString(),
-        })
+        }
       );
 
       return {
@@ -242,9 +245,10 @@ export const useSecurityActions = () => {
       // Log l'action dans l'audit
       await logAction(
         "account_unlock",
-        `Compte déverrouillé${userProfile ? ` pour ${userProfile.email}` : ""}`,
         userId,
-        JSON.stringify({ reason })
+        `Compte déverrouillé${userProfile ? ` pour ${userProfile.email}` : ""}`,
+        "system",
+        { reason }
       );
 
       return {
@@ -321,9 +325,10 @@ export const useSecurityActions = () => {
       // Log l'action dans l'audit
       await logAction(
         "session_terminate",
-        `Session terminée${userProfile ? ` pour ${userProfile.email}` : ""}`,
         userId,
-        JSON.stringify({ sessionId })
+        `Session terminée${userProfile ? ` pour ${userProfile.email}` : ""}`,
+        "system",
+        { sessionId }
       );
 
       return {

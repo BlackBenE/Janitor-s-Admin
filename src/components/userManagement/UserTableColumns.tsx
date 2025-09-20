@@ -9,11 +9,11 @@ import {
   LockOpen as LockOpenIcon,
 } from "@mui/icons-material";
 import { GridRenderCellParams } from "@mui/x-data-grid";
-import { UserProfile } from "../../types/userManagement";
+import { UserProfile, UserActivityData } from "../../types/userManagement";
 
 interface UserTableColumnsProps {
   selectedUsers: string[];
-  activityData: Record<string, any> | undefined;
+  activityData: Record<string, UserActivityData> | undefined;
   onToggleUserSelection: (userId: string) => void;
   onShowUser: (user: UserProfile) => void;
   onShowAudit: (userId: string) => void;
@@ -214,17 +214,17 @@ export const createUserTableColumns = ({
       filterable: false,
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
         <Box sx={{ display: "flex", gap: 0.5 }}>
-          <Tooltip title="Voir les détails">
+          <Tooltip title="See details">
             <IconButton size="small" onClick={() => onShowUser(params.row)}>
               <RemoveRedEyeOutlinedIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Audit & Historique">
+          <Tooltip title="Audit & History">
             <IconButton size="small" onClick={() => onShowAudit(params.row.id)}>
               <HistoryIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Réinitialiser le mot de passe">
+          <Tooltip title="Reset password">
             <IconButton
               size="small"
               onClick={() => onPasswordReset(params.row.id)}
@@ -232,7 +232,7 @@ export const createUserTableColumns = ({
               <LockResetIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Déconnexion forcée">
+          <Tooltip title="Forced disconnection">
             <IconButton
               size="small"
               onClick={() => onForceLogout(params.row.id)}
@@ -242,9 +242,7 @@ export const createUserTableColumns = ({
           </Tooltip>
           <Tooltip
             title={
-              params.row.account_locked
-                ? "Déverrouiller le compte"
-                : "Verrouiller le compte"
+              params.row.account_locked ? "Unlock account" : "Lock account"
             }
           >
             <IconButton

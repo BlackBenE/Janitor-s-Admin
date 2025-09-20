@@ -13,15 +13,20 @@ import {
   UserDetailsModal,
   CreateUserModal,
   PasswordResetModal,
+  AuditModal,
+  LockAccountModal,
+  BulkActionModal,
 } from "./modals";
 
-// Hooks
-import { useUserManagement } from "../../hooks/userManagement/useUserManagement";
-import { useUserModals } from "../../hooks/userManagement/useUserModals";
-import { useUsers } from "../../hooks/userManagement/useUsers";
-import { useUserActivity } from "../../hooks/userManagement/useUserActivity";
-import { useAuditLog } from "../../hooks/userManagement/useAuditLog";
-import { useSecurityActions } from "../../hooks/userManagement/useSecurityActions";
+// Hooks - Import optimisé depuis index
+import {
+  useUserManagement,
+  useUsers,
+  useUserActivity,
+  useAuditLog,
+  useSecurityActions,
+  useUserModals,
+} from "../../hooks";
 import { useAuth } from "../../providers/authProvider";
 
 // Types
@@ -38,10 +43,17 @@ export const UserManagementPage: React.FC = () => {
   const { getEmail } = useAuth();
 
   // Hooks de données
-  const { users, isLoading, error, updateUser, createUser, deleteManyUsers } =
-    useUsers({
-      orderBy: "created_at",
-    });
+  const {
+    users,
+    isLoading,
+    error,
+    updateUser,
+    createUser,
+    deleteManyUsers,
+    refetch,
+  } = useUsers({
+    orderBy: "created_at",
+  });
   const userIds = users.map((user: UserProfile) => user.id);
   const { data: activityData, isLoading: activityLoading } =
     useUserActivity(userIds);
@@ -58,6 +70,7 @@ export const UserManagementPage: React.FC = () => {
     auditActions,
     securityActions,
     getEmail,
+    refetch,
   });
 
   // Données filtrées
@@ -110,13 +123,22 @@ export const UserManagementPage: React.FC = () => {
       return;
     }
 
+    // Helper function pour l'assignation type-safe
+    const safeAssign = <K extends keyof UserProfile>(
+      target: Partial<UserProfile>,
+      key: K,
+      value: unknown
+    ): void => {
+      if (value !== undefined) {
+        (target as Record<K, unknown>)[key] = value;
+      }
+    };
+
     const updatePayload: Partial<UserProfile> = {};
     changedFields.forEach((field) => {
       const key = field as keyof UserProfile;
       const value = userManagement.editForm[key];
-      if (value !== undefined) {
-        updatePayload[key] = value as any;
-      }
+      safeAssign(updatePayload, key, value);
     });
 
     updateUser.mutate(
@@ -281,6 +303,133 @@ export const UserManagementPage: React.FC = () => {
     }
   };
 
+  // Handler pour verrouiller un compte
+  const handleLockAccount = async () => {
+    if (!modals.lockAccount.userId || !modals.lockAccount.reason.trim()) {
+      userManagement.showNotification(
+        "Raison requise pour verrouiller le compte",
+        "warning"
+      );
+      return;
+    }
+
+    try {
+      // Utilisons updateUser.mutateAsync comme pour l'action VIP
+      const lockUntil = new Date(
+        Date.now() + modals.lockAccount.duration * 60000
+      );
+
+      await updateUser.mutateAsync({
+        id: modals.lockAccount.userId,
+        payload: {
+          account_locked: true,
+          locked_until: lockUntil.toISOString(),
+          lock_reason: modals.lockAccount.reason,
+        },
+      });
+
+      await logAction(
+        auditActions.USER_SUSPENDED,
+        modals.lockAccount.userId,
+        `Account locked for ${modals.lockAccount.duration} minutes: ${modals.lockAccount.reason}`,
+        getEmail() || "system",
+        {
+          duration: modals.lockAccount.duration,
+          reason: modals.lockAccount.reason,
+          lockedUntil: lockUntil.toISOString(),
+        }
+      );
+
+      userManagement.showNotification(
+        "Compte verrouillé avec succès",
+        "success"
+      );
+      modals.closeLockModal();
+
+      // Rafraîchir les données pour refléter les changements
+      refetch();
+    } catch (error) {
+      userManagement.showNotification(
+        `Erreur lors du verrouillage: ${
+          error instanceof Error ? error.message : "Erreur inconnue"
+        }`,
+        "error"
+      );
+    }
+  };
+
+  // Handler pour les actions en masse
+  const handleBulkAction = async () => {
+    if (userManagement.selectedUsers.length === 0) {
+      userManagement.showNotification(
+        "Aucun utilisateur sélectionné",
+        "warning"
+      );
+      return;
+    }
+
+    try {
+      switch (modals.bulkAction.type) {
+        case "delete":
+          await deleteManyUsers.mutateAsync(userManagement.selectedUsers);
+          break;
+        case "role":
+          if (!modals.bulkAction.roleChange) {
+            userManagement.showNotification("Sélectionnez un rôle", "warning");
+            return;
+          }
+          await Promise.all(
+            userManagement.selectedUsers.map((userId) =>
+              updateUser.mutateAsync({
+                id: userId,
+                payload: { role: modals.bulkAction.roleChange },
+              })
+            )
+          );
+          break;
+        case "vip":
+          await Promise.all(
+            userManagement.selectedUsers.map((userId) =>
+              updateUser.mutateAsync({
+                id: userId,
+                payload: { vip_subscription: modals.bulkAction.vipChange },
+              })
+            )
+          );
+          break;
+      }
+
+      await logAction(
+        auditActions.BULK_ACTION,
+        "system",
+        `Bulk action ${modals.bulkAction.type} applied to ${userManagement.selectedUsers.length} users`,
+        getEmail() || "system",
+        {
+          action: modals.bulkAction.type,
+          userIds: userManagement.selectedUsers,
+          details: modals.bulkAction,
+        }
+      );
+
+      userManagement.showNotification(
+        `Action en masse réalisée avec succès sur ${
+          userManagement.selectedUsers.length
+        } utilisateur${userManagement.selectedUsers.length > 1 ? "s" : ""}`,
+        "success"
+      );
+
+      modals.closeBulkActionModal();
+      userManagement.clearUserSelection();
+    } catch (error) {
+      userManagement.showNotification(
+        `Erreur lors de l'action en masse: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        "error"
+      );
+    }
+  };
+
   return (
     <AdminLayout>
       <Box>
@@ -403,6 +552,45 @@ export const UserManagementPage: React.FC = () => {
         }
         onClose={modals.closePasswordResetModal}
         onConfirm={handleConfirmPasswordReset}
+      />
+
+      {/* Audit Modal */}
+      <AuditModal
+        open={modals.showAuditModal}
+        audit={modals.audit}
+        userEmail={
+          modals.audit.userId
+            ? users.find((u) => u.id === modals.audit.userId)?.email
+            : undefined
+        }
+        onClose={modals.closeAuditModal}
+        onUpdateTab={modals.updateAuditTab}
+      />
+
+      {/* Lock Account Modal */}
+      <LockAccountModal
+        open={modals.showLockModal}
+        lockAccount={modals.lockAccount}
+        userEmail={
+          modals.lockAccount.userId
+            ? users.find((u) => u.id === modals.lockAccount.userId)?.email
+            : undefined
+        }
+        onClose={modals.closeLockModal}
+        onConfirm={handleLockAccount}
+        onUpdateDuration={modals.updateLockDuration}
+        onUpdateReason={modals.updateLockReason}
+      />
+
+      {/* Bulk Action Modal */}
+      <BulkActionModal
+        open={modals.showBulkActionModal}
+        bulkAction={modals.bulkAction}
+        selectedUsers={userManagement.selectedUsers}
+        onClose={modals.closeBulkActionModal}
+        onConfirm={handleBulkAction}
+        onUpdateRoleChange={modals.updateBulkRoleChange}
+        onUpdateVipChange={modals.updateBulkVipChange}
       />
 
       {/* Notifications */}

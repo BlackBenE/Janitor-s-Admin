@@ -31,13 +31,10 @@ import {
   Cancel,
 } from "@mui/icons-material";
 import { useSubscriptions } from "../hooks/useSubscriptions";
-
-interface SubscriptionModalProps {
-  open: boolean;
-  onClose: () => void;
-  userId: string;
-  userName: string;
-}
+import {
+  SubscriptionModalProps,
+  Subscription,
+} from "../../../types/userManagement";
 
 const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   open,

@@ -1,17 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../../../lib/supabaseClient";
 import {
-  Tables,
-  TablesInsert,
-  TablesUpdate,
-} from "../../../types/database.types";
-
-export type Booking = Tables<"bookings">;
-export type BookingInsert = TablesInsert<"bookings">;
-export type BookingUpdate = TablesUpdate<"bookings">;
+  Booking,
+  BookingInsert,
+  BookingUpdate,
+} from "../../../types/userManagement";
 
 /**
- * Hook pour gérer les réservations
+ * Hook pour gérer les réservations des utilisateurs
  */
 export const useBookings = () => {
   const queryClient = useQueryClient();
@@ -35,7 +31,7 @@ export const useBookings = () => {
     },
   });
 
-  // Récupérer les réservations d'un voyageur spécifique
+  // Récupérer les réservations d'un utilisateur spécifique (voyageur)
   const getUserBookings = async (userId: string): Promise<Booking[]> => {
     const { data, error } = await supabase
       .from("bookings")
@@ -45,18 +41,21 @@ export const useBookings = () => {
         properties:property_id (
           title,
           address,
-          city
+          profiles:owner_id (
+            full_name,
+            email
+          )
         )
       `
       )
-      .eq("traveler_id", userId)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
     return data || [];
   };
 
-  // Récupérer les réservations pour les propriétés d'un propriétaire
+  // Récupérer les réservations pour un propriétaire (ses propriétés)
   const getOwnerBookings = async (ownerId: string): Promise<Booking[]> => {
     const { data, error } = await supabase
       .from("bookings")
@@ -65,9 +64,11 @@ export const useBookings = () => {
         *,
         properties!inner (
           title,
-          address,
-          city,
-          owner_id
+          address
+        ),
+        profiles:user_id (
+          full_name,
+          email
         )
       `
       )
@@ -78,22 +79,57 @@ export const useBookings = () => {
     return data || [];
   };
 
-  // Mettre à jour le statut d'une réservation
-  const updateBookingStatus = useMutation({
+  // Créer une nouvelle réservation
+  const createBooking = useMutation({
+    mutationFn: async (booking: BookingInsert): Promise<Booking> => {
+      const { data, error } = await supabase
+        .from("bookings")
+        .insert(booking)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
+  });
+
+  // Mettre à jour une réservation
+  const updateBooking = useMutation({
     mutationFn: async ({
       id,
-      status,
+      updates,
     }: {
       id: string;
-      status: string;
+      updates: BookingUpdate;
     }): Promise<Booking> => {
       const { data, error } = await supabase
         .from("bookings")
-        .update({
-          status,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updates)
         .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
+  });
+
+  // Annuler une réservation
+  const cancelBooking = useMutation({
+    mutationFn: async (bookingId: string): Promise<Booking> => {
+      const { data, error } = await supabase
+        .from("bookings")
+        .update({
+          status: "cancelled",
+          cancelled_at: new Date().toISOString(),
+        })
+        .eq("id", bookingId)
         .select()
         .single();
 
@@ -112,6 +148,8 @@ export const useBookings = () => {
     refetch,
     getUserBookings,
     getOwnerBookings,
-    updateBookingStatus,
+    createBooking,
+    updateBooking,
+    cancelBooking,
   };
 };

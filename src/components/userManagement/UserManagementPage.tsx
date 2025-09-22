@@ -17,7 +17,7 @@ import { UserActions } from "./UserActions";
 import { UserTabs } from "./UserTabs";
 
 // Configuration
-import { USER_TABS, UserRole } from "./config/userTabs";
+import { USER_TABS, UserRole } from "../../types/userManagement";
 
 // Modales
 import {

@@ -27,27 +27,12 @@ import {
   MoreVert as MoreVertIcon,
 } from "@mui/icons-material";
 import { GridRenderCellParams } from "@mui/x-data-grid";
-import { UserProfile, UserActivityData } from "../../types/userManagement";
-import { UserRole } from "./config/userTabs";
-
-interface UserTableColumnsProps {
-  selectedUsers: string[];
-  activityData: Record<string, UserActivityData> | undefined;
-  currentUserRole: UserRole | null;
-  onToggleUserSelection: (userId: string) => void;
-  onShowUser: (user: UserProfile) => void;
-  onShowAudit: (userId: string) => void;
-  onPasswordReset: (userId: string) => void;
-  onForceLogout: (userId: string) => void;
-  onLockAccount: (userId: string) => void;
-  onUnlockAccount: (userId: string) => void;
-  // Nouvelles actions role-spécifiques
-  onViewBookings: (userId: string, userName: string) => void;
-  onManageSubscription: (userId: string, userName: string) => void;
-  onManageServices: (userId: string, userName: string) => void;
-  onToggleVIP: (userId: string, isVIP: boolean) => void;
-  onValidateProvider: (userId: string, approved: boolean) => void;
-}
+import {
+  UserProfile,
+  UserActivityData,
+  UserTableColumnsProps,
+  UserRole,
+} from "../../types/userManagement";
 
 export const createUserTableColumns = ({
   selectedUsers,

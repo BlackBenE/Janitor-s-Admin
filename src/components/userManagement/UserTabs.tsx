@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, ToggleButton, ToggleButtonGroup, Chip } from "@mui/material";
-import { USER_TABS, UserRole } from "./config/userTabs";
+import { USER_TABS, UserRole } from "../../types/userManagement";
 import { UserProfile } from "../../types/userManagement";
 
 interface UserTabsProps {

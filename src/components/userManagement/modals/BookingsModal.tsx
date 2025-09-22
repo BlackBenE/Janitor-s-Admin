@@ -23,13 +23,7 @@ import {
 import { CalendarToday, Payment, Star, TrendingUp } from "@mui/icons-material";
 import { useBookings } from "../hooks/useBookings";
 import { useUserAdditionalData } from "../hooks/useUserAdditionalData";
-
-interface BookingsModalProps {
-  open: boolean;
-  onClose: () => void;
-  userId: string;
-  userName: string;
-}
+import { BookingsModalProps, Booking } from "../../../types/userManagement";
 
 const BookingsModal: React.FC<BookingsModalProps> = ({
   open,

@@ -1,14 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../../../lib/supabaseClient";
 import {
-  Tables,
-  TablesInsert,
-  TablesUpdate,
-} from "../../../types/database.types";
-
-export type Subscription = Tables<"subscriptions">;
-export type SubscriptionInsert = TablesInsert<"subscriptions">;
-export type SubscriptionUpdate = TablesUpdate<"subscriptions">;
+  Subscription,
+  SubscriptionInsert,
+  SubscriptionUpdate,
+} from "../../../types/userManagement";
 
 /**
  * Hook pour gérer les abonnements des utilisateurs

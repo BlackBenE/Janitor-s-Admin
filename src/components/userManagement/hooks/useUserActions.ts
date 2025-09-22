@@ -6,22 +6,13 @@ import {
   LogActionFunction,
   AuditActions,
   SecurityActions,
+  UseUserActionsProps,
+  UserRole,
 } from "../../../types/userManagement";
-import { UserRole } from "../config/userTabs";
 import { useSubscriptions } from "./useSubscriptions";
 import { useBookings } from "./useBookings";
 import { useServices } from "./useServices";
 import { useUserAdditionalData } from "./useUserAdditionalData";
-
-interface UseUserActionsProps {
-  userManagement: UserManagementHook;
-  updateUser: UpdateUserMutation;
-  logAction: LogActionFunction;
-  auditActions: AuditActions;
-  securityActions: SecurityActions;
-  getEmail: () => string | null;
-  refetch?: () => void; // Nouvelle prop pour rafraîchir les données
-}
 
 /**
  * Hook pour la logique métier des actions utilisateur

@@ -1,6 +1,6 @@
 // Configuration
-export { USER_TABS, UserRole } from "./config/userTabs";
-export type { UserTab } from "./config/userTabs";
+export { USER_TABS, UserRole } from "../../types/userManagement";
+export type { UserTab } from "../../types/userManagement";
 
 // Composants principaux
 export { default as UserManagementPage } from "./UserManagementPage";

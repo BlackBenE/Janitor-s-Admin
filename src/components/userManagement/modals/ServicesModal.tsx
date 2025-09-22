@@ -35,13 +35,12 @@ import {
   Pending,
 } from "@mui/icons-material";
 import { useServices } from "../hooks/useServices";
-
-interface ServicesModalProps {
-  open: boolean;
-  onClose: () => void;
-  userId: string;
-  userName: string;
-}
+import {
+  ServicesModalProps,
+  Service,
+  ServiceRequest,
+  Intervention,
+} from "../../../types/userManagement";
 
 const ServicesModal: React.FC<ServicesModalProps> = ({
   open,

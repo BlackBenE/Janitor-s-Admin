@@ -1,9 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../../../lib/supabaseClient";
-import { Tables } from "../../../types/database.types";
-
-export type Payment = Tables<"payments">;
-export type Review = Tables<"reviews">;
+import { Payment, Review } from "../../../types/userManagement";
 
 /**
  * Hook pour récupérer les données additionnelles des utilisateurs

@@ -1,7 +1,239 @@
 import { Database } from "./database.types";
+import { Tables, TablesInsert, TablesUpdate } from "./database.types";
+import React from "react";
+import {
+  Group as GroupIcon,
+  HomeWork as PropertyIcon,
+  HandymanOutlined as ServiceIcon,
+  AdminPanelSettings as AdminIcon,
+} from "@mui/icons-material";
 
+// =====================================================
+// BASE TYPES FROM DATABASE
+// =====================================================
 export type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
 export type UserSession = Database["public"]["Tables"]["user_sessions"]["Row"];
+
+// =====================================================
+// USER ROLES & CONFIGURATION
+// =====================================================
+export enum UserRole {
+  TRAVELER = "traveler",
+  PROPERTY_OWNER = "property_owner",
+  SERVICE_PROVIDER = "service_provider",
+  ADMIN = "admin",
+}
+
+export interface UserTab {
+  role: UserRole | null;
+  label: string;
+  icon: React.ComponentType;
+  description: string;
+}
+
+// Configuration des onglets
+export const USER_TABS: UserTab[] = [
+  {
+    role: null, // Pour afficher tous les utilisateurs
+    label: "All Users",
+    icon: GroupIcon,
+    description: "Vue d'ensemble de tous les utilisateurs",
+  },
+  {
+    role: UserRole.TRAVELER,
+    label: "Travelers",
+    icon: GroupIcon,
+    description: "Gestion des comptes voyageurs et leurs réservations",
+  },
+  {
+    role: UserRole.PROPERTY_OWNER,
+    label: "Property Owners",
+    icon: PropertyIcon,
+    description: "Gestion des propriétaires et leurs abonnements (100€/an)",
+  },
+  {
+    role: UserRole.SERVICE_PROVIDER,
+    label: "Service Providers",
+    icon: ServiceIcon,
+    description: "Modération des prestataires de services et vérifications",
+  },
+  {
+    role: UserRole.ADMIN,
+    label: "Admins",
+    icon: AdminIcon,
+    description: "Gestion des comptes administrateurs et permissions",
+  },
+];
+
+// =====================================================
+// DATA TYPES FOR BUSINESS ENTITIES
+// =====================================================
+export type Subscription = Tables<"subscriptions">;
+export type SubscriptionInsert = TablesInsert<"subscriptions">;
+export type SubscriptionUpdate = TablesUpdate<"subscriptions">;
+
+export type Booking = Tables<"bookings">;
+export type BookingInsert = TablesInsert<"bookings">;
+export type BookingUpdate = TablesUpdate<"bookings">;
+
+export type Service = Tables<"services">;
+export type ServiceInsert = TablesInsert<"services">;
+export type ServiceUpdate = TablesUpdate<"services">;
+export type ServiceRequest = Tables<"service_requests">;
+export type Intervention = Tables<"interventions">;
+
+export type Payment = Tables<"payments">;
+export type Review = Tables<"reviews">;
+
+// =====================================================
+// COMPONENT PROPS INTERFACES
+// =====================================================
+
+// UserTableColumns Props
+export interface UserTableColumnsProps {
+  selectedUsers: string[];
+  activityData: Record<string, UserActivityData> | undefined;
+  currentUserRole: UserRole | null;
+  onToggleUserSelection: (userId: string) => void;
+  onShowUser: (user: UserProfile) => void;
+  onShowAudit: (userId: string) => void;
+  onPasswordReset: (userId: string) => void;
+  onForceLogout: (userId: string) => void;
+  onLockAccount: (userId: string) => void;
+  onUnlockAccount: (userId: string) => void;
+  onViewBookings: (userId: string, userName: string) => void;
+  onManageSubscription: (userId: string, userName: string) => void;
+  onManageServices: (userId: string, userName: string) => void;
+  onToggleVIP: (userId: string, isVIP: boolean) => void;
+  onValidateProvider: (userId: string, approved: boolean) => void;
+}
+
+// UserFilters Props
+export interface UserFiltersProps {
+  filters: UserFilters;
+  activityData: Record<string, UserActivityData> | undefined;
+  currentUserRole: UserRole | null;
+  onFilterChange: (key: keyof UserFilters, value: string) => void;
+  onExport: () => void;
+}
+
+// UserStatsCards Props
+export interface UserStatsCardsProps {
+  users: UserProfile[];
+  activityData: Record<string, UserActivityData> | undefined;
+  currentUserRole: UserRole | null;
+  isLoading?: boolean;
+}
+
+// UserTabs Props
+export interface UserTabsProps {
+  currentRole: UserRole | null;
+  onRoleChange: (role: UserRole | null) => void;
+}
+
+// UserActions Props
+export interface UserActionsProps {
+  selectedUsers: string[];
+  onCreateUser: () => void;
+  onBulkAction: (actionType: "delete" | "role" | "vip") => void;
+}
+
+// =====================================================
+// MODAL PROPS INTERFACES
+// =====================================================
+
+// UserDetailsModal Props
+export interface UserDetailsModalProps {
+  open: boolean;
+  onClose: () => void;
+  user: UserProfile;
+  editForm: Partial<UserProfile>;
+  onUpdate: (field: keyof UserProfile, value: string | boolean | null) => void;
+  onSave: () => void;
+  onCancel: () => void;
+  isEditing: boolean;
+  onStartEdit: () => void;
+}
+
+// AuditModal Props
+export interface AuditModalProps {
+  open: boolean;
+  onClose: () => void;
+  userId: string | null;
+  tabValue: number;
+  onTabChange: (event: React.SyntheticEvent, newValue: number) => void;
+}
+
+export interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+// BulkActionModal Props
+export interface BulkActionModalProps {
+  open: boolean;
+  onClose: () => void;
+  selectedUsers: string[];
+  bulkAction: BulkActionState;
+  onExecute: () => void;
+  onRoleChange: (role: string) => void;
+  onVipChange: (vip: boolean) => void;
+}
+
+// LockAccountModal Props
+export interface LockAccountModalProps {
+  open: boolean;
+  onClose: () => void;
+  userId: string | null;
+  lockState: LockAccountState;
+  onDurationChange: (duration: number) => void;
+  onReasonChange: (reason: string) => void;
+  onLock: () => void;
+}
+
+// BookingsModal Props
+export interface BookingsModalProps {
+  open: boolean;
+  onClose: () => void;
+  userId: string;
+  userName: string;
+}
+
+// SubscriptionModal Props
+export interface SubscriptionModalProps {
+  open: boolean;
+  onClose: () => void;
+  userId: string;
+  userName: string;
+}
+
+// ServicesModal Props
+export interface ServicesModalProps {
+  open: boolean;
+  onClose: () => void;
+  userId: string;
+  userName: string;
+}
+
+// =====================================================
+// HOOK INTERFACES
+// =====================================================
+
+// UseUserActions Props
+export interface UseUserActionsProps {
+  userManagement: UserManagementHook;
+  updateUser: UpdateUserMutation;
+  logAction: LogActionFunction;
+  auditActions: AuditActions;
+  securityActions: SecurityActions;
+  getEmail: () => string | null;
+  refetch?: () => void;
+}
+
+// =====================================================
+// STATE & DATA INTERFACES
+// =====================================================
 
 export interface UserFilters {
   role: string;

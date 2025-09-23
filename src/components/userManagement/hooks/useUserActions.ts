@@ -128,64 +128,51 @@ export const useUserActions = ({
 
   const handleForceLogout = async (userId: string) => {
     try {
-      console.log("🔍 Debug force logout:", { userId });
+      console.log("🔍 Force logout simplifié:", { userId });
 
-      // Approche hybride : session + profil pour garantir la déconnexion
+      // 🎯 VERSION SIMPLIFIÉE : Uniquement Supabase Auth Admin avec fallback
       try {
-        // 1. Essayer de terminer les sessions existantes (si elles existent)
-        console.log("📊 Tentative de récupération des sessions...");
-        const sessions = await securityActions.getUserSessions(userId);
-        console.log("📊 Sessions trouvées:", sessions?.length || 0);
+        await securityActions.forceLogout(userId, "Admin force logout");
+        console.log("✅ Force logout exécuté via Supabase Auth Admin");
 
-        if (sessions && sessions.length > 0) {
-          console.log("🔄 Terminaison des sessions via user_sessions");
-          await securityActions.forceLogout(userId, "Admin force logout");
-        } else {
-          console.log(
-            "⚠️ Aucune session trouvée, utilisation de l'approche alternative"
-          );
-
-          // 2. Approche alternative : forcer une mise à jour du profil pour déclencher la déconnexion
-          await updateUser.mutateAsync({
-            id: userId,
-            payload: {
-              updated_at: new Date().toISOString(),
-              // Ajouter un flag pour indiquer la déconnexion forcée
-            },
-          });
-
-          console.log("✅ Déconnexion forcée via mise à jour du profil");
-        }
-      } catch (sessionError) {
-        console.error(
-          "❌ Erreur sessions, fallback sur mise à jour profil:",
-          sessionError
+        userManagement.showNotification(
+          "Utilisateur déconnecté via Supabase Auth",
+          "success"
+        );
+      } catch (forceLogoutError) {
+        console.warn(
+          "⚠️ Force logout échoué, utilisation du fallback lock:",
+          forceLogoutError
         );
 
-        // Fallback : mise à jour du profil
-        await updateUser.mutateAsync({
-          id: userId,
-          payload: {
-            updated_at: new Date().toISOString(),
-          },
-        });
+        // FALLBACK : Lock temporaire de 2 minutes si le force logout échoue
+        try {
+          await securityActions.lockAccount(
+            userId,
+            2, // 2 minutes
+            "Fallback: Lock pour forcer la déconnexion (force logout échoué)"
+          );
+
+          userManagement.showNotification(
+            "Déconnexion forcée via lock temporaire (2 min) - Force logout échoué",
+            "warning"
+          );
+        } catch (lockError) {
+          // Si même le lock échoue, afficher l'erreur originale
+          throw forceLogoutError;
+        }
       }
 
       await logAction(
         auditActions.FORCE_LOGOUT,
         userId,
-        "Utilisateur déconnecté de force par l'administrateur",
+        "Utilisateur déconnecté de force par l'administrateur (Supabase Auth ou fallback lock)",
         getCurrentAdminEmail(),
         {
           timestamp: new Date().toISOString(),
           reason: "Force logout by admin",
-          method: "hybrid_approach",
+          method: "supabase_auth_admin_with_fallback",
         }
-      );
-
-      userManagement.showNotification(
-        "Utilisateur déconnecté de force",
-        "success"
       );
 
       // Rafraîchir les données pour refléter les changements
@@ -235,6 +222,64 @@ export const useUserActions = ({
     } catch (error) {
       userManagement.showNotification(
         `Erreur lors du déverrouillage: ${
+          error instanceof Error
+            ? error.message
+            : typeof error === "string"
+            ? error
+            : JSON.stringify(error)
+        }`,
+        "error"
+      );
+    }
+  };
+
+  const handleLockAccount = async (
+    userId: string,
+    duration: number = 60,
+    reason?: string
+  ) => {
+    try {
+      const lockUntil = new Date(Date.now() + duration * 60000);
+
+      // Utilisons updateUser.mutateAsync pour la cohérence
+      await updateUser.mutateAsync({
+        id: userId,
+        payload: {
+          account_locked: true,
+          locked_until: lockUntil.toISOString(),
+          lock_reason: reason || "Verrouillage temporaire",
+        },
+      });
+
+      // Forcer la déconnexion des sessions actives
+      try {
+        await securityActions.forceLogout(userId, "Account locked by admin");
+      } catch (logoutError) {
+        console.warn("Could not force logout during lock:", logoutError);
+      }
+
+      await logAction(
+        auditActions.USER_SUSPENDED,
+        userId,
+        `Compte verrouillé jusqu'à ${lockUntil.toLocaleString()}`,
+        getCurrentAdminEmail(),
+        {
+          reason,
+          duration,
+          lockedUntil: lockUntil.toISOString(),
+        }
+      );
+
+      userManagement.showNotification(
+        `Compte verrouillé pendant ${duration} minutes`,
+        "success"
+      );
+
+      // Rafraîchir les données pour refléter les changements
+      if (refetch) refetch();
+    } catch (error) {
+      userManagement.showNotification(
+        `Erreur lors du verrouillage: ${
           error instanceof Error
             ? error.message
             : typeof error === "string"
@@ -583,6 +628,7 @@ export const useUserActions = ({
   const getActionsForRole = (role: UserRole | null) => {
     const baseActions = {
       handleForceLogout,
+      handleLockAccount,
       handleUnlockAccount,
     };
 
@@ -619,6 +665,7 @@ export const useUserActions = ({
     handleBulkValidate,
     handleBulkSuspend,
     handleForceLogout,
+    handleLockAccount,
     handleUnlockAccount,
     handleExportUsers,
 

@@ -18,6 +18,7 @@ import {
   Container,
 } from "@mui/material";
 import { AuthProvider, useAuth } from "./providers/authProvider";
+import { useAuditLog } from "./hooks/userManagement/useAuditLog";
 import { routes } from "./routes/routes";
 
 // MUI Theme for admin panel
@@ -98,7 +99,8 @@ const LoadingScreen: React.FC<{ error?: string | null }> = ({ error }) => (
 const AppContent: React.FC = () => {
   const { session, isAdmin, loading, error } = useAuth();
 
-  // Enhanced debugging for development
+  // Activer l'audit et le session tracking automatiquement
+  useAuditLog(); // Enhanced debugging for development
   if (import.meta.env.DEV) {
     console.log("Auth State Debug:", {
       session: !!session,

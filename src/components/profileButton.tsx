@@ -15,7 +15,6 @@ import {
 import {
   MoreVert as MoreVertIcon,
   Person as PersonIcon,
-  Settings as SettingsIcon,
   Logout as LogoutIcon,
   AdminPanelSettings as AdminIcon,
 } from "@mui/icons-material";
@@ -66,11 +65,6 @@ const ProfileButton: FC<ProfileButtonProps> = ({
   const handleProfileClick = () => {
     handleMenuClose();
     navigate("/profile");
-  };
-
-  const handleSettingsClick = () => {
-    handleMenuClose();
-    navigate("/settings");
   };
 
   const handleLogout = async () => {
@@ -247,13 +241,6 @@ const ProfileButton: FC<ProfileButtonProps> = ({
             <PersonIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Profile</ListItemText>
-        </MenuItem>
-
-        <MenuItem onClick={handleSettingsClick}>
-          <ListItemIcon>
-            <SettingsIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Settings</ListItemText>
         </MenuItem>
 
         <Divider />

@@ -12,6 +12,7 @@ import ServicesCatalogPage from "../components/services-catalog/ServicesCatalogP
 import UserManagementPage from "../components/userManagement/UserManagementPage";
 import AnalyticsPage from "../components/analytics/AnalyticsPage";
 import ProtectedRoute from "../components/ProtectedRoute";
+import { ResetPasswordPage } from "../components/auth/ResetPasswordPage";
 import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
@@ -122,6 +123,7 @@ export const routes: Route[] = [
   },
   // Public routes
   { path: "/auth", element: <RefactoredAuthPage /> },
+  { path: "/reset-password", element: <ResetPasswordPage /> },
 ];
 
 // Export only protected routes for sidebar navigation

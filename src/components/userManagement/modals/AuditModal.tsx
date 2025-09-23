@@ -25,8 +25,8 @@ import {
 import {
   Close as CloseIcon,
   History as HistoryIcon,
-  Security as SecurityIcon,
   Person as PersonIcon,
+  AdminPanelSettings as AdminIcon,
   Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import { AuditModalState } from "../../../types/userManagement";
@@ -61,15 +61,25 @@ export const AuditModal: React.FC<AuditModalProps> = ({
   onClose,
   onUpdateTab,
 }) => {
-  // Récupérer les vraies données depuis la base de données
+  // Récupérer les logs d'audit et les actions utilisateur
   const {
     auditLogs,
-    securityEvents,
-    userActivity,
-    isLoadingData,
-    error,
-    refetch,
+    userActions,
+    isLoadingLogs,
+    isLoadingActivity,
+    auditError,
+    activityError,
+    refetchLogs,
+    refetchActivity,
   } = useAuditLog(audit.userId || undefined);
+
+  const isLoadingData = isLoadingLogs || isLoadingActivity;
+  const combinedError = auditError || activityError;
+
+  const refetch = () => {
+    refetchLogs();
+    refetchActivity();
+  };
 
   const formatDate = (timestamp: string | null) => {
     if (!timestamp) return "N/A";
@@ -87,14 +97,20 @@ export const AuditModal: React.FC<AuditModalProps> = ({
       | "success"
       | "warning"
     > = {
+      // Actions administratives
       USER_UPDATED: "info",
       USER_VALIDATED: "success",
       USER_SUSPENDED: "error",
       LOGIN_SUCCESS: "success",
       LOGIN_FAILED: "error",
       PASSWORD_RESET: "warning",
-      BOOKING_CREATED: "primary",
       PROFILE_UPDATED: "info",
+
+      // Actions utilisateur
+      BOOKING_CREATED: "primary",
+      PROPERTY_CREATED: "secondary",
+      INTERVENTION_CREATED: "info",
+      NOTIFICATION_CREATED: "default",
     };
     return colors[action] || "default";
   };
@@ -121,7 +137,7 @@ export const AuditModal: React.FC<AuditModalProps> = ({
           <Box sx={{ display: "flex", gap: 1 }}>
             <Tooltip title="Actualiser les données">
               <IconButton
-                onClick={refetch}
+                onClick={() => refetch()}
                 size="small"
                 disabled={isLoadingData}
               >
@@ -143,16 +159,20 @@ export const AuditModal: React.FC<AuditModalProps> = ({
           </Box>
         )}
 
-        {error && (
+        {combinedError && (
           <Box sx={{ p: 3 }}>
             <Alert severity="error">
               Erreur lors du chargement des données d'audit:{" "}
-              {error instanceof Error ? error.message : "Erreur inconnue"}
+              {combinedError &&
+              typeof combinedError === "object" &&
+              "message" in combinedError
+                ? (combinedError as Error).message
+                : "Erreur inconnue"}
             </Alert>
           </Box>
         )}
 
-        {!isLoadingData && !error && (
+        {!isLoadingData && !combinedError && (
           <>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
               <Tabs
@@ -161,22 +181,16 @@ export const AuditModal: React.FC<AuditModalProps> = ({
                 sx={{ px: 3 }}
               >
                 <Tab
-                  icon={<HistoryIcon />}
+                  icon={<AdminIcon />}
                   iconPosition="start"
                   label={`Actions Admin (${auditLogs.length})`}
                   id="audit-tab-0"
                 />
                 <Tab
-                  icon={<SecurityIcon />}
-                  iconPosition="start"
-                  label={`Événements Sécurité (${securityEvents.length})`}
-                  id="audit-tab-1"
-                />
-                <Tab
                   icon={<PersonIcon />}
                   iconPosition="start"
-                  label={`Activité Utilisateur (${userActivity.length})`}
-                  id="audit-tab-2"
+                  label={`Actions Utilisateur (${userActions.length})`}
+                  id="audit-tab-1"
                 />
               </Tabs>
             </Box>
@@ -229,86 +243,18 @@ export const AuditModal: React.FC<AuditModalProps> = ({
                 )}
               </TabPanel>
 
-              {/* Tab 1: Événements Sécurité */}
+              {/* Tab 1: Actions Utilisateur */}
               <TabPanel value={audit.tabValue} index={1}>
                 <Typography variant="h6" gutterBottom>
-                  Événements de sécurité et connexions
+                  Actions de l'utilisateur
                 </Typography>
-                {securityEvents.length === 0 ? (
+                {userActions.length === 0 ? (
                   <Typography
                     variant="body2"
                     color="text.secondary"
                     sx={{ py: 2 }}
                   >
-                    Aucun événement de sécurité trouvé pour cet utilisateur.
-                  </Typography>
-                ) : (
-                  <TableContainer component={Paper} variant="outlined">
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Session ID</TableCell>
-                          <TableCell>Statut</TableCell>
-                          <TableCell>Dernière activité</TableCell>
-                          <TableCell>Adresse IP</TableCell>
-                          <TableCell>User Agent</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {securityEvents.map((session) => (
-                          <TableRow key={session.id}>
-                            <TableCell>
-                              <Typography
-                                variant="body2"
-                                sx={{ fontFamily: "monospace" }}
-                              >
-                                {session.id.substring(0, 8)}...
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              <Chip
-                                label={
-                                  session.is_active ? "Active" : "Terminée"
-                                }
-                                size="small"
-                                color={
-                                  session.is_active ? "success" : "default"
-                                }
-                              />
-                            </TableCell>
-                            <TableCell>
-                              {formatDate(session.last_activity)}
-                            </TableCell>
-                            <TableCell>
-                              {String(session.ip_address) || "N/A"}
-                            </TableCell>
-                            <TableCell>
-                              <Tooltip title={session.user_agent || "N/A"}>
-                                <Typography variant="body2" component="span">
-                                  {session.device_type || "Inconnu"}
-                                </Typography>
-                              </Tooltip>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                )}
-              </TabPanel>
-
-              {/* Tab 2: Activité Utilisateur */}
-              <TabPanel value={audit.tabValue} index={2}>
-                <Typography variant="h6" gutterBottom>
-                  Activité utilisateur récente
-                </Typography>
-                {userActivity.length === 0 ? (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ py: 2 }}
-                  >
-                    Aucune activité récente trouvée pour cet utilisateur.
+                    Aucune action utilisateur trouvée.
                   </Typography>
                 ) : (
                   <TableContainer component={Paper} variant="outlined">
@@ -316,50 +262,87 @@ export const AuditModal: React.FC<AuditModalProps> = ({
                       <TableHead>
                         <TableRow>
                           <TableCell>Type</TableCell>
-                          <TableCell>Détails</TableCell>
+                          <TableCell>Action</TableCell>
+                          <TableCell>Description</TableCell>
                           <TableCell>Date</TableCell>
                           <TableCell>Statut</TableCell>
+                          <TableCell>Détails</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {userActivity.map((booking) => (
-                          <TableRow key={booking.id}>
+                        {userActions.map((action) => (
+                          <TableRow key={`${action.type}-${action.id}`}>
                             <TableCell>
                               <Chip
-                                label="Réservation"
-                                size="small"
-                                color="primary"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              Propriété ID:{" "}
-                              {booking.property_id.substring(0, 8)}...
-                              <br />
-                              Check-in:{" "}
-                              {new Date(booking.check_in).toLocaleDateString(
-                                "fr-FR"
-                              )}
-                              <br />
-                              Check-out:{" "}
-                              {new Date(booking.check_out).toLocaleDateString(
-                                "fr-FR"
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {formatDate(booking.created_at)}
-                            </TableCell>
-                            <TableCell>
-                              <Chip
-                                label={booking.status || "N/A"}
+                                label={
+                                  action.type === "booking"
+                                    ? "Réservation"
+                                    : action.type === "property"
+                                    ? "Propriété"
+                                    : action.type === "intervention"
+                                    ? "Intervention"
+                                    : "Autre"
+                                }
                                 size="small"
                                 color={
-                                  booking.status === "completed"
-                                    ? "success"
-                                    : booking.status === "pending"
-                                    ? "warning"
+                                  action.type === "booking"
+                                    ? "primary"
+                                    : action.type === "property"
+                                    ? "secondary"
+                                    : action.type === "intervention"
+                                    ? "info"
                                     : "default"
                                 }
                               />
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={action.action}
+                                size="small"
+                                color={getActionColor(action.action)}
+                              />
+                            </TableCell>
+                            <TableCell>{action.description}</TableCell>
+                            <TableCell>
+                              {formatDate(action.created_at)}
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={action.status || "N/A"}
+                                size="small"
+                                color={
+                                  action.status === "completed" ||
+                                  action.status === "confirmed"
+                                    ? "success"
+                                    : action.status === "pending"
+                                    ? "warning"
+                                    : action.status === "active"
+                                    ? "info"
+                                    : "default"
+                                }
+                              />
+                            </TableCell>
+                            <TableCell>
+                              {action.metadata && (
+                                <Typography
+                                  variant="caption"
+                                  component="div"
+                                  sx={{ color: "text.secondary" }}
+                                >
+                                  {action.type === "booking" &&
+                                    action.metadata.total_amount &&
+                                    `Montant: ${action.metadata.total_amount}€`}
+                                  {action.type === "property" &&
+                                    action.metadata.price &&
+                                    `Prix: ${action.metadata.price}€/nuit`}
+                                  {action.type === "intervention" &&
+                                    action.metadata.service_request_id &&
+                                    `Demande: ${action.metadata.service_request_id.substring(
+                                      0,
+                                      8
+                                    )}...`}
+                                </Typography>
+                              )}
                             </TableCell>
                           </TableRow>
                         ))}

@@ -38,6 +38,7 @@ export const createUserTableColumns = ({
   selectedUsers,
   activityData,
   currentUserRole,
+  currentTabRole, // Nouvel attribut pour l'onglet actuel
   onToggleUserSelection,
   onShowUser,
   onShowAudit,
@@ -156,13 +157,44 @@ export const createUserTableColumns = ({
       },
       renderCell: (params: GridRenderCellParams<UserProfile>) => {
         if (params.row.account_locked) {
+          const timeRemaining = params.row.locked_until
+            ? (() => {
+                const now = new Date();
+                const unlockDate = new Date(params.row.locked_until);
+                const diffMs = unlockDate.getTime() - now.getTime();
+
+                if (diffMs <= 0) {
+                  return "Expiré";
+                }
+
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffMinutes = Math.floor(
+                  (diffMs % (1000 * 60 * 60)) / (1000 * 60)
+                );
+
+                if (diffHours > 0) {
+                  return `${diffHours}h ${diffMinutes}m`;
+                } else {
+                  return `${diffMinutes}m`;
+                }
+              })()
+            : "Permanent";
+
           return (
-            <Chip
-              label="Locked"
-              color="error"
-              size="small"
-              icon={<LockIcon fontSize="small" />}
-            />
+            <Tooltip
+              title={`Déverrouillage: ${
+                params.row.locked_until
+                  ? new Date(params.row.locked_until).toLocaleString()
+                  : "Permanent"
+              }`}
+            >
+              <Chip
+                label={`Locked (${timeRemaining})`}
+                color="error"
+                size="small"
+                icon={<LockIcon fontSize="small" />}
+              />
+            </Tooltip>
           );
         }
         return (
@@ -297,12 +329,14 @@ export const createUserTableColumns = ({
           setAnchorEl(null);
         };
 
-        // Action principale selon le rôle
-        const getPrimaryAction = () => {
-          if (
-            params.row.role === "TRAVELER" ||
-            params.row.role === "traveler"
-          ) {
+        const getSpecificActionForRole = () => {
+          // Si nous sommes dans l'onglet "All Users", ne pas afficher d'action spécifique
+          if (currentTabRole === null) {
+            return null;
+          }
+
+          // Afficher l'action spécifique selon l'onglet actuel
+          if (currentTabRole === UserRole.TRAVELER) {
             return (
               <Tooltip title="View Bookings">
                 <IconButton
@@ -317,10 +351,7 @@ export const createUserTableColumns = ({
                 </IconButton>
               </Tooltip>
             );
-          } else if (
-            params.row.role === "PROPERTY_OWNER" ||
-            params.row.role === "property_owner"
-          ) {
+          } else if (currentTabRole === UserRole.PROPERTY_OWNER) {
             return (
               <Tooltip title="Manage Subscription">
                 <IconButton
@@ -335,10 +366,7 @@ export const createUserTableColumns = ({
                 </IconButton>
               </Tooltip>
             );
-          } else if (
-            params.row.role === "SERVICE_PROVIDER" ||
-            params.row.role === "service_provider"
-          ) {
+          } else if (currentTabRole === UserRole.SERVICE_PROVIDER) {
             return (
               <Tooltip title="Manage Services">
                 <IconButton
@@ -353,13 +381,28 @@ export const createUserTableColumns = ({
                 </IconButton>
               </Tooltip>
             );
+          } else if (currentTabRole === UserRole.ADMIN) {
+            return (
+              <Tooltip title="Admin Actions">
+                <IconButton
+                  size="small"
+                  onClick={() => onShowAudit(params.row.id)}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { color: "primary.main" },
+                  }}
+                >
+                  <HistoryIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            );
           }
           return null;
         };
 
         return (
           <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
-            {/* Action principale - Voir détails */}
+            {/* Action principale - Voir détails (toujours présente) */}
             <Tooltip title="See details">
               <IconButton
                 size="small"
@@ -373,8 +416,8 @@ export const createUserTableColumns = ({
               </IconButton>
             </Tooltip>
 
-            {/* Action spécifique au rôle */}
-            {getPrimaryAction()}
+            {/* Action spécifique selon l'onglet (masquée pour "All Users") */}
+            {getSpecificActionForRole()}
 
             {/* Indicateur de statut rapide */}
             {params.row.account_locked && (
@@ -391,7 +434,7 @@ export const createUserTableColumns = ({
               </Tooltip>
             )}
 
-            {/* Menu des actions secondaires */}
+            {/* Menu des actions secondaires (toujours présent avec toutes les actions) */}
             <Tooltip title="More actions">
               <IconButton
                 size="small"

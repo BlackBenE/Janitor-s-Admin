@@ -15,6 +15,7 @@ interface PasswordResetModalProps {
   open: boolean;
   userId: string | null;
   userEmail?: string;
+  userRole?: string;
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -23,9 +24,17 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
   open,
   userId,
   userEmail,
+  userRole,
   onClose,
   onConfirm,
 }) => {
+  const getDestinationInfo = () => {
+    if (userRole?.toLowerCase() === "admin") {
+      return "The link will redirect to the admin back-office.";
+    } else {
+      return "The link will redirect to the client application.";
+    }
+  };
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -58,6 +67,21 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
           <Typography variant="body2" color="text.secondary">
             The user will receive an email with instructions to reset their
             password. This action will be logged in the audit trail.
+          </Typography>
+
+          <Alert severity="info" sx={{ mt: 2, mb: 1 }}>
+            <strong>Destination:</strong> {getDestinationInfo()}
+          </Alert>
+
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mt: 1, fontSize: "0.75rem" }}
+          >
+            <strong>Note:</strong> If the email doesn't arrive, check:
+            <br />• Spam/junk folder
+            <br />• Email server configuration
+            <br />• User's email verification status
           </Typography>
         </Box>
       </DialogContent>

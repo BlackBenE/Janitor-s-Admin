@@ -5,9 +5,6 @@ import {
   AuditModalState,
 } from "../../types/userManagement";
 
-/**
- * Hook pour la gestion des modales de la page User Management
- */
 export const useUserModals = () => {
   // États des modales
   const [showUserDetailsModal, setShowUserDetailsModal] = useState(false);
@@ -17,7 +14,6 @@ export const useUserModals = () => {
   const [showBulkActionModal, setShowBulkActionModal] = useState(false);
   const [showAuditModal, setShowAuditModal] = useState(false);
 
-  // États spécialisés
   const [passwordResetUserId, setPasswordResetUserId] = useState<string | null>(
     null
   );
@@ -37,15 +33,12 @@ export const useUserModals = () => {
     tabValue: 0,
   });
 
-  // Actions pour User Details Modal
   const openUserDetailsModal = () => setShowUserDetailsModal(true);
   const closeUserDetailsModal = () => setShowUserDetailsModal(false);
 
-  // Actions pour Create User Modal
   const openCreateUserModal = () => setShowCreateUserModal(true);
   const closeCreateUserModal = () => setShowCreateUserModal(false);
 
-  // Actions pour Password Reset Modal
   const openPasswordResetModal = (userId: string) => {
     setPasswordResetUserId(userId);
     setShowPasswordResetModal(true);
@@ -55,7 +48,6 @@ export const useUserModals = () => {
     setPasswordResetUserId(null);
   };
 
-  // Actions pour Lock Account Modal
   const openLockModal = (userId: string) => {
     setLockAccount({
       userId,
@@ -75,7 +67,6 @@ export const useUserModals = () => {
     setLockAccount((prev) => ({ ...prev, reason }));
   };
 
-  // Actions pour Bulk Action Modal
   const openBulkActionModal = (type: "delete" | "role" | "vip") => {
     setBulkAction((prev) => ({ ...prev, type }));
     setShowBulkActionModal(true);
@@ -88,7 +79,6 @@ export const useUserModals = () => {
     setBulkAction((prev) => ({ ...prev, vipChange: vip }));
   };
 
-  // Actions pour Audit Modal
   const openAuditModal = (userId: string) => {
     setAudit({
       show: true,
@@ -106,7 +96,6 @@ export const useUserModals = () => {
   };
 
   return {
-    // États des modales
     showUserDetailsModal,
     showCreateUserModal,
     showPasswordResetModal,
@@ -114,37 +103,30 @@ export const useUserModals = () => {
     showBulkActionModal,
     showAuditModal,
 
-    // États spécialisés
     passwordResetUserId,
     lockAccount,
     bulkAction,
     audit,
 
-    // Actions User Details
     openUserDetailsModal,
     closeUserDetailsModal,
 
-    // Actions Create User
     openCreateUserModal,
     closeCreateUserModal,
 
-    // Actions Password Reset
     openPasswordResetModal,
     closePasswordResetModal,
 
-    // Actions Lock Account
     openLockModal,
     closeLockModal,
     updateLockDuration,
     updateLockReason,
 
-    // Actions Bulk Action
     openBulkActionModal,
     closeBulkActionModal,
     updateBulkRoleChange,
     updateBulkVipChange,
 
-    // Actions Audit
     openAuditModal,
     closeAuditModal,
     updateAuditTab,

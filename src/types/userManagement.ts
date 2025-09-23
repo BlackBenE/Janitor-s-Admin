@@ -12,7 +12,7 @@ import {
 // BASE TYPES FROM DATABASE
 // =====================================================
 export type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
-export type UserSession = Database["public"]["Tables"]["user_sessions"]["Row"];
+// UserSession supprimé - plus d'utilisation de user_sessions
 
 // =====================================================
 // USER ROLES & CONFIGURATION
@@ -94,6 +94,7 @@ export interface UserTableColumnsProps {
   selectedUsers: string[];
   activityData: Record<string, UserActivityData> | undefined;
   currentUserRole: UserRole | null;
+  currentTabRole: UserRole | null;
   onToggleUserSelection: (userId: string) => void;
   onShowUser: (user: UserProfile) => void;
   onShowAudit: (userId: string) => void;
@@ -412,17 +413,6 @@ export interface SecurityActions {
     message: string;
     userId: string;
     email: string;
-    timestamp: string;
-  }>;
-  getUserSessions: (userId: string) => Promise<UserSession[]>;
-  terminateSession: (
-    sessionId: string,
-    userId: string
-  ) => Promise<{
-    success: boolean;
-    message: string;
-    sessionId: string;
-    userId: string;
     timestamp: string;
   }>;
   createUserWithAuth: (userData: {

@@ -35,12 +35,12 @@ import {
 // Hooks
 import {
   useUserManagement,
+  useUserModals,
   useUsers,
   useUserActivity,
   useAuditLog,
   useSecurityActions,
-  useUserModals,
-} from "../../hooks";
+} from "../../hooks/userManagement";
 import { useAuth } from "../../providers/authProvider";
 import { createUserTableColumns } from "./UserTableColumns";
 import { useUserActions } from "./hooks/useUserActions";
@@ -98,9 +98,7 @@ export const UserManagementPage: React.FC = () => {
 
   // Hooks d'actions
   const { logAction, auditActions } = useAuditLog();
-  const securityActions = useSecurityActions();
-
-  // Logique métier
+  const securityActions = useSecurityActions(); // Logique métier
   const userActions = useUserActions({
     userManagement,
     updateUser,
@@ -158,14 +156,17 @@ export const UserManagementPage: React.FC = () => {
     setServicesModal({ open: false, userId: "", userName: "" });
   };
 
-  // Données filtrées par rôle actuel
-  const filteredUsers = userManagement.filterUsers(users);
+  // Données filtrées par rôle actuel avec déverrouillage automatique
+  const rawFilteredUsers = userManagement.filterUsers(users);
+  const filteredUsers =
+    securityActions.processUsersWithExpiredLocks(rawFilteredUsers);
 
   // Colonnes du tableau avec actions role-spécifiques
   const columns = createUserTableColumns({
     selectedUsers: userManagement.selectedUsers,
     activityData,
     currentUserRole: selectedUserRole,
+    currentTabRole: selectedUserRole, // Ajouter l'onglet actuel
     onToggleUserSelection: userManagement.toggleUserSelection,
     onShowUser: (user: UserProfile) => {
       userManagement.setUserForEdit(user);
@@ -346,6 +347,11 @@ export const UserManagementPage: React.FC = () => {
           userEmail={
             modals.passwordResetUserId
               ? users.find((u) => u.id === modals.passwordResetUserId)?.email
+              : undefined
+          }
+          userRole={
+            modals.passwordResetUserId
+              ? users.find((u) => u.id === modals.passwordResetUserId)?.role
               : undefined
           }
           onClose={modals.closePasswordResetModal}

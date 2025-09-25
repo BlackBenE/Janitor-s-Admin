@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase, supabaseAdmin } from "../../lib/supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
 import { Database, type Json } from "../../types/database.types";
 
 type AuditLog = Database["public"]["Tables"]["audit_logs"]["Row"];
@@ -28,7 +28,6 @@ export const AUDIT_ACTIONS = {
   USER_SUSPENDED: "USER_SUSPENDED",
   USER_REACTIVATED: "USER_REACTIVATED",
   ROLE_CHANGED: "ROLE_CHANGED",
-  FORCE_LOGOUT: "Déconnexion Forcée",
   BULK_ACTION: "BULK_ACTION",
   EXPORT_DATA: "EXPORT_DATA",
   ACCOUNT_LOCKED: "ACCOUNT_LOCKED",
@@ -51,10 +50,7 @@ export const useAuditLog = (userId?: string) => {
   const auditLogsQuery = useQuery({
     queryKey: AUDIT_QUERY_KEYS.logs(userId),
     queryFn: async (): Promise<AuditLog[]> => {
-      // Utiliser supabaseAdmin pour contourner les politiques RLS si nécessaire
-      const client = supabaseAdmin || supabase;
-
-      let query = client
+      let query = supabase
         .from("audit_logs")
         .select("*")
         .order("created_at", { ascending: false })
@@ -85,11 +81,6 @@ export const useAuditLog = (userId?: string) => {
       if (!userId) return [];
 
       try {
-        // Vérifier que supabaseAdmin est disponible
-        if (!supabaseAdmin) {
-          throw new Error("Admin client not available");
-        }
-
         const userActions: Array<{
           id: string;
           type: "booking" | "property" | "intervention" | "notification";
@@ -101,7 +92,7 @@ export const useAuditLog = (userId?: string) => {
         }> = [];
 
         // Récupérer les réservations (l'utilisateur en tant que voyageur)
-        const { data: bookings, error: bookingsError } = await supabaseAdmin
+        const { data: bookings, error: bookingsError } = await supabase
           .from("bookings")
           .select("*")
           .eq("traveler_id", userId)
@@ -129,7 +120,7 @@ export const useAuditLog = (userId?: string) => {
         });
 
         // Récupérer les propriétés (l'utilisateur en tant que propriétaire)
-        const { data: properties, error: propertiesError } = await supabaseAdmin
+        const { data: properties, error: propertiesError } = await supabase
           .from("properties")
           .select("*")
           .eq("owner_id", userId)
@@ -159,7 +150,7 @@ export const useAuditLog = (userId?: string) => {
 
         // Récupérer les interventions (l'utilisateur en tant que prestataire)
         const { data: interventions, error: interventionsError } =
-          await supabaseAdmin
+          await supabase
             .from("interventions")
             .select("*")
             .eq("provider_id", userId)

@@ -29,11 +29,14 @@ export const useDataTable = <T extends { id: string }>({
     const selectionArray = Array.isArray(selection)
       ? selection
       : Object.keys(selection);
-    setSelectedRows(selectionArray.map((id) => String(id)));
+    // DataGrid Community: forcer une sélection simple
+    const coerced = selectionArray.length > 0 ? [String(selectionArray[0])] : [];
+    setSelectedRows(coerced);
   };
 
   const selectAll = () => {
-    setSelectedRows(data.map((item) => item.id));
+    // Community version: pas de sélection multiple
+    setSelectedRows(data.length > 0 ? [data[0].id] : []);
   };
 
   const deselectAll = () => {
@@ -41,9 +44,7 @@ export const useDataTable = <T extends { id: string }>({
   };
 
   const toggleSelection = (id: string) => {
-    setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    setSelectedRows((prev) => (prev.includes(id) ? [] : [id]));
   };
 
   // Gestion de la pagination

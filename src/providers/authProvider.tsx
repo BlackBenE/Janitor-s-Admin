@@ -96,12 +96,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
+  // Subscribe aux changements du profil courant pour forcer la déconnexion si le compte est verrouillé
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel(`profile-updates-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.id}`,
+        },
+        async (payload) => {
+          const newRow = payload.new as Tables<'profiles'>;
+          // Si le compte est verrouillé, on déconnecte immédiatement
+          if (newRow?.account_locked) {
+            await supabase.auth.signOut();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   // Fetch user profile from database
   const fetchUserProfile = async (userId: string) => {
     try {
       const response = await dataProvider.getOne("profiles", userId);
       if (response.success) {
         setUserProfile(response.data);
+        // Fallback immédiat: si le compte est verrouillé, se déconnecter
+        if (response.data?.account_locked) {
+          await supabase.auth.signOut();
+        }
       } else {
         console.error("Failed to fetch user profile:", response.error);
       }

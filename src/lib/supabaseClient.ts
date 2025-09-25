@@ -1,15 +1,18 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY; // Fixed variable name
-const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY; // Service role for admin operations
+// ATTENTION: la Service Role Key ne doit jamais être utilisée côté navigateur.
+// On la lit éventuellement pour debug local mais on n'initialise aucun client avec.
+const supabaseServiceKey = import.meta.env
+  .VITE_SUPABASE_SERVICE_ROLE_KEY as string | undefined; // Service role (IGNORED client-side)
 
 // Debug environment variables in development
 if (import.meta.env.DEV) {
   console.log("Supabase Config:", {
     url: supabaseUrl ? "✅ Set" : "❌ Missing",
     key: supabaseAnonKey ? "✅ Set" : "❌ Missing",
-    serviceKey: supabaseServiceKey ? "✅ Set" : "❌ Missing",
+    serviceKey: supabaseServiceKey ? "⚠️ Present (IGNORED)" : "✅ Not set",
     urlValue: supabaseUrl,
     keyPreview: supabaseAnonKey
       ? `${supabaseAnonKey.substring(0, 20)}...`
@@ -24,14 +27,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Standard client for regular operations
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase: SupabaseClient = createClient(
+  supabaseUrl,
+  supabaseAnonKey
+);
 
 // Admin client with service role (bypasses RLS)
-export const supabaseAdmin = supabaseServiceKey
-  ? createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    })
-  : null;
+// Ne PAS exposer de client admin côté client
+export const supabaseAdmin = null;

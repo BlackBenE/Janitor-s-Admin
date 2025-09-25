@@ -14,7 +14,6 @@ import {
   RemoveRedEyeOutlined as RemoveRedEyeOutlinedIcon,
   History as HistoryIcon,
   LockReset as LockResetIcon,
-  ExitToApp as ExitToAppIcon,
   Lock as LockIcon,
   LockOpen as LockOpenIcon,
   CalendarToday as CalendarTodayIcon,
@@ -43,7 +42,6 @@ export const createUserTableColumns = ({
   onShowUser,
   onShowAudit,
   onPasswordReset,
-  onForceLogout,
   onLockAccount,
   onUnlockAccount,
   onViewBookings,
@@ -554,17 +552,7 @@ export const createUserTableColumns = ({
                 <ListItemText primary="Reset password" />
               </MenuItem>
 
-              <MenuItem
-                onClick={() => {
-                  onForceLogout(params.row.id);
-                  handleMenuClose();
-                }}
-              >
-                <ListItemIcon>
-                  <ExitToAppIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText primary="Force logout" />
-              </MenuItem>
+              
 
               <MenuItem
                 onClick={() => {

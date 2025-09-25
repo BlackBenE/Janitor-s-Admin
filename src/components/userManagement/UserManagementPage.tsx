@@ -174,7 +174,6 @@ export const UserManagementPage: React.FC = () => {
     },
     onShowAudit: modals.openAuditModal,
     onPasswordReset: modals.openPasswordResetModal,
-    onForceLogout: userActions.handleForceLogout,
     onLockAccount: modals.openLockModal,
     onUnlockAccount: userActions.handleUnlockAccount,
     // Nouvelles actions role-spécifiques

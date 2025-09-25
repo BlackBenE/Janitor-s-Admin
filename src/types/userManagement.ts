@@ -1,5 +1,4 @@
-import { Database } from "./database.types";
-import { Tables, TablesInsert, TablesUpdate } from "./database.types";
+import { Database, Tables, TablesInsert, TablesUpdate } from "./database.types";
 import React from "react";
 import {
   Group as GroupIcon,
@@ -99,7 +98,6 @@ export interface UserTableColumnsProps {
   onShowUser: (user: UserProfile) => void;
   onShowAudit: (userId: string) => void;
   onPasswordReset: (userId: string) => void;
-  onForceLogout: (userId: string) => void;
   onLockAccount: (userId: string) => void;
   onUnlockAccount: (userId: string) => void;
   onViewBookings: (userId: string, userName: string) => void;
@@ -364,7 +362,6 @@ export interface LogActionFunction {
 
 export interface AuditActions {
   BULK_ACTION: string;
-  FORCE_LOGOUT: string;
   USER_REACTIVATED: string;
   EXPORT_DATA: string;
   USER_UPDATED: string;
@@ -374,15 +371,6 @@ export interface AuditActions {
 }
 
 export interface SecurityActions {
-  forceLogout: (
-    userId: string,
-    reason?: string
-  ) => Promise<{
-    success: boolean;
-    message: string;
-    userId: string;
-    timestamp: string;
-  }>;
   unlockAccount: (
     userId: string,
     reason?: string

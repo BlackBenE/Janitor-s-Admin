@@ -11,25 +11,29 @@ import BarCharts from "../BarCharts";
 import DashboardItem from "../DashboardItem";
 import { useDashboard } from "../../hooks/dashboard/useDashboard";
 
-/**
- * DashboardPage Component
- *
- * Main dashboard overview showing platform statistics and charts.
- * Displays key metrics, recent activity, and user growth trends.
- *
- * Features:
- * - Overview statistics (4 metric cards)
- * - Recent activity chart
- * - User growth chart
- * - Recent activity section
- */
 function DashboardPage() {
-  const { stats, recentActivityData, userGrowthData, chartSeries } =
-    useDashboard();
+  const {
+    stats,
+    recentActivityData,
+    userGrowthData,
+    chartSeries,
+    loading,
+    error,
+  } = useDashboard();
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <Box p={3}>
+          <h2>Error</h2>
+          <p>{error}</p>
+        </Box>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
-      {/* Page Header - EXACT comme l'original */}
       <Box>
         <h2>Dashboard Overview</h2>
         <p>
@@ -38,73 +42,55 @@ function DashboardPage() {
         </p>
       </Box>
 
-      {/* Statistics Cards Grid - EXACT comme l'original */}
-      <Grid container spacing={3} sx={{ width: "100%", display: "flex" }}>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 0 }}
-        >
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+        <Box sx={{ flex: "1 1 220px" }}>
           <DashboardItem>
             <InfoCard
               title="Pending Property Validations"
               icon={ApartmentOutlinedIcon}
               value={stats.pendingValidations}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              bottomLeft="Total pending"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 220 }}
-        >
+        </Box>
+
+        <Box sx={{ flex: "1 1 220px" }}>
           <DashboardItem>
             <InfoCard
               title="Provider Moderation Cases"
               icon={HowToRegOutlinedIcon}
               value={stats.moderationCases}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              bottomLeft="To review"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 220 }}
-        >
+        </Box>
+
+        <Box sx={{ flex: "1 1 220px" }}>
           <DashboardItem>
             <InfoCard
               title="Active Users"
               icon={GroupOutlinedIcon}
               value={stats.activeUsers}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              bottomLeft="Last 30 days"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 220 }}
-        >
+        </Box>
+
+        <Box sx={{ flex: "1 1 220px" }}>
           <DashboardItem>
             <InfoCard
               title="Monthly Revenue"
               icon={EuroOutlinedIcon}
-              value={stats.monthlyRevenue}
-              bottomLeft="Active this month"
-              progressText="75% growth"
+              value={`${stats.monthlyRevenue}€`}
+              bottomLeft="This month"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Charts Section - EXACT comme l'original */}
       <Grid
@@ -198,5 +184,4 @@ function DashboardPage() {
     </AdminLayout>
   );
 }
-
 export default DashboardPage;

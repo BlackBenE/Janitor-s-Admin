@@ -9,6 +9,7 @@ import {
   UseUserActionsProps,
   UserRole,
 } from "../../../types/userManagement";
+import { supabase } from "../../../lib/supabaseClient";
 import { useSubscriptions } from "./useSubscriptions";
 import { useBookings } from "./useBookings";
 import { useServices } from "./useServices";
@@ -126,66 +127,50 @@ export const useUserActions = ({
       });
   };
 
-  const handleForceLogout = async (userId: string) => {
+  const handleCreateUser = async (userData: Partial<UserProfile>) => {
     try {
-      console.log("🔍 Force logout simplifié:", { userId });
+      // Créer l'utilisateur avec invitation via RLS policy
+      const { data: authUser, error: authError } =
+        await supabase.auth.admin.createUser({
+          email: userData.email!,
+          email_confirm: true,
+          user_metadata: {
+            full_name: userData.full_name,
+            phone: userData.phone,
+            role: userData.role,
+          },
+        });
 
-      // 🎯 VERSION SIMPLIFIÉE : Uniquement Supabase Auth Admin avec fallback
-      try {
-        await securityActions.forceLogout(userId, "Admin force logout");
-        console.log("✅ Force logout exécuté via Supabase Auth Admin");
+      if (authError) throw authError;
 
-        userManagement.showNotification(
-          "Utilisateur déconnecté via Supabase Auth",
-          "success"
-        );
-      } catch (forceLogoutError) {
-        console.warn(
-          "⚠️ Force logout échoué, utilisation du fallback lock:",
-          forceLogoutError
-        );
+      // Créer le profil utilisateur
+      const { error: profileError } = await supabase.from("profiles").insert({
+        id: authUser.user.id,
+        email: userData.email,
+        role: userData.role,
+        full_name: userData.full_name,
+        phone: userData.phone,
+        profile_validated: userData.profile_validated ?? false,
+        vip_subscription: userData.vip_subscription ?? false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
 
-        // FALLBACK : Lock temporaire de 2 minutes si le force logout échoue
-        try {
-          await securityActions.lockAccount(
-            userId,
-            2, // 2 minutes
-            "Fallback: Lock pour forcer la déconnexion (force logout échoué)"
-          );
-
-          userManagement.showNotification(
-            "Déconnexion forcée via lock temporaire (2 min) - Force logout échoué",
-            "warning"
-          );
-        } catch (lockError) {
-          // Si même le lock échoue, afficher l'erreur originale
-          throw forceLogoutError;
-        }
+      if (profileError) {
+        // Rollback : supprimer l'utilisateur auth si l'insertion du profil échoue
+        await supabase.auth.admin.deleteUser(authUser.user.id);
+        throw profileError;
       }
 
-      await logAction(
-        auditActions.FORCE_LOGOUT,
-        userId,
-        "Utilisateur déconnecté de force par l'administrateur (Supabase Auth ou fallback lock)",
-        getCurrentAdminEmail(),
-        {
-          timestamp: new Date().toISOString(),
-          reason: "Force logout by admin",
-          method: "supabase_auth_admin_with_fallback",
-        }
+      userManagement.showNotification(
+        "User created and invitation sent!",
+        "success"
       );
-
-      // Rafraîchir les données pour refléter les changements
       if (refetch) refetch();
     } catch (error) {
-      console.error("❌ Force logout error:", error);
       userManagement.showNotification(
-        `Erreur lors de la déconnexion forcée: ${
-          error instanceof Error
-            ? error.message
-            : typeof error === "string"
-            ? error
-            : JSON.stringify(error)
+        `Error creating user: ${
+          error instanceof Error ? error.message : String(error)
         }`,
         "error"
       );
@@ -250,13 +235,6 @@ export const useUserActions = ({
           lock_reason: reason || "Verrouillage temporaire",
         },
       });
-
-      // Forcer la déconnexion des sessions actives
-      try {
-        await securityActions.forceLogout(userId, "Account locked by admin");
-      } catch (logoutError) {
-        console.warn("Could not force logout during lock:", logoutError);
-      }
 
       await logAction(
         auditActions.USER_SUSPENDED,
@@ -627,7 +605,6 @@ export const useUserActions = ({
   // Fonction pour obtenir les actions disponibles selon le rôle
   const getActionsForRole = (role: UserRole | null) => {
     const baseActions = {
-      handleForceLogout,
       handleLockAccount,
       handleUnlockAccount,
     };
@@ -664,7 +641,6 @@ export const useUserActions = ({
     // Actions générales
     handleBulkValidate,
     handleBulkSuspend,
-    handleForceLogout,
     handleLockAccount,
     handleUnlockAccount,
     handleExportUsers,

@@ -1,15 +1,36 @@
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
+import AdminLayout from "../AdminLayout";
+import { useDashboard } from "../../hooks/dashboard/useDashboard";
+import DashboardItem from "../DashboardItem";
+import InfoCard from "../InfoCard";
+import { Typography } from "@mui/material";
+import BarCharts from "../BarCharts";
+import ActivityItem from "../ActivityItem";
+
 import EuroOutlinedIcon from "@mui/icons-material/EuroOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 
-import AdminLayout from "../AdminLayout";
-import InfoCard from "../InfoCard";
-import BarCharts from "../BarCharts";
-import DashboardItem from "../DashboardItem";
-import { useDashboard } from "../../hooks/dashboard/useDashboard";
+// Fonction pour convertir les statuts de Supabase en statuts d'affichage
+const mapStatusToDisplay = (
+  status: string
+): "Pending" | "Review Required" | "Completed" => {
+  switch (status) {
+    case "pending":
+      return "Pending";
+    case "approved":
+    case "accepted":
+      return "Completed";
+    case "rejected":
+    case "cancelled":
+      return "Review Required";
+    case "completed":
+      return "Completed";
+    default:
+      return "Pending";
+  }
+};
 
 function DashboardPage() {
   const {
@@ -19,6 +40,7 @@ function DashboardPage() {
     chartSeries,
     loading,
     error,
+    recentActivities,
   } = useDashboard();
 
   if (error) {
@@ -93,74 +115,70 @@ function DashboardPage() {
       </Box>
 
       {/* Charts Section - EXACT comme l'original */}
-      <Grid
-        container
-        spacing={2}
-        sx={{ width: "100%", display: "flex", mb: 8 }}
+      <Box
+        sx={{
+          mb: 8,
+          width: "100%",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
       >
-        <Grid
-          size={{ xs: 12, sm: 6 }}
-          sx={{ display: "flex", flex: 1, minWidth: 300 }}
-        >
-          <DashboardItem>
-            <Box
-              sx={{
-                mt: 2,
-                border: "1px solid #ddd",
-                borderRadius: 4,
-                p: 2,
-                flex: 1,
-                minWidth: 0,
-                height: "100%",
-                alignItems: "stretch",
-              }}
-            >
-              <Box sx={{ mb: 2, width: "100%" }}>
-                <h3>Recent Activity</h3>
-                <p>Latest actions requiring your attention</p>
+        {[
+          {
+            title: "Monthly Revenue",
+            subtitle: "Revenue trends over the last 6 months",
+            data: recentActivityData,
+            label: "Revenue (€)",
+          },
+          {
+            title: "User Growth",
+            subtitle: "Active user growth over time",
+            data: userGrowthData,
+            label: "Active Users",
+          },
+        ].map((chart, index) => (
+          <Box
+            key={index}
+            sx={{
+              flex: {
+                xs: "1 1 100%",
+                sm: "1 1 calc(50% - 8px)",
+              },
+              display: "flex",
+            }}
+          >
+            <DashboardItem>
+              <Box
+                sx={{
+                  mt: 2,
+                  border: "1px solid #ddd",
+                  borderRadius: 4,
+                  p: 2,
+                  flex: 1,
+                  minWidth: 0,
+                  height: "100%",
+                  alignItems: "stretch",
+                }}
+              >
+                <Box sx={{ mb: 2, width: "100%" }}>
+                  <Typography variant="h6">{chart.title}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {chart.subtitle}
+                  </Typography>
+                </Box>
+                <Box sx={{ width: "100%" }}>
+                  <BarCharts
+                    dataset={chart.data}
+                    xAxisKey="month"
+                    series={[{ dataKey: "sales", label: chart.label }]}
+                  />
+                </Box>
               </Box>
-              <Box sx={{ width: "100%" }}>
-                <BarCharts
-                  dataset={recentActivityData}
-                  xAxisKey="month"
-                  series={chartSeries}
-                />
-              </Box>
-            </Box>
-          </DashboardItem>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6 }}
-          sx={{ display: "flex", flex: 1, minWidth: 300 }}
-        >
-          <DashboardItem>
-            <Box
-              sx={{
-                mt: 2,
-                border: "1px solid #ddd",
-                borderRadius: 4,
-                p: 2,
-                flex: 1,
-                minWidth: 0,
-                height: "100%",
-                alignItems: "stretch",
-              }}
-            >
-              <Box sx={{ mb: 2, width: "100%" }}>
-                <h3>User Growth</h3>
-                <p>Active user growth over time</p>
-              </Box>
-              <Box sx={{ width: "100%" }}>
-                <BarCharts
-                  dataset={userGrowthData}
-                  xAxisKey="month"
-                  series={chartSeries}
-                />
-              </Box>
-            </Box>
-          </DashboardItem>
-        </Grid>
-      </Grid>
+            </DashboardItem>
+          </Box>
+        ))}
+      </Box>
 
       {/* Recent Activity Section - EXACT comme l'original */}
       <Box
@@ -171,14 +189,32 @@ function DashboardPage() {
           p: 2,
           flex: 1,
           minWidth: 0,
-          height: "40%",
           display: "flex",
-          alignItems: "stretch",
+          flexDirection: "column",
         }}
       >
-        <Box>
-          <h3>Recent Activity</h3>
-          <p>Latest actions requiring your attention</p>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h6">Recent Activity</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Latest actions requiring your attention
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          {loading ? (
+            <Typography>Loading activities...</Typography>
+          ) : recentActivities && recentActivities.length > 0 ? (
+            recentActivities.map((activity) => (
+              <ActivityItem
+                key={activity.id}
+                status={mapStatusToDisplay(activity.status)}
+                title={activity.title}
+                description={activity.description}
+                actionLabel={activity.actionLabel}
+              />
+            ))
+          ) : (
+            <Typography>No recent activities</Typography>
+          )}
         </Box>
       </Box>
     </AdminLayout>

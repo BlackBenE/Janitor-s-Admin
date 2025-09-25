@@ -29,6 +29,19 @@ export interface DashboardData {
   stats: DashboardStats;
   recentActivityData: ChartDataPoint[];
   userGrowthData: ChartDataPoint[];
+  recentActivities: RecentActivity[];
+}
+
+import { PropertyValidationStatus, ServiceRequestStatus } from "./supabase";
+
+export interface RecentActivity {
+  id: string;
+  status: PropertyValidationStatus | ServiceRequestStatus;
+  title: string;
+  description: string;
+  actionLabel?: string;
+  timestamp: string;
+  type: "property" | "provider" | "quote";
 }
 
 export type Profile = Tables<"profiles">;

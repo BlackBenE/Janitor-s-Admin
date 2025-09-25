@@ -6,6 +6,7 @@ import {
   DashboardData,
   Profile,
   DashboardStats,
+  RecentActivity,
 } from "../../types/dashboard";
 
 /**
@@ -26,6 +27,7 @@ export const useDashboard = () => {
     },
     recentActivityData: [],
     userGrowthData: [],
+    recentActivities: [],
   });
 
   // Charger les stats depuis Supabase
@@ -140,35 +142,110 @@ export const useDashboard = () => {
   }, [showNotification]);
 
   // Charger les données des graphiques
+  const loadRecentActivities = useCallback(async () => {
+    try {
+      // Fetch recent property submissions
+      const { data: recentProperties } = await supabase
+        .from("properties")
+        .select("*")
+        .is("validated_at", null)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      // Fetch recent provider registrations
+      const { data: recentProviders } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("role", "service_provider")
+        .eq("profile_validated", false)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      // Fetch recent quote requests
+      const { data: recentQuotes } = await supabase
+        .from("quote_requests")
+        .select("*")
+        .eq("status", "completed")
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      // Combine and transform the data
+      const activities: RecentActivity[] = [
+        ...(recentProperties?.map((property) => ({
+          id: property.id,
+          status: "pending" as const,
+          title: "New Property Submission",
+          description: `A new property has been submitted for validation: ${property.title}`,
+          actionLabel: "Review",
+          timestamp: property.created_at,
+          type: "property" as const,
+        })) || []),
+        ...(recentProviders?.map((provider) => ({
+          id: provider.id,
+          status: "pending" as const,
+          title: "Service Provider Registration",
+          description: `New service provider ${provider.full_name} awaiting profile verification`,
+          actionLabel: "Verify",
+          timestamp: provider.created_at,
+          type: "provider" as const,
+        })) || []),
+        ...(recentQuotes?.map((quote) => ({
+          id: quote.id,
+          status: "completed" as const,
+          title: "Quote Request Fulfilled",
+          description: "Service provider has responded to the quote request",
+          timestamp: quote.created_at,
+          type: "quote" as const,
+        })) || []),
+      ]
+        .sort(
+          (a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        )
+        .slice(0, 5);
+
+      return activities;
+    } catch (error) {
+      console.error("Error loading recent activities:", error);
+      showNotification(
+        "Erreur lors du chargement des activités récentes",
+        "error"
+      );
+      return [];
+    }
+  }, [showNotification]);
+
   const loadChartData = useCallback(async () => {
     try {
       const endDate = new Date();
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - 6);
 
-      const { data: activityData } = await supabase
-        .from("profiles")
-        .select("created_at")
+      // Get revenue data
+      const { data: revenueData } = await supabase
+        .from("payments")
+        .select("amount, created_at")
         .gte("created_at", startDate.toISOString())
         .lte("created_at", endDate.toISOString());
 
       const { data: userData } = await supabase
         .from("profiles")
         .select("created_at")
+        .eq("profile_validated", true)
         .gte("created_at", startDate.toISOString())
         .lte("created_at", endDate.toISOString());
 
-      // Traitement des données
-      const activityByMonth = new Map<string, number>();
+      // Process revenue data by month
+      const revenueByMonth = new Map<string, number>();
       const usersByMonth = new Map<string, number>();
 
-      (activityData as Profile[])?.forEach((item) => {
+      revenueData?.forEach((item: { amount: number; created_at: string }) => {
         if (item.created_at) {
           const date = new Date(item.created_at);
           const monthKey = date.toLocaleString("default", { month: "short" });
-          activityByMonth.set(
+          revenueByMonth.set(
             monthKey,
-            (activityByMonth.get(monthKey) || 0) + 1
+            (revenueByMonth.get(monthKey) || 0) + (Number(item.amount) || 0)
           );
         }
       });
@@ -190,7 +267,7 @@ export const useDashboard = () => {
       return {
         recentActivityData: months.map((month) => ({
           month,
-          sales: activityByMonth.get(month) || 0,
+          sales: revenueByMonth.get(month) || 0,
         })),
         userGrowthData: months.map((month) => ({
           month,
@@ -211,9 +288,10 @@ export const useDashboard = () => {
       setError(null);
 
       try {
-        const [stats, chartData] = await Promise.all([
+        const [stats, chartData, recentActivities] = await Promise.all([
           loadStats(),
           loadChartData(),
+          loadRecentActivities(),
         ]);
 
         if (stats && chartData) {
@@ -221,6 +299,7 @@ export const useDashboard = () => {
             stats,
             recentActivityData: chartData.recentActivityData,
             userGrowthData: chartData.userGrowthData,
+            recentActivities,
           });
         } else {
           setError("Failed to load dashboard data");
@@ -241,9 +320,10 @@ export const useDashboard = () => {
     setError(null);
 
     try {
-      const [stats, chartData] = await Promise.all([
+      const [stats, chartData, recentActivities] = await Promise.all([
         loadStats(),
         loadChartData(),
+        loadRecentActivities(),
       ]);
 
       if (stats && chartData) {
@@ -251,6 +331,7 @@ export const useDashboard = () => {
           stats,
           recentActivityData: chartData.recentActivityData,
           userGrowthData: chartData.userGrowthData,
+          recentActivities,
         });
         showNotification("Dashboard mis à jour", "success");
       } else {

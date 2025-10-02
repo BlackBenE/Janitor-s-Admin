@@ -6,8 +6,14 @@ import {
   Snackbar,
   Alert,
   Typography,
+  IconButton,
+  CircularProgress,
 } from "@mui/material";
-import { Add as AddIcon, Download as DownloadIcon } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  Download as DownloadIcon,
+  Refresh as RefreshIcon,
+} from "@mui/icons-material";
 
 import AdminLayout from "../AdminLayout";
 import DataTable from "../Table";
@@ -50,11 +56,10 @@ import { useModalHandlers } from "./hooks/useModalHandlers";
 import { UserProfile } from "../../types/userManagement";
 
 export const UserManagementPage: React.FC = () => {
-  // State pour les onglets
   const [activeTab, setActiveTab] = React.useState(0);
   const [selectedUserRole, setSelectedUserRole] =
     React.useState<UserRole | null>(
-      null // null pour "All Users"
+      null // for "All suers"
     );
 
   // State pour les nouvelles modals role-spécifiques
@@ -74,24 +79,30 @@ export const UserManagementPage: React.FC = () => {
     userName: "",
   });
 
-  // Hooks principaux
+  // Main Hooks
   const userManagement = useUserManagement();
   const modals = useUserModals();
   const { getEmail } = useAuth();
 
-  // Hooks de données avec filtrage par rôle
+  // Hook pour récupérer tous les utilisateurs (pour les tabs et cartes)
   const {
-    users,
+    users: allUsers,
     isLoading,
+    isFetching,
     error,
     updateUser,
     createUser,
     deleteManyUsers,
     refetch,
   } = useUsers({
-    filters: selectedUserRole ? { role: selectedUserRole } : {}, // Pas de filtre si "All Users"
+    filters: {}, // Pas de filtre pour avoir tous les utilisateurs
     orderBy: "created_at",
   });
+
+  // Filtrage côté client par rôle
+  const users = selectedUserRole
+    ? allUsers.filter((user) => user.role === selectedUserRole)
+    : allUsers;
   const userIds = users.map((user: UserProfile) => user.id);
   const { data: activityData, isLoading: activityLoading } =
     useUserActivity(userIds);
@@ -195,35 +206,73 @@ export const UserManagementPage: React.FC = () => {
 
   return (
     <AdminLayout>
-      {/* En-tête de la page */}
-      <Box>
-        <Typography variant="h4" component="h1" gutterBottom>
-          User Management
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-          Manage all user types including tenants, landlords, and service
-          providers across the platform.
-        </Typography>
+      {/* En-tête de la page avec bouton refresh - même structure que dashboard */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <Box>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Gestion des utilisateurs
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Gérez tous les types d'utilisateurs, y compris les locataires, les
+            propriétaires et les prestataires de services sur l'ensemble de la
+            plateforme.
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Tooltip
+            title={`Créer un nouveau ${USER_TABS[activeTab].label
+              .slice(0, -1)
+              .toLowerCase()}`}
+          >
+            <IconButton
+              size="large"
+              onClick={() => modals.openCreateUserModal()}
+            >
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Exporter les données en CSV">
+            <IconButton onClick={() => handleExportUsers("csv")} size="large">
+              <DownloadIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Actualiser les utilisateurs">
+            <IconButton
+              onClick={() => refetch()}
+              disabled={isFetching}
+              size="large"
+            >
+              {isFetching ? <CircularProgress size={24} /> : <RefreshIcon />}
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
 
       {/* Cartes de statistiques globales */}
-      <UserStatsCards
-        filteredUsers={filteredUsers}
-        activityData={activityData}
-      />
+      <UserStatsCards filteredUsers={allUsers} activityData={activityData} />
 
       {/* Message d'erreur */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          Error loading users:{" "}
+          Erreur lors du chargement des utilisateurs :{" "}
           {error instanceof Error ? error.message : "Unknown error"}
         </Alert>
       )}
 
       <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
         {/* Filtres simplifiés - seulement le statut */}
-        <h3>All Users</h3>
-        <p>Manage users across all categories with specialized views</p>
+        <h3>Tous les utilisateurs</h3>
+        <p>
+          Gérez les utilisateurs de toutes les catégories grâce à des vues
+          spécialisées.
+        </p>
         <Box sx={{ mb: 3 }}>
           <UserFiltersComponent
             filters={userManagement.filters}
@@ -232,53 +281,13 @@ export const UserManagementPage: React.FC = () => {
           />
         </Box>
 
-        {/* Onglets en style toggle sous les filtres avec boutons d'action */}
-        <Box
-          sx={{
-            mb: 3,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 2,
-          }}
-        >
+        {/* Onglets en style toggle sous les filtres */}
+        <Box sx={{ mb: 3 }}>
           <UserTabs
             activeTab={activeTab}
-            users={users}
+            users={allUsers}
             onTabChange={handleTabChange}
           />
-
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Tooltip title="Export to CSV">
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<DownloadIcon />}
-                onClick={() => handleExportUsers("csv")}
-              >
-                CSV
-              </Button>
-            </Tooltip>
-
-            <Tooltip
-              title={`Create new ${USER_TABS[activeTab].label
-                .slice(0, -1)
-                .toLowerCase()}`}
-            >
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => modals.openCreateUserModal()}
-                size="small"
-              >
-                New{" "}
-                {activeTab === 0
-                  ? "User"
-                  : USER_TABS[activeTab].label.slice(0, -1)}
-              </Button>
-            </Tooltip>
-          </Box>
         </Box>
 
         {/* Actions et contrôles */}

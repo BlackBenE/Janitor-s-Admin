@@ -280,7 +280,6 @@ export const useAuditLog = (userId?: string) => {
       }
     },
 
-    // Query keys pour usage externe
     queryKeys: AUDIT_QUERY_KEYS,
   };
 };

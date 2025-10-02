@@ -9,6 +9,7 @@ import { useNotifications } from "../hooks/shared/useNotifications";
 import CommunicationDrawer from "./CommunicationDrawer";
 import NotificationDrawer from "./NotificationDrawer";
 import SearchBar from "./SearchBar";
+import CacheStatusIndicator from "./shared/CacheStatusIndicator";
 
 function CustomAppBar(): React.JSX.Element {
   const [notificationDrawerOpen, setNotificationDrawerOpen] =
@@ -41,7 +42,9 @@ function CustomAppBar(): React.JSX.Element {
               <SearchBar />
             </Box>
             <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ display: { xs: "none", md: "flex" } }} />
+            <Box sx={{ display: { xs: "none", md: "flex" }, mr: 2 }}>
+              <CacheStatusIndicator />
+            </Box>
 
             <IconButtonWithBadge
               icon={MailIcon}

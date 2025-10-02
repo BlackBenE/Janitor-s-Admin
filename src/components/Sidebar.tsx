@@ -65,7 +65,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
             .filter(
               (route: Route) =>
                 route.path !== "/auth" &&
-                route.path !== "/settings" &&
+                route.path !== "/reset-password" &&
                 route.path !== "/profile"
             )
             .map((route: Route) => {

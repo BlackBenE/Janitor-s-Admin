@@ -41,7 +41,7 @@ export interface RecentActivity {
   description: string;
   actionLabel?: string;
   timestamp: string;
-  type: "property" | "provider" | "quote";
+  type: "property" | "provider" | "quote" | "service";
 }
 
 export type Profile = Tables<"profiles">;

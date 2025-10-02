@@ -1,37 +1,34 @@
-import { useState, useEffect, useCallback } from "react";
-import { useUINotifications } from "../shared/useUINotifications";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../../lib/supabaseClient";
 import {
   ChartDataPoint,
-  DashboardData,
-  Profile,
   DashboardStats,
   RecentActivity,
+  Profile,
 } from "../../types/dashboard";
+import { useUINotifications } from "../shared/useUINotifications";
+import { useEffect, useCallback } from "react";
 
-/**
- * Hook principal pour la gestion du tableau de bord
- */
+// Query keys for cache management
+const DASHBOARD_QUERY_KEYS = {
+  all: ["dashboard"] as const,
+  stats: () => [...DASHBOARD_QUERY_KEYS.all, "stats"] as const,
+  activities: () => [...DASHBOARD_QUERY_KEYS.all, "activities"] as const,
+  charts: () => [...DASHBOARD_QUERY_KEYS.all, "charts"] as const,
+};
+
+// Types for the query results
+interface ChartData {
+  recentActivityData: ChartDataPoint[];
+  userGrowthData: ChartDataPoint[];
+}
+
 export const useDashboard = () => {
+  const queryClient = useQueryClient();
   const { showNotification } = useUINotifications();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<DashboardData>({
-    stats: {
-      pendingValidations: 0,
-      pendingDiff: "0",
-      moderationCases: 0,
-      moderationDiff: "0",
-      activeUsers: 0,
-      monthlyRevenue: 0,
-    },
-    recentActivityData: [],
-    userGrowthData: [],
-    recentActivities: [],
-  });
 
-  // Charger les stats depuis Supabase
-  const loadStats = useCallback(async () => {
+  // Query function for stats
+  const fetchStats = async (): Promise<DashboardStats> => {
     try {
       // Calculate start of current and previous month
       const startOfCurrentMonth = new Date();
@@ -41,137 +38,114 @@ export const useDashboard = () => {
       const startOfLastMonth = new Date(startOfCurrentMonth);
       startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
 
-      // Current pending properties
-      const { count: currentPendingProps, error } = await supabase
-        .from("properties")
-        .select("*", { count: "exact" })
-        .is("validated_at", null);
+      // Fetch all stats in parallel
+      const [
+        currentPendingProps,
+        currentModerationCases,
+        currentActiveUsers,
+        currentRevenues,
+      ] = await Promise.all([
+        supabase
+          .from("properties")
+          .select("*", { count: "exact" })
+          .is("validated_at", null),
+        supabase
+          .from("profiles")
+          .select("*", { count: "exact" })
+          .eq("role", "service_provider")
+          .eq("profile_validated", false),
+        supabase
+          .from("profiles")
+          .select("*", { count: "exact" })
+          .eq("profile_validated", true),
+        supabase
+          .from("payments")
+          .select("amount")
+          .gte("created_at", startOfCurrentMonth.toISOString()),
+      ]);
 
-      if (error) {
-        console.error("Error fetching properties:", error);
-        return null;
-      }
+      if (currentPendingProps.error) throw currentPendingProps.error;
+      if (currentModerationCases.error) throw currentModerationCases.error;
+      if (currentActiveUsers.error) throw currentActiveUsers.error;
+      if (currentRevenues.error) throw currentRevenues.error;
 
-      // Last month's pending properties
-      const { count: lastMonthPendingProps } = await supabase
-        .from("properties")
-        .select("*", { count: "exact" })
-        .is("validated_at", null)
-        .lt("created_at", startOfCurrentMonth.toISOString());
-
-      // Current moderation cases
-      const { count: currentModerationCount } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact" })
-        .eq("role", "service_provider")
-        .eq("profile_validated", false);
-
-      // Last month's moderation cases
-      const { count: lastMonthModerationCount } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact" })
-        .eq("role", "service_provider")
-        .eq("profile_validated", false)
-        .lt("created_at", startOfCurrentMonth.toISOString());
-
-      // Current active users
-      const { count: currentActiveCount } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact" })
-        .eq("profile_validated", true);
-
-      // Last month's active users
-      const { count: lastMonthActiveCount } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact" })
-        .eq("profile_validated", true)
-        .lt("created_at", startOfCurrentMonth.toISOString());
-
-      // Yesterday's active users
-      const startOfYesterday = new Date();
-      startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-      startOfYesterday.setHours(0, 0, 0, 0);
-      const { count: yesterdayActiveCount } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact" })
-        .eq("profile_validated", true)
-        .lt("created_at", startOfYesterday.toISOString());
-
-      // Current month revenue
-      const { data: currentRevenues } = await supabase
-        .from("payments")
-        .select("amount")
-        .gte("created_at", startOfCurrentMonth.toISOString());
-
-      // Last month revenue
-      const { data: lastMonthRevenues } = await supabase
-        .from("payments")
-        .select("amount")
-        .gte("created_at", startOfLastMonth.toISOString())
-        .lt("created_at", startOfCurrentMonth.toISOString());
-
-      // Calculate revenues
+      // Calculate monthly revenue
       const currentMonthlyRevenue =
-        currentRevenues?.reduce(
+        currentRevenues.data?.reduce(
           (sum: number, payment: { amount: number }) =>
             sum + (Number(payment.amount) || 0),
           0
         ) || 0;
 
-      const lastMonthlyRevenue =
-        lastMonthRevenues?.reduce(
-          (sum: number, payment: { amount: number }) =>
-            sum + (Number(payment.amount) || 0),
-          0
-        ) || 0;
-
-      // Return the simplified stats
       return {
-        pendingValidations: currentPendingProps || 0,
+        pendingValidations: currentPendingProps.count || 0,
         pendingDiff: "",
-        moderationCases: currentModerationCount || 0,
+        moderationCases: currentModerationCases.count || 0,
         moderationDiff: "",
-        activeUsers: currentActiveCount || 0,
+        activeUsers: currentActiveUsers.count || 0,
         monthlyRevenue: currentMonthlyRevenue,
       };
     } catch (error) {
-      console.error("Error loading dashboard stats:", error);
-      showNotification("Erreur lors du chargement des statistiques", "error");
-      return null;
+      console.error("Error fetching dashboard stats:", error);
+      throw new Error("Failed to fetch dashboard statistics");
     }
-  }, [showNotification]);
+  };
 
-  // Charger les données des graphiques
-  const loadRecentActivities = useCallback(async () => {
+  // Query function for activities
+  const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
     try {
-      // Fetch recent property submissions
-      const { data: recentProperties } = await supabase
-        .from("properties")
-        .select("*")
-        .is("validated_at", null)
-        .order("created_at", { ascending: false })
-        .limit(3);
+      // Fetch all activities in parallel with error handling
+      const [recentProperties, recentProviders, recentServices] =
+        await Promise.all([
+          supabase
+            .from("properties")
+            .select("*")
+            .is("validated_at", null)
+            .order("created_at", { ascending: false })
+            .limit(3)
+            .then((result) => {
+              if (result.error) {
+                console.warn("Error fetching properties:", result.error);
+                return { data: [], error: null };
+              }
+              return result;
+            }),
+          supabase
+            .from("profiles")
+            .select("*")
+            .eq("role", "service_provider")
+            .eq("profile_validated", false)
+            .order("created_at", { ascending: false })
+            .limit(3)
+            .then((result) => {
+              if (result.error) {
+                console.warn("Error fetching profiles:", result.error);
+                return { data: [], error: null };
+              }
+              return result;
+            }),
+          supabase
+            .from("service_requests")
+            .select("*")
+            .eq("status", "completed")
+            .order("created_at", { ascending: false })
+            .limit(3)
+            .then((result) => {
+              if (result.error) {
+                console.warn("Error fetching service_requests:", result.error);
+                return { data: [], error: null };
+              }
+              return result;
+            }),
+        ]);
 
-      // Fetch recent provider registrations
-      const { data: recentProviders } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("role", "service_provider")
-        .eq("profile_validated", false)
-        .order("created_at", { ascending: false })
-        .limit(3);
-
-      // Fetch recent quote requests
-      const { data: recentQuotes } = await supabase
-        .from("quote_requests")
-        .select("*")
-        .eq("status", "completed")
-        .order("created_at", { ascending: false })
-        .limit(3);
+      if (recentProperties.error) throw recentProperties.error;
+      if (recentProviders.error) throw recentProviders.error;
+      if (recentServices.error) throw recentServices.error;
 
       // Combine and transform the data
       const activities: RecentActivity[] = [
-        ...(recentProperties?.map((property) => ({
+        ...(recentProperties.data?.map((property) => ({
           id: property.id,
           status: "pending" as const,
           title: "New Property Submission",
@@ -180,7 +154,7 @@ export const useDashboard = () => {
           timestamp: property.created_at,
           type: "property" as const,
         })) || []),
-        ...(recentProviders?.map((provider) => ({
+        ...(recentProviders.data?.map((provider) => ({
           id: provider.id,
           status: "pending" as const,
           title: "Service Provider Registration",
@@ -189,13 +163,13 @@ export const useDashboard = () => {
           timestamp: provider.created_at,
           type: "provider" as const,
         })) || []),
-        ...(recentQuotes?.map((quote) => ({
-          id: quote.id,
+        ...(recentServices.data?.map((service: any) => ({
+          id: service.id,
           status: "completed" as const,
-          title: "Quote Request Fulfilled",
-          description: "Service provider has responded to the quote request",
-          timestamp: quote.created_at,
-          type: "quote" as const,
+          title: "Service Request Completed",
+          description: "A service request has been completed",
+          timestamp: service.created_at,
+          type: "service" as const,
         })) || []),
       ]
         .sort(
@@ -206,41 +180,42 @@ export const useDashboard = () => {
 
       return activities;
     } catch (error) {
-      console.error("Error loading recent activities:", error);
-      showNotification(
-        "Erreur lors du chargement des activités récentes",
-        "error"
-      );
-      return [];
+      console.error("Error fetching recent activities:", error);
+      throw new Error("Failed to fetch recent activities");
     }
-  }, [showNotification]);
+  };
 
-  const loadChartData = useCallback(async () => {
+  // Query function for chart data
+  const fetchChartData = async (): Promise<ChartData> => {
     try {
       const endDate = new Date();
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - 6);
 
-      // Get revenue data
-      const { data: revenueData } = await supabase
-        .from("payments")
-        .select("amount, created_at")
-        .gte("created_at", startDate.toISOString())
-        .lte("created_at", endDate.toISOString());
+      // Fetch revenue and user data in parallel
+      const [revenueData, userData] = await Promise.all([
+        supabase
+          .from("payments")
+          .select("amount, created_at")
+          .gte("created_at", startDate.toISOString())
+          .lte("created_at", endDate.toISOString()),
+        supabase
+          .from("profiles")
+          .select("created_at")
+          .eq("profile_validated", true)
+          .gte("created_at", startDate.toISOString())
+          .lte("created_at", endDate.toISOString()),
+      ]);
 
-      const { data: userData } = await supabase
-        .from("profiles")
-        .select("created_at")
-        .eq("profile_validated", true)
-        .gte("created_at", startDate.toISOString())
-        .lte("created_at", endDate.toISOString());
+      if (revenueData.error) throw revenueData.error;
+      if (userData.error) throw userData.error;
 
-      // Process revenue data by month
+      // Process data by month
       const revenueByMonth = new Map<string, number>();
       const usersByMonth = new Map<string, number>();
 
-      revenueData?.forEach((item: { amount: number; created_at: string }) => {
-        if (item.created_at) {
+      revenueData.data?.forEach(
+        (item: { amount: number; created_at: string }) => {
           const date = new Date(item.created_at);
           const monthKey = date.toLocaleString("default", { month: "short" });
           revenueByMonth.set(
@@ -248,16 +223,15 @@ export const useDashboard = () => {
             (revenueByMonth.get(monthKey) || 0) + (Number(item.amount) || 0)
           );
         }
+      );
+
+      userData.data?.forEach((item: { created_at: string }) => {
+        const date = new Date(item.created_at);
+        const monthKey = date.toLocaleString("default", { month: "short" });
+        usersByMonth.set(monthKey, (usersByMonth.get(monthKey) || 0) + 1);
       });
 
-      (userData as Profile[])?.forEach((item) => {
-        if (item.created_at) {
-          const date = new Date(item.created_at);
-          const monthKey = date.toLocaleString("default", { month: "short" });
-          usersByMonth.set(monthKey, (usersByMonth.get(monthKey) || 0) + 1);
-        }
-      });
-
+      // Get last 6 months
       const months = Array.from({ length: 6 }, (_, i) => {
         const d = new Date();
         d.setMonth(d.getMonth() - i);
@@ -275,86 +249,160 @@ export const useDashboard = () => {
         })),
       };
     } catch (error) {
-      console.error("Error loading chart data:", error);
-      showNotification("Erreur lors du chargement des graphiques", "error");
-      return null;
+      console.error("Error fetching chart data:", error);
+      throw new Error("Failed to fetch chart data");
     }
-  }, [showNotification]);
+  };
 
-  // Chargement initial des données
+  // Set up real-time subscriptions
   useEffect(() => {
-    const initializeDashboard = async () => {
-      setLoading(true);
-      setError(null);
+    const setupSubscriptions = () => {
+      const channels = [
+        supabase
+          .channel("properties_changes")
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "public", table: "properties" },
+            () =>
+              queryClient.invalidateQueries({
+                queryKey: DASHBOARD_QUERY_KEYS.stats(),
+              })
+          ),
+        supabase
+          .channel("profiles_changes")
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "public", table: "profiles" },
+            () =>
+              queryClient.invalidateQueries({
+                queryKey: DASHBOARD_QUERY_KEYS.stats(),
+              })
+          ),
+        supabase
+          .channel("payments_changes")
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "public", table: "payments" },
+            () => {
+              queryClient.invalidateQueries({
+                queryKey: DASHBOARD_QUERY_KEYS.stats(),
+              });
+              queryClient.invalidateQueries({
+                queryKey: DASHBOARD_QUERY_KEYS.charts(),
+              });
+            }
+          ),
+        supabase
+          .channel("service_requests_changes")
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "public", table: "service_requests" },
+            () =>
+              queryClient.invalidateQueries({
+                queryKey: DASHBOARD_QUERY_KEYS.activities(),
+              })
+          ),
+      ];
 
-      try {
-        const [stats, chartData, recentActivities] = await Promise.all([
-          loadStats(),
-          loadChartData(),
-          loadRecentActivities(),
-        ]);
+      channels.forEach((channel) => channel.subscribe());
 
-        if (stats && chartData) {
-          setData({
-            stats,
-            recentActivityData: chartData.recentActivityData,
-            userGrowthData: chartData.userGrowthData,
-            recentActivities,
-          });
-        } else {
-          setError("Failed to load dashboard data");
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
-      }
+      return () => {
+        channels.forEach((channel) => channel.unsubscribe());
+      };
     };
 
-    initializeDashboard();
-  }, [loadStats, loadChartData]);
+    return setupSubscriptions();
+  }, [queryClient]);
 
-  // Rafraîchissement manuel du dashboard
+  // Queries with react-query (configuration similaire à userManagement)
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isFetching: statsIsFetching,
+    error: statsError,
+  } = useQuery({
+    queryKey: DASHBOARD_QUERY_KEYS.stats(),
+    queryFn: fetchStats,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    retry: 2,
+    // Utilise les paramètres par défaut définis dans App.tsx
+  });
+
+  const {
+    data: activities,
+    isLoading: activitiesLoading,
+    isFetching: activitiesIsFetching,
+    error: activitiesError,
+  } = useQuery({
+    queryKey: DASHBOARD_QUERY_KEYS.activities(),
+    queryFn: fetchRecentActivities,
+    staleTime: 1 * 60 * 1000, // 1 minute - activités changent plus souvent
+    retry: 2,
+  });
+
+  const {
+    data: chartData,
+    isLoading: chartsLoading,
+    isFetching: chartsIsFetching,
+    error: chartsError,
+  } = useQuery({
+    queryKey: DASHBOARD_QUERY_KEYS.charts(),
+    queryFn: fetchChartData,
+    staleTime: 5 * 60 * 1000, // 5 minutes - données de graphiques moins critiques
+    retry: 2,
+  });
+
+  // Manual refresh function
   const refreshDashboard = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
     try {
-      const [stats, chartData, recentActivities] = await Promise.all([
-        loadStats(),
-        loadChartData(),
-        loadRecentActivities(),
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: DASHBOARD_QUERY_KEYS.stats(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: DASHBOARD_QUERY_KEYS.activities(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: DASHBOARD_QUERY_KEYS.charts(),
+        }),
       ]);
-
-      if (stats && chartData) {
-        setData({
-          stats,
-          recentActivityData: chartData.recentActivityData,
-          userGrowthData: chartData.userGrowthData,
-          recentActivities,
-        });
-        showNotification("Dashboard mis à jour", "success");
-      } else {
-        setError("Failed to refresh dashboard data");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      showNotification("Dashboard mis à jour", "success");
+    } catch (error) {
       showNotification("Erreur lors de la mise à jour", "error");
-    } finally {
-      setLoading(false);
     }
-  }, [loadStats, loadChartData, showNotification]);
+  }, [queryClient, showNotification]);
+
+  // Détermine si on doit afficher le loading state (comme userManagement)
+  const isLoading = statsLoading || activitiesLoading || chartsLoading;
+
+  // Gestion des erreurs
+  const hasError = statsError || activitiesError || chartsError;
+  const errorMessage = hasError
+    ? "Erreur lors du chargement des données du dashboard"
+    : null;
 
   return {
-    ...data,
-    loading,
-    error,
-    chartSeries: [
-      {
-        dataKey: "sales",
-        label: "Actions",
-      },
-    ],
+    stats: stats || {
+      pendingValidations: 0,
+      pendingDiff: "",
+      moderationCases: 0,
+      moderationDiff: "",
+      activeUsers: 0,
+      monthlyRevenue: 0,
+    },
+    recentActivities: activities || [],
+    recentActivityData: chartData?.recentActivityData || [],
+    userGrowthData: chartData?.userGrowthData || [],
+    // Simple loading state comme userManagement
+    loading: isLoading,
+    // isFetching pour indiquer le rafraîchissement en cours
+    isFetching: {
+      stats: statsIsFetching,
+      activities: activitiesIsFetching,
+      charts: chartsIsFetching,
+    },
+    error: errorMessage,
+    chartSeries: [{ dataKey: "sales", label: "Actions" }],
     refreshDashboard,
   };
 };

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { dataProvider } from "../../providers/dataProvider";
 import { Database } from "../../types/database.types";
+import { supabase } from "../../lib/supabaseClient";
 
 type Property = Database["public"]["Tables"]["properties"]["Row"];
 type PropertyInsert = Database["public"]["Tables"]["properties"]["Insert"];
@@ -64,20 +65,54 @@ export const useProperties = (options?: {
   } = useQuery({
     queryKey: PROPERTIES_QUERY_KEYS.list(options?.filters),
     queryFn: async () => {
-      const response = await dataProvider.getList(
-        "properties",
-        {
-          limit: options?.limit,
-          orderBy: options?.orderBy,
-        },
-        options?.filters
-      );
+      if (options?.includeOwnerInfo) {
+        // Use direct Supabase query with JOIN for owner info
+        let query = supabase.from("properties").select(`
+            *,
+            profiles:owner_id (
+              id,
+              full_name,
+              email
+            )
+          `);
 
-      if (!response.success) {
-        throw response.error;
+        // Apply filters
+        if (options?.filters) {
+          Object.entries(options.filters).forEach(([key, value]) => {
+            if (value !== undefined) {
+              query = query.eq(key, value);
+            }
+          });
+        }
+
+        // Apply ordering and limits
+        if (options?.orderBy) query = query.order(options.orderBy as string);
+        if (options?.limit) query = query.limit(options.limit);
+
+        const { data, error } = await query;
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return data || [];
+      } else {
+        // Fallback to dataProvider for simple queries
+        const response = await dataProvider.getList(
+          "properties",
+          {
+            limit: options?.limit,
+            orderBy: options?.orderBy,
+          },
+          options?.filters
+        );
+
+        if (!response.success) {
+          throw response.error;
+        }
+
+        return response.data;
       }
-
-      return response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
@@ -294,16 +329,25 @@ export const useProperties = (options?: {
     mutationFn: async ({
       id,
       validatedBy,
+      moderationNotes,
     }: {
       id: string;
       validatedBy: string;
+      moderationNotes?: string;
     }) => {
-      const response = await dataProvider.update("properties", id, {
+      const updateData: any = {
         validation_status: "approved",
         validated_at: new Date().toISOString(),
         validated_by: validatedBy,
         updated_at: new Date().toISOString(),
-      });
+      };
+
+      // Add moderation notes if provided
+      if (moderationNotes) {
+        updateData.moderation_notes = moderationNotes;
+      }
+
+      const response = await dataProvider.update("properties", id, updateData);
 
       if (!response.success) {
         throw response.error;
@@ -333,16 +377,25 @@ export const useProperties = (options?: {
     mutationFn: async ({
       id,
       validatedBy,
+      moderationNotes,
     }: {
       id: string;
       validatedBy: string;
+      moderationNotes?: string;
     }) => {
-      const response = await dataProvider.update("properties", id, {
+      const updateData: any = {
         validation_status: "rejected",
         validated_at: new Date().toISOString(),
         validated_by: validatedBy,
         updated_at: new Date().toISOString(),
-      });
+      };
+
+      // Add moderation notes if provided
+      if (moderationNotes) {
+        updateData.moderation_notes = moderationNotes;
+      }
+
+      const response = await dataProvider.update("properties", id, updateData);
 
       if (!response.success) {
         throw response.error;

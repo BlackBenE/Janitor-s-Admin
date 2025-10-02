@@ -44,8 +44,11 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes - données considérées comme fraîches
+      gcTime: 10 * 60 * 1000, // 10 minutes - durée de vie dans le cache
+      refetchOnWindowFocus: false, // Pas de refetch automatique sur focus
+      refetchOnMount: "always", // Toujours refetch si les données sont stales
+      refetchOnReconnect: "always", // Refetch si reconnexion réseau
     },
   },
 });
@@ -101,21 +104,21 @@ const AppContent: React.FC = () => {
 
   // Activer l'audit et le session tracking automatiquement
   useAuditLog(); // Enhanced debugging for development
-  if (import.meta.env.DEV) {
-    console.log("Auth State Debug:", {
-      session: !!session,
-      sessionUser: session?.user?.email,
-      isAdmin: isAdmin(),
-      loading,
-      error,
-      timestamp: new Date().toISOString(),
-      currentPath: window.location.pathname,
-    });
-  }
+  // if (import.meta.env.DEV) {
+  //   console.log("Auth State Debug:", {
+  //     session: !!session,
+  //     sessionUser: session?.user?.email,
+  //     isAdmin: isAdmin(),
+  //     loading,
+  //     error,
+  //     timestamp: new Date().toISOString(),
+  //     currentPath: window.location.pathname,
+  //   });
+  // }
 
   // Show loading spinner while auth is initializing
   if (loading) {
-    console.log("App is in loading state, showing LoadingScreen");
+    // console.log("App is in loading state, showing LoadingScreen");
     return <LoadingScreen error={error} />;
   }
 
@@ -124,12 +127,12 @@ const AppContent: React.FC = () => {
   const redirectTo = isAuthenticated ? "/dashboard" : "/auth";
   const currentPath = window.location.pathname;
 
-  console.log("Redirect Logic:", {
-    isAuthenticated,
-    redirectTo,
-    currentPath,
-    shouldRedirect: currentPath === "/",
-  });
+  // console.log("Redirect Logic:", {
+  //   isAuthenticated,
+  //   redirectTo,
+  //   currentPath,
+  //   shouldRedirect: currentPath === "/",
+  // });
 
   return (
     <Router>

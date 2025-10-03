@@ -48,7 +48,6 @@ function DashboardPage() {
     stats,
     recentActivityData,
     userGrowthData,
-    chartSeries,
     loading,
     error,
     recentActivities,
@@ -78,10 +77,10 @@ function DashboardPage() {
         }}
       >
         <Box>
-          <h2>Dashboard Overview</h2>
+          <h2>Tableau de bord général</h2>
           <p>
-            Welcome back! Here&apos;s what&apos;s happening with your platform
-            today.
+            Bon retour ! Voici les dernières actualités concernant votre
+            plateforme.
           </p>
         </Box>
         <Tooltip title="Rafraîchir les données">

@@ -54,9 +54,10 @@ const QuoteRequestsPage = () => {
     <AdminLayout>
       {/* Page Header - EXACT comme l'original */}
       <Box>
-        <h2>Quote Requests</h2>
+        <h2>Demandes de devis</h2>
         <p>
-          Monitor and manage service quote requests and ongoing interventions.
+          Surveillez et gérez les demandes de devis de service et les
+          interventions en cours.
         </p>
       </Box>
 
@@ -68,7 +69,7 @@ const QuoteRequestsPage = () => {
         >
           <DashboardItem>
             <InfoCard
-              title="Total Requests"
+              title="Total des demandes"
               value={stats?.total || 0}
               progressText="+170 this month"
               showTrending={false}
@@ -82,7 +83,7 @@ const QuoteRequestsPage = () => {
         >
           <DashboardItem>
             <InfoCard
-              title="Pending Quotes"
+              title="Devis en attente"
               value={stats?.pending || 0}
               progressText="+95 this month"
               showTrending={false}
@@ -96,7 +97,7 @@ const QuoteRequestsPage = () => {
         >
           <DashboardItem>
             <InfoCard
-              title="Active Jobs"
+              title="Emplois actifs"
               value={stats?.inProgress || 0}
               progressText="+15.3% from last month"
               showTrending={false}
@@ -110,7 +111,7 @@ const QuoteRequestsPage = () => {
         >
           <DashboardItem>
             <InfoCard
-              title="Completion Rate"
+              title="Taux d'achèvement"
               value={stats?.completed || 0}
               progressText="-5 from yesterday"
               showTrending={false}
@@ -122,8 +123,8 @@ const QuoteRequestsPage = () => {
 
       {/* Data Table Section - EXACT comme l'original */}
       <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
-        <h3>Users</h3>
-        <p>Manage user accounts and subscriptions</p>
+        <h3>Gestion des demandes de devis</h3>
+        <p>Suivre les demandes de service et les réponses des fournisseurs</p>
         <DataTable
           columns={columns}
           data={data}

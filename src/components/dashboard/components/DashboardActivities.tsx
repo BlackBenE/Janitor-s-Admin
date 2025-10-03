@@ -1,4 +1,5 @@
-import Box from "@mui/material/Box";
+import React from "react";
+import { Chip, Box } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import ActivityItem from "../../ActivityItem";
 import { RecentActivity } from "../../../types/dashboard";

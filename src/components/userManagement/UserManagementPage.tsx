@@ -225,6 +225,7 @@ export const UserManagementPage: React.FC = () => {
             plateforme.
           </Typography>
         </Box>
+
         <Box sx={{ display: "flex", gap: 1 }}>
           <Tooltip
             title={`Créer un nouveau ${USER_TABS[activeTab].label

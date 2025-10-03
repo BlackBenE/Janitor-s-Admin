@@ -56,3 +56,5 @@ export const getPropertyCount = (
     (property) => property.validation_status === statusMapping[tabKey]
   ).length;
 };
+
+// Configuration des tabs pour les factures - désormais dans InvoiceTabsConfig.ts

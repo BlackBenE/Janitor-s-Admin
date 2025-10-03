@@ -3,7 +3,6 @@ import { SvgIconTypeMap } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import DashboardPage from "../components/dashboard/DashboardPage";
 import FinancialOverviewPage from "../components/financialoverview/FinancialOverviewPage";
-import InvoicesPage from "../components/invoices/InvoicesPage";
 import { AuthPage as RefactoredAuthPage } from "../components/auth/AuthPage";
 import { ProfilePage as RefactoredProfilePage } from "../components/profile/ProfilePage";
 import PropertyApprovalsPage from "../components/property-approvals/PropertyApprovalsPage";
@@ -21,6 +20,7 @@ import MedicalInformationOutlinedIcon from "@mui/icons-material/MedicalInformati
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
+import { PaymentsPage } from "../components/payments/PaymentsPage";
 
 interface Route {
   path: string;
@@ -93,10 +93,10 @@ export const routes: Route[] = [
     protected: true,
   },
   {
-    path: "/invoices",
+    path: "/payments",
     element: (
       <ProtectedRoute>
-        <InvoicesPage />
+        <PaymentsPage />
       </ProtectedRoute>
     ),
     icon: DescriptionOutlinedIcon,

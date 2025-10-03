@@ -125,7 +125,6 @@ const AppContent: React.FC = () => {
   // Log redirect decision
   const isAuthenticated = session && isAdmin();
   const redirectTo = isAuthenticated ? "/dashboard" : "/auth";
-  const currentPath = window.location.pathname;
 
   // console.log("Redirect Logic:", {
   //   isAuthenticated,

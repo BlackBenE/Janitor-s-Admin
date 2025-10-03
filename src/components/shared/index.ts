@@ -6,7 +6,12 @@ export { GenericFilters } from "./GenericFilters";
 export { GenericTabs } from "./GenericTabs";
 
 // Configurations de filtres
-export { userFilterConfigs, propertyFilterConfigs } from "./filterConfigs";
+export {
+  userFilterConfigs,
+  propertyFilterConfigs,
+  invoiceFilterConfigs,
+  paymentFilterConfigs,
+} from "./filterConfigs";
 
 // Configurations de tabs
 export {

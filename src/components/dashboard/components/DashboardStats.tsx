@@ -1,3 +1,4 @@
+import React from "react";
 import Box from "@mui/material/Box";
 import EuroOutlinedIcon from "@mui/icons-material/EuroOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";

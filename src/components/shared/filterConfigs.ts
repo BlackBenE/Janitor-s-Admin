@@ -79,3 +79,85 @@ export const propertyFilterConfigs: FilterConfig[] = [
     hidden: true,
   },
 ];
+
+export const invoiceFilterConfigs: FilterConfig[] = [
+  {
+    key: "status",
+    label: "Status",
+    type: "select",
+    options: [
+      { value: "pending", label: "Pending" },
+      { value: "paid", label: "Paid" },
+      { value: "refunded", label: "refunded" },
+    ],
+  },
+  {
+    key: "paymentMethod",
+    label: "Payment Method",
+    type: "select",
+    hidden: true,
+    options: [
+      { value: "bank_transfer", label: "Bank Transfer" },
+      { value: "credit_card", label: "Credit Card" },
+      { value: "paypal", label: "PayPal" },
+      { value: "cash", label: "Cash" },
+    ],
+  },
+];
+
+export const paymentFilterConfigs: FilterConfig[] = [
+  {
+    key: "status",
+    label: "Status",
+    type: "select",
+    options: [
+      { value: "pending", label: "Pending" },
+      { value: "paid", label: "Paid" },
+      { value: "refunded", label: "Refunded" },
+    ],
+  },
+  {
+    key: "paymentType",
+    label: "Payment Type",
+    type: "select",
+    hidden: true,
+    options: [
+      { value: "booking", label: "Booking Payment" },
+      { value: "service", label: "Service Payment" },
+      { value: "subscription", label: "Subscription" },
+      { value: "refund", label: "Refund" },
+    ],
+  },
+  {
+    key: "minAmount",
+    label: "Min Amount",
+    type: "number",
+    placeholder: "Min Amount (€)",
+    minWidth: 120,
+    hidden: true,
+  },
+  {
+    key: "maxAmount",
+    label: "Max Amount",
+    type: "number",
+    placeholder: "Max Amount (€)",
+    minWidth: 120,
+    hidden: true,
+  },
+  {
+    key: "dateFrom",
+    label: "From Date",
+    type: "text",
+    placeholder: "YYYY-MM-DD",
+    hidden: true,
+    minWidth: 150,
+  },
+  {
+    key: "dateTo",
+    label: "To Date",
+    type: "text",
+    placeholder: "YYYY-MM-DD",
+    hidden: true,
+    minWidth: 150,
+  },
+];

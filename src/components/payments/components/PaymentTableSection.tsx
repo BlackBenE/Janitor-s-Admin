@@ -1,8 +1,6 @@
 import React from "react";
 import { Box, Typography, Snackbar, Alert } from "@mui/material";
-import { PaymentFiltersComponent } from "../PaymentFilters";
-import { PaymentTabs } from "../PaymentTabs";
-import { PaymentActions } from "../PaymentActions";
+import { PaymentFiltersSection } from "./PaymentFiltersSection";
 import DataTable from "../../Table";
 import { PaymentWithDetails } from "../../../types/payments";
 
@@ -37,48 +35,23 @@ export const PaymentTableSection: React.FC<PaymentTableSectionProps> = ({
         catégorie.
       </p>
 
-      {/* Filtres */}
-      <Box sx={{ mb: 3 }}>
-        <PaymentFiltersComponent
-          filters={paymentManagement.filters}
-          onUpdateFilter={paymentManagement.updateFilter}
-          simplified={true}
-        />
-      </Box>
-
-      {/* Onglets */}
-      <Box sx={{ mb: 3 }}>
-        <PaymentTabs
-          activeTab={activeTab}
-          payments={payments}
-          onTabChange={onTabChange}
-        />
-      </Box>
-
-      {/* Actions et contrôles */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        {/* Actions en lot pour les paiements sélectionnés */}
-        {paymentManagement.hasSelection && (
-          <PaymentActions
-            selectedPayments={paymentManagement.selectedPayments || []}
-            onBulkMarkPaid={paymentManagement.markSelectedAsPaid || (() => {})}
-            onBulkSendReminders={() =>
-              console.log("Bulk send payment reminders")
-            }
-            onBulkCancel={
-              paymentManagement.refundSelectedPayments || (() => {})
-            }
-            onBulkExport={paymentManagement.exportSelectedToCSV || (() => {})}
-          />
-        )}
-      </Box>
+      {/* Filtres, onglets et actions combinés */}
+      <PaymentFiltersSection
+        // Filters
+        filters={paymentManagement.filters}
+        onUpdateFilter={paymentManagement.updateFilter}
+        simplified={true}
+        // Tabs
+        activeTab={activeTab}
+        payments={payments}
+        onTabChange={onTabChange}
+        // Actions
+        selectedPayments={paymentManagement.selectedPayments || []}
+        onBulkMarkPaid={paymentManagement.markSelectedAsPaid || (() => {})}
+        onBulkSendReminders={() => console.log("Bulk send payment reminders")}
+        onBulkCancel={paymentManagement.refundSelectedPayments || (() => {})}
+        onBulkExport={paymentManagement.exportSelectedToCSV || (() => {})}
+      />
 
       {/* Table des paiements */}
       <DataTable columns={columns} data={transformedData} />

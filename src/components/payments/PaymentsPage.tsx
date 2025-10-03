@@ -9,20 +9,20 @@ import { usePayments, usePaymentManagement, usePaymentStats } from "./hooks";
 // Components
 import {
   PaymentHeader,
-  PaymentStatsCards,
+  PaymentStatsSection,
   PaymentTableSection,
   PaymentLoadingIndicator,
 } from "./components";
 
 // Configuration
-import { paymentTabConfigs, PaymentStatus } from "./PaymentTabsConfig";
+import { paymentTabConfigs, PaymentStatus } from "../shared";
 
 // Types
 import { PaymentWithDetails } from "../../types/payments";
 import {
   createPaymentTableConfig,
   transformPaymentsForTable,
-} from "./PaymentTableConfig";
+} from "./components/PaymentTableConfig";
 
 export const PaymentsPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState(0);
@@ -205,7 +205,7 @@ export const PaymentsPage: React.FC = () => {
         />
 
         {/* Cartes de statistiques */}
-        <PaymentStatsCards stats={stats} formatCurrency={formatCurrency} />
+        <PaymentStatsSection allPayments={payments} error={null} />
 
         {/* Section tableau avec filtres et onglets */}
         <PaymentTableSection

@@ -5,3 +5,6 @@ export { UserTableSection } from "./UserTableSection";
 export { UserLoadingIndicator } from "./UserLoadingIndicator";
 export { UserFiltersSection } from "./UserFiltersSection";
 export { UserModalsManager } from "./UserModalsManager";
+export { createUserTableColumns } from "./UserTableColumns";
+export { UserTableActions } from "./UserTableActions";
+export * from "./UserTableCells";

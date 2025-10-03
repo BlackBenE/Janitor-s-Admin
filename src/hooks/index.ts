@@ -21,8 +21,7 @@ export * from "./services-catalog";
 // Quote requests hooks
 export * from "./quote-requests";
 
-// Property approvals hooks
-export * from "./property-approvals";
+// Property approvals hooks - moved to component module
 
 // Shared utility hooks
 export * from "./shared";

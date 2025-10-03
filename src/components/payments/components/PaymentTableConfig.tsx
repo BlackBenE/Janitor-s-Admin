@@ -14,8 +14,8 @@ import {
   BaseItem,
   GenericAction,
   ColumnConfig,
-} from "../shared/GenericTableColumns";
-import { PaymentWithDetails } from "../../types/payments";
+} from "../../shared/GenericTableColumns";
+import { PaymentWithDetails } from "../../../types/payments";
 
 // =====================================================
 // TYPES SPÉCIFIQUES AUX FACTURES

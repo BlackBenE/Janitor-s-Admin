@@ -17,9 +17,14 @@ export {
 export {
   userTabConfigs,
   propertyTabConfigs,
+  paymentTabConfigs,
   getUserCount,
   getPropertyCount,
+  getPaymentCount,
 } from "./tabConfigs";
+
+// Types de statuts
+export type { PaymentStatus } from "./tabConfigs";
 
 // Types partagés
 export type { FilterOption, FilterConfig } from "./FilterPanel";

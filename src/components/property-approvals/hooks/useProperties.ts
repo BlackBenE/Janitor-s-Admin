@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { dataProvider } from "../../providers/dataProvider";
-import { Database } from "../../types/database.types";
-import { supabase } from "../../lib/supabaseClient";
+import { dataProvider } from "../../../providers/dataProvider";
+import { Database } from "../../../types/database.types";
+import { supabase } from "../../../lib/supabaseClient";
 
 type Property = Database["public"]["Tables"]["properties"]["Row"];
 type PropertyInsert = Database["public"]["Tables"]["properties"]["Insert"];

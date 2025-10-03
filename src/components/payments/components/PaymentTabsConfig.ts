@@ -1,5 +1,5 @@
-import { TabConfig } from "../shared/GenericTabs";
-import { PaymentWithDetails } from "../../types/payments";
+import { TabConfig } from "../../shared/GenericTabs";
+import { PaymentWithDetails } from "../../../types/payments";
 import {
   Receipt as AllIcon,
   Schedule as PendingIcon,

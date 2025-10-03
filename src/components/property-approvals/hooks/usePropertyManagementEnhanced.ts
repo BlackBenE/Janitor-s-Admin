@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   PropertyFilters,
   PropertyNotificationState,
-} from "../../types/propertyApprovals";
+} from "../../../types/propertyApprovals";
 
 const initialFilters: PropertyFilters = {
   search: "",

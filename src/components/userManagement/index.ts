@@ -13,10 +13,3 @@ export * from "./hooks";
 
 // UserManagement modals
 export * from "./modals";
-
-// Legacy components (still used by page)
-export { UserStatsCards } from "./UserStatsCards";
-export { UserFiltersComponent } from "./UserFilters";
-export { UserActions } from "./UserActions";
-export { UserTabs } from "./UserTabs";
-export { createUserTableColumns } from "./UserTableColumns";

@@ -34,13 +34,13 @@ import {
   Cancel,
   Pending,
 } from "@mui/icons-material";
-import { useServices } from "../hooks/useServices";
 import {
   ServicesModalProps,
   Service,
   ServiceRequest,
   Intervention,
 } from "../../../types/userManagement";
+import { useServices } from "../hooks/useServices";
 
 const ServicesModal: React.FC<ServicesModalProps> = ({
   open,

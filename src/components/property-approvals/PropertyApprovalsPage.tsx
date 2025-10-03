@@ -1,29 +1,15 @@
 import React from "react";
 import AdminLayout from "../AdminLayout";
-import {
-  Box,
-  Typography,
-  IconButton,
-  Tooltip,
-  CircularProgress,
-  Snackbar,
-  Alert,
-} from "@mui/material";
-import {
-  Refresh as RefreshIcon,
-  Add as AddIcon,
-  Download as DownloadIcon,
-} from "@mui/icons-material";
-import DataTable from "../Table";
-import { useProperties } from "../../hooks/property-approvals/useProperties";
+import { useProperties } from "./hooks/useProperties";
 import { useAuth } from "../../providers/authProvider";
-import { usePropertyManagementEnhanced } from "../../hooks/property-approvals/usePropertyManagementEnhanced";
+import { usePropertyManagementEnhanced } from "./hooks/usePropertyManagementEnhanced";
 import { createGenericTableColumns } from "../shared/GenericTableColumns";
-import { createPropertyTableConfig } from "./PropertyTableConfig";
-import { PropertyActions } from "./PropertyActions";
-import { PropertyFiltersComponent } from "./PropertyFilters";
-import { PropertyDetailsModal } from "./PropertyDetailsModal";
-import { PropertyTabs } from "./propertyTabs";
+import {
+  PropertyHeader,
+  PropertyTableSection,
+  createPropertyTableConfig,
+} from "./components";
+import { PropertyDetailsModal } from "./modals/PropertyDetailsModal";
 import { PROPERTY_TABS, PropertyStatus } from "../../types/propertyApprovals";
 
 const PropertyApprovalsPage: React.FC = () => {
@@ -78,44 +64,37 @@ const PropertyApprovalsPage: React.FC = () => {
     }
   };
 
-  // Filtrage des propriétés basé sur les filtres de recherche
+  // Filtrage des propriétés avec les filtres de recherche
   const filteredProperties =
     properties?.filter((property: any) => {
+      const searchTerm = propertyManagement.filters.search?.toLowerCase() || "";
+      const cityFilter = propertyManagement.filters.city?.toLowerCase() || "";
+      const countryFilter =
+        propertyManagement.filters.country?.toLowerCase() || "";
+      const minPriceFilter = propertyManagement.filters.minPrice
+        ? parseFloat(propertyManagement.filters.minPrice)
+        : null;
+      const maxPriceFilter = propertyManagement.filters.maxPrice
+        ? parseFloat(propertyManagement.filters.maxPrice)
+        : null;
+
       const matchesSearch =
-        !propertyManagement.filters.search ||
-        property.title
-          ?.toLowerCase()
-          .includes(propertyManagement.filters.search.toLowerCase()) ||
-        property.owner?.full_name
-          ?.toLowerCase()
-          .includes(propertyManagement.filters.search.toLowerCase()) ||
-        property.city
-          ?.toLowerCase()
-          .includes(propertyManagement.filters.search.toLowerCase());
+        !searchTerm ||
+        property.title?.toLowerCase().includes(searchTerm) ||
+        property.description?.toLowerCase().includes(searchTerm) ||
+        property.profiles?.full_name?.toLowerCase().includes(searchTerm);
 
       const matchesCity =
-        !propertyManagement.filters.city ||
-        property.city
-          ?.toLowerCase()
-          .includes(propertyManagement.filters.city.toLowerCase());
-
+        !cityFilter || property.city?.toLowerCase().includes(cityFilter);
       const matchesCountry =
-        !propertyManagement.filters.country ||
-        property.country
-          ?.toLowerCase()
-          .includes(propertyManagement.filters.country.toLowerCase());
+        !countryFilter ||
+        property.country?.toLowerCase().includes(countryFilter);
 
+      const propertyPrice = property.nightly_rate || 0;
       const matchesMinPrice =
-        !propertyManagement.filters.minPrice ||
-        (property.rent_amount &&
-          property.rent_amount >=
-            parseInt(propertyManagement.filters.minPrice));
-
+        !minPriceFilter || propertyPrice >= minPriceFilter;
       const matchesMaxPrice =
-        !propertyManagement.filters.maxPrice ||
-        (property.rent_amount &&
-          property.rent_amount <=
-            parseInt(propertyManagement.filters.maxPrice));
+        !maxPriceFilter || propertyPrice <= maxPriceFilter;
 
       return (
         matchesSearch &&
@@ -166,12 +145,13 @@ const PropertyApprovalsPage: React.FC = () => {
   };
 
   const handleApproveSelected = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !propertyManagement.selectedProperties.length) return;
+
     try {
       await Promise.all(
-        propertyManagement.selectedProperties.map((propertyId: string) =>
+        propertyManagement.selectedProperties.map((id) =>
           approveProperty.mutateAsync({
-            id: propertyId,
+            id,
             validatedBy: user.id,
           })
         )
@@ -191,12 +171,13 @@ const PropertyApprovalsPage: React.FC = () => {
   };
 
   const handleRejectSelected = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !propertyManagement.selectedProperties.length) return;
+
     try {
       await Promise.all(
-        propertyManagement.selectedProperties.map((propertyId: string) =>
+        propertyManagement.selectedProperties.map((id) =>
           rejectProperty.mutateAsync({
-            id: propertyId,
+            id,
             validatedBy: user.id,
           })
         )
@@ -214,11 +195,6 @@ const PropertyApprovalsPage: React.FC = () => {
       );
     }
   };
-
-  // Debug: Log the first property to see the structure
-  if (filteredProperties && filteredProperties.length > 0) {
-    console.log("First property structure:", filteredProperties[0]);
-  }
 
   const transformedData =
     filteredProperties?.map((property: any) => ({
@@ -251,109 +227,46 @@ const PropertyApprovalsPage: React.FC = () => {
   return (
     <AdminLayout>
       {/* Header with refresh button */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Box>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Property Approvals
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Review and moderate property listings submitted by landlords.
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Tooltip title={`Add New Property`}>
-            <IconButton
-              size="large"
-              onClick={() => propertyManagement.openCreatePropertyModal()}
-            >
-              <AddIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip
-            title={`Export ${
-              filteredProperties?.length || 0
-            } Properties to CSV`}
-          >
-            <IconButton
-              size="large"
-              onClick={() =>
-                propertyManagement.exportPropertiesToCSV(
-                  filteredProperties || []
-                )
-              }
-              disabled={!filteredProperties || filteredProperties.length === 0}
-            >
-              <DownloadIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Refresh Properties">
-            <IconButton
-              onClick={() => refetch()}
-              disabled={isFetching}
-              size="large"
-            >
-              {isFetching ? <CircularProgress size={24} /> : <RefreshIcon />}
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Box>
+      <PropertyHeader
+        propertiesCount={filteredProperties?.length || 0}
+        onRefresh={() => refetch()}
+        onAddProperty={() => propertyManagement.openCreatePropertyModal()}
+        onExportProperties={() =>
+          propertyManagement.exportPropertiesToCSV(filteredProperties || [])
+        }
+        isRefreshing={isFetching}
+        isExportDisabled={
+          !filteredProperties || filteredProperties.length === 0
+        }
+      />
 
-      {/* Properties Table */}
-      <Box
-        sx={{
-          mt: 2,
-          border: "1px solid #ddd",
-          borderRadius: 4,
-          p: 2,
-        }}
-      >
-        <h3>All Properties</h3>
-        <p>Manage properties across all categories with specialized views</p>
-        {/* Filters */}
-        <PropertyFiltersComponent
-          filters={propertyManagement.filters}
-          onUpdateFilter={propertyManagement.updateFilter}
-          simplified={true}
-        />
-
-        {/* Tabs for property status */}
-        <Box sx={{ mb: 3 }}>
-          <PropertyTabs
-            activeTab={activeTab}
-            properties={allProperties || []}
-            onTabChange={handleTabChange}
-          />
-        </Box>
-
-        {/* Bulk Actions */}
-        <PropertyActions
-          selectedProperties={propertyManagement.selectedProperties}
-          onApproveSelected={handleApproveSelected}
-          onRejectSelected={handleRejectSelected}
-          onClearSelection={propertyManagement.clearPropertySelection}
-          isApprovePending={approveProperty.isPending}
-          isRejectPending={rejectProperty.isPending}
-        />
-
-        {isLoading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
-            <CircularProgress />
-          </Box>
-        ) : error ? (
-          <Box sx={{ p: 3, textAlign: "center" }}>
-            <Typography color="error">Error loading properties</Typography>
-          </Box>
-        ) : (
-          <DataTable columns={columns} data={transformedData} />
-        )}
-      </Box>
+      {/* Properties Table Section */}
+      <PropertyTableSection
+        // Data
+        properties={allProperties || []}
+        filteredProperties={filteredProperties}
+        transformedData={transformedData}
+        columns={columns}
+        // State
+        activeTab={activeTab}
+        isLoading={isLoading}
+        error={error}
+        // Filters
+        filters={propertyManagement.filters}
+        onUpdateFilter={propertyManagement.updateFilter}
+        // Tabs
+        onTabChange={handleTabChange}
+        // Actions
+        selectedProperties={propertyManagement.selectedProperties}
+        onApproveSelected={handleApproveSelected}
+        onRejectSelected={handleRejectSelected}
+        onClearSelection={propertyManagement.clearPropertySelection}
+        isApprovePending={approveProperty.isPending}
+        isRejectPending={rejectProperty.isPending}
+        // Notifications
+        notification={propertyManagement.notification}
+        onHideNotification={propertyManagement.hideNotification}
+      />
 
       {/* Property Details Modal */}
       <PropertyDetailsModal
@@ -365,21 +278,6 @@ const PropertyApprovalsPage: React.FC = () => {
         isApprovePending={approveProperty.isPending}
         isRejectPending={rejectProperty.isPending}
       />
-
-      {/* Notification Snackbar */}
-      <Snackbar
-        open={propertyManagement.notification.open}
-        autoHideDuration={6000}
-        onClose={propertyManagement.hideNotification}
-      >
-        <Alert
-          onClose={propertyManagement.hideNotification}
-          severity={propertyManagement.notification.severity}
-          sx={{ width: "100%" }}
-        >
-          {propertyManagement.notification.message}
-        </Alert>
-      </Snackbar>
     </AdminLayout>
   );
 };

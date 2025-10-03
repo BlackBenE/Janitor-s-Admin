@@ -9,6 +9,7 @@ import {
   UserTableSection,
   UserLoadingIndicator,
   UserModalsManager,
+  createUserTableColumns,
 } from "./components";
 
 // Types
@@ -17,7 +18,6 @@ import { UserRole, UserProfile, USER_TABS } from "../../types/userManagement";
 // Hooks
 import { useUserManagement, useUserModals, useUsers } from "./hooks";
 import { useAuth } from "../../providers/authProvider";
-import { createUserTableColumns } from "./UserTableColumns";
 
 export const UserManagementPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState(0);
@@ -64,7 +64,7 @@ export const UserManagementPage: React.FC = () => {
     ? allUsers.filter((user) => user.role === selectedUserRole)
     : allUsers;
 
-  // Configuration du tableau avec vraies fonctions
+  // Configuration du tableau avec toutes les fonctionnalités
   const columns = createUserTableColumns({
     selectedUsers: userManagement.selectedUsers,
     onToggleUserSelection: userManagement.toggleUserSelection,
@@ -109,7 +109,7 @@ export const UserManagementPage: React.FC = () => {
       // TODO: Implémenter validation prestataire
     },
     activityData: {},
-    currentUserRole: "admin" as UserRole,
+    currentUserRole: UserRole.ADMIN,
     currentTabRole: selectedUserRole,
   });
 

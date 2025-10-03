@@ -1,6 +1,6 @@
 import React from "react";
-import { PaymentWithDetails } from "../../types/payments";
-import { GenericTabs } from "../shared";
+import { PaymentWithDetails } from "../../../types/payments";
+import { GenericTabs } from "../../shared";
 import {
   getPaymentCount,
   PaymentStatus,

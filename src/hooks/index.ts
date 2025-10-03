@@ -3,23 +3,14 @@
 // Authentication hooks
 export * from "./auth";
 
-// Dashboard hooks
-export * from "./dashboard";
-
 // Analytics hooks
 export * from "./analytics";
 
 // Financial overview hooks
 export * from "./financialoverview";
 
-// Invoice hooks
-export * from "././invoices";
-
 // Profile hooks
 export * from "./profile";
-
-// User management hooks
-export * from "./userManagement";
 
 // Provider moderation hooks
 export * from "./providers-moderation";

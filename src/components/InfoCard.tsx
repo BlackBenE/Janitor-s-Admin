@@ -35,6 +35,7 @@ function InfoCard({
       sx={{
         width: "100%",
         color: "text.primary",
+        background: "none",
         boxShadow: "none",
         borderRadius: "8px",
         border: "1px solid #e0e0e0",
@@ -48,7 +49,9 @@ function InfoCard({
             alignItems: "center",
           }}
         >
-          <Typography variant="body2">{title}</Typography>
+          <Typography variant="subtitle2" fontWeight="bold">
+            {title}
+          </Typography>
           {Icon && <Icon fontSize="small" />}
         </Box>
         <Box

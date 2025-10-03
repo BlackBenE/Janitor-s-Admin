@@ -3,7 +3,7 @@ import {
   PaymentWithDetails,
   PaymentFilters,
   PaymentNotificationState,
-} from "../../types/payments";
+} from "../../../types/payments";
 
 const initialFilters: PaymentFilters = {
   search: "",

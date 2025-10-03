@@ -1,12 +1,10 @@
 import React from "react";
-import { Chip, Box } from "@mui/material";
-import Typography from "@mui/material/Typography";
+import { Box, Typography } from "@mui/material";
 import ActivityItem from "../../ActivityItem";
 import { RecentActivity } from "../../../types/dashboard";
 
-interface DashboardActivitiesProps {
+interface DashboardActivitiesSectionProps {
   activities: RecentActivity[];
-  loading: boolean;
 }
 
 // Fonction pour convertir les statuts de Supabase en statuts d'affichage
@@ -29,10 +27,9 @@ const mapStatusToDisplay = (
   }
 };
 
-export const DashboardActivities: React.FC<DashboardActivitiesProps> = ({
-  activities,
-  loading,
-}) => {
+export const DashboardActivitiesSection: React.FC<
+  DashboardActivitiesSectionProps
+> = ({ activities }) => {
   return (
     <Box
       sx={{
@@ -53,9 +50,7 @@ export const DashboardActivities: React.FC<DashboardActivitiesProps> = ({
         </Typography>
       </Box>
       <Box sx={{ display: "flex", flexDirection: "column" }}>
-        {loading ? (
-          <Typography>Loading activities...</Typography>
-        ) : activities && activities.length > 0 ? (
+        {activities && activities.length > 0 ? (
           activities.map((activity) => (
             <ActivityItem
               key={activity.id}

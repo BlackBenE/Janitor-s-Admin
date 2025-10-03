@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { PaymentWithDetails, PaymentStats } from "../../types/payments";
+import { PaymentWithDetails, PaymentStats } from "../../../types/payments";
 
 const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat("fr-FR", {

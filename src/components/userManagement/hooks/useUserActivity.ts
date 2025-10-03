@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { dataProvider } from "../../providers/dataProvider";
-import { Database } from "../../types/database.types";
+import { dataProvider } from "../../../providers/dataProvider";
+import { Database } from "../../../types/database.types";
 
 type Booking = Database["public"]["Tables"]["bookings"]["Row"];
 type Payment = Database["public"]["Tables"]["payments"]["Row"];

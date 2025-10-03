@@ -1,9 +1,13 @@
 import React from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import DashboardItem from "../../DashboardItem";
+import { Box, Typography } from "@mui/material";
 import BarCharts from "../../BarCharts";
+import DashboardItem from "../../DashboardItem";
 import { ChartDataPoint } from "../../../types/dashboard";
+
+interface DashboardChartsSectionProps {
+  recentActivityData: ChartDataPoint[];
+  userGrowthData: ChartDataPoint[];
+}
 
 interface ChartConfig {
   title: string;
@@ -12,12 +16,7 @@ interface ChartConfig {
   label: string;
 }
 
-interface DashboardChartsProps {
-  recentActivityData: ChartDataPoint[];
-  userGrowthData: ChartDataPoint[];
-}
-
-export const DashboardCharts: React.FC<DashboardChartsProps> = ({
+export const DashboardChartsSection: React.FC<DashboardChartsSectionProps> = ({
   recentActivityData,
   userGrowthData,
 }) => {

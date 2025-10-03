@@ -30,11 +30,11 @@ import {
   CheckCircle,
   Cancel,
 } from "@mui/icons-material";
-import { useSubscriptions } from "../hooks/useSubscriptions";
 import {
   SubscriptionModalProps,
   Subscription,
 } from "../../../types/userManagement";
+import { useSubscriptions } from "../hooks/useSubscriptions";
 
 const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   open,
@@ -70,9 +70,20 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   const handleRenewSubscription = async () => {
     try {
+      // Trouver la première subscription active à renouveler
+      const activeSubscription = subscriptions.find(
+        (s) => s.status === "active"
+      );
+      if (!activeSubscription) return;
+
+      const newPeriodEnd =
+        renewalType === "annual"
+          ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+          : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
       await renewSubscription.mutateAsync({
-        userId,
-        subscriptionType: renewalType,
+        subscriptionId: activeSubscription.id,
+        newPeriodEnd,
         amount: renewalType === "annual" ? 100 : 10,
       });
 

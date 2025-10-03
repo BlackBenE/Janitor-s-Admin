@@ -30,7 +30,7 @@ import {
   Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import { AuditModalState } from "../../../types/userManagement";
-import { useAuditLog } from "../../../hooks/userManagement/useAuditLog";
+import { useAuditLog } from "../hooks/useAuditLog";
 
 interface AuditModalProps {
   open: boolean;
@@ -221,7 +221,7 @@ export const AuditModal: React.FC<AuditModalProps> = ({
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {auditLogs.map((log) => (
+                        {auditLogs.map((log: any) => (
                           <TableRow key={log.id}>
                             <TableCell>
                               <Chip
@@ -270,7 +270,7 @@ export const AuditModal: React.FC<AuditModalProps> = ({
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {userActions.map((action) => (
+                        {userActions.map((action: any) => (
                           <TableRow key={`${action.type}-${action.id}`}>
                             <TableCell>
                               <Chip

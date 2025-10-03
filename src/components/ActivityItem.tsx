@@ -42,7 +42,7 @@ const ActivityItem: React.FC<ActivityItemProps> = ({
         alignItems: "center",
         justifyContent: "space-between",
         p: 2,
-        borderBottom: "1px solid #e0e0e0", // Bordure fine en bas pour séparer les items
+        borderBottom: "1px solid #ffffffff", // Bordure fine en bas pour séparer les items
         "&:last-child": { borderBottom: "none" },
       }}
     >

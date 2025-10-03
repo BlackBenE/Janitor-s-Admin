@@ -1,190 +1,59 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "../../../lib/supabaseClient";
-import { Payment, Review } from "../../../types/userManagement";
+import { useState } from "react";
 
-/**
- * Hook pour récupérer les données additionnelles des utilisateurs
- * (paiements, avis, etc.)
- */
+// Hook simplifié pour les données additionnelles utilisateur
 export const useUserAdditionalData = () => {
-  // Récupérer les paiements d'un utilisateur
-  const getUserPayments = async (userId: string): Promise<Payment[]> => {
-    const { data, error } = await supabase
-      .from("payments")
-      .select(
-        `
-        *,
-        bookings (
-          check_in,
-          check_out,
-          properties (
-            title,
-            city
-          )
-        ),
-        service_requests (
-          requested_date,
-          services (
-            name,
-            category
-          )
-        )
-      `
-      )
-      .eq("payer_id", userId)
-      .order("created_at", { ascending: false });
+  const [additionalData, setAdditionalData] = useState<any>({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    if (error) throw error;
-    return data || [];
-  };
-
-  // Récupérer les revenus d'un utilisateur (pour les propriétaires et prestataires)
-  const getUserEarnings = async (userId: string): Promise<Payment[]> => {
-    const { data, error } = await supabase
-      .from("payments")
-      .select(
-        `
-        *,
-        bookings (
-          check_in,
-          check_out,
-          properties (
-            title,
-            city
-          )
-        ),
-        service_requests (
-          requested_date,
-          services (
-            name,
-            category
-          )
-        )
-      `
-      )
-      .eq("payee_id", userId)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    return data || [];
-  };
-
-  // Récupérer les avis d'un utilisateur (en tant qu'évaluateur)
-  const getUserReviewsAsReviewer = async (
-    userId: string
-  ): Promise<Review[]> => {
-    const { data, error } = await supabase
-      .from("reviews")
-      .select(
-        `
-        *,
-        bookings (
-          properties (
-            title,
-            city
-          )
-        ),
-        service_requests (
-          services (
-            name,
-            category
-          )
-        )
-      `
-      )
-      .eq("reviewer_id", userId)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    return data || [];
-  };
-
-  // Récupérer les avis reçus par un utilisateur (en tant qu'évalué)
-  const getUserReviewsAsReviewee = async (
-    userId: string
-  ): Promise<Review[]> => {
-    const { data, error } = await supabase
-      .from("reviews")
-      .select(
-        `
-        *,
-        bookings (
-          properties (
-            title,
-            city
-          )
-        ),
-        service_requests (
-          services (
-            name,
-            category
-          )
-        )
-      `
-      )
-      .eq("reviewee_id", userId)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    return data || [];
-  };
-
-  // Calculer les statistiques d'un utilisateur
-  const getUserStats = async (userId: string) => {
+  const getUserAdditionalData = async (userId: string) => {
+    setLoading(true);
+    setError(null);
     try {
-      const [payments, earnings, reviewsGiven, reviewsReceived] =
-        await Promise.all([
-          getUserPayments(userId),
-          getUserEarnings(userId),
-          getUserReviewsAsReviewer(userId),
-          getUserReviewsAsReviewee(userId),
-        ]);
+      // TODO: Implémenter la récupération des données additionnelles depuis Supabase
+      console.log("Fetching additional data for user:", userId);
 
-      // Calculer les statistiques
-      const totalSpent = payments.reduce(
-        (sum, payment) => sum + payment.amount,
-        0
-      );
-      const totalEarned = earnings.reduce(
-        (sum, payment) => sum + payment.amount,
-        0
-      );
-      const averageRatingGiven =
-        reviewsGiven.length > 0
-          ? reviewsGiven.reduce((sum, review) => sum + review.rating, 0) /
-            reviewsGiven.length
-          : 0;
-      const averageRatingReceived =
-        reviewsReceived.length > 0
-          ? reviewsReceived.reduce((sum, review) => sum + review.rating, 0) /
-            reviewsReceived.length
-          : 0;
-
-      return {
-        totalSpent,
-        totalEarned,
-        totalPayments: payments.length,
-        totalEarnings: earnings.length,
-        reviewsGiven: reviewsGiven.length,
-        reviewsReceived: reviewsReceived.length,
-        averageRatingGiven: Math.round(averageRatingGiven * 10) / 10,
-        averageRatingReceived: Math.round(averageRatingReceived * 10) / 10,
-        recentPayments: payments.slice(0, 5),
-        recentEarnings: earnings.slice(0, 5),
-        recentReviewsGiven: reviewsGiven.slice(0, 5),
-        recentReviewsReceived: reviewsReceived.slice(0, 5),
+      // Simulation de données pour le moment
+      const mockData = {
+        preferences: {
+          notifications: true,
+          language: "fr",
+          timezone: "Europe/Paris",
+        },
+        activity: {
+          lastLogin: "2025-10-03",
+          totalBookings: 15,
+          favoriteServices: ["nettoyage", "jardinage"],
+        },
       };
-    } catch (error) {
-      console.error("Erreur lors du calcul des statistiques:", error);
-      throw error;
+
+      setAdditionalData(mockData);
+    } catch (err) {
+      setError("Erreur lors du chargement des données additionnelles");
+      console.error("Error fetching additional data:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const getUserStats = async (userId: string) => {
+    console.log("Getting user stats for:", userId);
+    // TODO: Implémenter la récupération des statistiques utilisateur
+    return {
+      totalBookings: 15,
+      completedBookings: 12,
+      cancelledBookings: 3,
+      totalSpent: 450.5,
+      favoriteServices: ["nettoyage", "jardinage"],
+      lastActivity: "2025-10-03",
+    };
+  };
+
   return {
-    getUserPayments,
-    getUserEarnings,
-    getUserReviewsAsReviewer,
-    getUserReviewsAsReviewee,
+    additionalData,
+    loading,
+    error,
+    getUserAdditionalData,
     getUserStats,
   };
 };

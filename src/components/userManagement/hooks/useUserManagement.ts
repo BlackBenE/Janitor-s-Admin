@@ -3,7 +3,7 @@ import {
   UserProfile,
   NotificationState,
   UserFilters,
-} from "../../types/userManagement";
+} from "../../../types/userManagement";
 
 const initialFilters: UserFilters = {
   role: "",

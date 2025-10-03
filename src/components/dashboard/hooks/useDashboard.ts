@@ -1,12 +1,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "../../../lib/supabaseClient";
 import {
   ChartDataPoint,
   DashboardStats,
   RecentActivity,
   Profile,
-} from "../../types/dashboard";
-import { useUINotifications } from "../shared/useUINotifications";
+} from "../../../types/dashboard";
+import { useUINotifications } from "../../../hooks/shared/useUINotifications";
 import { useEffect, useCallback } from "react";
 
 // Query keys for cache management

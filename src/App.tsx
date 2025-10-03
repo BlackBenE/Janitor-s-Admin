@@ -18,7 +18,7 @@ import {
   Container,
 } from "@mui/material";
 import { AuthProvider, useAuth } from "./providers/authProvider";
-import { useAuditLog } from "./hooks/userManagement/useAuditLog";
+import { useAuditLog } from "./components/userManagement/hooks/useAuditLog";
 import { routes } from "./routes/routes";
 
 // MUI Theme for admin panel
@@ -32,7 +32,7 @@ const theme = createTheme({
       main: "#dc004e",
     },
     background: {
-      default: "#f5f5f5",
+      default: "#ffffffff",
     },
   },
   typography: {

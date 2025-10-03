@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { dataProvider } from "../../providers/dataProvider";
-import { Database } from "../../types/database.types";
-import { PaymentWithDetails, PaymentStats } from "../../types/payments";
+import { dataProvider } from "../../../providers/dataProvider";
+import { Database } from "../../../types/database.types";
+import { PaymentWithDetails, PaymentStats } from "../../../types/payments";
 
 type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
 type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];

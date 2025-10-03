@@ -1,47 +1,17 @@
+import React from "react";
 import Box from "@mui/material/Box";
 import AdminLayout from "../AdminLayout";
-import { useDashboard } from "../../hooks/dashboard/useDashboard";
-import DashboardItem from "../DashboardItem";
-import InfoCard from "../InfoCard";
+import { useDashboard } from "./hooks/useDashboard";
 import {
-  Typography,
-  IconButton,
-  Tooltip,
-  CircularProgress,
-} from "@mui/material";
-import BarCharts from "../BarCharts";
-import ActivityItem from "../ActivityItem";
-import {
+  DashboardHeader,
+  DashboardStatsCards,
+  DashboardChartsSection,
+  DashboardActivitiesSection,
+  DashboardLoadingIndicator,
   DashboardStatsSkeleton,
   DashboardChartsSkeleton,
   DashboardActivitiesSkeleton,
-} from "./components/DashboardSkeletons";
-
-import EuroOutlinedIcon from "@mui/icons-material/EuroOutlined";
-import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
-import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
-import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
-import RefreshIcon from "@mui/icons-material/Refresh";
-
-// Fonction pour convertir les statuts de Supabase en statuts d'affichage
-const mapStatusToDisplay = (
-  status: string
-): "Pending" | "Review Required" | "Completed" => {
-  switch (status) {
-    case "pending":
-      return "Pending";
-    case "approved":
-    case "accepted":
-      return "Completed";
-    case "rejected":
-    case "cancelled":
-      return "Review Required";
-    case "completed":
-      return "Completed";
-    default:
-      return "Pending";
-  }
-};
+} from "./components";
 
 function DashboardPage() {
   const {
@@ -54,6 +24,10 @@ function DashboardPage() {
     isFetching,
     refreshDashboard,
   } = useDashboard();
+
+  // State pour déterminer si le dashboard est en cours de rafraîchissement
+  const isRefreshing =
+    isFetching.stats || isFetching.activities || isFetching.charts;
 
   if (error) {
     return (
@@ -68,210 +42,38 @@ function DashboardPage() {
 
   return (
     <AdminLayout>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        <Box>
-          <h2>Tableau de bord général</h2>
-          <p>
-            Bon retour ! Voici les dernières actualités concernant votre
-            plateforme.
-          </p>
-        </Box>
-        <Tooltip title="Rafraîchir les données">
-          <IconButton
-            onClick={refreshDashboard}
-            disabled={
-              isFetching.stats || isFetching.activities || isFetching.charts
-            }
-            sx={{ ml: 2 }}
-          >
-            {isFetching.stats || isFetching.activities || isFetching.charts ? (
-              <CircularProgress size={20} />
-            ) : (
-              <RefreshIcon />
-            )}
-          </IconButton>
-        </Tooltip>
-      </Box>
+      {/* En-tête du dashboard */}
+      <DashboardHeader
+        onRefresh={refreshDashboard}
+        isRefreshing={isRefreshing}
+      />
 
+      {/* Section des statistiques */}
       {loading ? (
         <DashboardStatsSkeleton />
       ) : (
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-          <Box sx={{ flex: "1 1 220px" }}>
-            <DashboardItem>
-              <InfoCard
-                title="Pending Property Validations"
-                icon={ApartmentOutlinedIcon}
-                value={stats.pendingValidations}
-                bottomLeft="Total pending"
-                showTrending={false}
-              />
-            </DashboardItem>
-          </Box>
-
-          <Box sx={{ flex: "1 1 220px" }}>
-            <DashboardItem>
-              <InfoCard
-                title="Provider Moderation Cases"
-                icon={HowToRegOutlinedIcon}
-                value={stats.moderationCases}
-                bottomLeft="To review"
-                showTrending={false}
-              />
-            </DashboardItem>
-          </Box>
-
-          <Box sx={{ flex: "1 1 220px" }}>
-            <DashboardItem>
-              <InfoCard
-                title="Active Users"
-                icon={GroupOutlinedIcon}
-                value={stats.activeUsers}
-                bottomLeft="Last 30 days"
-                showTrending={false}
-              />
-            </DashboardItem>
-          </Box>
-
-          <Box sx={{ flex: "1 1 220px" }}>
-            <DashboardItem>
-              <InfoCard
-                title="Monthly Revenue"
-                icon={EuroOutlinedIcon}
-                value={`${stats.monthlyRevenue}€`}
-                bottomLeft="This month"
-                showTrending={false}
-              />
-            </DashboardItem>
-          </Box>
-        </Box>
+        <DashboardStatsCards stats={stats} />
       )}
 
-      {/* Charts Section */}
+      {/* Section des graphiques */}
       {loading ? (
         <DashboardChartsSkeleton />
       ) : (
-        <Box
-          sx={{
-            mb: 8,
-            width: "100%",
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 2,
-          }}
-        >
-          {[
-            {
-              title: "Monthly Revenue",
-              subtitle: "Revenue trends over the last 6 months",
-              data: recentActivityData,
-              label: "Revenue (€)",
-            },
-            {
-              title: "User Growth",
-              subtitle: "Active user growth over time",
-              data: userGrowthData,
-              label: "Active Users",
-            },
-          ].map((chart, index) => (
-            <Box
-              key={index}
-              sx={{
-                flex: {
-                  xs: "1 1 100%",
-                  sm: "1 1 calc(50% - 8px)",
-                },
-                display: "flex",
-              }}
-            >
-              <DashboardItem>
-                <Box
-                  sx={{
-                    mt: 2,
-                    border: "1px solid #ddd",
-                    borderRadius: 4,
-                    p: 2,
-                    flex: 1,
-                    minWidth: 0,
-                    height: "100%",
-                    alignItems: "stretch",
-                  }}
-                >
-                  <Box sx={{ mb: 2, width: "100%" }}>
-                    <Typography variant="h6">{chart.title}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {chart.subtitle}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ width: "100%" }}>
-                    <BarCharts
-                      dataset={chart.data}
-                      xAxisKey="month"
-                      series={[{ dataKey: "sales", label: chart.label }]}
-                    />
-                  </Box>
-                </Box>
-              </DashboardItem>
-            </Box>
-          ))}
-        </Box>
+        <DashboardChartsSection
+          recentActivityData={recentActivityData}
+          userGrowthData={userGrowthData}
+        />
       )}
 
-      {/* Recent Activity Section */}
+      {/* Section des activités récentes */}
       {loading ? (
         <DashboardActivitiesSkeleton />
       ) : (
-        <Box
-          sx={{
-            mt: 2,
-            border: "1px solid #ddd",
-            borderRadius: 4,
-            p: 2,
-            flex: 1,
-            minWidth: 0,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="h6">Recent Activity</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Latest actions requiring your attention
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", flexDirection: "column" }}>
-            {recentActivities && recentActivities.length > 0 ? (
-              recentActivities.map((activity) => (
-                <ActivityItem
-                  key={activity.id}
-                  status={mapStatusToDisplay(activity.status)}
-                  title={activity.title}
-                  description={activity.description}
-                  actionLabel={activity.actionLabel}
-                />
-              ))
-            ) : (
-              <Typography>No recent activities</Typography>
-            )}
-          </Box>
-        </Box>
+        <DashboardActivitiesSection activities={recentActivities} />
       )}
 
-      {/* Indicateur de chargement simple comme userManagement */}
-      {(isFetching.stats || isFetching.activities || isFetching.charts) && (
-        <Box sx={{ textAlign: "center", py: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Mise à jour des données...
-          </Typography>
-        </Box>
-      )}
+      {/* Indicateur de chargement pendant le rafraîchissement */}
+      <DashboardLoadingIndicator isRefreshing={isRefreshing} />
     </AdminLayout>
   );
 }

@@ -8,7 +8,7 @@ import { ProfilePage as RefactoredProfilePage } from "../components/profile/Prof
 import PropertyApprovalsPage from "../components/property-approvals/PropertyApprovalsPage";
 import QuoteRequestsPage from "../components/quote-requests/QuoteRequestsPage";
 import ServicesCatalogPage from "../components/services-catalog/ServicesCatalogPage";
-import UserManagementPage from "../components/userManagement/UserManagementPage";
+import { UserManagementPage } from "../components/userManagement/UserManagementPage";
 import AnalyticsPage from "../components/analytics/AnalyticsPage";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { ResetPasswordPage } from "../components/auth/ResetPasswordPage";

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../../lib/supabaseClient";
-import { Database, type Json } from "../../types/database.types";
+import { supabase } from "../../../lib/supabaseClient";
+import { Database, type Json } from "../../../types/database.types";
 
 type AuditLog = Database["public"]["Tables"]["audit_logs"]["Row"];
 type AuditLogInsert = Database["public"]["Tables"]["audit_logs"]["Insert"];

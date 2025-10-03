@@ -2,19 +2,21 @@
 export { USER_TABS, UserRole } from "../../types/userManagement";
 export type { UserTab } from "../../types/userManagement";
 
-// Composants principaux
-export { default as UserManagementPage } from "./UserManagementPage";
+// Main page component
+export { UserManagementPage } from "./UserManagementPage";
+
+// UserManagement modular components
+export * from "./components";
+
+// UserManagement hooks
+export * from "./hooks";
+
+// UserManagement modals
+export * from "./modals";
+
+// Legacy components (still used by page)
 export { UserStatsCards } from "./UserStatsCards";
 export { UserFiltersComponent } from "./UserFilters";
 export { UserActions } from "./UserActions";
 export { UserTabs } from "./UserTabs";
-
-// Colonnes et logique
 export { createUserTableColumns } from "./UserTableColumns";
-
-// Hooks
-export { useUserActions } from "./hooks/useUserActions";
-export { useModalHandlers } from "./hooks/useModalHandlers";
-
-// Modales
-export * from "./modals";

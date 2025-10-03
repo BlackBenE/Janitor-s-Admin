@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabaseClient";
-import { Tables } from "../../types/database.types";
+import { supabase } from "../../../lib/supabaseClient";
+import { Tables } from "../../../types/database.types";
 import { useAuditLog } from "./useAuditLog";
 
 export interface SecurityAction {

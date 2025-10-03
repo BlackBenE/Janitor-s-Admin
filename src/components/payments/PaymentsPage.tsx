@@ -1,37 +1,21 @@
 import React from "react";
-import {
-  Box,
-  Tooltip,
-  Snackbar,
-  Alert,
-  Typography,
-  IconButton,
-  CircularProgress,
-  Grid,
-} from "@mui/material";
-import {
-  Download as DownloadIcon,
-  Refresh as RefreshIcon,
-} from "@mui/icons-material";
+import { Box } from "@mui/material";
 
 import AdminLayout from "../AdminLayout";
-import { PaymentActions } from "./PaymentActions";
-import InfoCard from "../InfoCard";
-import DashboardItem from "../DashboardItem";
 
 // Hooks
+import { usePayments, usePaymentManagement, usePaymentStats } from "./hooks";
+
+// Components
 import {
-  usePayments,
-  usePaymentManagement,
-  usePaymentStats,
-} from "../../hooks/payments";
+  PaymentHeader,
+  PaymentStatsCards,
+  PaymentTableSection,
+  PaymentLoadingIndicator,
+} from "./components";
 
 // Configuration
-import {
-  paymentTabConfigs,
-  getPaymentCount,
-  PaymentStatus,
-} from "./PaymentTabsConfig";
+import { paymentTabConfigs, PaymentStatus } from "./PaymentTabsConfig";
 
 // Types
 import { PaymentWithDetails } from "../../types/payments";
@@ -39,9 +23,6 @@ import {
   createPaymentTableConfig,
   transformPaymentsForTable,
 } from "./PaymentTableConfig";
-import { PaymentFiltersComponent } from "./PaymentFilters";
-import { PaymentTabs } from "./PaymentTabs";
-import DataTable from "../Table";
 
 export const PaymentsPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState(0);
@@ -206,28 +187,7 @@ export const PaymentsPage: React.FC = () => {
   // =====================================================
 
   if (error) {
-    return (
-      <AdminLayout>
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="400px"
-          flexDirection="column"
-          gap={2}
-        >
-          <Typography variant="h6" color="error">
-            Erreur lors du chargement des paiements
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {error.message}
-          </Typography>
-          <IconButton onClick={handleRefresh} color="primary">
-            <RefreshIcon />
-          </IconButton>
-        </Box>
-      </AdminLayout>
-    );
+    return <PaymentLoadingIndicator error={error} onRefresh={handleRefresh} />;
   }
 
   // =====================================================
@@ -238,186 +198,25 @@ export const PaymentsPage: React.FC = () => {
     <AdminLayout>
       <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
         {/* En-tête de la page */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 3,
-          }}
-        >
-          <Typography variant="h4" component="h1" fontWeight="bold">
-            Gestion des Paiements
-          </Typography>
-
-          <Box display="flex" gap={1}>
-            <Tooltip title="Exporter CSV">
-              <IconButton onClick={handleExportPayments} disabled={isLoading}>
-                <DownloadIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Actualiser">
-              <IconButton onClick={handleRefresh} disabled={isLoading}>
-                {isLoading ? <CircularProgress size={24} /> : <RefreshIcon />}
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
+        <PaymentHeader
+          onRefresh={handleRefresh}
+          onExport={handleExportPayments}
+          isLoading={isLoading}
+        />
 
         {/* Cartes de statistiques */}
-        <Grid
-          container
-          spacing={3}
-          sx={{ width: "100%", display: "flex", mb: 3 }}
-        >
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <DashboardItem>
-              <InfoCard
-                title="Total des paiements"
-                value={stats.totalPayments}
-                progressText="Tous paiements"
-                showTrending={false}
-              />
-            </DashboardItem>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <DashboardItem>
-              <InfoCard
-                title="Paiements payés"
-                value={stats.paidPayments}
-                progressText={`${Math.round(
-                  (stats.paidPayments / stats.totalPayments) * 100
-                )}% payés`}
-                showTrending={false}
-              />
-            </DashboardItem>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <DashboardItem>
-              <InfoCard
-                title="En attente"
-                value={stats.pendingPayments}
-                progressText={`${Math.round(
-                  (stats.pendingPayments / stats.totalPayments) * 100
-                )}% en attente`}
-                showTrending={false}
-              />
-            </DashboardItem>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <DashboardItem>
-              <InfoCard
-                title="Revenus mensuels"
-                value={formatCurrency(stats.monthlyRevenue)}
-                progressText="Ce mois"
-                showTrending={false}
-              />
-            </DashboardItem>
-          </Grid>
-        </Grid>
+        <PaymentStatsCards stats={stats} formatCurrency={formatCurrency} />
 
-        <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
-          {/* Filtres */}
-          <h3>Tous les paiements</h3>
-          <p>
-            Gérez les paiements et leurs statuts grâce à des vues spécialisées
-            par catégorie.
-          </p>
-          <Box sx={{ mb: 3 }}>
-            <PaymentFiltersComponent
-              filters={paymentManagement.filters}
-              onUpdateFilter={paymentManagement.updateFilter}
-              simplified={true}
-            />
-          </Box>
-
-          {/* Onglets */}
-          <Box sx={{ mb: 3 }}>
-            <PaymentTabs
-              activeTab={activeTab}
-              payments={payments}
-              onTabChange={handleTabChange}
-            />
-          </Box>
-
-          {/* Actions et contrôles */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
-          >
-            {/* Actions en lot pour les paiements sélectionnés */}
-            {paymentManagement.hasSelection && (
-              <PaymentActions
-                selectedPayments={paymentManagement.selectedPayments || []}
-                onBulkMarkPaid={
-                  paymentManagement.markSelectedAsPaid || (() => {})
-                }
-                onBulkSendReminders={() =>
-                  console.log("Bulk send payment reminders")
-                }
-                onBulkCancel={
-                  paymentManagement.refundSelectedPayments || (() => {})
-                }
-                onBulkExport={
-                  paymentManagement.exportSelectedToCSV || (() => {})
-                }
-              />
-            )}
-          </Box>
-
-          {/* Table des paiements */}
-          <DataTable columns={columns} data={transformedData} />
-
-          {isLoading && (
-            <Box sx={{ textAlign: "center", py: 2 }}>Loading...</Box>
-          )}
-
-          {transformedData.length === 0 && !isLoading && (
-            <Box
-              sx={{
-                textAlign: "center",
-                py: 4,
-                color: "text.secondary",
-                backgroundColor: "grey.50",
-                borderRadius: 2,
-                border: "1px dashed",
-                borderColor: "grey.300",
-              }}
-            >
-              <Typography variant="h6" color="text.secondary">
-                Aucun paiement trouvé
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                {paymentManagement.filters.search ||
-                paymentManagement.filters.status
-                  ? "Aucun paiement ne correspond à vos critères de recherche."
-                  : "Il n'y a pas encore de paiements dans le système."}
-              </Typography>
-            </Box>
-          )}
-
-          {/* Notifications */}
-          {paymentManagement.notification && (
-            <Snackbar
-              open={paymentManagement.notification.open}
-              autoHideDuration={6000}
-              onClose={paymentManagement.hideNotification}
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            >
-              <Alert
-                onClose={paymentManagement.hideNotification}
-                severity={paymentManagement.notification.severity}
-                variant="filled"
-              >
-                {paymentManagement.notification.message}
-              </Alert>
-            </Snackbar>
-          )}
-        </Box>
+        {/* Section tableau avec filtres et onglets */}
+        <PaymentTableSection
+          payments={payments}
+          activeTab={activeTab}
+          paymentManagement={paymentManagement}
+          onTabChange={handleTabChange}
+          columns={columns}
+          transformedData={transformedData}
+          isLoading={isLoading}
+        />
       </Box>
     </AdminLayout>
   );

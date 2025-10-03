@@ -3,7 +3,7 @@ import {
   BulkActionState,
   LockAccountState,
   AuditModalState,
-} from "../../types/userManagement";
+} from "../../../types/userManagement";
 
 export const useUserModals = () => {
   // États des modales

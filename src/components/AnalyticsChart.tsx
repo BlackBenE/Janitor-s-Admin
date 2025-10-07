@@ -162,15 +162,29 @@ const AnalyticsChart: React.FC<ChartProps> = ({
       case "bar":
         return (
           <ResponsiveContainer width="100%" height={height}>
-            <BarChart {...commonProps}>
+            <BarChart
+              {...commonProps}
+              margin={{ top: 5, right: 30, left: 20, bottom: 50 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey={xAxisKey}
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 11 }}
                 tickLine={{ stroke: theme.palette.text.secondary }}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                interval={0}
+                tickFormatter={(value: string) => {
+                  // Raccourcir les noms longs sur l'axe X
+                  if (value && value.length > 15) {
+                    return value.substring(0, 15) + "...";
+                  }
+                  return value;
+                }}
               />
               <YAxis
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 11 }}
                 tickLine={{ stroke: theme.palette.text.secondary }}
               />
               <Tooltip
@@ -179,8 +193,11 @@ const AnalyticsChart: React.FC<ChartProps> = ({
                   border: `1px solid ${theme.palette.divider}`,
                   borderRadius: 4,
                 }}
+                formatter={(value: any, name: string) => [
+                  `${value}`,
+                  name === dataKey ? "Valeur" : name,
+                ]}
               />
-              <Legend />
               <Bar
                 dataKey={dataKey}
                 fill={chartColors[0]}
@@ -191,6 +208,20 @@ const AnalyticsChart: React.FC<ChartProps> = ({
         );
 
       case "pie":
+        const renderCustomLabel = (entry: any) => {
+          const percent = (entry.percent * 100).toFixed(0);
+          // N'afficher le label que si le pourcentage est >= 5% pour éviter le chevauchement
+          if (entry.percent < 0.05) return "";
+
+          // Raccourcir les noms longs
+          let name = entry[xAxisKey] || "Unknown";
+          if (name.length > 12) {
+            name = name.substring(0, 12) + "...";
+          }
+
+          return `${percent}%`;
+        };
+
         return (
           <ResponsiveContainer width="100%" height={height}>
             <PieChart>
@@ -199,14 +230,12 @@ const AnalyticsChart: React.FC<ChartProps> = ({
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={(entry: Record<string, unknown>) =>
-                  `${entry[xAxisKey] || "Unknown"} ${(
-                    ((entry.percent as number) || 0) * 100
-                  ).toFixed(0)}%`
-                }
-                outerRadius={height * 0.3}
+                label={renderCustomLabel}
+                outerRadius={Math.min(height * 0.25, 100)}
+                innerRadius={0}
                 fill="#8884d8"
                 dataKey={dataKey}
+                fontSize={11}
               >
                 {data.map((_, index) => (
                   <Cell
@@ -220,6 +249,20 @@ const AnalyticsChart: React.FC<ChartProps> = ({
                   backgroundColor: theme.palette.background.paper,
                   border: `1px solid ${theme.palette.divider}`,
                   borderRadius: 4,
+                }}
+                formatter={(value: any, name: string) => [
+                  `${value}`,
+                  name === dataKey ? "Valeur" : name,
+                ]}
+              />
+              <Legend
+                wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
+                formatter={(value: string) => {
+                  // Raccourcir les noms dans la légende aussi
+                  if (value.length > 15) {
+                    return value.substring(0, 15) + "...";
+                  }
+                  return value;
                 }}
               />
             </PieChart>

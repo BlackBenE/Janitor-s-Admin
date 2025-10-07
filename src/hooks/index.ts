@@ -3,8 +3,7 @@
 // Authentication hooks
 export * from "./auth";
 
-// Analytics hooks
-export * from "./analytics";
+// Analytics hooks sont maintenant dans components/analytics/hooks
 
 // Financial overview hooks
 export * from "./financialoverview";

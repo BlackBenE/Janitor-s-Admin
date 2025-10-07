@@ -1,3 +1,5 @@
+// Hook déprécié - utiliser useFinancialOverviewNew à la place
+// Conservé temporairement pour la compatibilité
 import { useState, useEffect, useCallback } from "react";
 import {
   FinancialOverviewData,
@@ -8,6 +10,10 @@ import {
 } from "../../types/financialoverview";
 import { useUINotifications } from "../shared";
 
+/**
+ * @deprecated Utiliser useFinancialOverviewNew à la place
+ * Ce hook sera supprimé dans une prochaine version
+ */
 export const useFinancialOverview = () => {
   const { showNotification } = useUINotifications();
   const [loading, setLoading] = useState(false);

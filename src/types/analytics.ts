@@ -43,6 +43,10 @@ export interface ActivityMetrics {
   completedBookings: number;
   cancelledBookings: number;
   activeServices: number;
+  activeUsersGrowthRate?: number;
+  bookingsGrowthRate?: number;
+  cancellationRateChange?: number;
+  currentCancellationRate?: number;
 }
 
 // Types pour les données de graphiques
@@ -67,9 +71,9 @@ export interface TopService extends ChartDataPoint {
   revenue: number;
 }
 
-export interface UsersByRegion extends ChartDataPoint {
-  region: string;
-  users: number;
+export interface BookingsByStatus extends ChartDataPoint {
+  status: string;
+  count: number;
 }
 
 // Structure complète des données d'analytics
@@ -80,7 +84,7 @@ export interface AnalyticsData {
   userGrowthData: UserGrowthData[];
   bookingTrends: BookingTrend[];
   topServices: TopService[];
-  usersByRegion: UsersByRegion[];
+  usersByStatus: BookingsByStatus[];
 }
 
 // Props pour les composants de graphiques

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { dataProvider } from "../../../providers/dataProvider";
-import { Database } from "../../../types/database.types";
 import { PaymentWithDetails, PaymentStats } from "../../../types/payments";
+import { Database } from "../../../types/database.types";
 
 type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
 type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
@@ -47,10 +47,15 @@ export const usePayments = (options?: {
           amount: 1200,
           booking_id: "booking_001",
           created_at: "2024-10-01T10:00:00Z",
+          currency: "EUR",
+          failure_reason: null,
           payee_id: "user_002",
           payer_id: "user_001",
           payment_type: "booking",
           processed_at: "2024-10-01T10:05:00Z",
+          refund_amount: null,
+          refund_status: null,
+          refunded_at: null,
           service_request_id: null,
           status: "paid",
           stripe_charge_id: "ch_123456789",
@@ -79,10 +84,15 @@ export const usePayments = (options?: {
           amount: 850,
           booking_id: "booking_002",
           created_at: "2024-10-02T14:30:00Z",
+          currency: "EUR",
+          failure_reason: null,
           payee_id: "user_003",
           payer_id: "user_004",
           payment_type: "service",
           processed_at: null,
+          refund_amount: null,
+          refund_status: null,
+          refunded_at: null,
           service_request_id: "service_001",
           status: "pending",
           stripe_charge_id: null,
@@ -106,10 +116,15 @@ export const usePayments = (options?: {
           amount: 2100,
           booking_id: null,
           created_at: "2024-09-28T09:15:00Z",
+          currency: "EUR",
+          failure_reason: null,
           payee_id: "user_005",
           payer_id: "user_006",
           payment_type: "refund",
           processed_at: "2024-09-28T09:20:00Z",
+          refund_amount: 2100,
+          refund_status: "completed",
+          refunded_at: "2024-09-28T09:20:00Z",
           service_request_id: "service_002",
           status: "refunded",
           stripe_charge_id: "ch_refund_123",
@@ -156,13 +171,15 @@ export const usePayments = (options?: {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Calculate statistics
+  // Calculate statistics (temporary type assertion - to be fixed later)
+  const paymentsTyped = payments as any[];
   const stats: PaymentStats = {
     totalPayments: payments.length,
-    paidPayments: payments.filter((p) => p.status === "paid").length,
-    pendingPayments: payments.filter((p) => p.status === "pending").length,
-    refundedPayments: payments.filter((p) => p.status === "refunded").length,
-    monthlyRevenue: payments
+    paidPayments: paymentsTyped.filter((p) => p.status === "paid").length,
+    pendingPayments: paymentsTyped.filter((p) => p.status === "pending").length,
+    refundedPayments: paymentsTyped.filter((p) => p.status === "refunded")
+      .length,
+    monthlyRevenue: paymentsTyped
       .filter((p) => p.status === "paid" && p.processed_at)
       .filter((p) => {
         const processedDate = new Date(p.processed_at!);
@@ -175,7 +192,7 @@ export const usePayments = (options?: {
       .reduce((sum, p) => sum + p.amount, 0),
     averageAmount:
       payments.length > 0
-        ? payments.reduce((sum, p) => sum + p.amount, 0) / payments.length
+        ? paymentsTyped.reduce((sum, p) => sum + p.amount, 0) / payments.length
         : 0,
   };
 

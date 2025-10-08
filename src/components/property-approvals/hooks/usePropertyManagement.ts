@@ -1,7 +1,9 @@
 import { useState } from "react";
 
+import { Property } from "../../../types";
+
 export interface PropertyManagementState {
-  selectedProperty: any | null;
+  selectedProperty: Property | null;
   selectedProperties: string[];
   isModalOpen: boolean;
 }
@@ -17,7 +19,9 @@ const initialState: PropertyManagementState = {
  */
 export const usePropertyManagement = () => {
   // États principaux
-  const [selectedProperty, setSelectedProperty] = useState<any | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(
+    null
+  );
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,7 +41,7 @@ export const usePropertyManagement = () => {
   };
 
   // Gestion de la modal
-  const openModal = (property: any) => {
+  const openModal = (property: Property) => {
     setSelectedProperty(property);
     setIsModalOpen(true);
   };

@@ -1,6 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../../../lib/supabaseClient";
 
+// Constants
+const MAX_BOOKINGS_LIMIT = 100;
+const MAX_PAYMENTS_LIMIT = 100;
+const MAX_SUBSCRIPTIONS_LIMIT = 50;
+const MOCK_PAYMENT_BASE = 50;
+const MOCK_PAYMENT_RANGE = 500;
+
 /**
  * Hook pour récupérer les données financières depuis Supabase
  * Avec fallback en cas de problème de schéma
@@ -28,10 +35,9 @@ export const useFinancialQueries = (dateRange: { from: Date; to: Date }) => {
           .gte("created_at", dateRange.from.toISOString())
           .lte("created_at", dateRange.to.toISOString())
           .order("created_at", { ascending: false })
-          .limit(100);
+          .limit(MAX_BOOKINGS_LIMIT);
 
         if (error) {
-          console.log("Jointure bookings échouée, essayons simple:", error);
           // Fallback: récupérer juste les bookings
           const { data: simpleData, error: simpleError } = await supabase
             .from("bookings")
@@ -39,7 +45,7 @@ export const useFinancialQueries = (dateRange: { from: Date; to: Date }) => {
             .gte("created_at", dateRange.from.toISOString())
             .lte("created_at", dateRange.to.toISOString())
             .order("created_at", { ascending: false })
-            .limit(100);
+            .limit(MAX_BOOKINGS_LIMIT);
 
           if (simpleError) throw simpleError;
           return simpleData || [];
@@ -72,19 +78,17 @@ export const useFinancialQueries = (dateRange: { from: Date; to: Date }) => {
           .gte("created_at", dateRange.from.toISOString())
           .lte("created_at", dateRange.to.toISOString())
           .order("created_at", { ascending: false })
-          .limit(100);
+          .limit(MAX_PAYMENTS_LIMIT);
 
         if (error) {
-          console.log("Table payments non disponible:", error);
-          // Générer des données simulées basées sur les bookings
-          return generateMockPayments(bookings || []);
+          console.error("Erreur requête payments:", error);
+          return [];
         }
 
         return data || [];
       } catch (err) {
         console.error("Erreur requête payments:", err);
-        // Fallback avec des données simulées
-        return generateMockPayments(bookings || []);
+        return [];
       }
     },
     staleTime: 1000 * 60 * 5,
@@ -101,13 +105,12 @@ export const useFinancialQueries = (dateRange: { from: Date; to: Date }) => {
     queryFn: async () => {
       try {
         const { data, error } = await supabase
-          .from("users")
-          .select("id, created_at, email")
+          .from("subscriptions")
+          .select("*")
           .order("created_at", { ascending: false })
-          .limit(50);
+          .limit(MAX_SUBSCRIPTIONS_LIMIT);
 
         if (error) {
-          console.log("Erreur requête users:", error);
           return [];
         }
 
@@ -136,16 +139,4 @@ export const useFinancialQueries = (dateRange: { from: Date; to: Date }) => {
 };
 
 // Fonction helper pour générer des paiements simulés basés sur les bookings
-function generateMockPayments(bookings: any[]) {
-  return bookings.slice(0, 20).map((booking, index) => ({
-    id: `payment_${booking.id || index}`,
-    amount: booking.total_price || Math.floor(Math.random() * 500) + 50,
-    status: Math.random() > 0.1 ? "completed" : "pending",
-    payment_method: ["card", "paypal", "bank_transfer"][
-      Math.floor(Math.random() * 3)
-    ],
-    payment_type: "revenue",
-    created_at: booking.created_at || new Date().toISOString(),
-    booking: booking,
-  }));
-}
+// Mock data supprimé - utilisation des vraies données Supabase uniquement

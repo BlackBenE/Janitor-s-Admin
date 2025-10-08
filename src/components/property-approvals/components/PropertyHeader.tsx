@@ -47,11 +47,6 @@ export const PropertyHeader: React.FC<PropertyHeaderProps> = ({
         </Typography>
       </Box>
       <Box sx={{ display: "flex", gap: 1 }}>
-        <Tooltip title="Add New Property">
-          <IconButton size="large" onClick={onAddProperty}>
-            <AddIcon />
-          </IconButton>
-        </Tooltip>
         <Tooltip title={`Export ${propertiesCount} Properties to CSV`}>
           <IconButton
             size="large"

@@ -10,7 +10,12 @@ import {
   createPropertyTableConfig,
 } from "./components";
 import { PropertyDetailsModal } from "./modals/PropertyDetailsModal";
-import { PROPERTY_TABS, PropertyStatus } from "../../types/propertyApprovals";
+import {
+  PROPERTY_TABS,
+  PropertyStatus,
+  PropertyWithOwner,
+} from "../../types/propertyApprovals";
+import { Property } from "../../types";
 
 const PropertyApprovalsPage: React.FC = () => {
   const { user } = useAuth();
@@ -33,6 +38,9 @@ const PropertyApprovalsPage: React.FC = () => {
     refetch,
     approveProperty,
     rejectProperty,
+    setPendingProperty,
+    updateProperty,
+    deleteProperty,
   } = useProperties({
     filters: {}, // Pas de filtre pour avoir toutes les propriétés
     includeOwnerInfo: true,
@@ -66,7 +74,7 @@ const PropertyApprovalsPage: React.FC = () => {
 
   // Filtrage des propriétés avec les filtres de recherche
   const filteredProperties =
-    properties?.filter((property: any) => {
+    properties?.filter((property) => {
       const searchTerm = propertyManagement.filters.search?.toLowerCase() || "";
       const cityFilter = propertyManagement.filters.city?.toLowerCase() || "";
       const countryFilter =
@@ -144,6 +152,30 @@ const PropertyApprovalsPage: React.FC = () => {
     }
   };
 
+  const handleSetPending = async (
+    propertyId: string,
+    moderationNotes?: string
+  ) => {
+    if (!user?.id) return;
+    try {
+      await setPendingProperty.mutateAsync({
+        id: propertyId,
+        validatedBy: user.id,
+        moderationNotes: moderationNotes || undefined,
+      });
+      propertyManagement.showNotification(
+        "Property set to pending successfully",
+        "success"
+      );
+    } catch (error) {
+      console.error("Error setting property to pending:", error);
+      propertyManagement.showNotification(
+        "Error setting property to pending",
+        "error"
+      );
+    }
+  };
+
   const handleApproveSelected = async () => {
     if (!user?.id || !propertyManagement.selectedProperties.length) return;
 
@@ -158,13 +190,13 @@ const PropertyApprovalsPage: React.FC = () => {
       );
       propertyManagement.clearPropertySelection();
       propertyManagement.showNotification(
-        "Properties approved successfully",
+        `Successfully approved ${propertyManagement.selectedProperties.length} properties`,
         "success"
       );
     } catch (error) {
       console.error("Error approving properties:", error);
       propertyManagement.showNotification(
-        "Error approving properties",
+        `Failed to approve ${propertyManagement.selectedProperties.length} properties. Please try again.`,
         "error"
       );
     }
@@ -184,20 +216,101 @@ const PropertyApprovalsPage: React.FC = () => {
       );
       propertyManagement.clearPropertySelection();
       propertyManagement.showNotification(
-        "Properties rejected successfully",
+        `Successfully rejected ${propertyManagement.selectedProperties.length} properties`,
         "success"
       );
     } catch (error) {
       console.error("Error rejecting properties:", error);
       propertyManagement.showNotification(
-        "Error rejecting properties",
+        `Failed to reject ${propertyManagement.selectedProperties.length} properties. Please try again.`,
         "error"
       );
     }
   };
 
+  const handleSetPendingSelected = async () => {
+    if (!user?.id || !propertyManagement.selectedProperties.length) return;
+
+    try {
+      await Promise.all(
+        propertyManagement.selectedProperties.map((id) =>
+          setPendingProperty.mutateAsync({
+            id,
+            validatedBy: user.id,
+          })
+        )
+      );
+      propertyManagement.clearPropertySelection();
+      propertyManagement.showNotification(
+        `Successfully set ${propertyManagement.selectedProperties.length} properties to pending review`,
+        "success"
+      );
+    } catch (error) {
+      console.error("Error setting properties to pending:", error);
+      propertyManagement.showNotification(
+        `Failed to set ${propertyManagement.selectedProperties.length} properties to pending. Please try again.`,
+        "error"
+      );
+    }
+  };
+
+  const handleDeleteProperty = async (propertyId: string) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this property? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await deleteProperty.mutateAsync(propertyId);
+      propertyManagement.showNotification(
+        "Property deleted successfully",
+        "success"
+      );
+    } catch (error) {
+      console.error("Error deleting property:", error);
+      propertyManagement.showNotification("Error deleting property", "error");
+    }
+  };
+
+  const handleUpdateProperty = async (
+    propertyId: string,
+    updates: Partial<Property>
+  ) => {
+    if (!user?.id) return;
+
+    try {
+      await updateProperty.mutateAsync({
+        id: propertyId,
+        payload: {
+          ...updates,
+          // Add admin tracking
+          validated_by: user.id,
+        },
+      });
+
+      propertyManagement.showNotification(
+        "Property updated successfully",
+        "success"
+      );
+    } catch (error) {
+      console.error("Error updating property:", error);
+      propertyManagement.showNotification("Error updating property", "error");
+      throw error; // Re-throw so the modal can handle it
+    }
+  };
+
+  // Helper function to find original property from table row
+  const findOriginalProperty = (
+    tableRow: any
+  ): PropertyWithOwner | undefined => {
+    return filteredProperties?.find((prop) => prop.id === tableRow.id);
+  };
+
   const transformedData =
-    filteredProperties?.map((property: any) => ({
+    filteredProperties?.map((property) => ({
       id: property.id,
       title: property.title || "N/A",
       owner_name: property.profiles?.full_name || "Unknown Owner",
@@ -212,14 +325,26 @@ const PropertyApprovalsPage: React.FC = () => {
       ...property,
     })) || [];
 
+  // Wrapper function to handle table row to original property mapping
+  const handleViewProperty = (tableRow: any) => {
+    const originalProperty = findOriginalProperty(tableRow);
+    if (originalProperty) {
+      propertyManagement.openModal(originalProperty);
+    }
+  };
+
   const tableConfig = createPropertyTableConfig({
     selectedProperties: propertyManagement.selectedProperties,
     onTogglePropertySelection: propertyManagement.togglePropertySelection,
     onApproveProperty: handleApprove,
     onRejectProperty: handleReject,
-    onViewProperty: propertyManagement.openModal,
+    onSetPendingProperty: handleSetPending,
+    onViewProperty: handleViewProperty,
+    onDeleteProperty: handleDeleteProperty,
     isApprovePending: approveProperty.isPending,
     isRejectPending: rejectProperty.isPending,
+    isPendingPending: setPendingProperty.isPending,
+    isDeletePending: deleteProperty.isPending,
   });
 
   const columns = createGenericTableColumns(tableConfig);
@@ -260,9 +385,11 @@ const PropertyApprovalsPage: React.FC = () => {
         selectedProperties={propertyManagement.selectedProperties}
         onApproveSelected={handleApproveSelected}
         onRejectSelected={handleRejectSelected}
+        onSetPendingSelected={handleSetPendingSelected}
         onClearSelection={propertyManagement.clearPropertySelection}
         isApprovePending={approveProperty.isPending}
         isRejectPending={rejectProperty.isPending}
+        isPendingPending={setPendingProperty.isPending}
         // Notifications
         notification={propertyManagement.notification}
         onHideNotification={propertyManagement.hideNotification}
@@ -275,8 +402,12 @@ const PropertyApprovalsPage: React.FC = () => {
         onClose={propertyManagement.closeModal}
         onApprove={handleApprove}
         onReject={handleReject}
+        onSetPending={handleSetPending}
+        onUpdateProperty={handleUpdateProperty}
         isApprovePending={approveProperty.isPending}
         isRejectPending={rejectProperty.isPending}
+        isPendingPending={setPendingProperty.isPending}
+        isUpdatePending={updateProperty.isPending}
       />
     </AdminLayout>
   );

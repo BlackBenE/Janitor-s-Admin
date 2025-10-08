@@ -1,27 +1,22 @@
 import React from "react";
-import { Box, Chip, IconButton } from "@mui/material";
-import {
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Visibility as ViewIcon,
-} from "@mui/icons-material";
+import { Box, Chip } from "@mui/material";
+// Icônes d'actions supprimées - domaine lecture seule
 import DataTable from "../../Table";
 import { Transaction } from "../../../types/financialoverview";
 import { FinancialFiltersSection } from "./FinancialFiltersSection";
 
+import { FinancialFilters } from "../../../types/financialoverview";
+
 interface FinancialTableSectionProps {
   // Filters & Search
-  filters: any;
+  filters: FinancialFilters;
   onUpdateFilter: (key: string | number | symbol, value: string) => void;
 
   // Table Data
   transactions: Transaction[];
   isLoading: boolean;
 
-  // Actions
-  onEditTransaction?: (transaction: Transaction) => void;
-  onDeleteTransaction?: (transactionId: string) => void;
-  onViewTransaction?: (transaction: Transaction) => void;
+  // Pas d'actions - domaine lecture seule
 }
 
 /**
@@ -32,9 +27,6 @@ export const FinancialTableSection: React.FC<FinancialTableSectionProps> = ({
   onUpdateFilter,
   transactions,
   isLoading,
-  onEditTransaction,
-  onDeleteTransaction,
-  onViewTransaction,
 }) => {
   // Colonnes du tableau
   const columns = [
@@ -48,7 +40,9 @@ export const FinancialTableSection: React.FC<FinancialTableSectionProps> = ({
   ];
 
   // Fonction pour obtenir la couleur du status
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (
+    status: string
+  ): "success" | "warning" | "error" | "default" => {
     switch (status.toLowerCase()) {
       case "completed":
       case "success":
@@ -76,7 +70,7 @@ export const FinancialTableSection: React.FC<FinancialTableSectionProps> = ({
           transaction.status.charAt(0).toUpperCase() +
           transaction.status.slice(1)
         }
-        color={getStatusColor(transaction.status) as any}
+        color={getStatusColor(transaction.status)}
         size="small"
       />
     ),
@@ -103,38 +97,7 @@ export const FinancialTableSection: React.FC<FinancialTableSectionProps> = ({
       <DataTable
         columns={columns}
         data={tableData}
-        renderActions={(row) => (
-          <Box sx={{ display: "flex", gap: 1 }}>
-            {onViewTransaction && (
-              <IconButton
-                size="small"
-                onClick={() => onViewTransaction(row.transaction)}
-                title="Voir les détails"
-              >
-                <ViewIcon fontSize="small" />
-              </IconButton>
-            )}
-            {onEditTransaction && (
-              <IconButton
-                size="small"
-                onClick={() => onEditTransaction(row.transaction)}
-                title="Modifier"
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            )}
-            {onDeleteTransaction && (
-              <IconButton
-                size="small"
-                onClick={() => onDeleteTransaction(row.transaction.id)}
-                title="Supprimer"
-                color="error"
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            )}
-          </Box>
-        )}
+        // Pas d'actions - domaine lecture seule
       />
     </Box>
   );

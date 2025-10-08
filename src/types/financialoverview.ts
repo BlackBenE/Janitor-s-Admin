@@ -1,6 +1,14 @@
 // Types pour la page Financial Overview
 import React from "react";
 import { FilterState } from "../hooks/shared";
+import { Booking, Payment, Subscription } from "./supabase";
+
+// =====================================================
+// BASE DATA TYPES - Directement depuis Supabase
+// =====================================================
+
+// Utilisation directe des types Supabase
+export type { Booking, Payment, Subscription } from "./supabase";
 
 // Filtres spécifiques aux finances
 export interface FinancialOverviewFilters extends FilterState {

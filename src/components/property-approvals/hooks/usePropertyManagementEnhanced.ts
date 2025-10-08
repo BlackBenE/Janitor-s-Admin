@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   PropertyFilters,
   PropertyNotificationState,
+  PropertyWithOwner,
 } from "../../../types/propertyApprovals";
 
 const initialFilters: PropertyFilters = {
@@ -24,9 +25,10 @@ const initialNotification: PropertyNotificationState = {
  */
 export const usePropertyManagementEnhanced = () => {
   // États principaux
-  const [selectedProperty, setSelectedProperty] = useState<any | null>(null);
+  const [selectedProperty, setSelectedProperty] =
+    useState<PropertyWithOwner | null>(null);
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
-  const [editForm, setEditForm] = useState<Partial<any>>({});
+  const [editForm, setEditForm] = useState<Partial<PropertyWithOwner>>({});
 
   // Filtres
   const [filters, setFilters] = useState<PropertyFilters>(initialFilters);
@@ -90,7 +92,7 @@ export const usePropertyManagementEnhanced = () => {
   };
 
   // Gestion de la modal
-  const openModal = (property?: any) => {
+  const openModal = (property?: PropertyWithOwner) => {
     if (property) setSelectedProperty(property);
     setIsModalOpen(true);
   };

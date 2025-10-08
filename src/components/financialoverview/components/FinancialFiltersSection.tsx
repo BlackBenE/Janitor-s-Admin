@@ -2,8 +2,10 @@ import React from "react";
 import { Box } from "@mui/material";
 import { GenericFilters } from "../../shared";
 
+import { FinancialFilters } from "../../../types/financialoverview";
+
 interface FinancialFiltersSectionProps {
-  filters: any;
+  filters: FinancialFilters;
   onUpdateFilter: (key: string | number | symbol, value: string) => void;
 }
 

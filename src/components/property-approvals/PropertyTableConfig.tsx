@@ -1,11 +1,14 @@
 import React from "react";
-import { Box, Chip } from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 import {
   Check as CheckIcon,
   Close as CloseIcon,
+  Schedule as ScheduleIcon,
   Visibility as VisibilityIcon,
   Home as HomeIcon,
   LocationOn as LocationIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { GridRenderCellParams } from "@mui/x-data-grid";
 import {
@@ -15,6 +18,7 @@ import {
   ColumnConfig,
   createDateColumn,
 } from "../shared/GenericTableColumns";
+import { PropertyWithOwner } from "../../types";
 
 // =====================================================
 // TYPES SPÉCIFIQUES AUX PROPRIÉTÉS
@@ -36,43 +40,90 @@ export interface PropertyTableConfig {
   onTogglePropertySelection: (propertyId: string) => void;
   onApproveProperty: (propertyId: string) => void;
   onRejectProperty: (propertyId: string) => void;
+  onSetPendingProperty: (propertyId: string) => void;
   onViewProperty: (property: PropertyItem) => void;
+  onDeleteProperty: (propertyId: string) => void;
   isApprovePending?: boolean;
   isRejectPending?: boolean;
+  isPendingPending?: boolean;
+  isDeletePending?: boolean;
 }
 
 // =====================================================
 // CONFIGURATION DES COLONNES
 // =====================================================
 
-const createPropertyColumns = (): ColumnConfig[] => [
+const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
   {
     field: "title",
     headerName: "Property",
-    width: 200,
-    renderCell: (params: GridRenderCellParams) => (
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Box>
-          <Box sx={{ fontWeight: 500 }}>
-            {params.value || "Untitled Property"}
-          </Box>
-          <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
-            ID: {params.row.id?.slice(0, 8)}...
+    flex: 1,
+    renderCell: (params: GridRenderCellParams) => {
+      const imageCount = params.row.images?.length || 0;
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 0,
+              justifyContent: "center",
+            }}
+          >
+            <Typography
+              variant="body2"
+              fontWeight="medium"
+              sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
+            >
+              {params.value || "Untitled"}
+            </Typography>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
+            >
+              {imageCount > 0
+                ? `${imageCount} image${imageCount > 1 ? "s" : ""}`
+                : "No images"}
+            </Typography>
           </Box>
         </Box>
-      </Box>
-    ),
+      );
+    },
   },
   {
     field: "owner_name",
     headerName: "Owner",
-    width: 180,
     renderCell: (params: GridRenderCellParams) => (
-      <Box>
-        <Box sx={{ fontWeight: 500 }}>{params.value || "Unknown Owner"}</Box>
-        <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 0,
+          height: "100%",
+          justifyContent: "center",
+        }}
+      >
+        <Typography
+          variant="body2"
+          fontWeight="medium"
+          sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
+        >
+          {params.value || "Unknown"}
+        </Typography>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
+        >
           {params.row.owner_email || "No email"}
-        </Box>
+        </Typography>
       </Box>
     ),
   },
@@ -81,12 +132,34 @@ const createPropertyColumns = (): ColumnConfig[] => [
     headerName: "Location",
     width: 200,
     renderCell: (params: GridRenderCellParams) => (
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Box>
-          <Box>{params.value || "Location not specified"}</Box>
-          <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 0,
+            justifyContent: "center",
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
+          >
+            {params.value || "N/A"}
+          </Typography>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
+          >
             {params.row.address || "No address"}
-          </Box>
+          </Typography>
         </Box>
       </Box>
     ),
@@ -96,91 +169,76 @@ const createPropertyColumns = (): ColumnConfig[] => [
     headerName: "Price",
     width: 120,
     renderCell: (params: GridRenderCellParams) => (
-      <Box sx={{ fontWeight: 500, color: "primary.main" }}>
-        {params.value ? `€${params.value}` : "N/A"}
-      </Box>
+      <Typography variant="body2" fontWeight="medium">
+        {params.value ? `$${params.value}` : "N/A"}
+      </Typography>
     ),
   },
   {
     field: "validation_status",
     headerName: "Status",
-    width: 120,
+    width: 130,
     renderCell: (params: GridRenderCellParams) => {
-      const getStatusColor = (status: string) => {
-        switch (status?.toLowerCase()) {
-          case "approved":
-            return "success";
-          case "rejected":
-            return "error";
-          case "under_review":
-            return "info";
-          case "pending":
-          default:
-            return "warning";
-        }
-      };
+      const status = params.value || "pending";
+      let chipProps;
 
-      const getStatusLabel = (status: string) => {
-        switch (status?.toLowerCase()) {
+      switch (status.toLowerCase()) {
+        case "approved":
+          chipProps = { color: "success" as const, variant: "filled" as const };
+          break;
+        case "rejected":
+          chipProps = { color: "error" as const, variant: "filled" as const };
+          break;
+        default:
+        case "pending":
+          chipProps = { color: "warning" as const, variant: "filled" as const };
+          break;
+      }
+
+      const statusText = (() => {
+        switch (status.toLowerCase()) {
           case "approved":
             return "Approved";
           case "rejected":
             return "Rejected";
-          case "under_review":
-            return "Under Review";
-          case "pending":
           default:
+          case "pending":
             return "Pending";
         }
-      };
+      })();
 
-      return (
-        <Chip
-          label={getStatusLabel(params.value)}
-          color={getStatusColor(params.value) as any}
-          size="small"
-          variant="outlined"
-        />
-      );
+      return <Chip {...chipProps} label={statusText} size="small" />;
     },
   },
   createDateColumn("created_at", "Submitted"),
+  createActionsColumn(config),
 ];
 
 // =====================================================
 // CONFIGURATION DES ACTIONS
 // =====================================================
 
-const createPropertyActions = (
-  config: PropertyTableConfig
-): GenericAction[] => [
-  {
-    id: "view",
-    label: "View Details",
-    icon: VisibilityIcon,
-    color: "primary",
-    tooltip: "View Details",
-    onClick: (item: BaseItem) => config.onViewProperty(item as PropertyItem),
-  },
-  {
-    id: "approve",
-    label: "Approve",
-    icon: CheckIcon,
-    color: "success",
-    tooltip: "Approve",
-    onClick: (item: BaseItem) => config.onApproveProperty(item.id),
-    disabled: () => config.isApprovePending || false,
-  },
-  {
-    id: "reject",
-    label: "Reject",
-    icon: CloseIcon,
-    color: "error",
-    tooltip: "Reject",
-    onClick: (item: BaseItem) => config.onRejectProperty(item.id),
-    disabled: () => config.isRejectPending || false,
-  },
-];
+import { PropertyTableActions } from "./components/PropertyTableActions";
+
+const createActionsColumn = (config: PropertyTableConfig): ColumnConfig => ({
+  field: "actions",
+  headerName: "Actions",
+  width: 120,
+  renderCell: (params: GridRenderCellParams) => (
+    <PropertyTableActions
+      params={params}
+      onViewProperty={config.onViewProperty}
+      onApproveProperty={config.onApproveProperty}
+      onRejectProperty={config.onRejectProperty}
+      onSetPendingProperty={config.onSetPendingProperty}
+      onDeleteProperty={config.onDeleteProperty}
+      isApprovePending={config.isApprovePending}
+      isRejectPending={config.isRejectPending}
+      isPendingPending={config.isPendingPending}
+      isDeletePending={config.isDeletePending}
+    />
+  ),
+});
 
 // =====================================================
 // FONCTION PRINCIPALE
@@ -193,9 +251,9 @@ export const createPropertyTableConfig = (
   selectedItems: config.selectedProperties,
   onToggleSelection: config.onTogglePropertySelection,
 
-  columns: createPropertyColumns(),
+  columns: createPropertyColumns(config),
 
-  primaryActions: createPropertyActions(config),
+  primaryActions: [],
 
   actionColumnWidth: 140,
   showActionsMenu: false,

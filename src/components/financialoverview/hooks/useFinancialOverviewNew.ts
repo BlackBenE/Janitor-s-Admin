@@ -40,15 +40,6 @@ export const useFinancialOverview = () => {
     error: queriesError,
   } = useFinancialQueries(state.filters.dateRange!);
 
-  // Debug - Afficher les données récupérées
-  console.log("Debug Financial Data:", {
-    bookingsCount: bookings.length,
-    paymentsCount: payments.length,
-    subscriptionsCount: subscriptions.length,
-    sampleBooking: bookings[0],
-    samplePayment: payments[0],
-  });
-
   // Calculer les métriques à partir des données réelles avec fallback
   let financialData;
   try {
@@ -57,14 +48,6 @@ export const useFinancialOverview = () => {
       payments,
       subscriptions
     );
-
-    // Debug - Afficher les métriques calculées
-    console.log("Métriques calculées:", {
-      totalRevenue: financialData.revenueMetrics.totalRevenue,
-      netProfit: financialData.profitMetrics.netProfit,
-      profitGrowth: financialData.profitMetrics.profitGrowth,
-      revenueGrowth: financialData.revenueMetrics.revenueGrowth,
-    });
   } catch (error) {
     console.error("Erreur lors du calcul des métriques:", error);
     // Données de fallback si le calcul échoue
@@ -118,39 +101,7 @@ export const useFinancialOverview = () => {
     showNotification("Export PDF en cours de développement", "info");
   }, [showNotification]);
 
-  // Actions pour les transactions
-  const handleEditTransaction = useCallback(
-    (transaction: any) => {
-      showNotification(
-        `Modification de la transaction ${transaction.transactionId}`,
-        "info"
-      );
-      // TODO: Ouvrir un modal d'édition
-    },
-    [showNotification]
-  );
-
-  const handleDeleteTransaction = useCallback(
-    (transactionId: string) => {
-      showNotification(
-        `Suppression de la transaction ${transactionId}`,
-        "warning"
-      );
-      // TODO: Confirmer et supprimer la transaction
-    },
-    [showNotification]
-  );
-
-  const handleViewTransaction = useCallback(
-    (transaction: any) => {
-      showNotification(
-        `Affichage des détails de ${transaction.transactionId}`,
-        "info"
-      );
-      // TODO: Ouvrir un modal de détails
-    },
-    [showNotification]
-  );
+  // Pas d'actions d'écriture - Financial Overview en lecture seule
 
   return {
     // État de la page
@@ -170,14 +121,11 @@ export const useFinancialOverview = () => {
     resetFilters,
     refreshData,
 
-    // Actions d'export
+    // Actions d'export (lecture seule)
     exportToExcel,
     exportToPDF,
 
-    // Actions de transaction
-    handleEditTransaction,
-    handleDeleteTransaction,
-    handleViewTransaction,
+    // Pas d'actions de transaction - domaine lecture seule
 
     // Données brutes (pour debug ou usage avancé)
     rawData: {

@@ -12,8 +12,10 @@ import {
   Person as PersonIcon,
 } from "@mui/icons-material";
 
+import { PropertyWithOwner } from "../../../types";
+
 interface PropertyOwnerInfoProps {
-  property: any;
+  property: PropertyWithOwner;
 }
 
 export const PropertyOwnerInfo: React.FC<PropertyOwnerInfoProps> = ({
@@ -67,7 +69,9 @@ export const PropertyOwnerInfo: React.FC<PropertyOwnerInfoProps> = ({
                 Phone
               </Typography>
               <Typography variant="body1" gutterBottom>
-                {property?.profiles?.phone || "No phone"}
+                {property?.profiles?.phone ||
+                  property?.owner?.phone ||
+                  "No phone"}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
@@ -75,7 +79,7 @@ export const PropertyOwnerInfo: React.FC<PropertyOwnerInfoProps> = ({
                 User ID
               </Typography>
               <Typography variant="body1" gutterBottom>
-                {property?.user_id || "N/A"}
+                {property?.owner_id || "N/A"}
               </Typography>
             </Box>
           </Box>

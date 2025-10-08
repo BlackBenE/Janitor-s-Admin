@@ -83,8 +83,8 @@ export const FinancialChartsSection: React.FC<FinancialChartsSectionProps> = ({
             }}
           >
             <Box sx={{ mb: 2, width: "100%" }}>
-              <h3>Monthly Profit Trend</h3>
-              <p>Profit evolution over time</p>
+              <h3>Revenue by Category</h3>
+              <p>Breakdown of revenue sources</p>
             </Box>
             <Box sx={{ width: "100%" }}>
               <BarCharts

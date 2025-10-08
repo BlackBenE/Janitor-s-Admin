@@ -36,9 +36,6 @@ export const FinancialOverviewPage: React.FC = () => {
     updateFilters,
     exportToExcel, // Un seul export comme UserManagement
     refreshData,
-    handleEditTransaction,
-    handleDeleteTransaction,
-    handleViewTransaction,
   } = useFinancialOverview();
 
   // Gestion d'erreur comme dans UserManagement
@@ -81,9 +78,6 @@ export const FinancialOverviewPage: React.FC = () => {
           onUpdateFilter={(key, value) => updateFilters({ [key]: value })}
           transactions={transactions}
           isLoading={loading}
-          onEditTransaction={handleEditTransaction}
-          onDeleteTransaction={handleDeleteTransaction}
-          onViewTransaction={handleViewTransaction}
         />
       </Box>
     </AdminLayout>

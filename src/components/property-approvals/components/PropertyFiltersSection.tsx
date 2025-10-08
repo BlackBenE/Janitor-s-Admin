@@ -4,6 +4,7 @@ import {
   Check as CheckIcon,
   Close as CloseIcon,
   Delete as DeleteIcon,
+  AccessTime as AccessTimeIcon,
 } from "@mui/icons-material";
 import {
   GenericFilters,
@@ -12,6 +13,7 @@ import {
   propertyTabConfigs,
   getPropertyCount,
 } from "../../shared";
+import { Property } from "../../../types";
 import {
   PropertyFilters,
   PropertyStatus,
@@ -25,7 +27,7 @@ interface PropertyFiltersSectionProps {
 
   // Tabs props
   activeTab: number;
-  properties: any[];
+  properties: Property[];
   onTabChange: (
     event: React.MouseEvent<HTMLElement>,
     newValue: number | null
@@ -35,9 +37,11 @@ interface PropertyFiltersSectionProps {
   selectedProperties: string[];
   onApproveSelected: () => void;
   onRejectSelected: () => void;
+  onSetPendingSelected: () => void;
   onClearSelection: () => void;
   isApprovePending?: boolean;
   isRejectPending?: boolean;
+  isPendingPending?: boolean;
 }
 
 // Actions component intégré
@@ -45,16 +49,20 @@ const PropertyBulkActions: React.FC<{
   selectedProperties: string[];
   onApproveSelected: () => void;
   onRejectSelected: () => void;
+  onSetPendingSelected: () => void;
   onClearSelection: () => void;
   isApprovePending?: boolean;
   isRejectPending?: boolean;
+  isPendingPending?: boolean;
 }> = ({
   selectedProperties,
   onApproveSelected,
   onRejectSelected,
+  onSetPendingSelected,
   onClearSelection,
   isApprovePending = false,
   isRejectPending = false,
+  isPendingPending = false,
 }) => {
   const selectedCount = selectedProperties.length;
 
@@ -93,6 +101,23 @@ const PropertyBulkActions: React.FC<{
             disabled={isApprovePending}
           >
             Approve All
+          </Button>
+        </Tooltip>
+
+        <Tooltip
+          title={`Set ${selectedCount} propert${
+            selectedCount === 1 ? "y" : "ies"
+          } to pending`}
+        >
+          <Button
+            variant="contained"
+            color="warning"
+            size="small"
+            startIcon={<AccessTimeIcon />}
+            onClick={onSetPendingSelected}
+            disabled={isPendingPending}
+          >
+            Set Pending
           </Button>
         </Tooltip>
 
@@ -151,14 +176,14 @@ const PropertyFiltersComponent: React.FC<{
 // Tabs component intégré
 const PropertyTabsComponent: React.FC<{
   activeTab: number;
-  properties: any[];
+  properties: Property[];
   onTabChange: (
     event: React.MouseEvent<HTMLElement>,
     newValue: number | null
   ) => void;
 }> = ({ activeTab, properties, onTabChange }) => {
   return (
-    <GenericTabs<any, PropertyStatus>
+    <GenericTabs<Property, PropertyStatus>
       activeTab={activeTab}
       items={properties}
       tabConfigs={propertyTabConfigs}
@@ -184,9 +209,11 @@ export const PropertyFiltersSection: React.FC<PropertyFiltersSectionProps> = ({
   selectedProperties,
   onApproveSelected,
   onRejectSelected,
+  onSetPendingSelected,
   onClearSelection,
   isApprovePending = false,
   isRejectPending = false,
+  isPendingPending = false,
 }) => {
   return (
     <Box sx={{ mb: 3 }}>
@@ -213,9 +240,11 @@ export const PropertyFiltersSection: React.FC<PropertyFiltersSectionProps> = ({
         selectedProperties={selectedProperties}
         onApproveSelected={onApproveSelected}
         onRejectSelected={onRejectSelected}
+        onSetPendingSelected={onSetPendingSelected}
         onClearSelection={onClearSelection}
         isApprovePending={isApprovePending}
         isRejectPending={isRejectPending}
+        isPendingPending={isPendingPending}
       />
     </Box>
   );

@@ -1,18 +1,11 @@
 import React from "react";
-import { Box, Button, IconButton, Chip } from "@mui/material";
-import {
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Visibility as ViewIcon,
-} from "@mui/icons-material";
+import { Box, Chip } from "@mui/material";
 import DataTable from "../../Table";
 import { Transaction } from "../../../types/financialoverview";
 
 interface FinancialTableProps {
   transactions: Transaction[];
-  onEditTransaction?: (transaction: Transaction) => void;
-  onDeleteTransaction?: (transactionId: string) => void;
-  onViewTransaction?: (transaction: Transaction) => void;
+  // Domaine lecture seule - pas d'actions d'écriture
 }
 
 /**
@@ -20,9 +13,6 @@ interface FinancialTableProps {
  */
 export const FinancialTable: React.FC<FinancialTableProps> = ({
   transactions,
-  onEditTransaction,
-  onDeleteTransaction,
-  onViewTransaction,
 }) => {
   // Colonnes du tableau
   const columns = [
@@ -36,7 +26,9 @@ export const FinancialTable: React.FC<FinancialTableProps> = ({
   ];
 
   // Fonction pour obtenir la couleur du status
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (
+    status: string
+  ): "success" | "warning" | "error" | "default" => {
     switch (status.toLowerCase()) {
       case "completed":
       case "success":
@@ -51,7 +43,6 @@ export const FinancialTable: React.FC<FinancialTableProps> = ({
     }
   };
 
-  // Transformer les données pour le tableau
   const tableData = transactions.slice(0, 10).map((transaction) => ({
     id: transaction.id,
     "Transaction ID": transaction.transactionId,
@@ -64,7 +55,7 @@ export const FinancialTable: React.FC<FinancialTableProps> = ({
           transaction.status.charAt(0).toUpperCase() +
           transaction.status.slice(1)
         }
-        color={getStatusColor(transaction.status) as any}
+        color={getStatusColor(transaction.status)}
         size="small"
       />
     ),
@@ -82,38 +73,7 @@ export const FinancialTable: React.FC<FinancialTableProps> = ({
       <DataTable
         columns={columns}
         data={tableData}
-        renderActions={(row) => (
-          <Box sx={{ display: "flex", gap: 1 }}>
-            {onViewTransaction && (
-              <IconButton
-                size="small"
-                onClick={() => onViewTransaction(row.transaction)}
-                title="Voir les détails"
-              >
-                <ViewIcon fontSize="small" />
-              </IconButton>
-            )}
-            {onEditTransaction && (
-              <IconButton
-                size="small"
-                onClick={() => onEditTransaction(row.transaction)}
-                title="Modifier"
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            )}
-            {onDeleteTransaction && (
-              <IconButton
-                size="small"
-                onClick={() => onDeleteTransaction(row.transaction.id)}
-                title="Supprimer"
-                color="error"
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            )}
-          </Box>
-        )}
+        // Pas d'actions - domaine lecture seule
       />
     </Box>
   );

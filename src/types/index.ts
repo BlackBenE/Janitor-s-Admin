@@ -29,6 +29,14 @@ export type {
 
 export { PropertyStatus, PROPERTY_TABS } from "./propertyApprovals";
 
+// Types User Management
+export type {
+  UserPreferences,
+  UserActivity,
+  UserStats,
+  UserAdditionalData,
+} from "./userManagement";
+
 // Types composants/UI seulement
 export type {
   FinancialFilters,

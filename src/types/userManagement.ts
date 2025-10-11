@@ -416,3 +416,32 @@ export interface SecurityActions {
     message?: string;
   }>;
 }
+
+// =====================================================
+// USER ADDITIONAL DATA & STATISTICS
+// =====================================================
+export interface UserPreferences {
+  notifications: boolean;
+  language: string;
+  timezone: string;
+}
+
+export interface UserActivity {
+  lastLogin: string | null;
+  totalBookings: number;
+  favoriteServices: string[];
+}
+
+export interface UserStats {
+  totalBookings: number;
+  completedBookings: number;
+  cancelledBookings: number;
+  totalSpent: number;
+  favoriteServices: string[];
+  lastActivity: string | null;
+}
+
+export interface UserAdditionalData {
+  preferences: UserPreferences;
+  activity: UserActivity;
+}

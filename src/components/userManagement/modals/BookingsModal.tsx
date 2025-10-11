@@ -23,7 +23,7 @@ import {
 import { CalendarToday, Payment, Star, TrendingUp } from "@mui/icons-material";
 
 import { BookingsModalProps, Booking } from "../../../types/userManagement";
-import { useUserAdditionalData } from "../hooks/useUserAdditionalData";
+import { useUserStats } from "../hooks/useUserAdditionalData";
 import { useBookings } from "../hooks/useBookings";
 
 const BookingsModal: React.FC<BookingsModalProps> = ({
@@ -32,32 +32,35 @@ const BookingsModal: React.FC<BookingsModalProps> = ({
   userId,
   userName,
 }) => {
-  const [loading, setLoading] = useState(false);
   const [bookings, setBookings] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
 
   const { getUserBookings } = useBookings();
-  const { getUserStats } = useUserAdditionalData();
+
+  // Utiliser la nouvelle API React Query pour les statistiques
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useUserStats(open && userId ? userId : undefined);
+
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+  const loading = bookingsLoading || statsLoading;
 
   useEffect(() => {
     if (open && userId) {
-      loadData();
+      loadBookingsData();
     }
   }, [open, userId]);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadBookingsData = async () => {
+    setBookingsLoading(true);
     try {
-      const [bookingsData, statsData] = await Promise.all([
-        getUserBookings(userId),
-        getUserStats(userId),
-      ]);
+      const bookingsData = await getUserBookings(userId);
       setBookings(bookingsData);
-      setStats(statsData);
     } catch (error) {
-      console.error("Erreur lors du chargement des données:", error);
+      console.error("Erreur lors du chargement des réservations:", error);
     } finally {
-      setLoading(false);
+      setBookingsLoading(false);
     }
   };
 
@@ -139,7 +142,7 @@ const BookingsModal: React.FC<BookingsModalProps> = ({
                       <Box display="flex" alignItems="center" gap={1}>
                         <CalendarToday color="primary" />
                         <Typography variant="h6">
-                          {stats.totalPayments}
+                          {stats.totalBookings}
                         </Typography>
                       </Box>
                       <Typography variant="body2" color="text.secondary">
@@ -155,11 +158,11 @@ const BookingsModal: React.FC<BookingsModalProps> = ({
                       <Box display="flex" alignItems="center" gap={1}>
                         <Star color="primary" />
                         <Typography variant="h6">
-                          {stats.averageRatingGiven}/5
+                          €{stats.totalSpent.toFixed(2)}
                         </Typography>
                       </Box>
                       <Typography variant="body2" color="text.secondary">
-                        Note moyenne donnée
+                        Total dépensé
                       </Typography>
                     </CardContent>
                   </Card>
@@ -171,11 +174,11 @@ const BookingsModal: React.FC<BookingsModalProps> = ({
                       <Box display="flex" alignItems="center" gap={1}>
                         <TrendingUp color="primary" />
                         <Typography variant="h6">
-                          {stats.reviewsGiven}
+                          {stats.completedBookings}
                         </Typography>
                       </Box>
                       <Typography variant="body2" color="text.secondary">
-                        Avis donnés
+                        Réservations terminées
                       </Typography>
                     </CardContent>
                   </Card>

@@ -6,7 +6,6 @@ export * from "./auth";
 // Analytics hooks sont maintenant dans components/analytics/hooks
 
 // Financial overview hooks
-export * from "./financialoverview";
 
 // Profile hooks
 export * from "./profile";

@@ -76,10 +76,20 @@ export const useUserActivity = (userIds: string[]) => {
       });
 
       // Process payments data to calculate total spent
+      // Link payments via bookings to get the correct traveler_id
       payments.forEach((payment: Payment) => {
-        const userId = payment.payer_id;
-        if (activityData[userId] && payment.status === "completed") {
-          activityData[userId].totalSpent += payment.amount;
+        if (payment.status === "completed" && payment.booking_id) {
+          // Find the booking associated with this payment
+          const relatedBooking = bookings.find((booking: Booking) => 
+            booking.id === payment.booking_id
+          );
+          
+          if (relatedBooking) {
+            const userId = relatedBooking.traveler_id;
+            if (activityData[userId]) {
+              activityData[userId].totalSpent += payment.amount || 0;
+            }
+          }
         }
       });
 

@@ -16,7 +16,7 @@ import {
 import { UserRole, UserProfile, USER_TABS } from "../../types/userManagement";
 
 // Hooks
-import { useUserManagement, useUserModals, useUsers } from "./hooks";
+import { useUserManagement, useUserModals, useUsers, useUserActivity } from "./hooks";
 import { useAuth } from "../../providers/authProvider";
 
 export const UserManagementPage: React.FC = () => {
@@ -64,6 +64,14 @@ export const UserManagementPage: React.FC = () => {
     ? allUsers.filter((user) => user.role === selectedUserRole)
     : allUsers;
 
+  // Hook pour les données d'activité des utilisateurs
+  const userIds = users.map(user => user.id);
+  const {
+    data: activityData,
+    isLoading: isLoadingActivity,
+    error: activityError
+  } = useUserActivity(userIds);
+
   // Configuration du tableau avec toutes les fonctionnalités
   const columns = createUserTableColumns({
     selectedUsers: userManagement.selectedUsers,
@@ -108,7 +116,7 @@ export const UserManagementPage: React.FC = () => {
       console.log("Validate provider:", userId);
       // TODO: Implémenter validation prestataire
     },
-    activityData: {},
+    activityData: activityData || {},
     currentUserRole: UserRole.ADMIN,
     currentTabRole: selectedUserRole,
   });

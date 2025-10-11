@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { DateRange } from "../../../types/analytics";
-import { Database } from "../../../types/database.types";
+import { Database } from "../../../types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Booking = Database["public"]["Tables"]["bookings"]["Row"];

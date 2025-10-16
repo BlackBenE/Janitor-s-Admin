@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabaseClient";
-import { Tables } from "../../../types/database.types";
 import { useAuditLog } from "./useAuditLog";
+import { Tables } from "../../../types";
 
 export interface SecurityAction {
   type: "password_reset" | "force_logout" | "account_lock" | "account_unlock";
@@ -142,7 +142,7 @@ export const useSecurityActions = () => {
 
   // Force logout supprimé
 
-  // Verrouille temporairement un compte - VERSION SIMPLIFIÉE
+  // Verrouille temporairement un compte avec invalidation de session
   const lockAccount = async (
     userId: string,
     duration: number = 60,
@@ -152,22 +152,41 @@ export const useSecurityActions = () => {
       setLoading(true);
       setError(null);
 
-      const lockUntil = new Date(Date.now() + duration * 60000);
+      const lockedUntil = new Date(Date.now() + duration * 60000);
 
-      // Met à jour uniquement le profil utilisateur pour verrouiller le compte
-      const { error } = await supabase
+      // 1. D'abord verrouiller en base de données (comme avant)
+      const { data: lockData, error: lockError } = await supabase
         .from("profiles")
         .update({
           account_locked: true,
-          locked_until: lockUntil.toISOString(),
-          lock_reason: reason || "Verrouillage temporaire",
+          locked_until: lockedUntil.toISOString(),
+          lock_reason: reason || "Verrouillage par un administrateur",
         })
-        .eq("id", userId);
+        .eq("id", userId)
+        .select();
 
-      if (error) throw error;
+      if (lockError) {
+        throw new Error(`Failed to lock user account: ${lockError.message}`);
+      }
 
-      // Force logout via Supabase Auth lors du lock
-      // Pas d'appel auth admin ici côté client
+      // 2. Ensuite invalider les sessions via Edge Function
+      let sessionInvalidated = false;
+      try {
+        const { data: sessionData, error: sessionError } =
+          await supabase.functions.invoke("invalidate-user-session", {
+            body: { userId },
+          });
+
+        if (sessionError) {
+          console.error("Session invalidation failed:", sessionError);
+        } else if (sessionData?.success) {
+          sessionInvalidated = true;
+          console.log("Sessions invalidated successfully");
+        }
+      } catch (sessionErr) {
+        console.error("Session invalidation error:", sessionErr);
+        // On continue même si l'invalidation échoue, car l'utilisateur est déjà verrouillé
+      }
 
       // Récupère les informations utilisateur pour les logs
       const userProfile = await getUserProfile(userId);
@@ -176,23 +195,29 @@ export const useSecurityActions = () => {
       await logAction(
         "account_lock",
         userId,
-        `Compte verrouillé jusqu'à ${lockUntil.toLocaleString()}${
+        `Compte verrouillé jusqu'à ${lockedUntil.toLocaleString()}${
           userProfile ? ` pour ${userProfile.email}` : ""
-        }`,
+        } - Session invalidée: ${sessionInvalidated ? "Oui" : "Non"}`,
         "system",
         {
           reason,
           duration,
-          lockedUntil: lockUntil.toISOString(),
+          lockedUntil: lockedUntil.toISOString(),
+          sessionInvalidated,
         }
       );
 
       return {
         success: true,
-        message: `Compte verrouillé pendant ${duration} minutes`,
+        message: `Compte verrouillé pendant ${duration} minutes${
+          sessionInvalidated
+            ? " et sessions invalidées"
+            : " (échec invalidation session)"
+        }`,
         userId,
-        lockedUntil: lockUntil.toISOString(),
+        lockedUntil: lockedUntil.toISOString(),
         reason,
+        sessionInvalidated,
         timestamp: new Date().toISOString(),
       };
     } catch (err) {
@@ -204,28 +229,29 @@ export const useSecurityActions = () => {
     }
   };
 
-  // Déverrouille un compte
+  // Déverrouille un compte via Edge Function
   const unlockAccount = async (userId: string, reason?: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      // Met à jour le profil utilisateur pour déverrouiller le compte
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          account_locked: false,
-          locked_until: null,
-          lock_reason: null,
-        })
-        .eq("id", userId);
+      // Appeler la Edge Function pour déverrouiller
+      const { data, error } = await supabase.functions.invoke("unlock-user", {
+        body: {
+          userId,
+        },
+      });
 
       if (error) throw error;
+
+      if (!data.success) {
+        throw new Error(data.error || "Failed to unlock user account");
+      }
 
       // Récupère les informations utilisateur pour les logs
       const userProfile = await getUserProfile(userId);
 
-      // Log l'action dans l'audit
+      // Log l'action dans l'audit (déjà fait côté Edge Function)
       await logAction(
         "account_unlock",
         userId,

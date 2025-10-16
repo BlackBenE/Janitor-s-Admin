@@ -16,7 +16,15 @@ import {
 import { UserRole, UserProfile, USER_TABS } from "../../types/userManagement";
 
 // Hooks
-import { useUserManagement, useUserModals, useUsers, useUserActivity } from "./hooks";
+import {
+  useUserManagement,
+  useUserModals,
+  useUsers,
+  useUserActivity,
+  useSecurityActions,
+  useBulkActions,
+  useRoleModals,
+} from "./hooks";
 import { useAuth } from "../../providers/authProvider";
 
 export const UserManagementPage: React.FC = () => {
@@ -24,26 +32,11 @@ export const UserManagementPage: React.FC = () => {
   const [selectedUserRole, setSelectedUserRole] =
     React.useState<UserRole | null>(null);
 
-  // États pour les nouvelles modals role-spécifiques
-  const [bookingsModal, setBookingsModal] = React.useState({
-    open: false,
-    userId: "",
-    userName: "",
-  });
-  const [subscriptionModal, setSubscriptionModal] = React.useState({
-    open: false,
-    userId: "",
-    userName: "",
-  });
-  const [servicesModal, setServicesModal] = React.useState({
-    open: false,
-    userId: "",
-    userName: "",
-  });
-
   // Main Hooks
   const userManagement = useUserManagement();
   const modals = useUserModals();
+  const securityActions = useSecurityActions();
+  const roleModals = useRoleModals();
   const { getEmail } = useAuth();
 
   // Hook pour récupérer tous les utilisateurs
@@ -53,6 +46,9 @@ export const UserManagementPage: React.FC = () => {
     isFetching,
     error,
     updateUser,
+    createUser,
+    deleteUser,
+    deleteManyUsers,
     refetch,
   } = useUsers({
     filters: {},
@@ -64,12 +60,20 @@ export const UserManagementPage: React.FC = () => {
     ? allUsers.filter((user) => user.role === selectedUserRole)
     : allUsers;
 
+  // Hook pour les actions en lot (bulk actions)
+  const bulkActions = useBulkActions({
+    users,
+    selectedUsers: userManagement.selectedUsers,
+    clearUserSelection: userManagement.clearUserSelection,
+    showNotification: userManagement.showNotification,
+  });
+
   // Hook pour les données d'activité des utilisateurs
-  const userIds = users.map(user => user.id);
+  const userIds = users.map((user) => user.id);
   const {
     data: activityData,
     isLoading: isLoadingActivity,
-    error: activityError
+    error: activityError,
   } = useUserActivity(userIds);
 
   // Configuration du tableau avec toutes les fonctionnalités
@@ -77,7 +81,7 @@ export const UserManagementPage: React.FC = () => {
     selectedUsers: userManagement.selectedUsers,
     onToggleUserSelection: userManagement.toggleUserSelection,
     onShowUser: (user: UserProfile) => {
-      userManagement.setSelectedUser(user);
+      userManagement.setUserForEdit(user);
       modals.openUserDetailsModal();
     },
     onShowAudit: (userId: string) => {
@@ -95,26 +99,67 @@ export const UserManagementPage: React.FC = () => {
       if (user) userManagement.setSelectedUser(user);
       modals.openLockModal(userId);
     },
-    onUnlockAccount: (userId: string) => {
-      console.log("Unlock account:", userId);
-      // TODO: Implémenter déverrouillage
+    onUnlockAccount: async (userId: string) => {
+      try {
+        await securityActions.unlockAccount(userId, "Déverrouillé par admin");
+        userManagement.showNotification(
+          "Compte déverrouillé avec succès",
+          "success"
+        );
+        refetch();
+      } catch (error) {
+        userManagement.showNotification(
+          "Erreur lors du déverrouillage",
+          "error"
+        );
+        console.error("Unlock error:", error);
+      }
     },
-    onViewBookings: (userId: string, userName: string) => {
-      setBookingsModal({ open: true, userId, userName });
+    onViewBookings: roleModals.openBookingsModal,
+    onManageSubscription: roleModals.openSubscriptionModal,
+    onManageServices: roleModals.openServicesModal,
+    onToggleVIP: async (userId: string) => {
+      try {
+        const user = users.find((u) => u.id === userId);
+        if (!user) return;
+
+        await updateUser.mutateAsync({
+          id: userId,
+          payload: { vip_subscription: !user.vip_subscription },
+        });
+
+        userManagement.showNotification(
+          `Statut VIP ${
+            user.vip_subscription ? "désactivé" : "activé"
+          } avec succès`,
+          "success"
+        );
+      } catch (error) {
+        userManagement.showNotification(
+          "Erreur lors du changement VIP",
+          "error"
+        );
+        console.error("Toggle VIP error:", error);
+      }
     },
-    onManageSubscription: (userId: string, userName: string) => {
-      setSubscriptionModal({ open: true, userId, userName });
-    },
-    onManageServices: (userId: string, userName: string) => {
-      setServicesModal({ open: true, userId, userName });
-    },
-    onToggleVIP: (userId: string) => {
-      console.log("Toggle VIP:", userId);
-      // TODO: Implémenter toggle VIP
-    },
-    onValidateProvider: (userId: string) => {
-      console.log("Validate provider:", userId);
-      // TODO: Implémenter validation prestataire
+    onValidateProvider: async (userId: string) => {
+      try {
+        await updateUser.mutateAsync({
+          id: userId,
+          payload: { profile_validated: true },
+        });
+
+        userManagement.showNotification(
+          "Prestataire validé avec succès",
+          "success"
+        );
+      } catch (error) {
+        userManagement.showNotification(
+          "Erreur lors de la validation",
+          "error"
+        );
+        console.error("Validate provider error:", error);
+      }
     },
     activityData: activityData || {},
     currentUserRole: UserRole.ADMIN,
@@ -133,43 +178,20 @@ export const UserManagementPage: React.FC = () => {
     return true;
   });
 
-  // Event handlers
+  // Handlers simples pour les fonctions non-bulk
   const handleTabChange = (
     event: React.MouseEvent<HTMLElement>,
     newValue: number | null
   ) => {
     if (newValue !== null) {
       setActiveTab(newValue);
-      setSelectedUserRole(USER_TABS[newValue].role);
+      const role = USER_TABS[newValue]?.role || null;
+      setSelectedUserRole(role);
     }
   };
 
   const handleExportUsers = async (format: "csv") => {
-    console.log("Export users:", format);
-  };
-
-  // Modal handlers pour les modals role-spécifiques
-  const handleCloseBookingsModal = () =>
-    setBookingsModal({ open: false, userId: "", userName: "" });
-
-  const handleCloseSubscriptionModal = () =>
-    setSubscriptionModal({ open: false, userId: "", userName: "" });
-
-  const handleCloseServicesModal = () =>
-    setServicesModal({ open: false, userId: "", userName: "" });
-
-  // Action handlers
-  const handleBulkValidate = () => {
-    console.log("Bulk validate");
-  };
-
-  const handleBulkSuspend = () => {
-    console.log("Bulk suspend");
-  };
-
-  const handleBulkAction = (actionType: "delete" | "role" | "vip") => {
-    console.log("Bulk action:", actionType);
-    modals.openBulkActionModal(actionType);
+    userManagement.showNotification("Export functionality coming soon", "info");
   };
 
   // Error state
@@ -207,9 +229,13 @@ export const UserManagementPage: React.FC = () => {
           allUsers={allUsers}
           onTabChange={handleTabChange}
           selectedUsers={userManagement.selectedUsers}
-          onBulkValidate={handleBulkValidate}
-          onBulkSuspend={handleBulkSuspend}
-          onBulkAction={handleBulkAction}
+          onBulkValidate={bulkActions.handleBulkValidate}
+          onBulkSetPending={bulkActions.handleBulkSetPending}
+          onBulkSuspend={bulkActions.handleBulkSuspend}
+          onBulkUnsuspend={bulkActions.handleBulkUnsuspend}
+          onBulkAction={bulkActions.handleBulkAction}
+          onBulkAddVip={bulkActions.handleBulkAddVip}
+          onBulkRemoveVip={bulkActions.handleBulkRemoveVip}
           columns={columns}
           filteredUsers={filteredUsers}
           isLoading={isLoading}
@@ -220,7 +246,11 @@ export const UserManagementPage: React.FC = () => {
           // User Details Modal
           showUserDetailsModal={modals.showUserDetailsModal}
           selectedUser={userManagement.selectedUser}
-          onCloseUserDetailsModal={modals.closeUserDetailsModal}
+          editForm={userManagement.editForm}
+          onCloseUserDetailsModal={() => {
+            modals.closeUserDetailsModal();
+            userManagement.resetEditForm();
+          }}
           // Create User Modal
           showCreateUserModal={modals.showCreateUserModal}
           onCloseCreateUserModal={modals.closeCreateUserModal}
@@ -248,20 +278,184 @@ export const UserManagementPage: React.FC = () => {
           onUpdateRoleChange={modals.updateBulkRoleChange}
           onUpdateVipChange={modals.updateBulkVipChange}
           // Role-specific modals
-          bookingsModal={bookingsModal}
-          subscriptionModal={subscriptionModal}
-          servicesModal={servicesModal}
-          onCloseBookingsModal={handleCloseBookingsModal}
-          onCloseSubscriptionModal={handleCloseSubscriptionModal}
-          onCloseServicesModal={handleCloseServicesModal}
+          bookingsModal={roleModals.bookingsModal}
+          subscriptionModal={roleModals.subscriptionModal}
+          servicesModal={roleModals.servicesModal}
+          onCloseBookingsModal={roleModals.closeBookingsModal}
+          onCloseSubscriptionModal={roleModals.closeSubscriptionModal}
+          onCloseServicesModal={roleModals.closeServicesModal}
           // Action handlers
-          onSaveUser={() => console.log("Save user")}
-          onSuspendUser={() => console.log("Suspend user")}
-          onInputChange={() => console.log("Input change")}
-          onCreateUser={() => console.log("Create user")}
-          onPasswordResetConfirm={() => console.log("Password reset confirmed")}
-          onLockAccountConfirm={() => console.log("Account locked")}
-          onBulkActionConfirm={() => console.log("Bulk action confirmed")}
+          onSaveUser={async () => {
+            try {
+              if (!userManagement.selectedUser) return;
+              await updateUser.mutateAsync({
+                id: userManagement.selectedUser.id,
+                payload: userManagement.editForm,
+              });
+              userManagement.showNotification(
+                "Utilisateur mis à jour",
+                "success"
+              );
+              modals.closeUserDetailsModal();
+            } catch (error) {
+              userManagement.showNotification(
+                "Erreur lors de la mise à jour",
+                "error"
+              );
+            }
+          }}
+          onOpenLockModal={() => {
+            if (userManagement.selectedUser) {
+              modals.openLockModal(userManagement.selectedUser.id);
+            }
+          }}
+          onUnlockAccount={async () => {
+            try {
+              if (!userManagement.selectedUser) return;
+              console.log("Unlocking user:", userManagement.selectedUser.id);
+              await securityActions.unlockAccount(
+                userManagement.selectedUser.id
+              );
+              console.log("Unlock successful, refreshing data...");
+              const refetchResult = await refetch();
+              console.log("🔄 Refetch result after unlock:", refetchResult);
+              userManagement.showNotification(
+                "Compte déverrouillé avec succès",
+                "success"
+              );
+              modals.closeUserDetailsModal(); // Ferme la modal après unlock
+            } catch (error) {
+              console.error("Unlock error:", error);
+              userManagement.showNotification(
+                "Erreur lors du déverrouillage",
+                "error"
+              );
+            }
+          }}
+          onResetPassword={async () => {
+            try {
+              if (!userManagement.selectedUser) return;
+              await securityActions.resetPassword(
+                userManagement.selectedUser.id,
+                "Réinitialisation par admin depuis le modal utilisateur"
+              );
+              userManagement.showNotification(
+                "Email de réinitialisation envoyé",
+                "success"
+              );
+            } catch (error) {
+              userManagement.showNotification(
+                "Erreur lors de l'envoi de l'email",
+                "error"
+              );
+            }
+          }}
+          onDeleteUser={async () => {
+            try {
+              if (!userManagement.selectedUser) return;
+              await deleteUser.mutateAsync(userManagement.selectedUser.id);
+              userManagement.showNotification(
+                "Utilisateur supprimé",
+                "success"
+              );
+              modals.closeUserDetailsModal();
+              userManagement.resetEditForm();
+            } catch (error) {
+              userManagement.showNotification(
+                "Erreur lors de la suppression",
+                "error"
+              );
+            }
+          }}
+          onInputChange={userManagement.updateEditForm}
+          onCreateUser={async () => {
+            try {
+              const result = await securityActions.createUserWithAuth({
+                email: userManagement.editForm.email || "",
+                role: userManagement.editForm.role || "traveler",
+                full_name: userManagement.editForm.full_name,
+                phone: userManagement.editForm.phone,
+                profile_validated:
+                  userManagement.editForm.profile_validated ?? false,
+                vip_subscription:
+                  userManagement.editForm.vip_subscription ?? false,
+              });
+
+              if (result.success) {
+                userManagement.showNotification(
+                  "Utilisateur créé avec succès",
+                  "success"
+                );
+                modals.closeCreateUserModal();
+                userManagement.resetEditForm();
+                refetch();
+              } else {
+                userManagement.showNotification(
+                  result.message || "Erreur lors de la création",
+                  "error"
+                );
+              }
+            } catch (error) {
+              userManagement.showNotification(
+                "Erreur lors de la création",
+                "error"
+              );
+              console.error("Create user error:", error);
+            }
+          }}
+          onPasswordResetConfirm={async () => {
+            try {
+              if (!modals.passwordResetUserId) return;
+              await securityActions.resetPassword(
+                modals.passwordResetUserId,
+                "Réinitialisation par admin"
+              );
+              userManagement.showNotification(
+                "Email de réinitialisation envoyé",
+                "success"
+              );
+              modals.closePasswordResetModal();
+            } catch (error) {
+              userManagement.showNotification(
+                "Erreur lors de la réinitialisation",
+                "error"
+              );
+            }
+          }}
+          onLockAccountConfirm={async () => {
+            console.log("onLockAccountConfirm called!", modals.lockAccount);
+            try {
+              if (!modals.lockAccount.userId) {
+                console.log("No userId found!");
+                return;
+              }
+              console.log("Calling lockAccount with:", {
+                userId: modals.lockAccount.userId,
+                duration: modals.lockAccount.duration,
+                reason: modals.lockAccount.reason,
+              });
+              await securityActions.lockAccount(
+                modals.lockAccount.userId,
+                modals.lockAccount.duration,
+                modals.lockAccount.reason
+              );
+              console.log("Lock successful, refreshing data...");
+              const refetchResult = await refetch(); // Rafraîchit les données des utilisateurs
+              console.log("🔄 Refetch result:", refetchResult);
+              userManagement.showNotification(
+                "Compte verrouillé avec succès",
+                "success"
+              );
+              modals.closeLockModal();
+            } catch (error) {
+              console.error("Lock error:", error);
+              userManagement.showNotification(
+                "Erreur lors du verrouillage",
+                "error"
+              );
+            }
+          }}
+          onBulkActionConfirm={bulkActions.handleBulkActionConfirm}
         />
       </Box>
     </AdminLayout>

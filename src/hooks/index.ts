@@ -1,8 +1,6 @@
 // Export all hooks from their specialized domains
 
-// Authentication hooks
-export * from "./auth";
-
+// Authentication hooks sont maintenant dans components/auth/hooks
 // Analytics hooks sont maintenant dans components/analytics/hooks
 
 // Financial overview hooks

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../../../lib/supabaseClient";
-import { Database } from "../../../types/database.types";
+import { Database } from "../../../types";
 
 type Booking = Database["public"]["Tables"]["bookings"]["Row"];
 type BookingInsert = Database["public"]["Tables"]["bookings"]["Insert"];

@@ -5,12 +5,9 @@ import {
   SignUpFormData,
   ForgotPasswordFormData,
 } from "../../types/auth";
-import {
-  signinFields,
-  signupFields,
-  forgotPasswordFields,
-} from "../../hooks/auth/useAuthForms";
-import Form, { FormField } from "../Form";
+import { SignInForm } from "./components/SignInForm";
+import { SignUpForm } from "./components/SignUpForm";
+import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
 
 interface AuthFormRendererProps {
   currentView: AuthView;
@@ -20,6 +17,10 @@ interface AuthFormRendererProps {
   onForgotPassword: (data: ForgotPasswordFormData) => Promise<boolean>;
 }
 
+/**
+ * Renderer des formulaires d'authentification - Version modulaire
+ * Respecte le pattern des autres domaines avec des composants spécialisés
+ */
 export const AuthFormRenderer: React.FC<AuthFormRendererProps> = ({
   currentView,
   isSubmitting,
@@ -27,61 +28,16 @@ export const AuthFormRenderer: React.FC<AuthFormRendererProps> = ({
   onSignUp,
   onForgotPassword,
 }) => {
-  // Convertir nos types vers les types Form attendus
-  const convertFields = (fields: typeof signinFields): FormField[] => {
-    return fields.map((field) => ({
-      ...field,
-      type: field.type === "tel" ? "number" : field.type,
-    }));
-  };
-
-  // Wrappers pour adapter les types de retour
-  const handleSignInSubmit = async (
-    data: Record<string, string>
-  ): Promise<void> => {
-    await onSignIn(data as unknown as SignInFormData);
-  };
-
-  const handleSignUpSubmit = async (
-    data: Record<string, string>
-  ): Promise<void> => {
-    await onSignUp(data as unknown as SignUpFormData);
-  };
-
-  const handleForgotPasswordSubmit = async (
-    data: Record<string, string>
-  ): Promise<void> => {
-    await onForgotPassword(data as unknown as ForgotPasswordFormData);
-  };
-
   switch (currentView) {
     case "signin":
-      return (
-        <Form
-          title="Admin Sign In"
-          fields={convertFields(signinFields)}
-          onSubmit={handleSignInSubmit}
-          submitButtonText={isSubmitting ? "Signing In..." : "Sign In"}
-        />
-      );
+      return <SignInForm isSubmitting={isSubmitting} onSubmit={onSignIn} />;
     case "signup":
-      return (
-        <Form
-          title="Create Admin Account"
-          fields={convertFields(signupFields)}
-          onSubmit={handleSignUpSubmit}
-          submitButtonText={
-            isSubmitting ? "Creating Account..." : "Create Account"
-          }
-        />
-      );
+      return <SignUpForm isSubmitting={isSubmitting} onSubmit={onSignUp} />;
     case "forgot-password":
       return (
-        <Form
-          title="Reset Password"
-          fields={convertFields(forgotPasswordFields)}
-          onSubmit={handleForgotPasswordSubmit}
-          submitButtonText={isSubmitting ? "Sending..." : "Send Reset Email"}
+        <ForgotPasswordForm
+          isSubmitting={isSubmitting}
+          onSubmit={onForgotPassword}
         />
       );
     default:

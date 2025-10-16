@@ -187,16 +187,6 @@ export const useServices = () => {
   ) => {
     try {
       // Cette fonction pourrait créer une réservation
-      // Pour l'instant, on log l'intention
-      console.log(
-        "Assigning service:",
-        serviceId,
-        "to user:",
-        userId,
-        "with data:",
-        bookingData
-      );
-
       // Dans une vraie implémentation, cela créerait une réservation
       // incluant le service spécifié
       return Promise.resolve();

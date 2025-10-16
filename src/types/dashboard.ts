@@ -1,5 +1,3 @@
-import { Tables } from "./database.types";
-
 export interface DashboardStats {
   pendingValidations: number;
   pendingDiff: string;
@@ -32,7 +30,11 @@ export interface DashboardData {
   recentActivities: RecentActivity[];
 }
 
-import { PropertyValidationStatus, ServiceRequestStatus } from "./supabase";
+import {
+  PropertyValidationStatus,
+  ServiceRequestStatus,
+  Tables,
+} from "./supabase";
 
 export interface RecentActivity {
   id: string;

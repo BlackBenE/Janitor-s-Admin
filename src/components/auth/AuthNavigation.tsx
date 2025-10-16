@@ -18,7 +18,7 @@ export const AuthNavigation: React.FC<AuthNavigationProps> = ({
   return (
     <Box sx={{ textAlign: "center", marginTop: 2 }}>
       <Button variant="text" onClick={onBackToSignIn}>
-        Back to Sign In
+        Retour à la connexion
       </Button>
     </Box>
   );

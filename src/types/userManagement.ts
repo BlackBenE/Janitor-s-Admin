@@ -1,4 +1,3 @@
-import { Database, Tables, TablesInsert, TablesUpdate } from "./database.types";
 import React from "react";
 import {
   Group as GroupIcon,
@@ -6,6 +5,15 @@ import {
   HandymanOutlined as ServiceIcon,
   AdminPanelSettings as AdminIcon,
 } from "@mui/icons-material";
+import { Database } from "./database.types";
+
+// Types helpers pour Supabase
+type Tables<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Row"];
+type TablesInsert<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Insert"];
+type TablesUpdate<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Update"];
 
 // =====================================================
 // BASE TYPES FROM DATABASE

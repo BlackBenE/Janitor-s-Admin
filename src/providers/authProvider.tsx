@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import type { Session, User } from "@supabase/supabase-js";
 import { dataProvider } from "./dataProvider";
-import { Tables } from "../types/database.types";
+import { Tables } from "../../database.types";
 
 type AuthContextType = {
   user: User | null;
@@ -103,15 +103,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const channel = supabase
       .channel(`profile-updates-${user.id}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'profiles',
+          event: "UPDATE",
+          schema: "public",
+          table: "profiles",
           filter: `id=eq.${user.id}`,
         },
         async (payload) => {
-          const newRow = payload.new as Tables<'profiles'>;
+          const newRow = payload.new as Tables<"profiles">;
           // Si le compte est verrouillé, on déconnecte immédiatement
           if (newRow?.account_locked) {
             await supabase.auth.signOut();
@@ -284,7 +284,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setLoading(true);
       setError(null);
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+      // Spécifier explicitement la redirection vers la page reset password
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
       if (error) {
         setError(error.message);
         return { error };

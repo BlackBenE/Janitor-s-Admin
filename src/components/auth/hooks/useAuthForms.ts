@@ -1,4 +1,4 @@
-import { AuthFormField } from "../../types/auth";
+import { AuthFormField } from "../../../types/auth";
 
 export const signinFields: AuthFormField[] = [
   {
@@ -9,7 +9,7 @@ export const signinFields: AuthFormField[] = [
   },
   {
     name: "password",
-    label: "Password",
+    label: "Mot de passe",
     type: "password",
     required: true,
     minLength: 6,
@@ -25,27 +25,27 @@ export const signupFields: AuthFormField[] = [
   },
   {
     name: "password",
-    label: "Password",
+    label: "Mot de passe",
     type: "password",
     required: true,
     minLength: 8,
   },
   {
     name: "confirmPassword",
-    label: "Confirm Password",
+    label: "Confirmer le mot de passe",
     type: "password",
     required: true,
     minLength: 8,
   },
   {
     name: "fullName",
-    label: "Full Name",
+    label: "Nom complet",
     type: "text",
     required: true,
   },
   {
     name: "phone",
-    label: "Phone number",
+    label: "Numéro de téléphone",
     type: "tel",
     required: true,
   },

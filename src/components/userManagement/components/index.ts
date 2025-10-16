@@ -8,3 +8,7 @@ export { UserModalsManager } from "./UserModalsManager";
 export { createUserTableColumns } from "./UserTableColumns";
 export { UserTableActions } from "./UserTableActions";
 export * from "./UserTableCells";
+
+// Internal components (not exported to avoid unused exports)
+// ActionsMenu - used internally by UserTableActions
+// RoleSpecificAction - used internally by UserTableActions

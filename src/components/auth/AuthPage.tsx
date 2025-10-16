@@ -1,22 +1,18 @@
 import React, { useEffect } from "react";
-import {
-  Box,
-  Container,
-  Paper,
-  Typography,
-  Alert,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Container, Paper } from "@mui/material";
 import { Navigate } from "react-router-dom";
 
-// Composants spécialisés
+// Sections modulaires
+import {
+  AuthHeader,
+  AuthMessageSection,
+  AuthNavigationSection,
+  AuthFormSection,
+  AuthBackNavigationSection,
+  AuthLoadingSection,
+} from "./components";
 
-// Hooks
-import { useAuth } from "../../hooks/auth/useAuth";
-import { AuthTabs } from "./AuthTabs";
-import { AuthNavigation } from "./AuthNavigation";
-import { AuthFormRenderer } from "./AuthFormRenderer";
-
+import { useAuth } from "./hooks/useAuth";
 export const AuthPage: React.FC = () => {
   const auth = useAuth();
 
@@ -29,7 +25,7 @@ export const AuthPage: React.FC = () => {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth.error]); // Seule auth.error comme dépendance
+  }, [auth.error]);
 
   // Rediriger les utilisateurs admin déjà authentifiés
   if (!auth.loading && auth.session && auth.isAdmin()) {
@@ -38,19 +34,7 @@ export const AuthPage: React.FC = () => {
 
   // Afficher le chargement pendant l'initialisation de l'auth
   if (auth.loading) {
-    return (
-      <Box
-        sx={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        }}
-      >
-        <CircularProgress size={60} sx={{ color: "white" }} />
-      </Box>
-    );
+    return <AuthLoadingSection />;
   }
 
   return (
@@ -74,40 +58,23 @@ export const AuthPage: React.FC = () => {
             backdropFilter: "blur(10px)",
           }}
         >
-          {/* Header */}
-          <Typography
-            variant="h4"
-            component="h1"
-            gutterBottom
-            align="center"
-            sx={{
-              fontWeight: 700,
-              color: "primary.main",
-              marginBottom: 3,
-            }}
-          >
-            Admin Portal
-          </Typography>
+          {/* En-tête */}
+          <AuthHeader />
 
-          {/* Tabs de navigation */}
-          <AuthTabs
+          {/* Navigation par onglets */}
+          <AuthNavigationSection
             currentView={auth.currentView}
             onViewChange={auth.setCurrentView}
           />
 
-          {/* Message d'état */}
-          {auth.message && (
-            <Alert
-              severity={auth.message.type}
-              sx={{ marginBottom: 2 }}
-              onClose={auth.clearMessage}
-            >
-              {auth.message.text}
-            </Alert>
-          )}
+          {/* Messages d'état */}
+          <AuthMessageSection
+            message={auth.message}
+            onClearMessage={auth.clearMessage}
+          />
 
-          {/* Formulaire basé sur la vue actuelle */}
-          <AuthFormRenderer
+          {/* Formulaires d'authentification */}
+          <AuthFormSection
             currentView={auth.currentView}
             isSubmitting={auth.isSubmitting}
             onSignIn={auth.handleSignIn}
@@ -116,7 +83,7 @@ export const AuthPage: React.FC = () => {
           />
 
           {/* Navigation de retour */}
-          <AuthNavigation
+          <AuthBackNavigationSection
             currentView={auth.currentView}
             onBackToSignIn={() => auth.setCurrentView("signin")}
           />

@@ -49,7 +49,7 @@ export const LockAccountModal: React.FC<LockAccountModalProps> = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          🔒 Verrouiller le compte
+          Verrouiller le compte
         </Box>
       </DialogTitle>
 
@@ -118,7 +118,10 @@ export const LockAccountModal: React.FC<LockAccountModalProps> = ({
           Annuler
         </Button>
         <Button
-          onClick={onConfirm}
+          onClick={() => {
+            console.log("Lock button clicked!", lockAccount);
+            onConfirm();
+          }}
           variant="contained"
           color="warning"
           disabled={!lockAccount.reason.trim()}

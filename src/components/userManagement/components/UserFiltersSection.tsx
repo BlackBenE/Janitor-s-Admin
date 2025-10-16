@@ -24,8 +24,12 @@ interface UserFiltersSectionProps {
   ) => void;
   selectedUsers: string[];
   onBulkValidate: () => void;
+  onBulkSetPending: () => void;
   onBulkSuspend: () => void;
+  onBulkUnsuspend: () => void;
   onBulkAction: (actionType: "delete" | "role" | "vip") => void;
+  onBulkAddVip: () => void;
+  onBulkRemoveVip: () => void;
 }
 
 export const UserFiltersSection: React.FC<UserFiltersSectionProps> = ({
@@ -36,8 +40,12 @@ export const UserFiltersSection: React.FC<UserFiltersSectionProps> = ({
   onTabChange,
   selectedUsers,
   onBulkValidate,
+  onBulkSetPending,
   onBulkSuspend,
+  onBulkUnsuspend,
   onBulkAction,
+  onBulkAddVip,
+  onBulkRemoveVip,
 }) => {
   return (
     <Box>
@@ -81,11 +89,29 @@ export const UserFiltersSection: React.FC<UserFiltersSectionProps> = ({
 
           <Button
             variant="outlined"
+            color="warning"
+            size="small"
+            onClick={onBulkSetPending}
+          >
+            Set Pending ({selectedUsers.length})
+          </Button>
+
+          <Button
+            variant="outlined"
             color="error"
             size="small"
             onClick={onBulkSuspend}
           >
             Suspend Selected ({selectedUsers.length})
+          </Button>
+
+          <Button
+            variant="outlined"
+            color="info"
+            size="small"
+            onClick={onBulkUnsuspend}
+          >
+            Unsuspend Selected ({selectedUsers.length})
           </Button>
 
           <Tooltip title="Changer le rôle des utilisateurs sélectionnés">
@@ -100,15 +126,27 @@ export const UserFiltersSection: React.FC<UserFiltersSectionProps> = ({
             </Button>
           </Tooltip>
 
-          <Tooltip title="Basculer le statut VIP des utilisateurs sélectionnés">
+          <Tooltip title="Accorder le statut VIP aux utilisateurs sélectionnés">
             <Button
               variant="outlined"
               color="warning"
               size="small"
               startIcon={<WorkspacePremiumIcon />}
-              onClick={() => onBulkAction("vip")}
+              onClick={onBulkAddVip}
             >
-              Toggle VIP
+              Add VIP
+            </Button>
+          </Tooltip>
+
+          <Tooltip title="Retirer le statut VIP aux utilisateurs sélectionnés">
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="small"
+              startIcon={<WorkspacePremiumIcon />}
+              onClick={onBulkRemoveVip}
+            >
+              Remove VIP
             </Button>
           </Tooltip>
 

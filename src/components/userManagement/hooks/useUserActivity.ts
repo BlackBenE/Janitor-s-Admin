@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { dataProvider } from "../../../providers/dataProvider";
-import { Database } from "../../../types/database.types";
+import { Database } from "../../../types";
 
 type Booking = Database["public"]["Tables"]["bookings"]["Row"];
 type Payment = Database["public"]["Tables"]["payments"]["Row"];
@@ -80,10 +80,10 @@ export const useUserActivity = (userIds: string[]) => {
       payments.forEach((payment: Payment) => {
         if (payment.status === "completed" && payment.booking_id) {
           // Find the booking associated with this payment
-          const relatedBooking = bookings.find((booking: Booking) => 
-            booking.id === payment.booking_id
+          const relatedBooking = bookings.find(
+            (booking: Booking) => booking.id === payment.booking_id
           );
-          
+
           if (relatedBooking) {
             const userId = relatedBooking.traveler_id;
             if (activityData[userId]) {

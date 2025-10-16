@@ -18,9 +18,9 @@ export const AuthTabs: React.FC<AuthTabsProps> = ({
       centered
       sx={{ marginBottom: 3 }}
     >
-      <Tab label="Sign In" value="signin" />
-      <Tab label="Create Admin" value="signup" />
-      <Tab label="Reset Password" value="forgot-password" />
+      <Tab label="Connexion" value="signin" />
+      <Tab label="Créer Admin" value="signup" />
+      <Tab label="Mot de passe" value="forgot-password" />
     </Tabs>
   );
 };

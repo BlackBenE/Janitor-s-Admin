@@ -10,14 +10,21 @@ interface UserTableSectionProps {
   onUpdateFilter: (key: string, value: string) => void;
   activeTab: number;
   allUsers: UserProfile[];
-  onTabChange: (event: React.MouseEvent<HTMLElement>, newValue: number | null) => void;
-  
+  onTabChange: (
+    event: React.MouseEvent<HTMLElement>,
+    newValue: number | null
+  ) => void;
+
   // Selection & Actions
   selectedUsers: string[];
   onBulkValidate: () => void;
+  onBulkSetPending: () => void;
   onBulkSuspend: () => void;
+  onBulkUnsuspend: () => void;
   onBulkAction: (actionType: "delete" | "role" | "vip") => void;
-  
+  onBulkAddVip: () => void;
+  onBulkRemoveVip: () => void;
+
   // Table Data
   columns: any[];
   filteredUsers: UserProfile[];
@@ -32,8 +39,12 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
   onTabChange,
   selectedUsers,
   onBulkValidate,
+  onBulkSetPending,
   onBulkSuspend,
+  onBulkUnsuspend,
   onBulkAction,
+  onBulkAddVip,
+  onBulkRemoveVip,
   columns,
   filteredUsers,
   isLoading,
@@ -56,15 +67,16 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
         onTabChange={onTabChange}
         selectedUsers={selectedUsers}
         onBulkValidate={onBulkValidate}
+        onBulkSetPending={onBulkSetPending}
         onBulkSuspend={onBulkSuspend}
+        onBulkUnsuspend={onBulkUnsuspend}
         onBulkAction={onBulkAction}
+        onBulkAddVip={onBulkAddVip}
+        onBulkRemoveVip={onBulkRemoveVip}
       />
 
       {/* Table des utilisateurs */}
-      <DataTable 
-        columns={columns} 
-        data={filteredUsers} 
-      />
+      <DataTable columns={columns} data={filteredUsers} />
 
       {/* Loading & Empty States */}
       {isLoading && (
@@ -73,8 +85,7 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
 
       {filteredUsers.length === 0 && !isLoading && (
         <Box sx={{ textAlign: "center", py: 2, color: "text.secondary" }}>
-          Aucun{" "}
-          {USER_TABS[activeTab]?.label?.toLowerCase() || "utilisateur"}{" "}
+          Aucun {USER_TABS[activeTab]?.label?.toLowerCase() || "utilisateur"}{" "}
           trouvé
         </Box>
       )}

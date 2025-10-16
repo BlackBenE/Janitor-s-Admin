@@ -21,6 +21,7 @@ interface UserModalsManagerProps {
   // User Details Modal
   showUserDetailsModal: boolean;
   selectedUser: UserProfile | null;
+  editForm: Partial<UserProfile>;
   onCloseUserDetailsModal: () => void;
 
   // Create User Modal
@@ -64,8 +65,14 @@ interface UserModalsManagerProps {
 
   // Handlers
   onSaveUser: () => void;
-  onSuspendUser: () => void;
-  onInputChange: () => void;
+  onOpenLockModal: () => void;
+  onUnlockAccount: () => void;
+  onResetPassword: () => void;
+  onDeleteUser: () => void;
+  onInputChange: (
+    field: keyof UserProfile,
+    value: string | boolean | null
+  ) => void;
   onCreateUser: () => void;
   onPasswordResetConfirm: () => void;
   onLockAccountConfirm: () => void;
@@ -76,6 +83,7 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
   // User Details Modal
   showUserDetailsModal,
   selectedUser,
+  editForm,
   onCloseUserDetailsModal,
 
   // Create User Modal
@@ -119,7 +127,10 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
 
   // Handlers
   onSaveUser,
-  onSuspendUser,
+  onOpenLockModal,
+  onUnlockAccount,
+  onResetPassword,
+  onDeleteUser,
   onInputChange,
   onCreateUser,
   onPasswordResetConfirm,
@@ -133,9 +144,12 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
         open={showUserDetailsModal}
         user={selectedUser}
         onClose={onCloseUserDetailsModal}
-        editForm={{}}
+        editForm={editForm}
         onSave={onSaveUser}
-        onSuspend={onSuspendUser}
+        onOpenLockModal={onOpenLockModal}
+        onUnlockAccount={onUnlockAccount}
+        onResetPassword={onResetPassword}
+        onDelete={onDeleteUser}
         onInputChange={onInputChange}
       />
 
@@ -143,7 +157,7 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
       <CreateUserModal
         open={showCreateUserModal}
         onClose={onCloseCreateUserModal}
-        editForm={{}}
+        editForm={editForm}
         onCreate={onCreateUser}
         onInputChange={onInputChange}
       />

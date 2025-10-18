@@ -1,0 +1,42 @@
+name: GDPR Data Cleanup
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      force_execution:
+        description: "Force execution even if no data to purge"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  gdpr-cleanup:
+    runs-on: ubuntu-latest
+    name: Execute GDPR Data Purges
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Execute GDPR purge function
+        run: |
+          echo "Starting GDPR automatic cleanup..."
+          response=$(curl -s -w "HTTPSTATUS:%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ vars.SUPABASE_URL }}/functions/v1/scheduled-cleanup")
+
+          http_code=$(echo $response | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+          response_body=$(echo $response | sed -e 's/HTTPSTATUS:.*//g')
+
+          echo "HTTP Status: $http_code"
+          echo "Response: $response_body"
+
+          if [ "$http_code" == "200" ]; then
+            echo "GDPR purge executed successfully"
+          else
+            echo "GDPR purge failed with HTTP $http_code"
+            exit 1
+          fi

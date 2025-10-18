@@ -1,0 +1,115 @@
+name: GDPR Data Cleanup
+
+on:
+  # Daily execution at 3:00 AM UTC
+  schedule:
+    - cron: "0 3 * * *"
+
+  # Manual execution trigger
+  workflow_dispatch:
+    inputs:
+      force_execution:
+        description: "Force execution even if no data to purge"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  gdpr-cleanup:
+    runs-on: ubuntu-latest
+    name: Execute GDPR Data Purges
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Execute GDPR purge function
+        id: purge
+        run: |
+          echo "Starting GDPR automatic cleanup..."
+
+          # Call Supabase Edge Function
+          response=$(curl -s -w "HTTPSTATUS:%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ vars.SUPABASE_URL }}/functions/v1/scheduled-cleanup")
+
+          # Extract HTTP status code
+          http_code=$(echo $response | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+          response_body=$(echo $response | sed -e 's/HTTPSTATUS:.*//g')
+
+          echo "HTTP Status: $http_code"
+          echo "Response: $response_body"
+
+          # Verify success
+          if [ "$http_code" == "200" ]; then
+            echo "GDPR purge executed successfully"
+            echo "Response: $response_body"
+            
+            # Parse number of executed purges
+            purges_count=$(echo "$response_body" | grep -o '"purges_executed":[0-9]*' | cut -d':' -f2)
+            echo "Purges executed: $purges_count"
+            
+            # Set outputs for subsequent steps
+            echo "purges_executed=$purges_count" >> $GITHUB_OUTPUT
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "GDPR purge failed with HTTP $http_code"
+            echo "Error response: $response_body"
+            echo "success=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Report execution results
+        if: always()
+        run: |
+          if [ "${{ steps.purge.outputs.success }}" == "true" ]; then
+            echo "GDPR cleanup completed successfully"
+            echo "Execution statistics:"
+            echo "  - Purges executed: ${{ steps.purge.outputs.purges_executed }}"
+            echo "  - Execution time: $(date -u)"
+            echo "  - Next scheduled run: Tomorrow at 3:00 AM UTC"
+          else
+            echo "GDPR cleanup failed"
+            echo "Please check the logs above for error details"
+          fi
+
+      - name: Handle failure notification
+        if: failure()
+        run: |
+          echo "GDPR Cleanup Job Failed"
+          echo "Timestamp: $(date -u)"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow: ${{ github.workflow }}"
+          # Add Slack/Discord notification here if needed
+
+# =====================================================
+# CONFIGURATION REQUIREMENTS
+# =====================================================
+#
+# Repository Settings > Secrets and variables > Actions:
+#
+# SECRETS (tab "Secrets"):
+# 1. SUPABASE_ANON_KEY
+#    Value: Your Supabase public anonymous key
+#
+# VARIABLES (tab "Variables"):
+# 2. SUPABASE_URL
+#    Value: https://your-project-id.supabase.co
+#
+# OPTIONAL:
+# 3. CLEANUP_API_TOKEN (secret)
+#    Value: Custom token to secure the endpoint
+#
+# =====================================================
+# WORKFLOW FUNCTIONALITY
+# =====================================================
+#
+# Schedule: Daily execution at 3:00 AM UTC
+# Action: Calls your Supabase Edge Function scheduled-cleanup
+# Result: Purges users deleted 3+ years ago
+# Monitoring: Detailed logs in GitHub Actions
+# Alerts: Failures visible in Actions tab
+#
+# =====================================================

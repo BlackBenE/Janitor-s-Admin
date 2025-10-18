@@ -1,0 +1,60 @@
+name: Test Connection
+
+on:
+  push:
+    branches: [dev, main]
+  workflow_dispatch:
+
+jobs:
+  test-supabase-connection:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test Supabase Connection
+        run: |
+          echo "Testing Supabase connection..."
+          echo "SUPABASE_URL: ${{ vars.SUPABASE_URL }}"
+
+          # Test basic connection (without auth)
+          response=$(curl -s -w "HTTPSTATUS:%{http_code}" "${{ vars.SUPABASE_URL }}/rest/v1/" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json")
+
+          http_code=$(echo $response | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+
+          echo "HTTP Status: $http_code"
+
+          if [ "$http_code" == "200" ] || [ "$http_code" == "404" ]; then
+            echo "✅ Supabase connection successful!"
+          else
+            echo "❌ Supabase connection failed"
+            echo "Response: $response"
+            exit 1
+          fi
+
+      - name: Test Edge Function Endpoint
+        run: |
+          echo "Testing scheduled-cleanup function endpoint..."
+
+          response=$(curl -s -w "HTTPSTATUS:%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ vars.SUPABASE_URL }}/functions/v1/scheduled-cleanup")
+
+          http_code=$(echo $response | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+          response_body=$(echo $response | sed -e 's/HTTPSTATUS:.*//g')
+
+          echo "HTTP Status: $http_code"
+          echo "Response: $response_body"
+
+          if [ "$http_code" == "200" ]; then
+            echo "✅ Edge function accessible and working!"
+          elif [ "$http_code" == "404" ]; then
+            echo "⚠️  Edge function not found - check if scheduled-cleanup function is deployed"
+          else
+            echo "❌ Edge function test failed"
+          fi

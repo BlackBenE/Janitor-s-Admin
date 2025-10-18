@@ -17,7 +17,10 @@ interface UserFiltersSectionProps {
   filters: UserFilters;
   onUpdateFilter: (key: keyof UserFilters, value: string) => void;
   activeTab: number;
-  users: UserProfile[];
+  users: UserProfile[]; // Utilisateurs actuellement affichés
+  activeUsers: UserProfile[]; // Pour les compteurs des onglets (sauf deleted et admin)
+  deletedUsers: UserProfile[]; // Pour le compteur de l'onglet deleted
+  adminUsers: UserProfile[]; // Pour le compteur de l'onglet admin
   onTabChange: (
     event: React.MouseEvent<HTMLElement>,
     newValue: number | null
@@ -37,6 +40,9 @@ export const UserFiltersSection: React.FC<UserFiltersSectionProps> = ({
   onUpdateFilter,
   activeTab,
   users,
+  activeUsers,
+  deletedUsers,
+  adminUsers,
   onTabChange,
   selectedUsers,
   onBulkValidate,
@@ -47,6 +53,29 @@ export const UserFiltersSection: React.FC<UserFiltersSectionProps> = ({
   onBulkAddVip,
   onBulkRemoveVip,
 }) => {
+  // Fonction personnalisée pour compter les utilisateurs selon l'onglet
+  const customGetUserCount = (
+    tabKey: UserRole | null,
+    _users: UserProfile[] // On ignore ce paramètre car on utilise nos propres données
+  ): number => {
+    // Cas spécial pour l'onglet "deleted"
+    if (tabKey === ("deleted" as any)) {
+      return deletedUsers.length;
+    }
+
+    // Cas spécial pour l'onglet "admin"
+    if (tabKey === "admin") {
+      return adminUsers.length;
+    }
+
+    // Pour les autres onglets, utiliser activeUsers (qui exclut les admins)
+    if (tabKey === null) {
+      return activeUsers.length; // "All Users" (sans les admins)
+    }
+
+    return activeUsers.filter((user) => user.role === tabKey).length;
+  };
+
   return (
     <Box>
       {/* Filtres */}
@@ -70,7 +99,7 @@ export const UserFiltersSection: React.FC<UserFiltersSectionProps> = ({
           items={users}
           tabConfigs={userTabConfigs}
           onTabChange={onTabChange}
-          getItemCount={getUserCount}
+          getItemCount={customGetUserCount}
           ariaLabel="user type filter"
         />
       </Box>

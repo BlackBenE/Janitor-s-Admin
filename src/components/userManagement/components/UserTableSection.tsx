@@ -9,7 +9,10 @@ interface UserTableSectionProps {
   filters: any;
   onUpdateFilter: (key: string, value: string) => void;
   activeTab: number;
-  allUsers: UserProfile[];
+  allUsers: UserProfile[]; // Pour le tableau (utilisateurs actuellement affichés)
+  activeUsers: UserProfile[]; // Pour les compteurs des onglets
+  deletedUsers: UserProfile[]; // Pour le compteur de l'onglet deleted
+  adminUsers: UserProfile[]; // Pour le compteur de l'onglet admin
   onTabChange: (
     event: React.MouseEvent<HTMLElement>,
     newValue: number | null
@@ -36,6 +39,9 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
   onUpdateFilter,
   activeTab,
   allUsers,
+  activeUsers,
+  deletedUsers,
+  adminUsers,
   onTabChange,
   selectedUsers,
   onBulkValidate,
@@ -64,6 +70,9 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
         onUpdateFilter={onUpdateFilter}
         activeTab={activeTab}
         users={allUsers}
+        activeUsers={activeUsers}
+        deletedUsers={deletedUsers}
+        adminUsers={adminUsers}
         onTabChange={onTabChange}
         selectedUsers={selectedUsers}
         onBulkValidate={onBulkValidate}

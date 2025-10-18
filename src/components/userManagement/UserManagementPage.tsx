@@ -9,6 +9,7 @@ import {
   UserTableSection,
   UserLoadingIndicator,
   UserModalsManager,
+  AnonymizationModalsManager,
   createUserTableColumns,
 } from "./components";
 
@@ -19,11 +20,15 @@ import { UserRole, UserProfile, USER_TABS } from "../../types/userManagement";
 import {
   useUserManagement,
   useUserModals,
-  useUsers,
+  useActiveUsers,
+  useDeletedUsers,
+  useAllUsers,
+  useAdminUsers,
   useUserActivity,
   useSecurityActions,
   useBulkActions,
   useRoleModals,
+  useAnonymizationModals,
 } from "./hooks";
 import { useAuth } from "../../providers/authProvider";
 
@@ -37,28 +42,118 @@ export const UserManagementPage: React.FC = () => {
   const modals = useUserModals();
   const securityActions = useSecurityActions();
   const roleModals = useRoleModals();
+  const anonymizationModals = useAnonymizationModals();
   const { getEmail } = useAuth();
 
-  // Hook pour récupérer tous les utilisateurs
+  // Hook pour récupérer les utilisateurs actifs (par défaut)
   const {
-    users: allUsers,
-    isLoading,
-    isFetching,
-    error,
+    users: activeUsers,
+    isLoading: isLoadingActive,
+    isFetching: isFetchingActive,
+    error: errorActive,
     updateUser,
-    createUser,
-    deleteUser,
-    deleteManyUsers,
-    refetch,
-  } = useUsers({
+    softDeleteUser,
+    refetch: refetchActive,
+  } = useActiveUsers({
     filters: {},
     orderBy: "created_at",
   });
 
+  // Hook pour obtenir les utilisateurs supprimés
+  const {
+    users: deletedUsers,
+    isLoading: isLoadingDeleted,
+    error: errorDeleted,
+    refetch: refetchDeleted,
+  } = useDeletedUsers({
+    orderBy: "deleted_at",
+  });
+
+  // Hook pour tous les utilisateurs (pour les statistiques)
+  const {
+    users: allUsersData,
+    isLoading: isLoadingAll,
+    error: errorAll,
+  } = useAllUsers({
+    orderBy: "created_at",
+  });
+
+  // Hook pour les administrateurs
+  const {
+    users: adminUsers,
+    isLoading: isLoadingAdmins,
+    error: errorAdmins,
+    refetch: refetchAdmins,
+  } = useAdminUsers({
+    orderBy: "created_at",
+  });
+
+  // Hook pour la restauration
+  const { restoreUser } = useAllUsers();
+
+  // Déterminer quelle source utiliser selon l'onglet sélectionné
+  const isDeletedTab = (USER_TABS[activeTab]?.role as any) === "deleted";
+  const isAdminTab = USER_TABS[activeTab]?.role === UserRole.ADMIN;
+
+  const allUsers = (() => {
+    if (isDeletedTab) return deletedUsers;
+    if (isAdminTab) return adminUsers;
+    return activeUsers;
+  })();
+
+  const isLoading = (() => {
+    if (isDeletedTab) return isLoadingDeleted;
+    if (isAdminTab) return isLoadingAdmins;
+    return isLoadingActive;
+  })();
+
+  const isFetching = (() => {
+    if (isDeletedTab) return false;
+    if (isAdminTab) return false;
+    return isFetchingActive;
+  })();
+
+  const error = (() => {
+    if (isDeletedTab) return errorDeleted;
+    if (isAdminTab) return errorAdmins;
+    return errorActive;
+  })();
+
+  const refetch = (() => {
+    if (isDeletedTab) return refetchDeleted;
+    if (isAdminTab) return refetchAdmins;
+    return refetchActive;
+  })();
+
   // Filtrage côté client par rôle
-  const users = selectedUserRole
-    ? allUsers.filter((user) => user.role === selectedUserRole)
-    : allUsers;
+  const users = (() => {
+    const sourceUsers = allUsers || [];
+
+    // Si on est sur l'onglet "Deleted Users" ou "Admin", pas de filtrage supplémentaire
+    if (isDeletedTab || isAdminTab) {
+      return sourceUsers;
+    }
+
+    // Sinon, filtrage normal par rôle sélectionné pour les utilisateurs actifs
+    return selectedUserRole
+      ? sourceUsers.filter(
+          (user: UserProfile) => user.role === selectedUserRole
+        )
+      : sourceUsers;
+  })();
+
+  // Debug: log des données
+  console.log("UserManagementPage Debug:", {
+    activeTab,
+    isDeletedTab,
+    isAdminTab,
+    deletedUsersCount: deletedUsers?.length,
+    activeUsersCount: activeUsers?.length,
+    adminUsersCount: adminUsers?.length,
+    selectedUserRole,
+    currentUsersCount: users.length,
+    allUsersToDisplay: allUsers?.length,
+  });
 
   // Hook pour les actions en lot (bulk actions)
   const bulkActions = useBulkActions({
@@ -66,6 +161,8 @@ export const UserManagementPage: React.FC = () => {
     selectedUsers: userManagement.selectedUsers,
     clearUserSelection: userManagement.clearUserSelection,
     showNotification: userManagement.showNotification,
+    updateUser: updateUser,
+    softDeleteUser: softDeleteUser,
   });
 
   // Hook pour les données d'activité des utilisateurs
@@ -124,8 +221,8 @@ export const UserManagementPage: React.FC = () => {
         if (!user) return;
 
         await updateUser.mutateAsync({
-          id: userId,
-          payload: { vip_subscription: !user.vip_subscription },
+          userId: userId,
+          updates: { vip_subscription: !user.vip_subscription },
         });
 
         userManagement.showNotification(
@@ -145,8 +242,8 @@ export const UserManagementPage: React.FC = () => {
     onValidateProvider: async (userId: string) => {
       try {
         await updateUser.mutateAsync({
-          id: userId,
-          payload: { profile_validated: true },
+          userId: userId,
+          updates: { profile_validated: true },
         });
 
         userManagement.showNotification(
@@ -217,7 +314,11 @@ export const UserManagementPage: React.FC = () => {
         />
 
         {/* Section statistiques */}
-        <UserStatsSection allUsers={allUsers} activityData={{}} error={error} />
+        <UserStatsSection
+          allUsers={activeUsers || []}
+          activityData={{}}
+          error={errorActive}
+        />
 
         {/* Section du tableau (complètement modularisée) */}
         <UserTableSection
@@ -226,14 +327,27 @@ export const UserManagementPage: React.FC = () => {
             userManagement.updateFilter as (key: string, value: string) => void
           }
           activeTab={activeTab}
-          allUsers={allUsers}
+          allUsers={allUsers || []}
+          activeUsers={activeUsers || []}
+          deletedUsers={deletedUsers || []}
+          adminUsers={adminUsers || []}
           onTabChange={handleTabChange}
           selectedUsers={userManagement.selectedUsers}
           onBulkValidate={bulkActions.handleBulkValidate}
           onBulkSetPending={bulkActions.handleBulkSetPending}
           onBulkSuspend={bulkActions.handleBulkSuspend}
           onBulkUnsuspend={bulkActions.handleBulkUnsuspend}
-          onBulkAction={bulkActions.handleBulkAction}
+          onBulkAction={(actionType: string) => {
+            if (actionType === "delete") {
+              // Ouvrir la modale de suppression intelligente en lot
+              anonymizationModals.openBulkSmartDeleteModal(
+                userManagement.selectedUsers
+              );
+            } else {
+              // Pour les autres actions, utiliser le système existant des modals
+              modals.openBulkActionModal(actionType as "role" | "vip");
+            }
+          }}
           onBulkAddVip={bulkActions.handleBulkAddVip}
           onBulkRemoveVip={bulkActions.handleBulkRemoveVip}
           columns={columns}
@@ -289,8 +403,8 @@ export const UserManagementPage: React.FC = () => {
             try {
               if (!userManagement.selectedUser) return;
               await updateUser.mutateAsync({
-                id: userManagement.selectedUser.id,
-                payload: userManagement.editForm,
+                userId: userManagement.selectedUser.id,
+                updates: userManagement.editForm,
               });
               userManagement.showNotification(
                 "Utilisateur mis à jour",
@@ -350,21 +464,18 @@ export const UserManagementPage: React.FC = () => {
               );
             }
           }}
-          onDeleteUser={async () => {
-            try {
-              if (!userManagement.selectedUser) return;
-              await deleteUser.mutateAsync(userManagement.selectedUser.id);
-              userManagement.showNotification(
-                "Utilisateur supprimé",
-                "success"
+          onDeleteUser={() => {
+            // Ouvrir la modale de suppression intelligente au lieu de supprimer directement
+            if (userManagement.selectedUser) {
+              anonymizationModals.openSmartDeleteModal(
+                userManagement.selectedUser
               );
-              modals.closeUserDetailsModal();
-              userManagement.resetEditForm();
-            } catch (error) {
-              userManagement.showNotification(
-                "Erreur lors de la suppression",
-                "error"
-              );
+            }
+          }}
+          onRestore={() => {
+            // Ouvrir la modale de restauration pour un utilisateur supprimé
+            if (userManagement.selectedUser) {
+              anonymizationModals.openRestoreModal(userManagement.selectedUser);
             }
           }}
           onInputChange={userManagement.updateEditForm}
@@ -456,6 +567,28 @@ export const UserManagementPage: React.FC = () => {
             }
           }}
           onBulkActionConfirm={bulkActions.handleBulkActionConfirm}
+        />
+
+        {/* Gestionnaire des modals d'anonymisation */}
+        <AnonymizationModalsManager
+          smartDeleteModalOpen={anonymizationModals.smartDeleteModalOpen}
+          restoreModalOpen={anonymizationModals.restoreModalOpen}
+          bulkSmartDeleteModalOpen={
+            anonymizationModals.bulkSmartDeleteModalOpen
+          }
+          selectedUser={anonymizationModals.selectedUser}
+          selectedUserIds={anonymizationModals.selectedUserIds}
+          onCloseSmartDeleteModal={anonymizationModals.closeSmartDeleteModal}
+          onCloseRestoreModal={anonymizationModals.closeRestoreModal}
+          onCloseBulkSmartDeleteModal={
+            anonymizationModals.closeBulkSmartDeleteModal
+          }
+          onSmartDelete={anonymizationModals.handleSmartDelete}
+          onBulkSmartDelete={anonymizationModals.handleBulkSmartDelete}
+          onRestore={anonymizationModals.handleRestore}
+          isSmartDeleting={anonymizationModals.isSmartDeleting}
+          isRestoring={anonymizationModals.isRestoring}
+          isBulkDeleting={anonymizationModals.isBulkDeleting}
         />
       </Box>
     </AdminLayout>

@@ -4,6 +4,7 @@ import {
   HomeWork as PropertyIcon,
   HandymanOutlined as ServiceIcon,
   AdminPanelSettings as AdminIcon,
+  DeleteOutlined as DeleteIcon,
 } from "@mui/icons-material";
 import { Database } from "./database.types";
 
@@ -20,6 +21,15 @@ type TablesUpdate<T extends keyof Database["public"]["Tables"]> =
 // =====================================================
 export type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
 // UserSession supprimé - plus d'utilisation de user_sessions
+
+// Type étendu avec les champs d'anonymisation (pour les interfaces)
+export interface UserProfileWithAnonymization extends UserProfile {
+  anonymization_level?: string | null;
+  anonymized_at?: string | null;
+  preserved_data_until?: string | null;
+  scheduled_purge_at?: string | null;
+  anonymous_id?: string | null;
+}
 
 // =====================================================
 // USER ROLES & CONFIGURATION
@@ -69,6 +79,12 @@ export const USER_TABS: UserTab[] = [
     label: "Admins",
     icon: AdminIcon,
     description: "Gestion des comptes administrateurs et permissions",
+  },
+  {
+    role: "deleted" as any, // Type spécial pour les utilisateurs supprimés
+    label: "Deleted Users",
+    icon: DeleteIcon,
+    description: "Utilisateurs supprimés - Restauration possible",
   },
 ];
 

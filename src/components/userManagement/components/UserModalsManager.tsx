@@ -69,6 +69,7 @@ interface UserModalsManagerProps {
   onUnlockAccount: () => void;
   onResetPassword: () => void;
   onDeleteUser: () => void;
+  onRestore?: () => void; // Fonction de restauration pour utilisateurs supprimés
   onInputChange: (
     field: keyof UserProfile,
     value: string | boolean | null
@@ -131,6 +132,7 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
   onUnlockAccount,
   onResetPassword,
   onDeleteUser,
+  onRestore,
   onInputChange,
   onCreateUser,
   onPasswordResetConfirm,
@@ -150,6 +152,7 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
         onUnlockAccount={onUnlockAccount}
         onResetPassword={onResetPassword}
         onDelete={onDeleteUser}
+        onRestore={onRestore}
         onInputChange={onInputChange}
       />
 

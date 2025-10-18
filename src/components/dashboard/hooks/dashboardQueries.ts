@@ -39,11 +39,13 @@ export const fetchStats = async (): Promise<DashboardStats> => {
         .from("profiles")
         .select("*", { count: "exact" })
         .eq("role", "service_provider")
-        .eq("profile_validated", false),
+        .eq("profile_validated", false)
+        .is("deleted_at", null), // Exclure les utilisateurs supprimés
       supabase
         .from("profiles")
         .select("*", { count: "exact" })
-        .eq("profile_validated", true),
+        .eq("profile_validated", true)
+        .is("deleted_at", null), // Exclure les utilisateurs supprimés
       supabase
         .from("payments")
         .select("amount")

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { dataProvider } from "../../../providers/dataProvider";
 import { PaymentWithDetails, PaymentStats } from "../../../types/payments";
-import { Database } from "../../../types/database.types";
+import { Database } from "../../../types";
 
 type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
 type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
@@ -48,6 +48,7 @@ export const usePayments = (options?: {
           booking_id: "booking_001",
           created_at: "2024-10-01T10:00:00Z",
           currency: "EUR",
+          data_anonymized: false,
           failure_reason: null,
           payee_id: "user_002",
           payer_id: "user_001",
@@ -85,6 +86,7 @@ export const usePayments = (options?: {
           booking_id: "booking_002",
           created_at: "2024-10-02T14:30:00Z",
           currency: "EUR",
+          data_anonymized: false,
           failure_reason: null,
           payee_id: "user_003",
           payer_id: "user_004",
@@ -117,6 +119,7 @@ export const usePayments = (options?: {
           booking_id: null,
           created_at: "2024-09-28T09:15:00Z",
           currency: "EUR",
+          data_anonymized: false,
           failure_reason: null,
           payee_id: "user_005",
           payer_id: "user_006",
@@ -147,7 +150,7 @@ export const usePayments = (options?: {
         "payments",
         {
           limit: options?.limit,
-          orderBy: options?.orderBy as keyof PaymentRow,
+          orderBy: options?.orderBy as any,
         },
         options?.filters
       );

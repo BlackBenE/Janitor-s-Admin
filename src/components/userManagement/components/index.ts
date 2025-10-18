@@ -9,6 +9,15 @@ export { createUserTableColumns } from "./UserTableColumns";
 export { UserTableActions } from "./UserTableActions";
 export * from "./UserTableCells";
 
+// Anonymization and Smart Deletion components
+export { SmartDeleteModal } from "./SmartDeleteModal";
+export { RestoreUserModal } from "./RestoreUserModal";
+export {
+  AnonymizationStatus,
+  AnonymizationDetails,
+} from "./AnonymizationStatus";
+export { AnonymizationModalsManager } from "./AnonymizationModalsManager";
+
 // Internal components (not exported to avoid unused exports)
 // ActionsMenu - used internally by UserTableActions
 // RoleSpecificAction - used internally by UserTableActions

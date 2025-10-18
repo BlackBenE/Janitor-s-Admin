@@ -1,5 +1,5 @@
-import { Database } from "../types/database.types";
 import { supabase, supabaseAdmin } from "../lib/supabaseClient";
+import { Database } from "../types";
 
 type TableName = keyof Database["public"]["Tables"];
 type RowType<T extends TableName> = Database["public"]["Tables"][T]["Row"];
@@ -36,13 +36,23 @@ export type DataProviderResponse<T> = {
 export const dataProvider = {
   async getList<T extends TableName>(
     table: T,
-    options?: { limit?: number; offset?: number; orderBy?: keyof RowType<T> },
+    options?: {
+      limit?: number;
+      offset?: number;
+      orderBy?: keyof RowType<T>;
+      includeDeleted?: boolean; // Nouvelle option pour inclure les utilisateurs supprimés
+    },
     filters?: Partial<RowType<T>>
   ): Promise<DataProviderResponse<RowType<T>[]>> {
     // Use admin client for admin panel - bypasses RLS
     const client = supabaseAdmin || supabase;
 
-    let query = client.from(table).select("*");
+    let query = client.from(table as string).select("*");
+
+    // Pour la table profiles, filtrer les utilisateurs supprimés par défaut
+    if (table === "profiles" && !options?.includeDeleted) {
+      query = query.is("deleted_at", null);
+    }
 
     if (filters) {
       (
@@ -82,7 +92,7 @@ export const dataProvider = {
     const client = supabaseAdmin || supabase;
 
     const { data, error } = await client
-      .from(table)
+      .from(table as string)
       .select("*")
       .eq("id", id)
       .single();
@@ -104,7 +114,7 @@ export const dataProvider = {
     const client = supabaseAdmin || supabase;
 
     const { data, error } = await client
-      .from(table)
+      .from(table as string)
       .insert(payload)
       .select()
       .single();
@@ -125,7 +135,10 @@ export const dataProvider = {
   ): Promise<DataProviderResponse<RowType<T>[]>> {
     const client = supabaseAdmin || supabase;
 
-    const { data, error } = await client.from(table).insert(payloads).select();
+    const { data, error } = await client
+      .from(table as string)
+      .insert(payloads)
+      .select();
 
     if (error)
       return {
@@ -145,7 +158,7 @@ export const dataProvider = {
     const client = supabaseAdmin || supabase;
 
     const { data, error } = await client
-      .from(table)
+      .from(table as string)
       .update(payload)
       .eq("id", id)
       .select()
@@ -167,7 +180,10 @@ export const dataProvider = {
   ): Promise<DataProviderResponse<{ id: string }>> {
     const client = supabaseAdmin || supabase;
 
-    const { error } = await client.from(table).delete().eq("id", id);
+    const { error } = await client
+      .from(table as string)
+      .delete()
+      .eq("id", id);
 
     if (error)
       return {
@@ -185,7 +201,10 @@ export const dataProvider = {
   ): Promise<DataProviderResponse<{ ids: string[] }>> {
     const client = supabaseAdmin || supabase;
 
-    const { error } = await client.from(table).delete().in("id", ids);
+    const { error } = await client
+      .from(table as string)
+      .delete()
+      .in("id", ids);
 
     if (error)
       return {

@@ -5,15 +5,22 @@ import {
   Lock as LockIcon,
   Delete as DeleteIcon,
   Security as SecurityIcon,
+  Shield as ShieldIcon,
+  Restore as RestoreIcon,
 } from "@mui/icons-material";
-import { UserProfile } from "../../../types/userManagement";
+import {
+  UserProfile,
+  UserProfileWithAnonymization,
+} from "../../../types/userManagement";
 
 interface UserActionsProps {
-  user: UserProfile;
+  user: UserProfileWithAnonymization;
   onClose: () => void;
   onEditUser?: () => void;
   onSuspend?: () => void;
   onDelete?: () => void;
+  onSmartDelete?: () => void; // Nouvelle action pour suppression intelligente
+  onRestore?: () => void; // Nouvelle action pour restauration
   onSecurityActions?: () => void;
   onSaveEdit?: () => void;
   onCancelEdit?: () => void;
@@ -27,6 +34,8 @@ export const UserActions: React.FC<UserActionsProps> = ({
   onEditUser,
   onSuspend,
   onDelete,
+  onSmartDelete,
+  onRestore,
   onSecurityActions,
   onSaveEdit,
   onCancelEdit,
@@ -73,52 +82,83 @@ export const UserActions: React.FC<UserActionsProps> = ({
       <Button onClick={onClose}>Close</Button>
 
       <Box sx={{ display: "flex", gap: 1 }}>
-        {onSecurityActions && (
+        {/* Actions pour utilisateur supprimé */}
+        {user.deleted_at && onRestore && (
           <Button
-            startIcon={<SecurityIcon />}
-            onClick={onSecurityActions}
-            color="primary"
-            variant="outlined"
+            startIcon={<RestoreIcon />}
+            onClick={onRestore}
+            color="success"
+            variant="contained"
             size="small"
           >
-            Security
+            Restaurer
           </Button>
         )}
 
-        {onEditUser && (
-          <Button
-            startIcon={<EditIcon />}
-            onClick={onEditUser}
-            color="primary"
-            variant="outlined"
-            size="small"
-          >
-            Edit
-          </Button>
-        )}
+        {/* Actions pour utilisateur actif uniquement */}
+        {!user.deleted_at && (
+          <>
+            {onSecurityActions && (
+              <Button
+                startIcon={<SecurityIcon />}
+                onClick={onSecurityActions}
+                color="primary"
+                variant="outlined"
+                size="small"
+              >
+                Security
+              </Button>
+            )}
 
-        {onSuspend && (
-          <Button
-            startIcon={<LockIcon />}
-            onClick={onSuspend}
-            color="warning"
-            variant="outlined"
-            size="small"
-          >
-            {user.account_locked ? "Unlock" : "Lock"}
-          </Button>
-        )}
+            {onEditUser && (
+              <Button
+                startIcon={<EditIcon />}
+                onClick={onEditUser}
+                color="primary"
+                variant="outlined"
+                size="small"
+              >
+                Edit
+              </Button>
+            )}
 
-        {onDelete && (
-          <Button
-            startIcon={<DeleteIcon />}
-            onClick={onDelete}
-            color="error"
-            variant="outlined"
-            size="small"
-          >
-            Delete
-          </Button>
+            {onSuspend && (
+              <Button
+                startIcon={<LockIcon />}
+                onClick={onSuspend}
+                color="warning"
+                variant="outlined"
+                size="small"
+              >
+                {user.account_locked ? "Unlock" : "Lock"}
+              </Button>
+            )}
+
+            {/* Suppression intelligente avec anonymisation RGPD */}
+            {onSmartDelete && (
+              <Button
+                startIcon={<ShieldIcon />}
+                onClick={onSmartDelete}
+                color="warning"
+                variant="outlined"
+                size="small"
+              >
+                Smart Delete
+              </Button>
+            )}
+
+            {onDelete && (
+              <Button
+                startIcon={<DeleteIcon />}
+                onClick={onDelete}
+                color="error"
+                variant="outlined"
+                size="small"
+              >
+                Delete
+              </Button>
+            )}
+          </>
         )}
       </Box>
     </Box>

@@ -5,11 +5,15 @@ import { UserBasicInfo } from "./UserBasicInfo";
 import { UserAccountInfo } from "./UserAccountInfo";
 import { UserEditForm } from "./UserEditForm";
 import { UserActions } from "./UserActions";
-import { UserProfile } from "../../../types/userManagement";
+import { UserAnonymizationInfo } from "./UserAnonymizationInfo";
+import {
+  UserProfile,
+  UserProfileWithAnonymization,
+} from "../../../types/userManagement";
 
 interface UserDetailsModalProps {
   open: boolean;
-  user: UserProfile | null;
+  user: UserProfileWithAnonymization | null;
   editForm: Partial<UserProfile>;
   onClose: () => void;
   onSave: () => void;
@@ -17,6 +21,8 @@ interface UserDetailsModalProps {
   onUnlockAccount?: () => void;
   onResetPassword?: () => void;
   onDelete?: () => void;
+  onSmartDelete?: () => void; // Nouvelle action pour suppression intelligente
+  onRestore?: () => void; // Nouvelle action pour restauration
   onInputChange: (
     field: keyof UserProfile,
     value: string | boolean | null
@@ -34,6 +40,8 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   onUnlockAccount,
   onResetPassword,
   onDelete,
+  onSmartDelete,
+  onRestore,
   onInputChange,
   isLoading = false,
 }) => {
@@ -104,6 +112,9 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 }}
               >
                 <UserAccountInfo user={user} />
+
+                {/* Informations d'anonymisation si l'utilisateur est anonymisé */}
+                <UserAnonymizationInfo user={user} />
               </Box>
             </Box>
           )}
@@ -117,6 +128,8 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         onSuspend={user.account_locked ? onUnlockAccount : onOpenLockModal}
         onSecurityActions={onResetPassword}
         onDelete={onDelete}
+        onSmartDelete={onSmartDelete}
+        onRestore={onRestore}
         onSaveEdit={isEditMode ? handleEditSave : undefined}
         onCancelEdit={isEditMode ? handleEditCancel : undefined}
         isEditMode={isEditMode}

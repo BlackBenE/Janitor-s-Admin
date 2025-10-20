@@ -35,9 +35,9 @@ jobs:
           http_code=$(echo $response | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
 
           if [ "$http_code" == "200" ] || [ "$http_code" == "404" ]; then
-            echo "✅ Supabase connection successful (HTTP $http_code)"
+            echo "Supabase connection successful (HTTP $http_code)"
           else
-            echo "❌ Supabase connection failed (HTTP $http_code)"
+            echo "Supabase connection failed (HTTP $http_code)"
             echo "Response: $response"
             exit 1
           fi
@@ -45,7 +45,9 @@ jobs:
       - name: Execute GDPR purge function
         id: purge
         run: |
-          echo "Starting GDPR automatic cleanup..."
+          set -e  # Arrêter en cas d'erreur
+          
+          echo "🚀 Starting GDPR automatic cleanup..."
 
           # Call Supabase Edge Function
           response=$(curl -s -w "HTTPSTATUS:%{http_code}" \
@@ -55,34 +57,35 @@ jobs:
             "${{ vars.SUPABASE_URL }}/functions/v1/scheduled-cleanup")
 
           # Extract HTTP status code
-          http_code=$(echo $response | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-          response_body=$(echo $response | sed -e 's/HTTPSTATUS:.*//g')
+          http_code=$(echo "$response" | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+          response_body=$(echo "$response" | sed -e 's/HTTPSTATUS:.*//g')
 
-          echo "HTTP Status: $http_code"
-          echo "Response: $response_body"
+          echo "📡 HTTP Status: $http_code"
+          echo "📄 Response: $response_body"
 
           # Verify success
-          if [ "$http_code" == "200" ]; then
-            echo "GDPR purge executed successfully"
-            echo "Response: $response_body"
+          if [ "$http_code" = "200" ]; then
+            echo "✅ GDPR purge executed successfully"
             
-            # Parse number of executed purges
-            purges_count=$(echo "$response_body" | grep -o '"purges_executed":[0-9]*' | cut -d':' -f2)
+            # Parse purges count with Python for reliability
+            purges_count=$(echo "$response_body" | python3 -c "
+            import sys, json
+            try:
+                data = json.load(sys.stdin)
+                print(data.get('purges_executed', 0))
+            except:
+                print(0)
+            ")
             
-            # Valider que purges_count n'est pas vide
-            if [ -z "$purges_count" ]; then
-              purges_count=0
-            fi
+            echo "📊 Purges executed: $purges_count"
             
-            echo "Purges executed: $purges_count"
-            
-            # Set outputs for subsequent steps (format correct)
-            echo "purges_executed=${purges_count}" >> $GITHUB_OUTPUT
-            echo "success=true" >> $GITHUB_OUTPUT
+            # Write outputs safely
+            echo "purges_executed=$purges_count" >> "$GITHUB_OUTPUT"
+            echo "success=true" >> "$GITHUB_OUTPUT"
           else
-            echo "GDPR purge failed with HTTP $http_code"
-            echo "Error response: $response_body"
-            echo "success=false" >> $GITHUB_OUTPUT
+            echo "❌ GDPR purge failed with HTTP $http_code"
+            echo "📄 Error response: $response_body"
+            echo "success=false" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
@@ -93,13 +96,13 @@ jobs:
           PURGES="${{ steps.purge.outputs.purges_executed }}"
 
           if [ "$SUCCESS" == "true" ]; then
-            echo "✅ GDPR cleanup completed successfully"
-            echo "📊 Execution statistics:"
+            echo "GDPR cleanup completed successfully"
+            echo "Execution statistics:"
             echo "  - Purges executed: ${PURGES:-0}"
             echo "  - Execution time: $(date -u)"
             echo "  - Next scheduled run: Tomorrow at 3:00 AM UTC"
           else
-            echo "❌ GDPR cleanup failed"
+            echo "GDPR cleanup failed"
             echo "Please check the logs above for error details"
           fi
 

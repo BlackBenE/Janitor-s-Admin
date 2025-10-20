@@ -606,6 +606,9 @@ export type Database = {
       profiles: {
         Row: {
           account_locked: boolean;
+          anonymization_level: string | null;
+          anonymized_at: string | null;
+          anonymous_id: string | null;
           avatar_url: string | null;
           created_at: string | null;
           deleted_at: string | null;
@@ -614,17 +617,22 @@ export type Database = {
           first_name: string | null;
           full_name: string | null;
           id: string;
+          last_anonymized_at: string | null;
           last_name: string | null;
           lock_reason: string | null;
           locked_until: string | null;
           phone: string | null;
           profile_validated: boolean | null;
           role: string;
+          stripe_customer_id: string | null;
           updated_at: string | null;
           vip_subscription: boolean | null;
         };
         Insert: {
           account_locked?: boolean;
+          anonymization_level?: string | null;
+          anonymized_at?: string | null;
+          anonymous_id?: string | null;
           avatar_url?: string | null;
           created_at?: string | null;
           deleted_at?: string | null;
@@ -633,17 +641,22 @@ export type Database = {
           first_name?: string | null;
           full_name?: string | null;
           id: string;
+          last_anonymized_at?: string | null;
           last_name?: string | null;
           lock_reason?: string | null;
           locked_until?: string | null;
           phone?: string | null;
           profile_validated?: boolean | null;
           role: string;
+          stripe_customer_id?: string | null;
           updated_at?: string | null;
           vip_subscription?: boolean | null;
         };
         Update: {
           account_locked?: boolean;
+          anonymization_level?: string | null;
+          anonymized_at?: string | null;
+          anonymous_id?: string | null;
           avatar_url?: string | null;
           created_at?: string | null;
           deleted_at?: string | null;

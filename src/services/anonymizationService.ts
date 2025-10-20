@@ -47,19 +47,15 @@ export class AnonymizationService {
       if (level === AnonymizationLevel.PARTIAL) {
         // Conserver les données métier anonymisées
         await this.anonymizeBusinessDataReferences(userId);
-        result.preserved_data_until = this.calculatePreservationDate(
-          this.strategy.business_data.preserve_period_days
-        );
+        // Les données métier sont conservées mais anonymisées
+        // La purge automatique se fera après 3 ans via execute_gdpr_purges()
       } else if (level === AnonymizationLevel.FULL) {
         // Anonymisation complète
         await this.anonymizeAllBusinessData(userId);
       }
 
-      // Étape 3 : Programmation de la purge finale
-      if (level !== AnonymizationLevel.PURGED) {
-        result.scheduled_purge_at = this.calculatePurgeDate(userId, reason);
-        await this.schedulePurge(userId, result.scheduled_purge_at);
-      }
+      // Étape 3 : La purge sera gérée automatiquement par execute_gdpr_purges()
+      // après 3 ans basé sur deleted_at + anonymization_level
 
       // Étape 4 : Mise à jour du statut d'anonymisation
       await this.updateAnonymizationStatus(userId, level);
@@ -236,23 +232,18 @@ export class AnonymizationService {
   }
 
   /**
-   * Programme une tâche de purge finale
+   * Note: La purge sera automatique via execute_gdpr_purges() après 3 ans
+   * Basée sur deleted_at + anonymization_level
    */
   private async schedulePurge(
     userId: string,
     purgeDate: string
   ): Promise<void> {
-    const { error } = await supabase.from("scheduled_purges").insert({
-      user_id: userId,
-      table_name: "all",
-      scheduled_for: purgeDate,
-      policy_applied: "GDPR_ANONYMIZATION",
-      status: "pending",
-    });
-
-    if (error) {
-      console.warn("Impossible de programmer la purge:", error);
-    }
+    // La purge est maintenant automatique via la fonction SQL execute_gdpr_purges()
+    // Elle se déclenche quand deleted_at < NOW() - 3 years ET anonymization_level IS NOT NULL
+    console.log(
+      `Purge automatique programmée pour ${userId} dans 3 ans à partir de deleted_at`
+    );
   }
 
   /**
@@ -270,8 +261,6 @@ export class AnonymizationService {
           deletion_reason: null,
           anonymization_level: null,
           anonymized_at: null,
-          preserved_data_until: null,
-          scheduled_purge_at: null,
           anonymous_id: null,
         })
         .eq("id", userId);
@@ -283,16 +272,11 @@ export class AnonymizationService {
         };
       }
 
-      // Annuler les tâches de purge programmées
-      const { error: cancelError } = await supabase
-        .from("data_purge_tasks")
-        .update({ status: "cancelled" })
-        .eq("user_id", userId)
-        .eq("status", "pending");
-
-      if (cancelError) {
-        console.warn("Impossible d'annuler les tâches de purge:", cancelError);
-      }
+      // La purge automatique est annulée en remettant deleted_at à null
+      // execute_gdpr_purges() ne touchera plus cet utilisateur
+      console.log(
+        "Purge automatique annulée via restauration de l'utilisateur"
+      );
 
       return { success: true };
     } catch (error) {

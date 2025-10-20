@@ -67,15 +67,12 @@ jobs:
           if [ "$http_code" = "200" ]; then
             echo "✅ GDPR purge executed successfully"
             
-            # Parse purges count with Python for reliability
-            purges_count=$(echo "$response_body" | python3 -c "
-            import sys, json
-            try:
-                data = json.load(sys.stdin)
-                print(data.get('purges_executed', 0))
-            except:
-                print(0)
-            ")
+            # Parse purges count - méthode bash pure (plus robuste)
+            purges_count=$(echo "$response_body" | sed -n 's/.*"purges_executed":\([0-9]\+\).*/\1/p')
+            # Fallback si vide
+            if [ -z "$purges_count" ]; then
+              purges_count=0
+            fi
             
             echo "📊 Purges executed: $purges_count"
             
@@ -114,33 +111,3 @@ jobs:
           echo "Repository: ${{ github.repository }}"
           echo "Workflow: ${{ github.workflow }}"
           # Add Slack/Discord notification here if needed
-
-# =====================================================
-# CONFIGURATION REQUIREMENTS
-# =====================================================
-#
-# Repository Settings > Secrets and variables > Actions:
-#
-# SECRETS (tab "Secrets"):
-# 1. SUPABASE_ANON_KEY
-#    Value: Your Supabase public anonymous key
-#
-# VARIABLES (tab "Variables"):
-# 2. SUPABASE_URL
-#    Value: https://your-project-id.supabase.co
-#
-# OPTIONAL:
-# 3. CLEANUP_API_TOKEN (secret)
-#    Value: Custom token to secure the endpoint
-#
-# =====================================================
-# WORKFLOW FUNCTIONALITY
-# =====================================================
-#
-# Schedule: Daily execution at 3:00 AM UTC
-# Action: Calls your Supabase Edge Function scheduled-cleanup
-# Result: Purges users deleted 3+ years ago
-# Monitoring: Detailed logs in GitHub Actions
-# Alerts: Failures visible in Actions tab
-#
-# =====================================================

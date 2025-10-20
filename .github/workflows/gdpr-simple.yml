@@ -1,0 +1,22 @@
+name: GDPR Data Cleanup
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # Tous les jours à 3h00 UTC
+  workflow_dispatch: # Exécution manuelle
+
+jobs:
+  gdpr-cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Execute GDPR purges
+        run: |
+          echo "🚀 GDPR Cleanup started..."
+
+          # Appel de la fonction Supabase
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ vars.SUPABASE_URL }}/functions/v1/scheduled-cleanup" \
+            && echo "✅ GDPR Cleanup completed successfully" \
+            || echo "❌ GDPR Cleanup failed"

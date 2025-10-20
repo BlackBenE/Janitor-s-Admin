@@ -46,7 +46,7 @@ jobs:
         id: purge
         run: |
           set -e  # Arrêter en cas d'erreur
-          
+
           echo "🚀 Starting GDPR automatic cleanup..."
 
           # Call Supabase Edge Function

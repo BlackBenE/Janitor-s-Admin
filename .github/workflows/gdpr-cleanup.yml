@@ -1,113 +1,22 @@
 name: GDPR Data Cleanup
 
 on:
-  # Daily execution at 3:00 AM UTC
   schedule:
-    - cron: "0 3 * * *"
-
-  # Manual execution trigger
-  workflow_dispatch:
-    inputs:
-      force_execution:
-        description: "Force execution even if no data to purge"
-        required: false
-        default: false
-        type: boolean
+    - cron: "0 3 * * *" # Tous les jours à 3h00 UTC
+  workflow_dispatch: # Exécution manuelle
 
 jobs:
   gdpr-cleanup:
     runs-on: ubuntu-latest
-    name: Execute GDPR Data Purges
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Test Supabase connectivity
+      - name: Execute GDPR purges
         run: |
-          echo "🔗 Testing Supabase connectivity..."
+          echo "🚀 GDPR Cleanup started..."
 
-          # Test basic connection
-          response=$(curl -s -w "HTTPSTATUS:%{http_code}" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            "${{ vars.SUPABASE_URL }}/rest/v1/")
-
-          http_code=$(echo $response | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-
-          if [ "$http_code" == "200" ] || [ "$http_code" == "404" ]; then
-            echo "Supabase connection successful (HTTP $http_code)"
-          else
-            echo "Supabase connection failed (HTTP $http_code)"
-            echo "Response: $response"
-            exit 1
-          fi
-
-      - name: Execute GDPR purge function
-        id: purge
-        run: |
-          set -e  # Arrêter en cas d'erreur
-
-          echo "🚀 Starting GDPR automatic cleanup..."
-
-          # Call Supabase Edge Function
-          response=$(curl -s -w "HTTPSTATUS:%{http_code}" \
-            -X POST \
-            -H "Content-Type: application/json" \
+          # Appel de la fonction Supabase
+          curl -X POST \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            "${{ vars.SUPABASE_URL }}/functions/v1/scheduled-cleanup")
-
-          # Extract HTTP status code
-          http_code=$(echo "$response" | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-          response_body=$(echo "$response" | sed -e 's/HTTPSTATUS:.*//g')
-
-          echo "📡 HTTP Status: $http_code"
-          echo "📄 Response: $response_body"
-
-          # Verify success
-          if [ "$http_code" = "200" ]; then
-            echo "✅ GDPR purge executed successfully"
-            
-            # Parse purges count - méthode bash pure (plus robuste)
-            purges_count=$(echo "$response_body" | sed -n 's/.*"purges_executed":\([0-9]\+\).*/\1/p')
-            # Fallback si vide
-            if [ -z "$purges_count" ]; then
-              purges_count=0
-            fi
-            
-            echo "📊 Purges executed: $purges_count"
-            
-            # Write outputs safely
-            echo "purges_executed=$purges_count" >> "$GITHUB_OUTPUT"
-            echo "success=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "❌ GDPR purge failed with HTTP $http_code"
-            echo "📄 Error response: $response_body"
-            echo "success=false" >> "$GITHUB_OUTPUT"
-            exit 1
-          fi
-
-      - name: Report execution results
-        if: always()
-        run: |
-          SUCCESS="${{ steps.purge.outputs.success }}"
-          PURGES="${{ steps.purge.outputs.purges_executed }}"
-
-          if [ "$SUCCESS" == "true" ]; then
-            echo "GDPR cleanup completed successfully"
-            echo "Execution statistics:"
-            echo "  - Purges executed: ${PURGES:-0}"
-            echo "  - Execution time: $(date -u)"
-            echo "  - Next scheduled run: Tomorrow at 3:00 AM UTC"
-          else
-            echo "GDPR cleanup failed"
-            echo "Please check the logs above for error details"
-          fi
-
-      - name: Handle failure notification
-        if: failure()
-        run: |
-          echo "GDPR Cleanup Job Failed"
-          echo "Timestamp: $(date -u)"
-          echo "Repository: ${{ github.repository }}"
-          echo "Workflow: ${{ github.workflow }}"
-          # Add Slack/Discord notification here if needed
+            "${{ vars.SUPABASE_URL }}/functions/v1/scheduled-cleanup" \
+            && echo "✅ GDPR Cleanup completed successfully" \
+            || echo "❌ GDPR Cleanup failed"

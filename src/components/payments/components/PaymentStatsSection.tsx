@@ -14,7 +14,8 @@ const PaymentStatsCards: React.FC<{
   formatCurrency: (amount: number) => string;
 }> = ({ stats, formatCurrency }) => {
   // Utilisation des stats pré-calculées
-  const { totalPayments, paidPayments, pendingPayments, monthlyRevenue } = stats;
+  const { totalPayments, paidPayments, pendingPayments, monthlyRevenue } =
+    stats;
 
   const paidPercentage =
     totalPayments > 0 ? Math.round((paidPayments / totalPayments) * 100) : 0;
@@ -73,7 +74,9 @@ const PaymentStatsCards: React.FC<{
             <InfoCard
               title="Paiements échoués"
               value={stats.failedPayments}
-              progressText={`${Math.round((stats.failedPayments / totalPayments) * 100)}% échoués`}
+              progressText={`${Math.round(
+                (stats.failedPayments / totalPayments) * 100
+              )}% échoués`}
               showTrending={false}
             />
           </DashboardItem>
@@ -98,10 +101,7 @@ export const PaymentStatsSection: React.FC<PaymentStatsSectionProps> = ({
   return (
     <>
       {/* Cartes de statistiques globales */}
-      <PaymentStatsCards
-        stats={stats}
-        formatCurrency={formatCurrency}
-      />
+      <PaymentStatsCards stats={stats} formatCurrency={formatCurrency} />
 
       {/* Message d'erreur */}
       {error && (

@@ -173,7 +173,7 @@ export const getServiceCount = (
   if (tabKey === "all") {
     return services.length;
   }
-  
+
   return services.filter((service) => {
     switch (tabKey) {
       case "active":

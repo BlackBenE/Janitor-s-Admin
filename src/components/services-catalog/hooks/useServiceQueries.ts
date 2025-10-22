@@ -28,9 +28,7 @@ export const useServices = (options?: {
     queryFn: async (): Promise<ServiceWithDetails[]> => {
       console.log("🔍 Fetching services list...");
 
-      let query = supabase
-        .from("services")
-        .select(`
+      let query = supabase.from("services").select(`
           *,
           provider:profiles!services_provider_id_fkey (
             id,
@@ -71,17 +69,21 @@ export const useServices = (options?: {
       const { data, error } = await query;
 
       if (error) {
-        throw new Error(`Erreur lors du chargement des services: ${error.message}`);
+        throw new Error(
+          `Erreur lors du chargement des services: ${error.message}`
+        );
       }
 
-      const services: ServiceWithDetails[] = (data || []).map((service: any) => ({
-        ...service,
-        provider: service.provider || undefined,
-        // TODO: Ajouter les calculs de stats (total_requests, avg_rating, etc.)
-        total_requests: 0,
-        avg_rating: 0,
-        active_providers: 1,
-      }));
+      const services: ServiceWithDetails[] = (data || []).map(
+        (service: any) => ({
+          ...service,
+          provider: service.provider || undefined,
+          // TODO: Ajouter les calculs de stats (total_requests, avg_rating, etc.)
+          total_requests: 0,
+          avg_rating: 0,
+          active_providers: 1,
+        })
+      );
 
       console.log(`✅ Services loaded: ${services.length} items`);
       return services;
@@ -104,7 +106,8 @@ export const useService = (serviceId?: string) => {
 
       const { data, error } = await supabase
         .from("services")
-        .select(`
+        .select(
+          `
           *,
           provider:profiles!services_provider_id_fkey (
             id,
@@ -115,12 +118,15 @@ export const useService = (serviceId?: string) => {
             phone,
             role
           )
-        `)
+        `
+        )
         .eq("id", serviceId)
         .single();
 
       if (error) {
-        throw new Error(`Erreur lors du chargement du service: ${error.message}`);
+        throw new Error(
+          `Erreur lors du chargement du service: ${error.message}`
+        );
       }
 
       if (!data) return null;
@@ -170,7 +176,7 @@ export const useServiceStats = (options?: { enabled?: boolean }) => {
       const inactiveServices = servicesArray.filter(
         (s) => s.is_active === false
       ).length;
-      
+
       // Catégories uniques
       const categories = new Set(servicesArray.map((s) => s.category));
       const totalCategories = categories.size;

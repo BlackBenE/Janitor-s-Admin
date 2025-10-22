@@ -152,7 +152,7 @@ export const PaymentInfoSections: React.FC<PaymentInfoSectionsProps> = ({
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Typography variant="body1" fontWeight="medium">
-                {payment.payment_type === "subscription" 
+                {payment.payment_type === "subscription"
                   ? "Paris Janitor"
                   : payment.payee
                   ? `${payment.payee.first_name || ""} ${
@@ -165,9 +165,16 @@ export const PaymentInfoSections: React.FC<PaymentInfoSectionsProps> = ({
                   {payment.payee.email}
                 </Typography>
               )}
-              
+
               {payment.payment_type === "booking" && (
-                <Box sx={{ mt: 1, p: 1, bgcolor: "success.light", borderRadius: 1 }}>
+                <Box
+                  sx={{
+                    mt: 1,
+                    p: 1,
+                    bgcolor: "success.light",
+                    borderRadius: 1,
+                  }}
+                >
                   <Typography variant="body2" color="success.dark">
                     Commission PJ: {formatCurrency(payment.amount * 0.2)}
                   </Typography>
@@ -191,9 +198,7 @@ export const PaymentInfoSections: React.FC<PaymentInfoSectionsProps> = ({
         {/* Informations générales */}
         <Card>
           <CardContent>
-            <Box
-              sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
-            >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
               <ReceiptIcon color="primary" />
               <Typography variant="h6">Informations générales</Typography>
             </Box>
@@ -272,7 +277,8 @@ export const PaymentInfoSections: React.FC<PaymentInfoSectionsProps> = ({
                   </Typography>
                   {payment.booking.property?.address && (
                     <Typography variant="body2" color="text.secondary">
-                      {payment.booking.property.address}, {payment.booking.property.city}
+                      {payment.booking.property.address},{" "}
+                      {payment.booking.property.city}
                     </Typography>
                   )}
                 </Box>

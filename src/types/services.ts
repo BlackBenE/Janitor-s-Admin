@@ -20,14 +20,14 @@ export interface ServiceProvider {
 export interface ServiceWithDetails extends Service {
   // Related provider
   provider?: ServiceProvider;
-  
+
   // Calculated fields
   total_requests?: number;
   avg_rating?: number;
   active_providers?: number;
 }
 
-// Service status type 
+// Service status type
 export type ServiceStatus = "active" | "inactive" | "pending" | "archived";
 
 // Service filter type for tabs
@@ -82,7 +82,7 @@ export interface ServiceActionConfig {
 // Categories disponibles (peut être étendu depuis la DB)
 export const SERVICE_CATEGORIES = [
   "Nettoyage",
-  "Maintenance", 
+  "Maintenance",
   "Jardinage",
   "Plomberie",
   "Électricité",
@@ -90,7 +90,7 @@ export const SERVICE_CATEGORIES = [
   "Ménage",
   "Conciergerie",
   "Sécurité",
-  "Autre"
+  "Autre",
 ] as const;
 
-export type ServiceCategory = typeof SERVICE_CATEGORIES[number];
+export type ServiceCategory = (typeof SERVICE_CATEGORIES)[number];

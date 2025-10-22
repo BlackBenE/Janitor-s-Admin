@@ -64,7 +64,12 @@ export interface PaymentWithDetails extends Payment {
 }
 
 // Payment status type based on database values
-export type PaymentStatus = "pending" | "paid" | "refunded" | "failed" | "succeeded";
+export type PaymentStatus =
+  | "pending"
+  | "paid"
+  | "refunded"
+  | "failed"
+  | "succeeded";
 
 // Status for tabs (including "all" for filtering)
 export type PaymentStatusFilter = "all" | PaymentStatus;

@@ -173,7 +173,7 @@ export const createPaymentTableColumns = ({
           </Box>
         );
       }
-      
+
       const payee = params.row.payee;
       const name = payee
         ? `${payee.first_name || ""} ${payee.last_name || ""}`.trim()

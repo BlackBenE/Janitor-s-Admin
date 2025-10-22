@@ -4,11 +4,11 @@ import { ServiceWithDetails } from "../../../types/services";
 import { Database } from "../../../types";
 
 // Import des hooks de queries
-import { 
+import {
   useServices as useServicesQuery,
   useService,
   useServiceStats as useServiceStatsQuery,
-  SERVICE_QUERY_KEYS 
+  SERVICE_QUERY_KEYS,
 } from "./useServiceQueries";
 
 type ServiceRow = Database["public"]["Tables"]["services"]["Row"];
@@ -76,7 +76,7 @@ export const useServices = (options?: {
     },
   });
 
-  // Create service mutation  
+  // Create service mutation
   const createServiceMutation = useMutation({
     mutationFn: async (service: ServiceInsert) => {
       console.log("➕ Creating service:", service);

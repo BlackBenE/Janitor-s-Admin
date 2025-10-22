@@ -226,21 +226,22 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
 
       // Calculer les stats avec la bonne logique
       const totalPayments = paymentsArray.length;
-      
+
       // Paiements payés : "paid" ET "succeeded"
       const paidPayments = paymentsArray.filter(
         (p) => p.status === "paid" || p.status === "succeeded"
       ).length;
-      
+
       // En attente : tous sauf payés, remboursés, échoués
       const pendingPayments = paymentsArray.filter(
-        (p) => !["paid", "succeeded", "refunded", "failed"].includes(p.status || "")
+        (p) =>
+          !["paid", "succeeded", "refunded", "failed"].includes(p.status || "")
       ).length;
-      
+
       const refundedPayments = paymentsArray.filter(
         (p) => p.status === "refunded"
       ).length;
-      
+
       const failedPayments = paymentsArray.filter(
         (p) => p.status === "failed"
       ).length;
@@ -248,7 +249,7 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
       // Revenue du mois en cours avec logique métier
       const now = new Date();
       const paidThisMonth = paymentsArray
-        .filter((p) => (p.status === "paid" || p.status === "succeeded"))
+        .filter((p) => p.status === "paid" || p.status === "succeeded")
         .filter((p) => {
           const createdDate = new Date(p.created_at || "");
           return (
@@ -258,16 +259,16 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
         });
 
       console.log("📊 Paiements payés ce mois:", paidThisMonth);
-      
+
       const monthlyRevenue = paidThisMonth.reduce((sum, p) => {
         const amount = p.amount || 0;
         console.log(`💰 Calcul revenue pour paiement:`, {
           id: p.id,
           type: p.payment_type,
           amount: amount,
-          status: p.status
+          status: p.status,
         });
-        
+
         // 20% pour les bookings, 100% pour les subscriptions
         if (p.payment_type === "booking") {
           const bookingRevenue = amount * 0.2;
@@ -282,7 +283,7 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
           return sum + amount;
         }
       }, 0);
-      
+
       console.log(`📊 Revenue mensuel total: ${monthlyRevenue}€`);
 
       // Montant moyen

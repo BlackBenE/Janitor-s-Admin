@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -34,7 +34,8 @@ import {
   SubscriptionModalProps,
   Subscription,
 } from "../../../types/userManagement";
-import { useSubscriptions } from "../hooks/useSubscriptions";
+import { useUserSubscriptions } from "../hooks/useUserQueries";
+import { useUserMutations } from "../hooks/useUserMutations";
 
 const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   open,
@@ -42,31 +43,18 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   userId,
   userName,
 }) => {
-  const [loading, setLoading] = useState(false);
-  const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [renewalType, setRenewalType] = useState<"monthly" | "annual">(
     "annual"
   );
 
-  const { getUserSubscriptions, renewSubscription } = useSubscriptions();
+  // Utilisation des hooks React Query depuis la migration
+  const {
+    data: subscriptions = [],
+    isLoading: loading,
+    refetch: refetchSubscriptions,
+  } = useUserSubscriptions(userId, { enabled: open && !!userId });
 
-  useEffect(() => {
-    if (open && userId) {
-      loadSubscriptions();
-    }
-  }, [open, userId]);
-
-  const loadSubscriptions = async () => {
-    setLoading(true);
-    try {
-      const subscriptionsData = await getUserSubscriptions(userId);
-      setSubscriptions(subscriptionsData);
-    } catch (error) {
-      console.error("Erreur lors du chargement des abonnements:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { renewSubscription } = useUserMutations();
 
   const handleRenewSubscription = async () => {
     try {
@@ -87,8 +75,8 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         amount: renewalType === "annual" ? 100 : 10,
       });
 
-      // Recharger les données
-      loadSubscriptions();
+      // Recharger les données avec React Query
+      refetchSubscriptions();
     } catch (error) {
       console.error("Erreur lors du renouvellement:", error);
     }

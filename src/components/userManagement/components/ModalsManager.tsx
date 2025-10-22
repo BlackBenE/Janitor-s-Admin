@@ -9,15 +9,24 @@ import {
   BookingsModal,
   SubscriptionModal,
   ServicesModal,
+  BulkSmartDeleteModal,
 } from "../modals";
+import { SmartDeleteModal } from "../modals/SmartDeleteModal";
+import { RestoreUserModal } from "../modals/RestoreUserModal";
 import {
   UserProfile,
   AuditModalState,
   LockAccountState,
   BulkActionState,
 } from "../../../types/userManagement";
+import {
+  DeletionReason,
+  AnonymizationLevel,
+} from "../../../types/dataRetention";
 
-interface UserModalsManagerProps {
+interface ModalsManagerProps {
+  // ======================== USER MANAGEMENT MODALS ========================
+
   // User Details Modal
   showUserDetailsModal: boolean;
   selectedUser: UserProfile | null;
@@ -63,13 +72,47 @@ interface UserModalsManagerProps {
   onCloseSubscriptionModal: () => void;
   onCloseServicesModal: () => void;
 
-  // Handlers
+  // ======================== ANONYMIZATION & DELETION MODALS ========================
+
+  // Smart Delete Modal (single user)
+  smartDeleteModalOpen: boolean;
+  restoreModalOpen: boolean;
+
+  // Bulk Smart Delete Modal
+  bulkSmartDeleteModalOpen: boolean;
+  selectedUserIds: string[];
+
+  // Anonymization Handlers
+  onCloseSmartDeleteModal: () => void;
+  onCloseRestoreModal: () => void;
+  onCloseBulkSmartDeleteModal: () => void;
+  onSmartDelete: (
+    userId: string,
+    reason: DeletionReason,
+    level: AnonymizationLevel,
+    customReason?: string
+  ) => Promise<void>;
+  onBulkSmartDelete: (
+    reason: DeletionReason,
+    level: AnonymizationLevel,
+    customReason?: string
+  ) => Promise<void>;
+  onRestoreUser: (userId: string) => Promise<void>;
+
+  // ======================== LOADING STATES ========================
+
+  isSmartDeleting: boolean;
+  isRestoring: boolean;
+  isBulkDeleting: boolean;
+
+  // ======================== USER MANAGEMENT HANDLERS ========================
+
   onSaveUser: () => void;
   onOpenLockModal: () => void;
   onUnlockAccount: () => void;
   onResetPassword: () => void;
   onDeleteUser: () => void;
-  onRestore?: () => void; // Fonction de restauration pour utilisateurs supprimés
+  onRestore?: () => void; // Handler pour ouvrir la modale de restauration
   onInputChange: (
     field: keyof UserProfile,
     value: string | boolean | null
@@ -80,45 +123,37 @@ interface UserModalsManagerProps {
   onBulkActionConfirm: () => void;
 }
 
-export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
-  // User Details Modal
+/**
+ * Manager unifié pour toutes les modales du domaine UserManagement
+ * Combine la gestion des modales utilisateur standard et d'anonymisation
+ */
+export const ModalsManager: React.FC<ModalsManagerProps> = ({
+  // User Management Modals Props
   showUserDetailsModal,
   selectedUser,
   editForm,
   onCloseUserDetailsModal,
-
-  // Create User Modal
   showCreateUserModal,
   onCloseCreateUserModal,
-
-  // Password Reset Modal
   showPasswordResetModal,
   passwordResetUserId,
   onClosePasswordResetModal,
-
-  // Audit Modal
   showAuditModal,
   auditState,
   userEmail,
   onCloseAuditModal,
   onUpdateAuditTab,
-
-  // Lock Modal
   showLockModal,
   lockAccountState,
   onCloseLockModal,
   onUpdateLockDuration,
   onUpdateLockReason,
-
-  // Bulk Action Modal
   showBulkActionModal,
   bulkActionState,
   selectedUsers,
   onCloseBulkActionModal,
   onUpdateRoleChange,
   onUpdateVipChange,
-
-  // Role-specific modals
   bookingsModal,
   subscriptionModal,
   servicesModal,
@@ -126,7 +161,22 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
   onCloseSubscriptionModal,
   onCloseServicesModal,
 
-  // Handlers
+  // Anonymization Modals Props
+  smartDeleteModalOpen,
+  restoreModalOpen,
+  bulkSmartDeleteModalOpen,
+  selectedUserIds,
+  onCloseSmartDeleteModal,
+  onCloseRestoreModal,
+  onCloseBulkSmartDeleteModal,
+  onSmartDelete,
+  onBulkSmartDelete,
+  onRestoreUser,
+  isSmartDeleting,
+  isRestoring,
+  isBulkDeleting,
+
+  // User Management Handlers
   onSaveUser,
   onOpenLockModal,
   onUnlockAccount,
@@ -141,6 +191,8 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
 }) => {
   return (
     <>
+      {/* ======================== USER MANAGEMENT MODALS ======================== */}
+
       {/* User Details Modal */}
       <UserDetailsModal
         open={showUserDetailsModal}
@@ -173,7 +225,7 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
         onConfirm={onPasswordResetConfirm}
       />
 
-      {/* Audit Modal - Avec les bonnes props */}
+      {/* Audit Modal */}
       <AuditModal
         open={showAuditModal}
         audit={auditState}
@@ -182,7 +234,7 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
         onUpdateTab={onUpdateAuditTab}
       />
 
-      {/* Lock Account Modal - Avec les bonnes props */}
+      {/* Lock Account Modal */}
       <LockAccountModal
         open={showLockModal}
         lockAccount={lockAccountState}
@@ -193,7 +245,7 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
         onUpdateReason={onUpdateLockReason}
       />
 
-      {/* Bulk Action Modal - Avec toutes les props requises */}
+      {/* Bulk Action Modal */}
       <BulkActionModal
         open={showBulkActionModal}
         bulkAction={bulkActionState}
@@ -204,7 +256,8 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
         onUpdateVipChange={onUpdateVipChange}
       />
 
-      {/* Role-specific Modals */}
+      {/* ======================== ROLE-SPECIFIC MODALS ======================== */}
+
       <BookingsModal
         open={bookingsModal.open}
         userId={bookingsModal.userId}
@@ -224,6 +277,35 @@ export const UserModalsManager: React.FC<UserModalsManagerProps> = ({
         userId={servicesModal.userId}
         userName={servicesModal.userName}
         onClose={onCloseServicesModal}
+      />
+
+      {/* ======================== ANONYMIZATION & DELETION MODALS ======================== */}
+
+      {/* Smart Delete Modal */}
+      <SmartDeleteModal
+        open={smartDeleteModalOpen}
+        user={selectedUser}
+        onClose={onCloseSmartDeleteModal}
+        onConfirm={onSmartDelete}
+        isDeleting={isSmartDeleting}
+      />
+
+      {/* Restore User Modal */}
+      <RestoreUserModal
+        open={restoreModalOpen}
+        user={selectedUser}
+        onClose={onCloseRestoreModal}
+        onConfirm={onRestoreUser}
+        isRestoring={isRestoring}
+      />
+
+      {/* Bulk Smart Delete Modal */}
+      <BulkSmartDeleteModal
+        open={bulkSmartDeleteModalOpen}
+        selectedUserIds={selectedUserIds}
+        onClose={onCloseBulkSmartDeleteModal}
+        onConfirm={onBulkSmartDelete}
+        isDeleting={isBulkDeleting}
       />
     </>
   );

@@ -23,8 +23,10 @@ import {
 import { CalendarToday, Payment, Star, TrendingUp } from "@mui/icons-material";
 
 import { BookingsModalProps, Booking } from "../../../types/userManagement";
-import { useUserStats } from "../hooks/useUserAdditionalData";
-import { useBookings } from "../hooks/useBookings";
+import {
+  useUserStatsIndividual,
+  useUserBookings,
+} from "../hooks/useUserQueries";
 
 const BookingsModal: React.FC<BookingsModalProps> = ({
   open,
@@ -32,37 +34,20 @@ const BookingsModal: React.FC<BookingsModalProps> = ({
   userId,
   userName,
 }) => {
-  const [bookings, setBookings] = useState<any[]>([]);
-
-  const { getUserBookings } = useBookings();
-
-  // Utiliser la nouvelle API React Query pour les statistiques
+  // 🎯 Hooks migration - React Query intégré
   const {
     data: stats,
     isLoading: statsLoading,
     error: statsError,
-  } = useUserStats(open && userId ? userId : undefined);
+  } = useUserStatsIndividual(open && userId ? userId : undefined);
 
-  const [bookingsLoading, setBookingsLoading] = useState(false);
+  const {
+    data: bookings = [],
+    isLoading: bookingsLoading,
+    error: bookingsError,
+  } = useUserBookings(open && userId ? userId : undefined);
+
   const loading = bookingsLoading || statsLoading;
-
-  useEffect(() => {
-    if (open && userId) {
-      loadBookingsData();
-    }
-  }, [open, userId]);
-
-  const loadBookingsData = async () => {
-    setBookingsLoading(true);
-    try {
-      const bookingsData = await getUserBookings(userId);
-      setBookings(bookingsData);
-    } catch (error) {
-      console.error("Erreur lors du chargement des réservations:", error);
-    } finally {
-      setBookingsLoading(false);
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {

@@ -18,7 +18,11 @@ import {
   ServiceRequest,
   Intervention,
 } from "../../../types/userManagement";
-import { useServices } from "../hooks/useServices";
+import {
+  useUserProviderServices,
+  useUserServiceRequests,
+  useUserInterventions,
+} from "../hooks/useUserQueries";
 import { ServiceStatsCards } from "./sections/ServiceStatsCards";
 import { ServicesTabPanel } from "./sections/ServicesTabPanel";
 import { RequestsTabPanel } from "./sections/RequestsTabPanel";
@@ -36,44 +40,28 @@ const ServicesModal: React.FC<ServicesModalProps> = ({
   userId,
   userName,
 }) => {
-  const [loading, setLoading] = useState(false);
-  const [services, setServices] = useState<any[]>([]);
-  const [serviceRequests, setServiceRequests] = useState<any[]>([]);
-  const [interventions, setInterventions] = useState<any[]>([]);
   const [tabValue, setTabValue] = useState(0);
 
-  // Destructure du hook useServices pour accéder aux fonctions
+  // Utilisation des hooks React Query depuis la migration
   const {
-    getProviderServices,
-    getProviderServiceRequests,
-    getProviderInterventions,
-  } = useServices();
+    data: services = [],
+    isLoading: servicesLoading,
+    refetch: refetchServices,
+  } = useUserProviderServices(userId, { enabled: open && !!userId });
 
-  useEffect(() => {
-    if (open && userId) {
-      loadData();
-    }
-  }, [open, userId]);
+  const {
+    data: serviceRequests = [],
+    isLoading: requestsLoading,
+    refetch: refetchRequests,
+  } = useUserServiceRequests(userId, { enabled: open && !!userId });
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [servicesData, requestsData, interventionsData] = await Promise.all(
-        [
-          getProviderServices(userId),
-          getProviderServiceRequests(userId),
-          getProviderInterventions(userId),
-        ]
-      );
-      setServices(servicesData);
-      setServiceRequests(requestsData);
-      setInterventions(interventionsData);
-    } catch (error) {
-      console.error("Erreur lors du chargement des données:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: interventions = [],
+    isLoading: interventionsLoading,
+    refetch: refetchInterventions,
+  } = useUserInterventions(userId, { enabled: open && !!userId });
+
+  const loading = servicesLoading || requestsLoading || interventionsLoading;
 
   // Calculer les statistiques
   const { activeServices, totalEarnings, completedInterventions } =

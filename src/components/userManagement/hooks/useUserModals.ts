@@ -1,134 +1,287 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
+  UserProfile,
   BulkActionState,
   LockAccountState,
   AuditModalState,
+  ModalData,
+  ModalUserData,
 } from "../../../types/userManagement";
 
-export const useUserModals = () => {
-  // États des modales
-  const [showUserDetailsModal, setShowUserDetailsModal] = useState(false);
-  const [showCreateUserModal, setShowCreateUserModal] = useState(false);
-  const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
-  const [showLockModal, setShowLockModal] = useState(false);
-  const [showBulkActionModal, setShowBulkActionModal] = useState(false);
-  const [showAuditModal, setShowAuditModal] = useState(false);
+/**
+ * Hook générique pour créer un état de modal
+ */
+const createModalState = <T>(initialData: T) => {
+  const [state, setState] = useState<ModalData<T>>({
+    open: false,
+    data: initialData,
+  });
 
-  const [passwordResetUserId, setPasswordResetUserId] = useState<string | null>(
-    null
-  );
-  const [lockAccount, setLockAccount] = useState<LockAccountState>({
+  const openModal = useCallback((data: T) => {
+    setState({ open: true, data });
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setState({ open: false, data: initialData });
+  }, [initialData]);
+
+  const updateData = useCallback((updates: Partial<T>) => {
+    setState((prev) => ({
+      ...prev,
+      data: { ...prev.data, ...updates },
+    }));
+  }, []);
+
+  return {
+    ...state,
+    openModal,
+    closeModal,
+    updateData,
+  };
+};
+
+/**
+ * Hook unifié pour toutes les modals de gestion des utilisateurs
+ */
+export const useModals = () => {
+  // ========================================
+  // MODALS SIMPLES (ex-useRoleModals)
+  // ========================================
+  const bookings = createModalState<ModalUserData>({
+    userId: "",
+    userName: "",
+  });
+
+  const subscription = createModalState<ModalUserData>({
+    userId: "",
+    userName: "",
+  });
+
+  const services = createModalState<ModalUserData>({
+    userId: "",
+    userName: "",
+  });
+
+  // ========================================
+  // MODALS UTILISATEUR (ex-useUserModals)
+  // ========================================
+  const userDetails = createModalState<ModalUserData>({
+    userId: "",
+  });
+
+  const createUser = createModalState<{}>({});
+
+  const passwordReset = createModalState<{ userId: string }>({
+    userId: "",
+  });
+
+  const lock = createModalState<LockAccountState>({
     userId: null,
     duration: 60,
     reason: "",
   });
-  const [bulkAction, setBulkAction] = useState<BulkActionState>({
+
+  const bulkAction = createModalState<BulkActionState>({
     type: "delete",
     roleChange: "",
     vipChange: false,
   });
-  const [audit, setAudit] = useState<AuditModalState>({
+
+  const audit = createModalState<AuditModalState>({
     show: false,
     userId: null,
     tabValue: 0,
   });
 
-  const openUserDetailsModal = () => setShowUserDetailsModal(true);
-  const closeUserDetailsModal = () => setShowUserDetailsModal(false);
+  // ========================================
+  // MODALS ANONYMISATION (ex-useAnonymizationModals)
+  // ========================================
+  const smartDelete = createModalState<{
+    user: UserProfile | null;
+  }>({
+    user: null,
+  });
 
-  const openCreateUserModal = () => setShowCreateUserModal(true);
-  const closeCreateUserModal = () => setShowCreateUserModal(false);
+  const restore = createModalState<{
+    user: UserProfile | null;
+  }>({
+    user: null,
+  });
 
-  const openPasswordResetModal = (userId: string) => {
-    setPasswordResetUserId(userId);
-    setShowPasswordResetModal(true);
-  };
-  const closePasswordResetModal = () => {
-    setShowPasswordResetModal(false);
-    setPasswordResetUserId(null);
-  };
+  const bulkSmartDelete = createModalState<{
+    userIds: string[];
+  }>({
+    userIds: [],
+  });
 
-  const openLockModal = (userId: string) => {
-    setLockAccount({
-      userId,
-      duration: 60,
-      reason: "",
-    });
-    setShowLockModal(true);
-  };
-  const closeLockModal = () => {
-    setShowLockModal(false);
-    setLockAccount({ userId: null, duration: 60, reason: "" });
-  };
-  const updateLockDuration = (duration: number) => {
-    setLockAccount((prev) => ({ ...prev, duration }));
-  };
-  const updateLockReason = (reason: string) => {
-    setLockAccount((prev) => ({ ...prev, reason }));
-  };
-
-  const openBulkActionModal = (type: "delete" | "role" | "vip") => {
-    setBulkAction((prev) => ({ ...prev, type }));
-    setShowBulkActionModal(true);
-  };
-  const closeBulkActionModal = () => setShowBulkActionModal(false);
-  const updateBulkRoleChange = (role: string) => {
-    setBulkAction((prev) => ({ ...prev, roleChange: role }));
-  };
-  const updateBulkVipChange = (vip: boolean) => {
-    setBulkAction((prev) => ({ ...prev, vipChange: vip }));
-  };
-
-  const openAuditModal = (userId: string) => {
-    setAudit({
-      show: true,
-      userId,
-      tabValue: 0,
-    });
-    setShowAuditModal(true);
-  };
-  const closeAuditModal = () => {
-    setShowAuditModal(false);
-    setAudit({ show: false, userId: null, tabValue: 0 });
-  };
-  const updateAuditTab = (tabValue: number) => {
-    setAudit((prev) => ({ ...prev, tabValue }));
-  };
-
-  return {
-    showUserDetailsModal,
-    showCreateUserModal,
-    showPasswordResetModal,
-    showLockModal,
-    showBulkActionModal,
-    showAuditModal,
-
-    passwordResetUserId,
-    lockAccount,
+  // ========================================
+  // ACTIONS GLOBALES
+  // ========================================
+  const closeAllModals = useCallback(() => {
+    bookings.closeModal();
+    subscription.closeModal();
+    services.closeModal();
+    userDetails.closeModal();
+    createUser.closeModal();
+    passwordReset.closeModal();
+    lock.closeModal();
+    bulkAction.closeModal();
+    audit.closeModal();
+    smartDelete.closeModal();
+    restore.closeModal();
+    bulkSmartDelete.closeModal();
+  }, [
+    bookings,
+    subscription,
+    services,
+    userDetails,
+    createUser,
+    passwordReset,
+    lock,
     bulkAction,
     audit,
+    smartDelete,
+    restore,
+    bulkSmartDelete,
+  ]);
 
-    openUserDetailsModal,
-    closeUserDetailsModal,
+  const getOpenModalsCount = useCallback(() => {
+    const modals = [
+      bookings,
+      subscription,
+      services,
+      userDetails,
+      createUser,
+      passwordReset,
+      lock,
+      bulkAction,
+      audit,
+      smartDelete,
+      restore,
+      bulkSmartDelete,
+    ];
+    return modals.filter((modal) => modal.open).length;
+  }, [
+    bookings,
+    subscription,
+    services,
+    userDetails,
+    createUser,
+    passwordReset,
+    lock,
+    bulkAction,
+    audit,
+    smartDelete,
+    restore,
+    bulkSmartDelete,
+  ]);
 
-    openCreateUserModal,
-    closeCreateUserModal,
+  // ========================================
+  // INTERFACE RETOUR
+  // ========================================
+  return {
+    // Modals groupées par domaine
+    roleModals: {
+      bookings,
+      subscription,
+      services,
+    },
 
-    openPasswordResetModal,
-    closePasswordResetModal,
+    userModals: {
+      userDetails,
+      createUser,
+      passwordReset,
+      lock,
+      bulkAction,
+      audit,
+    },
 
-    openLockModal,
-    closeLockModal,
-    updateLockDuration,
-    updateLockReason,
+    anonymizationModals: {
+      smartDelete,
+      restore,
+      bulkSmartDelete,
+    },
 
-    openBulkActionModal,
-    closeBulkActionModal,
-    updateBulkRoleChange,
-    updateBulkVipChange,
+    // Actions globales
+    closeAllModals,
+    getOpenModalsCount,
 
-    openAuditModal,
-    closeAuditModal,
-    updateAuditTab,
+    // ========================================
+    // RÉTRO-COMPATIBILITÉ (pour migration graduelle)
+    // ========================================
+
+    // Ex-useRoleModals
+    bookingsModal: bookings,
+    openBookingsModal: (userId: string, userName: string) =>
+      bookings.openModal({ userId, userName }),
+    closeBookingsModal: bookings.closeModal,
+
+    subscriptionModal: subscription,
+    openSubscriptionModal: (userId: string, userName: string) =>
+      subscription.openModal({ userId, userName }),
+    closeSubscriptionModal: subscription.closeModal,
+
+    servicesModal: services,
+    openServicesModal: (userId: string, userName: string) =>
+      services.openModal({ userId, userName }),
+    closeServicesModal: services.closeModal,
+
+    // Ex-useUserModals
+    showUserDetailsModal: userDetails.open,
+    openUserDetailsModal: () => userDetails.openModal({ userId: "" }),
+    closeUserDetailsModal: userDetails.closeModal,
+
+    showCreateUserModal: createUser.open,
+    openCreateUserModal: () => createUser.openModal({}),
+    closeCreateUserModal: createUser.closeModal,
+
+    showPasswordResetModal: passwordReset.open,
+    passwordResetUserId: passwordReset.data.userId,
+    openPasswordResetModal: (userId: string) =>
+      passwordReset.openModal({ userId }),
+    closePasswordResetModal: passwordReset.closeModal,
+
+    showLockModal: lock.open,
+    lockAccount: lock.data,
+    openLockModal: (userId: string) =>
+      lock.openModal({ userId, duration: 60, reason: "" }),
+    closeLockModal: lock.closeModal,
+    updateLockDuration: (duration: number) => lock.updateData({ duration }),
+    updateLockReason: (reason: string) => lock.updateData({ reason }),
+
+    showBulkActionModal: bulkAction.open,
+    bulkActionData: bulkAction.data,
+    openBulkActionModal: (type: "delete" | "role" | "vip") =>
+      bulkAction.openModal({ type, roleChange: "", vipChange: false }),
+    closeBulkActionModal: bulkAction.closeModal,
+    updateBulkRoleChange: (roleChange: string) =>
+      bulkAction.updateData({ roleChange }),
+    updateBulkVipChange: (vipChange: boolean) =>
+      bulkAction.updateData({ vipChange }),
+
+    showAuditModal: audit.open,
+    auditData: audit.data,
+    openAuditModal: (userId: string) =>
+      audit.openModal({ show: true, userId, tabValue: 0 }),
+    closeAuditModal: audit.closeModal,
+    updateAuditTab: (tabValue: number) => audit.updateData({ tabValue }),
+
+    // Ex-useAnonymizationModals (UI seulement)
+    smartDeleteModalOpen: smartDelete.open,
+    selectedUserForSmartDelete: smartDelete.data.user,
+    openSmartDeleteModal: (user: UserProfile) =>
+      smartDelete.openModal({ user }),
+    closeSmartDeleteModal: smartDelete.closeModal,
+
+    restoreModalOpen: restore.open,
+    selectedUserForRestore: restore.data.user,
+    openRestoreModal: (user: UserProfile) => restore.openModal({ user }),
+    closeRestoreModal: restore.closeModal,
+
+    bulkSmartDeleteModalOpen: bulkSmartDelete.open,
+    selectedUserIdsForBulkDelete: bulkSmartDelete.data.userIds,
+    openBulkSmartDeleteModal: (userIds: string[]) =>
+      bulkSmartDelete.openModal({ userIds }),
+    closeBulkSmartDeleteModal: bulkSmartDelete.closeModal,
   };
 };

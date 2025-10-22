@@ -20,7 +20,7 @@ import { UserProfile } from "../../../types/userManagement";
 import {
   AnonymizationStatus,
   AnonymizationDetails,
-} from "./AnonymizationStatus";
+} from "../components/AnonymizationStatus";
 import { AnonymizationLevel } from "../../../types/dataRetention";
 
 interface RestoreUserModalProps {

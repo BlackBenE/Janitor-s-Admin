@@ -6,9 +6,7 @@ import {
   UserTableColumnsProps,
   UserRole,
 } from "../../../types/userManagement";
-import {
-  getActivityHeaderName,
-} from "../../../utils/userTableFormatters";
+import { getActivityHeaderName } from "../utils/userManagementUtils";
 import {
   SelectCell,
   UserInfoCell,
@@ -18,7 +16,7 @@ import {
   ActivityCell,
   SpendingCell,
 } from "./UserTableCells";
-import { UserTableActions } from "./UserTableActions";
+import { UserTableActionsHub } from "./UserTableActionsHub";
 
 /**
  * Configuration des colonnes du tableau utilisateur
@@ -142,7 +140,7 @@ export const createUserTableColumns = ({
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
-        <UserTableActions
+        <UserTableActionsHub
           params={params}
           currentTabRole={currentTabRole}
           onShowUser={onShowUser}

@@ -23,12 +23,9 @@ export type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
 // UserSession supprimé - plus d'utilisation de user_sessions
 
 // Type étendu avec les champs d'anonymisation (pour les interfaces)
+// Note: Tous ces champs existent déjà dans UserProfile, cette interface sert juste pour la clarté sémantique
 export interface UserProfileWithAnonymization extends UserProfile {
-  anonymization_level?: string | null;
-  anonymized_at?: string | null;
-  preserved_data_until?: string | null;
-  scheduled_purge_at?: string | null;
-  anonymous_id?: string | null;
+  // Tous les champs d'anonymisation sont déjà définis dans UserProfile
 }
 
 // =====================================================
@@ -468,4 +465,25 @@ export interface UserStats {
 export interface UserAdditionalData {
   preferences: UserPreferences;
   activity: UserActivity;
+}
+
+// =====================================================
+// ADDITIONAL MODAL INTERFACES FOR UNIFIED HOOKS
+// =====================================================
+
+/**
+ * Interface générique pour les données d'une modal
+ */
+export interface ModalData<T = any> {
+  open: boolean;
+  data: T;
+}
+
+/**
+ * Interface pour les données utilisateur dans les modals
+ */
+export interface ModalUserData {
+  userId: string;
+  userName?: string;
+  userData?: UserProfile;
 }

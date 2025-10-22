@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, Box } from "@mui/material";
 import { UserDetailsHeader } from "./UserDetailsHeader";
-import { UserBasicInfo } from "./UserBasicInfo";
-import { UserAccountInfo } from "./UserAccountInfo";
+import { UserInfoSections } from "./UserInfoSections";
 import { UserEditForm } from "./UserEditForm";
 import { UserActions } from "./UserActions";
-import { UserAnonymizationInfo } from "./UserAnonymizationInfo";
 import {
   UserProfile,
   UserProfileWithAnonymization,
@@ -83,40 +81,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               isLoading={isLoading}
             />
           ) : (
-            <Box
-              sx={{
-                display: "flex",
-                gap: 3,
-                flexDirection: { xs: "column", md: "row" },
-              }}
-            >
-              {/* Left column - Main details */}
-              <Box
-                sx={{
-                  flex: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                }}
-              >
-                <UserBasicInfo user={user} />
-              </Box>
-
-              {/* Right column - Account info and additional details */}
-              <Box
-                sx={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                }}
-              >
-                <UserAccountInfo user={user} />
-
-                {/* Informations d'anonymisation si l'utilisateur est anonymisé */}
-                <UserAnonymizationInfo user={user} />
-              </Box>
-            </Box>
+            <UserInfoSections user={user} />
           )}
         </Box>
       </DialogContent>

@@ -18,9 +18,14 @@ interface UserFiltersSectionProps {
   onUpdateFilter: (key: keyof UserFilters, value: string) => void;
   activeTab: number;
   users: UserProfile[]; // Utilisateurs actuellement affichés
-  activeUsers: UserProfile[]; // Pour les compteurs des onglets (sauf deleted et admin)
-  deletedUsers: UserProfile[]; // Pour le compteur de l'onglet deleted
-  adminUsers: UserProfile[]; // Pour le compteur de l'onglet admin
+  activeUsers: UserProfile[]; // Données filtrées par onglet
+  deletedUsers: UserProfile[]; // Données filtrées par onglet
+  adminUsers: UserProfile[]; // Données filtrées par onglet
+
+  // Données brutes pour compteurs d'onglets (optionnelles pour compatibilité)
+  rawActiveUsers?: UserProfile[]; // Tous les utilisateurs actifs (pour compteurs)
+  rawDeletedUsers?: UserProfile[]; // Tous les utilisateurs supprimés (pour compteurs)
+  rawAdminUsers?: UserProfile[]; // Tous les admins (pour compteurs)
   onTabChange: (
     event: React.MouseEvent<HTMLElement>,
     newValue: number | null
@@ -43,6 +48,9 @@ export const UserFiltersSection: React.FC<UserFiltersSectionProps> = ({
   activeUsers,
   deletedUsers,
   adminUsers,
+  rawActiveUsers,
+  rawDeletedUsers,
+  rawAdminUsers,
   onTabChange,
   selectedUsers,
   onBulkValidate,
@@ -58,22 +66,26 @@ export const UserFiltersSection: React.FC<UserFiltersSectionProps> = ({
     tabKey: UserRole | null,
     _users: UserProfile[] // On ignore ce paramètre car on utilise nos propres données
   ): number => {
-    // Cas spécial pour l'onglet "deleted"
+    // Cas spécial pour l'onglet "deleted" - utiliser rawDeletedUsers ou fallback
     if (tabKey === ("deleted" as any)) {
-      return deletedUsers.length;
+      return rawDeletedUsers?.length || deletedUsers.length;
     }
 
-    // Cas spécial pour l'onglet "admin"
+    // Cas spécial pour l'onglet "admin" - utiliser rawAdminUsers ou fallback
     if (tabKey === "admin") {
-      return adminUsers.length;
+      return rawAdminUsers?.length || adminUsers.length;
     }
 
-    // Pour les autres onglets, utiliser activeUsers (qui exclut les admins)
+    // Pour les autres onglets, utiliser rawActiveUsers (qui inclut tous les actifs)
+    const baseActiveUsers = rawActiveUsers || activeUsers;
+
     if (tabKey === null) {
-      return activeUsers.length; // "All Users" (sans les admins)
+      // "All Users" - tous les actifs SANS les admins (comme avant)
+      return baseActiveUsers.filter((user) => user.role !== "admin").length;
     }
 
-    return activeUsers.filter((user) => user.role === tabKey).length;
+    // Pour un rôle spécifique
+    return baseActiveUsers.filter((user) => user.role === tabKey).length;
   };
 
   return (

@@ -13,7 +13,7 @@ import {
   formatDate,
   formatCurrency,
   calculateLockTimeRemaining,
-} from "../../../utils/userTableFormatters";
+} from "../utils/userManagementUtils";
 
 /**
  * Cellule de sélection avec checkbox

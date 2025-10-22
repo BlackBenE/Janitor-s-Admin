@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { UserProfile } from "../../../types/userManagement";
-import { useUserModals } from "./useUserModals";
+import { useModals } from "./useUserModals";
 
 interface UseBulkActionsProps {
   users: UserProfile[];
@@ -19,7 +19,7 @@ export const useBulkActions = ({
   updateUser,
   softDeleteUser,
 }: UseBulkActionsProps) => {
-  const modals = useUserModals();
+  const modals = useModals();
 
   const getSelectedUsersList = useCallback(
     () => users.filter((u) => selectedUsers.includes(u.id)),
@@ -119,7 +119,7 @@ export const useBulkActions = ({
 
   const handleBulkActionConfirm = useCallback(async () => {
     try {
-      const bulkState = modals.bulkAction;
+      const bulkState = modals.bulkActionData;
 
       if (bulkState.type === "delete") {
         // Soft delete en lot avec Promise.all pour la performance

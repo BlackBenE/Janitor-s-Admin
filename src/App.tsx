@@ -18,8 +18,8 @@ import {
   Container,
 } from "@mui/material";
 import { AuthProvider, useAuth } from "./providers/authProvider";
-import { useAuditLog } from "./components/userManagement/hooks/useAuditLog";
 import { routes } from "./routes/routes";
+import { useAudit } from "./hooks/shared/useAudit";
 
 // MUI Theme for admin panel
 const theme = createTheme({
@@ -102,19 +102,20 @@ const LoadingScreen: React.FC<{ error?: string | null }> = ({ error }) => (
 const AppContent: React.FC = () => {
   const { session, isAdmin, loading, error } = useAuth();
 
-  // Activer l'audit et le session tracking automatiquement
-  useAuditLog(); // Enhanced debugging for development
-  // if (import.meta.env.DEV) {
-  //   console.log("Auth State Debug:", {
-  //     session: !!session,
-  //     sessionUser: session?.user?.email,
-  //     isAdmin: isAdmin(),
-  //     loading,
-  //     error,
-  //     timestamp: new Date().toISOString(),
-  //     currentPath: window.location.pathname,
-  //   });
-  // }
+  // Activer l'audit et le session tracking automatiquement avec le nouveau système
+  useAudit(); // Enhanced debugging for development avec le nouveau système d'audit partagé
+
+  if (import.meta.env.DEV) {
+    console.log("Auth State Debug:", {
+      session: !!session,
+      sessionUser: session?.user?.email,
+      isAdmin: isAdmin(),
+      loading,
+      error,
+      timestamp: new Date().toISOString(),
+      currentPath: window.location.pathname,
+    });
+  }
 
   // Show loading spinner while auth is initializing
   if (loading) {

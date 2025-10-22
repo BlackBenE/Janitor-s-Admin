@@ -11,7 +11,6 @@ export { default as ServicesModal } from "./ServicesModal";
 
 // User Details Modal Components
 export { UserDetailsHeader } from "./UserDetailsHeader";
-export { UserBasicInfo } from "./UserBasicInfo";
-export { UserAccountInfo } from "./UserAccountInfo";
+export { UserInfoSections } from "./UserInfoSections";
 export { UserEditForm } from "./UserEditForm";
 export { UserActions } from "./UserActions";

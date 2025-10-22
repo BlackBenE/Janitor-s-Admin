@@ -31,7 +31,7 @@ export const useAnonymization = () => {
         // Invalider toutes les requêtes liées aux utilisateurs
         queryClient.invalidateQueries({ queryKey: ["users"] });
 
-        console.log(`✅ Utilisateur ${result.user_id} anonymisé avec succès`, {
+        console.log(`Utilisateur ${result.user_id} anonymisé avec succès`, {
           level: result.anonymization_level,
           fields: result.anonymized_fields,
           preservedUntil: result.preserved_data_until,
@@ -39,7 +39,7 @@ export const useAnonymization = () => {
         });
       } else {
         console.error(
-          `❌ Erreur lors de l'anonymisation de ${result.user_id}:`,
+          `Erreur lors de l'anonymisation de ${result.user_id}:`,
           result.error
         );
       }
@@ -84,7 +84,7 @@ export const useAnonymization = () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
 
       console.log(
-        `✅ Anonymisation en lot terminée: ${successful} succès, ${failed} échecs`
+        `Anonymisation en lot terminée: ${successful} succès, ${failed} échecs`
       );
     },
   });

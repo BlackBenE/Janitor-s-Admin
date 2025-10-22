@@ -121,9 +121,6 @@ export interface UserTableColumnsProps {
   onPasswordReset: (userId: string) => void;
   onLockAccount: (userId: string) => void;
   onUnlockAccount: (userId: string) => void;
-  onViewBookings: (userId: string, userName: string) => void;
-  onManageSubscription: (userId: string, userName: string) => void;
-  onManageServices: (userId: string, userName: string) => void;
   onToggleVIP: (userId: string, isVIP: boolean) => void;
   onValidateProvider: (userId: string, approved: boolean) => void;
 }
@@ -190,17 +187,6 @@ export interface TabPanelProps {
   value: number;
 }
 
-// BulkActionModal Props
-export interface BulkActionModalProps {
-  open: boolean;
-  onClose: () => void;
-  selectedUsers: string[];
-  bulkAction: BulkActionState;
-  onExecute: () => void;
-  onRoleChange: (role: string) => void;
-  onVipChange: (vip: boolean) => void;
-}
-
 // LockAccountModal Props
 export interface LockAccountModalProps {
   open: boolean;
@@ -210,30 +196,6 @@ export interface LockAccountModalProps {
   onDurationChange: (duration: number) => void;
   onReasonChange: (reason: string) => void;
   onLock: () => void;
-}
-
-// BookingsModal Props
-export interface BookingsModalProps {
-  open: boolean;
-  onClose: () => void;
-  userId: string;
-  userName: string;
-}
-
-// SubscriptionModal Props
-export interface SubscriptionModalProps {
-  open: boolean;
-  onClose: () => void;
-  userId: string;
-  userName: string;
-}
-
-// ServicesModal Props
-export interface ServicesModalProps {
-  open: boolean;
-  onClose: () => void;
-  userId: string;
-  userName: string;
 }
 
 // =====================================================
@@ -266,12 +228,6 @@ export interface NotificationState {
   open: boolean;
   message: string;
   severity: "success" | "error" | "warning" | "info";
-}
-
-export interface BulkActionState {
-  type: "delete" | "role" | "vip";
-  roleChange: string;
-  vipChange: boolean;
 }
 
 export interface LockAccountState {
@@ -315,7 +271,6 @@ export interface UserManagementState {
   filters: UserFilters;
   modals: UserManagementModals;
   notification: NotificationState;
-  bulkAction: BulkActionState;
   lockAccount: LockAccountState;
   audit: AuditModalState;
   showNotification: (

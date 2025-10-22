@@ -17,9 +17,6 @@ import {
   History as HistoryIcon,
   Star as StarIcon,
   StarBorder as StarBorderIcon,
-  CalendarToday as CalendarTodayIcon,
-  Build as BuildIcon,
-  Payment as PaymentIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
 } from "@mui/icons-material";
@@ -34,9 +31,6 @@ interface UserTableActionsHubProps {
   onPasswordReset: (userId: string) => void;
   onLockAccount: (userId: string) => void;
   onUnlockAccount: (userId: string) => void;
-  onViewBookings: (userId: string, userName: string) => void;
-  onManageSubscription: (userId: string, userName: string) => void;
-  onManageServices: (userId: string, userName: string) => void;
   onToggleVIP: (userId: string, isVIP: boolean) => void;
   onValidateProvider: (userId: string, approved: boolean) => void;
 }
@@ -49,9 +43,6 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
   onPasswordReset,
   onLockAccount,
   onUnlockAccount,
-  onViewBookings,
-  onManageSubscription,
-  onManageServices,
   onToggleVIP,
   onValidateProvider,
 }) => {
@@ -70,67 +61,8 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
     onShowAudit(userId);
   };
 
-  // Composant pour l'action spécifique au rôle/onglet
-  const RoleSpecificAction = () => {
-    // Pas d'action spécifique pour "All Users"
-    if (!currentTabRole || currentTabRole === "all") return null;
-
-    const getActionByRole = () => {
-      switch (currentTabRole) {
-        case "property_owner":
-          return {
-            icon: CalendarTodayIcon,
-            tooltip: "View Bookings & Disputes",
-            onClick: () => onViewBookings(params.row.id, userName),
-          };
-
-        case "tenant":
-          return {
-            icon: PaymentIcon,
-            tooltip: "Manage Subscription",
-            onClick: () => onManageSubscription(params.row.id, userName),
-          };
-
-        case "service_provider":
-          return {
-            icon: BuildIcon,
-            tooltip: "Manage Services",
-            onClick: () => onManageServices(params.row.id, userName),
-          };
-
-        case "admin":
-          return {
-            icon: HistoryIcon,
-            tooltip: "View Audit History",
-            onClick: () => onShowAudit(params.row.id),
-          };
-
-        default:
-          return null;
-      }
-    };
-
-    const action = getActionByRole();
-
-    if (!action) return null;
-
-    const IconComponent = action.icon;
-
-    return (
-      <Tooltip title={action.tooltip}>
-        <IconButton
-          size="small"
-          onClick={action.onClick}
-          sx={{
-            color: "text.secondary",
-            "&:hover": { color: "primary.main" },
-          }}
-        >
-          <IconComponent fontSize="small" />
-        </IconButton>
-      </Tooltip>
-    );
-  };
+  // Composant pour l'action spécifique au rôle/onglet - SUPPRIMÉ
+  // Maintenant les détails sont accessibles via l'icône "détails" qui ouvre UserDetailsModal
 
   // Menu contextuel des actions
   const ActionsMenu = () => (
@@ -186,23 +118,7 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
         </MenuItem>
       )}
 
-      {/* Actions spécifiques aux Property Owners */}
-      {(params.row.role === "PROPERTY_OWNER" ||
-        params.row.role === "property_owner") && (
-        <MenuItem
-          onClick={() => {
-            onViewBookings(params.row.id, userName);
-            handleMenuClose();
-          }}
-        >
-          <ListItemIcon>
-            <CalendarTodayIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="View Bookings & Disputes" />
-        </MenuItem>
-      )}
-
-      {/* Actions spécifiques aux Service Providers */}
+      {/* Actions spécifiques aux Service Providers - Validation */}
       {(params.row.role === "SERVICE_PROVIDER" ||
         params.row.role === "service_provider") && (
         <MenuItem
@@ -275,8 +191,6 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
           <RemoveRedEyeOutlinedIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-
-      <RoleSpecificAction />
 
       {params.row?.account_locked && (
         <Tooltip title="Account locked">

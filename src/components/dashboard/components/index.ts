@@ -10,4 +10,3 @@ export { DashboardHeader } from "./DashboardHeader";
 export { DashboardStatsCards } from "./DashboardStatsCards";
 export { DashboardChartsSection } from "./DashboardChartsSection";
 export { DashboardActivitiesSection } from "./DashboardActivitiesSection";
-export { DashboardLoadingIndicator } from "./DashboardLoadingIndicator";

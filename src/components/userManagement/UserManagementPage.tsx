@@ -7,9 +7,9 @@ import {
   UserHeader,
   UserStatsSection,
   UserTableSection,
-  UserLoadingIndicator,
   ModalsManager,
 } from "./components";
+import { LoadingIndicator } from "../shared";
 
 // Types
 import { UserRole, UserProfile, USER_TABS } from "../../types/userManagement";
@@ -188,15 +188,7 @@ export const UserManagementPage: React.FC = () => {
         console.error("Unlock error:", error);
       }
     },
-    onViewBookings: (userId: string, userName: string) => {
-      modals.roleModals.bookings.openModal({ userId, userName });
-    },
-    onManageSubscription: (userId: string, userName: string) => {
-      modals.roleModals.subscription.openModal({ userId, userName });
-    },
-    onManageServices: (userId: string, userName: string) => {
-      modals.roleModals.services.openModal({ userId, userName });
-    },
+
     onToggleVIP: async (userId: string) => {
       try {
         const user = finalUsers.find((u) => u.id === userId);
@@ -260,9 +252,12 @@ export const UserManagementPage: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <AdminLayout>
-        <UserLoadingIndicator error={error} onRefresh={() => refetch()} />
-      </AdminLayout>
+      <LoadingIndicator
+        error={error}
+        onRefresh={() => refetch()}
+        errorTitle="Erreur lors du chargement des utilisateurs"
+        withLayout={true}
+      />
     );
   }
 
@@ -302,15 +297,13 @@ export const UserManagementPage: React.FC = () => {
           selectedUsers={selectedUsers}
           onBulkValidate={bulkActions.handleBulkValidate}
           onBulkSetPending={bulkActions.handleBulkSetPending}
-          onBulkSuspend={() => console.log("Bulk suspend not implemented")}
-          onBulkUnsuspend={() => console.log("Bulk unsuspend not implemented")}
+          onBulkSuspend={bulkActions.handleBulkSuspend}
+          onBulkUnsuspend={bulkActions.handleBulkUnsuspend}
           onBulkAction={(actionType: string) => {
             if (actionType === "delete") {
-              // Ouvrir la modale de suppression intelligente en lot
-              modals.openBulkSmartDeleteModal(selectedUsers);
-            } else {
-              // Pour les autres actions, utiliser le système existant des modals
-              modals.openBulkActionModal(actionType as "role" | "vip");
+              bulkActions.handleBulkDelete();
+            } else if (actionType === "role") {
+              bulkActions.handleBulkChangeRole();
             }
           }}
           onBulkAddVip={bulkActions.handleBulkAddVip}
@@ -329,6 +322,7 @@ export const UserManagementPage: React.FC = () => {
           showUserDetailsModal={modals.showUserDetailsModal}
           selectedUser={selectedUser}
           editForm={editForm}
+          activityData={activityData}
           onCloseUserDetailsModal={() => {
             modals.closeUserDetailsModal();
             resetEditForm();
@@ -356,36 +350,6 @@ export const UserManagementPage: React.FC = () => {
           onCloseLockModal={modals.closeLockModal}
           onUpdateLockDuration={modals.updateLockDuration}
           onUpdateLockReason={modals.updateLockReason}
-          // Bulk Action Modal (with proper state)
-          showBulkActionModal={modals.showBulkActionModal}
-          bulkActionState={{
-            type: "role",
-            roleChange: "",
-            vipChange: false,
-          }}
-          selectedUsers={selectedUsers}
-          onCloseBulkActionModal={modals.closeBulkActionModal}
-          onUpdateRoleChange={modals.updateBulkRoleChange}
-          onUpdateVipChange={modals.updateBulkVipChange}
-          // Role-specific modals
-          bookingsModal={{
-            open: modals.roleModals.bookings.open,
-            userId: modals.roleModals.bookings.data?.userId || "",
-            userName: modals.roleModals.bookings.data?.userName || "",
-          }}
-          subscriptionModal={{
-            open: modals.roleModals.subscription.open,
-            userId: modals.roleModals.subscription.data?.userId || "",
-            userName: modals.roleModals.subscription.data?.userName || "",
-          }}
-          servicesModal={{
-            open: modals.roleModals.services.open,
-            userId: modals.roleModals.services.data?.userId || "",
-            userName: modals.roleModals.services.data?.userName || "",
-          }}
-          onCloseBookingsModal={modals.roleModals.bookings.closeModal}
-          onCloseSubscriptionModal={modals.roleModals.subscription.closeModal}
-          onCloseServicesModal={modals.roleModals.services.closeModal}
           // Action handlers
           onSaveUser={async () => {
             try {
@@ -515,7 +479,6 @@ export const UserManagementPage: React.FC = () => {
               showNotification("Erreur lors du verrouillage", "error");
             }
           }}
-          onBulkActionConfirm={bulkActions.handleBulkActionConfirm}
           /* Anonymization Modals State */
           smartDeleteModalOpen={modals.smartDeleteModalOpen}
           restoreModalOpen={modals.restoreModalOpen}

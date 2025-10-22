@@ -166,7 +166,7 @@ export const useUserStats = (options?: { enabled?: boolean }) => {
 
 /**
  * Hook pour récupérer les statistiques d'un utilisateur spécifique
- * Compatible avec BookingsModal.tsx : useUserStats(userId)
+ * Compatible avec BookingsSection.tsx dans UserDetailsModal : useUserStats(userId)
  */
 export const useUserStatsIndividual = (
   userId?: string,
@@ -177,30 +177,184 @@ export const useUserStatsIndividual = (
     queryFn: async () => {
       if (!userId) return null;
 
-      // Calculer stats depuis bookings/payments pour cet utilisateur
-      const [bookingsResponse, paymentsResponse] = await Promise.all([
-        supabase.from("bookings").select("*").eq("traveler_id", userId),
-        supabase.from("payments").select("*").eq("payer_id", userId),
-      ]);
+      // Récupérer les données selon le rôle de l'utilisateur
+      // On récupère le profil pour connaître le rôle
+      const { data: userProfile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .single();
 
-      const bookings = bookingsResponse.data || [];
-      const payments = paymentsResponse.data || [];
+      if (!userProfile) return null;
 
-      return {
-        totalBookings: bookings.length,
-        totalSpent: payments.reduce((sum, p) => sum + (p.amount || 0), 0),
-        completedBookings: bookings.filter((b) => b.status === "completed")
-          .length,
-        pendingBookings: bookings.filter((b) => b.status === "pending").length,
-        cancelledBookings: bookings.filter((b) => b.status === "cancelled")
-          .length,
-        lastBookingDate: bookings[0]?.created_at || null,
-        averageBookingValue:
-          bookings.length > 0
-            ? payments.reduce((sum, p) => sum + (p.amount || 0), 0) /
-              bookings.length
-            : 0,
-      };
+      if (userProfile.role === "property_owner") {
+        // Pour property owner : récupérer les paiements reçus et les bookings via ses propriétés
+        const [bookingsResponse, paymentsReceivedResponse] = await Promise.all([
+          // Bookings de ses propriétés
+          supabase
+            .from("bookings")
+            .select(
+              `
+              *,
+              properties!inner (
+                id,
+                title,
+                owner_id
+              )
+            `
+            )
+            .eq("properties.owner_id", userId),
+          // Paiements reçus (comme payee) - SEULEMENT bookings pour cette section
+          supabase
+            .from("payments")
+            .select("*")
+            .eq("payee_id", userId)
+            .eq("payment_type", "booking"), // 🎯 Seulement les bookings
+        ]);
+
+        const bookings = bookingsResponse.data || [];
+        const paymentsReceived = paymentsReceivedResponse.data || [];
+
+        // 🔍 Debug pour property owner - bookings seulement
+        console.group(
+          "🔍 Debug useUserStatsIndividual - Property Owner (Bookings only)"
+        );
+        console.log(
+          "Bookings via properties:",
+          bookings.map((b) => ({
+            id: b.id,
+            total_amount: b.total_amount,
+            status: b.status,
+            property_title: b.properties?.title,
+          }))
+        );
+        console.log(
+          "Payments BOOKING reçus (payee_id):",
+          paymentsReceived.map((p) => ({
+            id: p.id,
+            amount: p.amount,
+            booking_id: p.booking_id,
+            payment_type: p.payment_type,
+            status: p.status,
+          }))
+        );
+        console.groupEnd();
+
+        return {
+          totalBookings: bookings.length,
+          totalSpent: paymentsReceived.reduce(
+            (sum, p) => sum + (p.amount || 0),
+            0
+          ), // Total reçu
+          completedBookings: bookings.filter((b) => b.status === "completed")
+            .length,
+          pendingBookings: bookings.filter((b) => b.status === "pending")
+            .length,
+          cancelledBookings: bookings.filter((b) => b.status === "cancelled")
+            .length,
+          lastBookingDate: bookings[0]?.created_at || null,
+          averageBookingValue:
+            bookings.length > 0
+              ? paymentsReceived.reduce((sum, p) => sum + (p.amount || 0), 0) /
+                bookings.length
+              : 0,
+        };
+      } else {
+        // Pour traveler/tenant : logique bookings uniquement
+        const [bookingsResponse, paymentsResponse] = await Promise.all([
+          supabase.from("bookings").select("*").eq("traveler_id", userId),
+          // ⚠️ CORRECTION : Filtrer uniquement les paiements de type 'booking'
+          supabase
+            .from("payments")
+            .select("*")
+            .eq("payer_id", userId)
+            .eq("payment_type", "booking"), // 🎯 Seulement les bookings
+        ]);
+
+        const bookings = bookingsResponse.data || [];
+        const payments = paymentsResponse.data || [];
+
+        // 🔍 Debug pour traveler - bookings seulement
+        console.group(
+          "🔍 Debug useUserStatsIndividual - Traveler (Bookings only)"
+        );
+        console.log(
+          "Bookings du traveler:",
+          bookings.map((b) => ({
+            id: b.id,
+            total_amount: b.total_amount,
+            status: b.status,
+            traveler_id: b.traveler_id,
+          }))
+        );
+        console.log(
+          "Payments BOOKING du traveler (payer_id):",
+          payments.map((p) => ({
+            id: p.id,
+            amount: p.amount,
+            booking_id: p.booking_id,
+            payment_type: p.payment_type,
+            status: p.status,
+          }))
+        );
+        console.groupEnd(); // ✅ FIX: Ne compter que les paiements liés aux bookings affichés
+        const bookingIds = bookings.map((b) => b.id);
+        const paymentsForBookings = payments.filter(
+          (p) => p.booking_id && bookingIds.includes(p.booking_id)
+        );
+        const paymentsForServices = payments.filter(
+          (p) => p.service_request_id && !p.booking_id
+        );
+        const orphanPayments = payments.filter(
+          (p) => !p.booking_id && !p.service_request_id
+        );
+        const correctTotal = paymentsForBookings.reduce(
+          (sum, p) => sum + (p.amount || 0),
+          0
+        );
+
+        console.log("🔍 ANALYSE DES PAIEMENTS:");
+        console.log(
+          "- Paiements pour bookings affichés:",
+          paymentsForBookings.map((p) => ({
+            amount: p.amount,
+            booking_id: p.booking_id,
+          }))
+        );
+        console.log(
+          "- Paiements pour services:",
+          paymentsForServices.map((p) => ({
+            amount: p.amount,
+            service_request_id: p.service_request_id,
+          }))
+        );
+        console.log(
+          "- Paiements orphelins:",
+          orphanPayments.map((p) => ({
+            amount: p.amount,
+            payment_type: p.payment_type,
+          }))
+        );
+        console.log("- Total CORRECT (bookings uniquement):", correctTotal);
+        console.log(
+          "- Total INCORRECT (tous paiements):",
+          payments.reduce((sum, p) => sum + (p.amount || 0), 0)
+        );
+
+        return {
+          totalBookings: bookings.length,
+          totalSpent: correctTotal, // ✅ Seulement les paiements des bookings affichés
+          completedBookings: bookings.filter((b) => b.status === "completed")
+            .length,
+          pendingBookings: bookings.filter((b) => b.status === "pending")
+            .length,
+          cancelledBookings: bookings.filter((b) => b.status === "cancelled")
+            .length,
+          lastBookingDate: bookings[0]?.created_at || null,
+          averageBookingValue:
+            bookings.length > 0 ? correctTotal / bookings.length : 0, // ✅ Moyenne corrigée
+        };
+      }
     },
     enabled: options?.enabled !== false && !!userId,
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -209,7 +363,8 @@ export const useUserStatsIndividual = (
 };
 
 /**
- * Hook pour récupérer l'activité d'un utilisateur (bookings + données)
+ * Hook pour récupérer l'activité d'un utilisateur (role-aware)
+ * Utilise les mêmes patterns que BookingsSection/ServicesSection
  */
 export const useUserActivity = (
   userIds: string[],
@@ -220,32 +375,135 @@ export const useUserActivity = (
     queryFn: async () => {
       if (userIds.length === 0) return {};
 
-      // Récupérer bookings et payments pour calculer l'activité
-      const [bookingsResponse, paymentsResponse] = await Promise.all([
+      // Récupérer d'abord les profils pour connaître les rôles
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, role")
+        .in("id", userIds);
+
+      const profilesMap = new Map(profiles?.map((p) => [p.id, p.role]) || []);
+
+      // Récupérer toutes les données nécessaires en parallèle
+      const [
+        bookingsResponse,
+        paymentsResponse,
+        propertiesResponse,
+        serviceRequestsResponse,
+        interventionsResponse,
+        subscriptionsResponse,
+      ] = await Promise.all([
         supabase.from("bookings").select("*").in("traveler_id", userIds),
         supabase.from("payments").select("*").in("payer_id", userIds),
+        supabase.from("properties").select("*").in("owner_id", userIds),
+        supabase.from("service_requests").select("*").in("client_id", userIds),
+        supabase.from("interventions").select("*").in("provider_id", userIds),
+        supabase.from("subscriptions").select("*").in("user_id", userIds),
       ]);
 
       const bookings = bookingsResponse.data || [];
       const payments = paymentsResponse.data || [];
+      const properties = propertiesResponse.data || [];
+      const serviceRequests = serviceRequestsResponse.data || [];
+      const interventions = interventionsResponse.data || [];
+      const subscriptions = subscriptionsResponse.data || [];
 
-      // Calculer les données d'activité par utilisateur
+      // Calculer les données d'activité par utilisateur de manière role-aware
       const activityData: Record<string, any> = {};
 
       userIds.forEach((userId) => {
+        const userRole = profilesMap.get(userId);
         const userBookings = bookings.filter((b) => b.traveler_id === userId);
         const userPayments = payments.filter((p) => p.payer_id === userId);
+        const userProperties = properties.filter((p) => p.owner_id === userId);
+        const userServiceRequests = serviceRequests.filter(
+          (sr) => sr.client_id === userId
+        );
+        const userInterventions = interventions.filter(
+          (i) => i.provider_id === userId
+        );
+        const userSubscriptions = subscriptions.filter(
+          (s) => s.user_id === userId
+        );
+
+        // Calculs de base (pour tous les rôles)
+        let totalSpent = userPayments.reduce(
+          (sum, p) => sum + (p.amount || 0),
+          0
+        );
+        let totalEarned = 0;
+
+        // Calculs role-aware pour totalSpent et totalEarned
+        switch (userRole) {
+          case "traveler":
+            // Les voyageurs dépensent via bookings et service requests
+            totalSpent = userPayments.reduce(
+              (sum, p) => sum + (p.amount || 0),
+              0
+            );
+            break;
+
+          case "property_owner":
+            // Les propriétaires gagnent via les bookings de leurs propriétés
+            const ownerBookings = bookings.filter((booking) =>
+              userProperties.some(
+                (property) => property.id === booking.property_id
+              )
+            );
+            totalEarned = ownerBookings.reduce(
+              (sum, b) => sum + (b.total_amount || 0),
+              0
+            );
+            break;
+
+          case "service_provider":
+          case "provider":
+            // Les prestataires gagnent via leurs interventions
+            totalEarned = userInterventions.reduce(
+              (sum, i) => sum + (i.amount || 0),
+              0
+            );
+            break;
+
+          default:
+            // Rôles admin ou autres : combinaison des deux
+            totalSpent = userPayments.reduce(
+              (sum, p) => sum + (p.amount || 0),
+              0
+            );
+            totalEarned = userInterventions.reduce(
+              (sum, i) => sum + (i.amount || 0),
+              0
+            );
+        }
+
+        // Calcul des abonnements
+        const totalSubscriptionSpent = userSubscriptions.reduce(
+          (sum, s) => sum + (s.amount || 0),
+          0
+        );
+        totalSpent += totalSubscriptionSpent;
 
         activityData[userId] = {
           userId,
+          // Données de base
           totalBookings: userBookings.length,
           lastBookingDate: userBookings[0]?.created_at || null,
-          totalSpent: userPayments.reduce((sum, p) => sum + (p.amount || 0), 0),
+          totalSpent,
+          totalEarned,
           completedBookings: userBookings.filter(
             (b) => b.status === "completed"
           ).length,
           pendingBookings: userBookings.filter((b) => b.status === "pending")
             .length,
+
+          // Données role-aware
+          totalProperties: userProperties.length,
+          totalServices: userServiceRequests.length,
+          totalInterventions: userInterventions.length,
+
+          // Données de rating (à implémenter si nécessaire)
+          averageRating: undefined,
+          totalReviews: 0,
         };
       });
 
@@ -301,21 +559,60 @@ export const useUserBookings = (
     queryFn: async () => {
       if (!userId) return [];
 
-      const { data, error } = await supabase
-        .from("bookings")
-        .select(
+      // Récupérer le rôle de l'utilisateur
+      const { data: userProfile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .single();
+
+      if (!userProfile) return [];
+
+      let query;
+
+      if (userProfile.role === "property_owner") {
+        // Pour property owner : bookings de ses propriétés
+        query = supabase
+          .from("bookings")
+          .select(
+            `
+            *,
+            properties!inner (
+              id,
+              title,
+              city,
+              address,
+              owner_id
+            ),
+            profiles!bookings_traveler_id_fkey (
+              id,
+              full_name,
+              email
+            )
           `
-          *,
-          properties (
-            id,
-            title,
-            city,
-            address
           )
-        `
-        )
-        .eq("traveler_id", userId)
-        .order("created_at", { ascending: false });
+          .eq("properties.owner_id", userId);
+      } else {
+        // Pour traveler : ses propres bookings
+        query = supabase
+          .from("bookings")
+          .select(
+            `
+            *,
+            properties (
+              id,
+              title,
+              city,
+              address
+            )
+          `
+          )
+          .eq("traveler_id", userId);
+      }
+
+      const { data, error } = await query.order("created_at", {
+        ascending: false,
+      });
 
       if (error) {
         throw new Error(
@@ -437,7 +734,7 @@ export const useUserClientServices = (
 
 /**
  * Hook pour récupérer les services fournis par un utilisateur (en tant que prestataire)
- * Compatible avec ServicesModal.tsx : getProviderServices(userId)
+ * Compatible avec ServicesSection.tsx dans UserDetailsModal : getProviderServices(userId)
  */
 export const useUserProviderServices = (
   userId?: string,
@@ -481,7 +778,7 @@ export const useUserProviderServices = (
 
 /**
  * Hook pour récupérer les demandes de service d'un utilisateur
- * Compatible avec ServicesModal.tsx : getProviderServiceRequests(userId)
+ * Compatible avec ServicesSection.tsx dans UserDetailsModal : getProviderServiceRequests(userId)
  */
 export const useUserServiceRequests = (
   userId?: string,
@@ -496,7 +793,7 @@ export const useUserServiceRequests = (
         const { data, error } = await supabase
           .from("service_requests")
           .select("*")
-          .eq("user_id", userId)
+          .eq("requester_id", userId)
           .order("created_at", { ascending: false });
 
         if (error && error.code !== "42P01") {
@@ -516,8 +813,59 @@ export const useUserServiceRequests = (
 };
 
 /**
+ * Hook pour récupérer les demandes de service où l'utilisateur est le PROVIDER
+ */
+export const useUserProviderServiceRequests = (
+  userId?: string,
+  options?: { enabled?: boolean }
+) => {
+  return useQuery({
+    queryKey: [...USER_QUERY_KEYS.all, "provider-service-requests", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+
+      try {
+        const { data, error } = await supabase
+          .from("service_requests")
+          .select(
+            `
+            *,
+            services (
+              id,
+              name,
+              category
+            ),
+            profiles!service_requests_requester_id_fkey (
+              id,
+              full_name,
+              email
+            )
+          `
+          )
+          .eq("provider_id", userId)
+          .order("created_at", { ascending: false });
+
+        if (error && error.code !== "42P01") {
+          throw error;
+        }
+
+        return data || [];
+      } catch (err: any) {
+        console.warn(
+          "Provider service requests not accessible, returning empty array"
+        );
+        return [];
+      }
+    },
+    enabled: options?.enabled !== false && !!userId,
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
+/**
  * Hook pour récupérer les interventions d'un utilisateur
- * Compatible avec ServicesModal.tsx : getProviderInterventions(userId)
+ * Compatible avec ServicesSection.tsx dans UserDetailsModal : getProviderInterventions(userId)
  */
 export const useUserInterventions = (
   userId?: string,
@@ -580,6 +928,99 @@ export const useUserSubscriptions = (
         console.warn("Subscriptions not accessible, returning empty array");
         return [];
       }
+    },
+    enabled: options?.enabled !== false && !!userId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Hook pour récupérer les statistiques de services d'un utilisateur
+ * Pour une future ServicesSection
+ */
+export const useUserServicesStats = (
+  userId?: string,
+  options?: { enabled?: boolean }
+) => {
+  return useQuery({
+    queryKey: [...USER_QUERY_KEYS.all, "services-stats", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+
+      const [serviceRequestsResponse, paymentsResponse] = await Promise.all([
+        supabase
+          .from("service_requests")
+          .select("*")
+          .eq("requester_id", userId),
+        supabase
+          .from("payments")
+          .select("*")
+          .eq("payer_id", userId)
+          .eq("payment_type", "service"), // 🎯 Seulement les services
+      ]);
+
+      const serviceRequests = serviceRequestsResponse.data || [];
+      const payments = paymentsResponse.data || [];
+
+      return {
+        totalServices: serviceRequests.length,
+        totalSpentOnServices: payments.reduce(
+          (sum, p) => sum + (p.amount || 0),
+          0
+        ),
+        completedServices: serviceRequests.filter(
+          (s) => s.status === "completed"
+        ).length,
+        pendingServices: serviceRequests.filter((s) => s.status === "pending")
+          .length,
+        averageServiceValue:
+          serviceRequests.length > 0
+            ? payments.reduce((sum, p) => sum + (p.amount || 0), 0) /
+              serviceRequests.length
+            : 0,
+      };
+    },
+    enabled: options?.enabled !== false && !!userId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Hook pour récupérer les statistiques globales d'un utilisateur (tous paiements)
+ * Pour PaymentsPage
+ */
+export const useUserFinancialStats = (
+  userId?: string,
+  options?: { enabled?: boolean }
+) => {
+  return useQuery({
+    queryKey: [...USER_QUERY_KEYS.all, "financial-stats", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+
+      const { data: payments } = await supabase
+        .from("payments")
+        .select("*")
+        .eq("payer_id", userId);
+
+      const paymentsData = payments || [];
+
+      // Grouper par type de paiement
+      const groupedByType = paymentsData.reduce((acc, payment) => {
+        const type = payment.payment_type || "unknown";
+        if (!acc[type]) acc[type] = { count: 0, total: 0 };
+        acc[type].count++;
+        acc[type].total += payment.amount || 0;
+        return acc;
+      }, {} as Record<string, { count: number; total: number }>);
+
+      return {
+        totalSpent: paymentsData.reduce((sum, p) => sum + (p.amount || 0), 0),
+        paymentsByType: groupedByType,
+        totalTransactions: paymentsData.length,
+      };
     },
     enabled: options?.enabled !== false && !!userId,
     staleTime: 2 * 60 * 1000,

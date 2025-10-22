@@ -37,11 +37,18 @@ export type {
   UserAdditionalData,
 } from "./userManagement";
 
-// Types composants/UI seulement
+// Types domaine Services
 export type {
-  FinancialFilters,
-  FinancialOverviewState,
-  FinancialMetricsCardProps,
-  FinancialChartProps,
-  TransactionTableProps,
-} from "./financialoverview";
+  ServiceWithDetails,
+  ServiceFilters,
+  ServiceStats,
+  ServiceStatusFilter,
+  ServiceStatus,
+  ServiceNotificationState,
+  ServiceTab,
+  ServiceActionConfig,
+  ServiceCategory,
+  ServiceProvider,
+} from "./services";
+
+export { SERVICE_CATEGORIES } from "./services";

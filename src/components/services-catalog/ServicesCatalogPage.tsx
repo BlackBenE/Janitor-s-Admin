@@ -44,13 +44,10 @@ function ServicesCatalogPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Pending Property Validations"
-              icon={ApartmentOutlinedIcon}
+              title="Total Services"
               value={stats.pendingValidations}
-              bottomLeft="Active this month"
               progressText="75% growth"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
         </Grid>
@@ -60,13 +57,10 @@ function ServicesCatalogPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Provider Moderation Cases"
-              icon={HowToRegOutlinedIcon}
-              value={stats.moderationCases}
-              bottomLeft="Active this month"
+              title="Active Providers"
+              value={stats.pendingValidations}
               progressText="75% growth"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
         </Grid>
@@ -76,13 +70,10 @@ function ServicesCatalogPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Active Users"
-              icon={GroupOutlinedIcon}
-              value={stats.activeUsers}
-              bottomLeft="Active this month"
+              title="Total Bookings"
+              value={stats.pendingValidations}
               progressText="75% growth"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
         </Grid>
@@ -92,13 +83,10 @@ function ServicesCatalogPage() {
         >
           <DashboardItem>
             <InfoCard
-              title="Monthly Revenue"
-              icon={EuroOutlinedIcon}
-              value={stats.monthlyRevenue}
-              bottomLeft="Active this month"
+              title="Avg Service Rating"
+              value={stats.pendingValidations}
               progressText="75% growth"
               showTrending={false}
-              progressTextColor="text.secondary"
             />
           </DashboardItem>
         </Grid>

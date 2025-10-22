@@ -107,16 +107,6 @@ export const invoiceFilterConfigs: FilterConfig[] = [
 
 export const paymentFilterConfigs: FilterConfig[] = [
   {
-    key: "status",
-    label: "Status",
-    type: "select",
-    options: [
-      { value: "pending", label: "Pending" },
-      { value: "paid", label: "Paid" },
-      { value: "refunded", label: "Refunded" },
-    ],
-  },
-  {
     key: "paymentType",
     label: "Payment Type",
     type: "select",

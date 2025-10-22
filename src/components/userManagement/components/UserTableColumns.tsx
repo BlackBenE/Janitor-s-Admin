@@ -8,6 +8,10 @@ import {
 } from "../../../types/userManagement";
 import { getActivityHeaderName } from "../utils/userManagementUtils";
 import {
+  shouldShowEarnings,
+  getFinancialAmount,
+} from "../utils/financialUtils";
+import {
   SelectCell,
   UserInfoCell,
   RoleCell,
@@ -33,9 +37,6 @@ export const createUserTableColumns = ({
   onPasswordReset,
   onLockAccount,
   onUnlockAccount,
-  onViewBookings,
-  onManageSubscription,
-  onManageServices,
   onToggleVIP,
   onValidateProvider,
 }: UserTableColumnsProps) => {
@@ -122,12 +123,12 @@ export const createUserTableColumns = ({
     },
     {
       field: "spending",
-      headerName: "Spending",
+      headerName: "Financier",
       sortable: false,
       filterable: false,
       valueGetter: (value: string | null, row: UserProfile) => {
         const activity = activityData?.[row.id];
-        return activity ? activity.totalSpent : 0;
+        return getFinancialAmount(row, activity);
       },
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
         <SpendingCell params={params} activityData={activityData} />
@@ -148,9 +149,6 @@ export const createUserTableColumns = ({
           onPasswordReset={onPasswordReset}
           onLockAccount={onLockAccount}
           onUnlockAccount={onUnlockAccount}
-          onViewBookings={onViewBookings}
-          onManageSubscription={onManageSubscription}
-          onManageServices={onManageServices}
           onToggleVIP={onToggleVIP}
           onValidateProvider={onValidateProvider}
         />

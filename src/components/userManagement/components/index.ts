@@ -3,7 +3,7 @@ export { UserHeader } from "./UserHeader";
 export { UserStatsSection } from "./UserStatsSection";
 // UserStatsSectionNew moved to _obsolete (used obsolete hooks)
 export { UserTableSection } from "./UserTableSection";
-export { UserLoadingIndicator } from "./UserLoadingIndicator";
+
 export { UserFiltersSection } from "./UserFiltersSection";
 export { ModalsManager } from "./ModalsManager";
 export { UserTableActionsHub } from "./UserTableActionsHub";

@@ -56,9 +56,6 @@ interface UserTableSectionProps {
   onPasswordReset: (userId: string) => void;
   onLockAccount: (userId: string) => void;
   onUnlockAccount: (userId: string) => void;
-  onViewBookings: (userId: string, userName: string) => void;
-  onManageSubscription: (userId: string, userName: string) => void;
-  onManageServices: (userId: string, userName: string) => void;
   onToggleVIP: (userId: string, isVIP: boolean) => void;
   onValidateProvider: (userId: string, approved: boolean) => void;
 
@@ -273,9 +270,6 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
   onPasswordReset,
   onLockAccount,
   onUnlockAccount,
-  onViewBookings,
-  onManageSubscription,
-  onManageServices,
   onToggleVIP,
   onValidateProvider,
   filteredUsers,
@@ -395,9 +389,6 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
           onPasswordReset={onPasswordReset}
           onLockAccount={onLockAccount}
           onUnlockAccount={onUnlockAccount}
-          onViewBookings={onViewBookings}
-          onManageSubscription={onManageSubscription}
-          onManageServices={onManageServices}
           onToggleVIP={onToggleVIP}
           onValidateProvider={onValidateProvider}
         />

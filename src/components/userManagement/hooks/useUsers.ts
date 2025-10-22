@@ -9,10 +9,9 @@ import {
   USER_QUERY_KEYS,
 } from "./useUserQueries";
 import { useUserActivity } from "./useUserQueries";
-import { useUserMutations } from "./useUserMutations";
+import { useUserActions } from "./useUserActions"; // 🎯 FUSION 1: Hook unifié d'actions
 import { useSecurityActions } from "./useSecurityActions";
-import { useAnonymization } from "./useAnonymization";
-import { useModals } from "./useUserModals";
+import { useUserInterface } from "./useUserInterface"; // 🎯 FUSION 2: Hook unifié d'interface
 import { useExport } from "../../../hooks/shared/useExport";
 
 // Types
@@ -317,17 +316,14 @@ export const useUsers = (options: UseUsersOptions = {}) => {
   // HOOKS BUSINESS - MUTATIONS & ACTIONS
   // ========================================
 
-  // 1. Mutations CRUD de base
-  const mutations = useUserMutations();
+  // 🎯 FUSION 1: Hook unifié d'actions business (sans props pour l'instant)
+  const userActions = useUserActions();
 
-  // 2. Actions de sécurité
+  // 2. Actions de sécurité (conservé séparément - logique critique)
   const securityActions = useSecurityActions();
 
-  // 3. Actions d'anonymisation
-  const anonymization = useAnonymization();
-
-  // 4. Gestion des modals
-  const modals = useModals();
+  // 4. Gestion des modals (FUSION 2)
+  const modals = useUserInterface();
 
   // 5. Export functionality
   const { exportUsers } = useExport();
@@ -342,7 +338,7 @@ export const useUsers = (options: UseUsersOptions = {}) => {
       );
 
       for (const user of selectedUsersList) {
-        await mutations.updateUser.mutateAsync({
+        await userActions.updateUser.mutateAsync({
           userId: user.id,
           updates: { profile_validated: true },
         });
@@ -356,45 +352,25 @@ export const useUsers = (options: UseUsersOptions = {}) => {
   }, [
     currentDisplayUsers,
     selectedUsers,
-    mutations.updateUser,
-    showNotification,
-    clearUserSelection,
-  ]);
-
-  const handleBulkSetPending = useCallback(async () => {
-    try {
-      const selectedUsersList = currentDisplayUsers.filter((u: UserProfile) =>
-        selectedUsers.includes(u.id)
-      );
-
-      for (const user of selectedUsersList) {
-        await mutations.updateUser.mutateAsync({
-          userId: user.id,
-          updates: { profile_validated: false },
-        });
-      }
-
-      showNotification("Utilisateurs mis en attente en masse", "success");
-      clearUserSelection();
-    } catch (error) {
-      showNotification("Erreur lors de la mise en attente en masse", "error");
-    }
-  }, [
-    currentDisplayUsers,
-    selectedUsers,
-    mutations.updateUser,
+    userActions.updateUser,
     showNotification,
     clearUserSelection,
   ]);
 
   const handleBulkAddVip = useCallback(async () => {
+    // 🟡 CONFIRMATION SIMPLE pour action commerciale
+    const confirmed = window.confirm(
+      `⭐ Accorder le statut VIP à ${selectedUsers.length} utilisateur(s) ?`
+    );
+    if (!confirmed) return;
+
     try {
       const selectedUsersList = currentDisplayUsers.filter((u: UserProfile) =>
         selectedUsers.includes(u.id)
       );
 
       for (const user of selectedUsersList) {
-        await mutations.updateUser.mutateAsync({
+        await userActions.updateUser.mutateAsync({
           userId: user.id,
           updates: { vip_subscription: true },
         });
@@ -408,19 +384,25 @@ export const useUsers = (options: UseUsersOptions = {}) => {
   }, [
     currentDisplayUsers,
     selectedUsers,
-    mutations.updateUser,
+    userActions.updateUser,
     showNotification,
     clearUserSelection,
   ]);
 
   const handleBulkRemoveVip = useCallback(async () => {
+    // 🟡 CONFIRMATION SIMPLE pour action commerciale
+    const confirmed = window.confirm(
+      `⭐ Retirer le statut VIP à ${selectedUsers.length} utilisateur(s) ?`
+    );
+    if (!confirmed) return;
+
     try {
       const selectedUsersList = currentDisplayUsers.filter((u: UserProfile) =>
         selectedUsers.includes(u.id)
       );
 
       for (const user of selectedUsersList) {
-        await mutations.updateUser.mutateAsync({
+        await userActions.updateUser.mutateAsync({
           userId: user.id,
           updates: { vip_subscription: false },
         });
@@ -434,51 +416,175 @@ export const useUsers = (options: UseUsersOptions = {}) => {
   }, [
     currentDisplayUsers,
     selectedUsers,
-    mutations.updateUser,
+    userActions.updateUser,
     showNotification,
     clearUserSelection,
   ]);
 
-  const handleBulkActionConfirm = useCallback(async () => {
+  // 🔴 ACTIONS CRITIQUES avec confirmations renforcées
+  const handleBulkDelete = useCallback(async () => {
+    const confirmed = window.confirm(
+      `⚠️ ATTENTION: Supprimer définitivement ${selectedUsers.length} utilisateur(s) ?\n\nCette action est irréversible et supprimera toutes les données associées.`
+    );
+    if (!confirmed) return;
+
     try {
-      const bulkState = modals.bulkActionData;
-
-      if (bulkState.type === "delete") {
-        // Soft delete en lot
-        await Promise.all(
-          selectedUsers.map((userId) =>
-            mutations.deleteUser.mutateAsync(userId)
-          )
-        );
-        showNotification("Utilisateurs supprimés", "success");
-      } else if (bulkState.type === "role") {
-        for (const userId of selectedUsers) {
-          await mutations.updateUser.mutateAsync({
-            userId: userId,
-            updates: { role: bulkState.roleChange as any },
-          });
-        }
-        showNotification("Rôles mis à jour", "success");
-      } else if (bulkState.type === "vip") {
-        for (const userId of selectedUsers) {
-          await mutations.updateUser.mutateAsync({
-            userId: userId,
-            updates: { vip_subscription: bulkState.vipChange },
-          });
-        }
-        showNotification("Statuts VIP mis à jour", "success");
-      }
-
+      await Promise.all(
+        selectedUsers.map((userId) =>
+          userActions.deleteUser.mutateAsync(userId)
+        )
+      );
+      showNotification("Utilisateurs supprimés avec succès", "success");
       clearUserSelection();
-      modals.closeBulkActionModal();
     } catch (error) {
-      showNotification("Erreur lors de l'action en masse", "error");
+      showNotification("Erreur lors de la suppression en masse", "error");
     }
   }, [
-    modals,
     selectedUsers,
-    mutations.updateUser,
-    mutations.deleteUser,
+    userActions.deleteUser,
+    showNotification,
+    clearUserSelection,
+  ]);
+
+  const handleBulkSuspend = useCallback(async () => {
+    const confirmed = window.confirm(
+      `🚫 Suspendre ${selectedUsers.length} utilisateur(s) ?\n\nIls ne pourront plus accéder à la plateforme.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const selectedUsersList = currentDisplayUsers.filter((u: UserProfile) =>
+        selectedUsers.includes(u.id)
+      );
+
+      for (const user of selectedUsersList) {
+        await userActions.updateUser.mutateAsync({
+          userId: user.id,
+          updates: { account_locked: true },
+        });
+      }
+
+      showNotification("Utilisateurs suspendus en masse", "success");
+      clearUserSelection();
+    } catch (error) {
+      showNotification("Erreur lors de la suspension en masse", "error");
+    }
+  }, [
+    currentDisplayUsers,
+    selectedUsers,
+    userActions.updateUser,
+    showNotification,
+    clearUserSelection,
+  ]);
+
+  // 🟢 ACTIONS SÛRES (directes, sans confirmation)
+  const handleBulkUnsuspend = useCallback(async () => {
+    try {
+      const selectedUsersList = currentDisplayUsers.filter((u: UserProfile) =>
+        selectedUsers.includes(u.id)
+      );
+
+      for (const user of selectedUsersList) {
+        await userActions.updateUser.mutateAsync({
+          userId: user.id,
+          updates: { account_locked: false },
+        });
+      }
+
+      showNotification("Utilisateurs réactivés en masse", "success");
+      clearUserSelection();
+    } catch (error) {
+      showNotification("Erreur lors de la réactivation en masse", "error");
+    }
+  }, [
+    currentDisplayUsers,
+    selectedUsers,
+    userActions.updateUser,
+    showNotification,
+    clearUserSelection,
+  ]);
+
+  const handleBulkSetPending = useCallback(async () => {
+    // 🟡 CONFIRMATION SIMPLE pour workflow
+    const confirmed = window.confirm(
+      `⏳ Mettre ${selectedUsers.length} utilisateur(s) en attente de validation ?`
+    );
+    if (!confirmed) return;
+
+    try {
+      const selectedUsersList = currentDisplayUsers.filter((u: UserProfile) =>
+        selectedUsers.includes(u.id)
+      );
+
+      for (const user of selectedUsersList) {
+        await userActions.updateUser.mutateAsync({
+          userId: user.id,
+          updates: { profile_validated: false },
+        });
+      }
+
+      showNotification("Utilisateurs mis en attente en masse", "success");
+      clearUserSelection();
+    } catch (error) {
+      showNotification("Erreur lors de la mise en attente en masse", "error");
+    }
+  }, [
+    currentDisplayUsers,
+    selectedUsers,
+    userActions.updateUser,
+    showNotification,
+    clearUserSelection,
+  ]);
+
+  // 🔴 ACTION CRITIQUE - Changement de rôle avec sélection
+  const handleBulkChangeRole = useCallback(async () => {
+    const roleOptions =
+      "Options de rôles:\n1 - user (Utilisateur)\n2 - provider (Prestataire)\n3 - admin (Administrateur)";
+    const roleChoice = window.prompt(
+      `👤 Changer le rôle de ${selectedUsers.length} utilisateur(s)\n\n${roleOptions}\n\nEntrez le numéro (1, 2, ou 3):`
+    );
+
+    if (!roleChoice) return; // Annulé
+
+    let newRole: string;
+    switch (roleChoice.trim()) {
+      case "1":
+        newRole = "user";
+        break;
+      case "2":
+        newRole = "provider";
+        break;
+      case "3":
+        newRole = "admin";
+        break;
+      default:
+        alert("❌ Choix invalide. Opération annulée.");
+        return;
+    }
+
+    const confirmed = window.confirm(
+      `⚠️ ATTENTION: Changer le rôle de ${selectedUsers.length} utilisateur(s) vers "${newRole}" ?\n\nCela affectera leurs permissions sur la plateforme.`
+    );
+    if (!confirmed) return;
+
+    try {
+      for (const userId of selectedUsers) {
+        await userActions.updateUser.mutateAsync({
+          userId: userId,
+          updates: { role: newRole as any },
+        });
+      }
+      showNotification(
+        `Rôles changés vers "${newRole}" avec succès`,
+        "success"
+      );
+      clearUserSelection();
+    } catch (error) {
+      showNotification("Erreur lors du changement de rôle en masse", "error");
+    }
+  }, [
+    selectedUsers,
+    userActions.updateUser,
     showNotification,
     clearUserSelection,
   ]);
@@ -631,10 +737,10 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     // ========================================
     // 🛠️ MUTATIONS CRUD (remplace mutations individuelles)
     // ========================================
-    updateUser: mutations.updateUser,
-    softDeleteUser: mutations.deleteUser,
-    restoreUser: mutations.restoreUser,
-    mutations, // Accès complet aux mutations
+    updateUser: userActions.updateUser,
+    softDeleteUser: userActions.deleteUser,
+    restoreUser: userActions.restoreUser,
+    userActions, // 🎯 FUSION 1: Accès unifié aux actions business
 
     // ========================================
     // 🔒 ACTIONS MÉTIER (remplace useSecurityActions)
@@ -642,9 +748,9 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     securityActions,
 
     // ========================================
-    // 🗑️ ANONYMISATION (remplace useAnonymizationModals + actions)
+    // 🗑️ ANONYMISATION (fusionnée dans userActions)
     // ========================================
-    anonymization,
+    anonymization: userActions, // Logique d'anonymisation fusionnée
 
     // ========================================
     // 🎭 MODALS (remplace useUserModals, useRoleModals, useAnonymizationModals)
@@ -657,9 +763,12 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     bulkActions: {
       handleBulkValidate,
       handleBulkSetPending,
+      handleBulkSuspend,
+      handleBulkUnsuspend,
       handleBulkAddVip,
       handleBulkRemoveVip,
-      handleBulkActionConfirm,
+      handleBulkDelete,
+      handleBulkChangeRole,
     },
 
     // ========================================

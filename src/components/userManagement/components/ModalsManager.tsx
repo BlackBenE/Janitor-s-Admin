@@ -5,10 +5,6 @@ import {
   PasswordResetModal,
   AuditModal,
   LockAccountModal,
-  BulkActionModal,
-  BookingsModal,
-  SubscriptionModal,
-  ServicesModal,
   BulkSmartDeleteModal,
 } from "../modals";
 import { SmartDeleteModal } from "../modals/SmartDeleteModal";
@@ -17,7 +13,7 @@ import {
   UserProfile,
   AuditModalState,
   LockAccountState,
-  BulkActionState,
+  UserActivityData,
 } from "../../../types/userManagement";
 import {
   DeletionReason,
@@ -31,6 +27,7 @@ interface ModalsManagerProps {
   showUserDetailsModal: boolean;
   selectedUser: UserProfile | null;
   editForm: Partial<UserProfile>;
+  activityData?: Record<string, UserActivityData>;
   onCloseUserDetailsModal: () => void;
 
   // Create User Modal
@@ -55,22 +52,6 @@ interface ModalsManagerProps {
   onCloseLockModal: () => void;
   onUpdateLockDuration: (duration: number) => void;
   onUpdateLockReason: (reason: string) => void;
-
-  // Bulk Action Modal
-  showBulkActionModal: boolean;
-  bulkActionState: BulkActionState;
-  selectedUsers: string[];
-  onCloseBulkActionModal: () => void;
-  onUpdateRoleChange: (role: string) => void;
-  onUpdateVipChange: (vip: boolean) => void;
-
-  // Role-specific modals state
-  bookingsModal: { open: boolean; userId: string; userName: string };
-  subscriptionModal: { open: boolean; userId: string; userName: string };
-  servicesModal: { open: boolean; userId: string; userName: string };
-  onCloseBookingsModal: () => void;
-  onCloseSubscriptionModal: () => void;
-  onCloseServicesModal: () => void;
 
   // ======================== ANONYMIZATION & DELETION MODALS ========================
 
@@ -120,7 +101,6 @@ interface ModalsManagerProps {
   onCreateUser: () => void;
   onPasswordResetConfirm: () => void;
   onLockAccountConfirm: () => void;
-  onBulkActionConfirm: () => void;
 }
 
 /**
@@ -132,6 +112,7 @@ export const ModalsManager: React.FC<ModalsManagerProps> = ({
   showUserDetailsModal,
   selectedUser,
   editForm,
+  activityData,
   onCloseUserDetailsModal,
   showCreateUserModal,
   onCloseCreateUserModal,
@@ -148,18 +129,6 @@ export const ModalsManager: React.FC<ModalsManagerProps> = ({
   onCloseLockModal,
   onUpdateLockDuration,
   onUpdateLockReason,
-  showBulkActionModal,
-  bulkActionState,
-  selectedUsers,
-  onCloseBulkActionModal,
-  onUpdateRoleChange,
-  onUpdateVipChange,
-  bookingsModal,
-  subscriptionModal,
-  servicesModal,
-  onCloseBookingsModal,
-  onCloseSubscriptionModal,
-  onCloseServicesModal,
 
   // Anonymization Modals Props
   smartDeleteModalOpen,
@@ -187,7 +156,6 @@ export const ModalsManager: React.FC<ModalsManagerProps> = ({
   onCreateUser,
   onPasswordResetConfirm,
   onLockAccountConfirm,
-  onBulkActionConfirm,
 }) => {
   return (
     <>
@@ -197,8 +165,9 @@ export const ModalsManager: React.FC<ModalsManagerProps> = ({
       <UserDetailsModal
         open={showUserDetailsModal}
         user={selectedUser}
-        onClose={onCloseUserDetailsModal}
         editForm={editForm}
+        activityData={activityData}
+        onClose={onCloseUserDetailsModal}
         onSave={onSaveUser}
         onOpenLockModal={onOpenLockModal}
         onUnlockAccount={onUnlockAccount}
@@ -243,40 +212,6 @@ export const ModalsManager: React.FC<ModalsManagerProps> = ({
         onConfirm={onLockAccountConfirm}
         onUpdateDuration={onUpdateLockDuration}
         onUpdateReason={onUpdateLockReason}
-      />
-
-      {/* Bulk Action Modal */}
-      <BulkActionModal
-        open={showBulkActionModal}
-        bulkAction={bulkActionState}
-        selectedUsers={selectedUsers}
-        onClose={onCloseBulkActionModal}
-        onConfirm={onBulkActionConfirm}
-        onUpdateRoleChange={onUpdateRoleChange}
-        onUpdateVipChange={onUpdateVipChange}
-      />
-
-      {/* ======================== ROLE-SPECIFIC MODALS ======================== */}
-
-      <BookingsModal
-        open={bookingsModal.open}
-        userId={bookingsModal.userId}
-        userName={bookingsModal.userName}
-        onClose={onCloseBookingsModal}
-      />
-
-      <SubscriptionModal
-        open={subscriptionModal.open}
-        userId={subscriptionModal.userId}
-        userName={subscriptionModal.userName}
-        onClose={onCloseSubscriptionModal}
-      />
-
-      <ServicesModal
-        open={servicesModal.open}
-        userId={servicesModal.userId}
-        userName={servicesModal.userName}
-        onClose={onCloseServicesModal}
       />
 
       {/* ======================== ANONYMIZATION & DELETION MODALS ======================== */}

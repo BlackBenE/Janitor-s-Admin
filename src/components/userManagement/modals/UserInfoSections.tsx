@@ -21,15 +21,23 @@ import {
   CheckCircle as CheckIcon,
   Delete as DeleteIcon,
   Schedule as ScheduleIcon,
+  Subscriptions as SubscriptionsIcon,
+  Payment as PaymentIcon,
 } from "@mui/icons-material";
-import { UserProfileWithAnonymization } from "../../../types/userManagement";
+import {
+  UserProfileWithAnonymization,
+  UserActivityData,
+} from "../../../types/userManagement";
 import {
   AnonymizationLevel,
   DeletionReason,
 } from "../../../types/dataRetention";
+import { useUserSubscriptions } from "../hooks/useUserQueries";
 
 interface UserInfoSectionsProps {
   user: UserProfileWithAnonymization;
+  layoutMode?: "main" | "sidebar" | "full";
+  activityData?: Record<string, UserActivityData>;
 }
 
 // Composant d'item d'information réutilisable
@@ -49,7 +57,11 @@ const InfoItem: React.FC<InfoItemProps> = ({ icon, label, value }) => (
   </Box>
 );
 
-export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({ user }) => {
+export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
+  user,
+  layoutMode = "full",
+  activityData,
+}) => {
   // Fonctions utilitaires pour les rôles
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -177,172 +189,321 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({ user }) => {
   const retentionInfo = getRetentionProgress();
   const isDeleted = user.deleted_at || user.anonymization_level;
 
-  return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {/* Section 1: Informations de base */}
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Basic Information
-          </Typography>
-          <InfoItem
-            icon={<PersonIcon color="action" fontSize="small" />}
-            label="Name"
-            value={user.full_name || "Not specified"}
-          />
-          <InfoItem
-            icon={<EmailIcon color="action" fontSize="small" />}
-            label="Email"
-            value={user.email}
-          />
-          <InfoItem
-            icon={<PhoneIcon color="action" fontSize="small" />}
-            label="Phone"
-            value={user.phone || "Not specified"}
-          />
-          <InfoItem
-            icon={<CalendarIcon color="action" fontSize="small" />}
-            label="Created"
-            value={
-              user.created_at
-                ? new Date(user.created_at).toLocaleDateString()
-                : "Unknown"
-            }
-          />
-        </CardContent>
-      </Card>
+  // Sections communes
+  const BasicInfoSection = () => (
+    <Card>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          Basic Information
+        </Typography>
+        <InfoItem
+          icon={<PersonIcon color="action" fontSize="small" />}
+          label="Name"
+          value={user.full_name || "Not specified"}
+        />
+        <InfoItem
+          icon={<EmailIcon color="action" fontSize="small" />}
+          label="Email"
+          value={user.email}
+        />
+        <InfoItem
+          icon={<PhoneIcon color="action" fontSize="small" />}
+          label="Phone"
+          value={user.phone || "Not specified"}
+        />
+        <InfoItem
+          icon={<CalendarIcon color="action" fontSize="small" />}
+          label="Created"
+          value={
+            user.created_at
+              ? new Date(user.created_at).toLocaleDateString()
+              : "Unknown"
+          }
+        />
+      </CardContent>
+    </Card>
+  );
 
-      {/* Section 2: Informations de compte */}
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Account Information
-          </Typography>
+  const AccountInfoSection = () => (
+    <Card>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          Account Information
+        </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+              gutterBottom
+            >
+              Role & Permissions
+            </Typography>
+            <Chip
+              icon={<AccountIcon />}
+              label={getRoleLabel(user.role)}
+              color={getRoleColor(user.role)}
+              sx={{ mb: 1 }}
+            />
+          </Box>
 
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                display="block"
-                gutterBottom
-              >
-                Role & Permissions
-              </Typography>
+          <Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+              gutterBottom
+            >
+              Account Status
+            </Typography>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
               <Chip
-                icon={<AccountIcon />}
-                label={getRoleLabel(user.role)}
-                color={getRoleColor(user.role)}
-                sx={{ mb: 1 }}
+                label={user.account_locked ? "Locked" : "Active"}
+                color={user.account_locked ? "error" : "success"}
+                size="small"
               />
-            </Box>
-
-            <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                display="block"
-                gutterBottom
-              >
-                Account Status
-              </Typography>
-              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              <Chip
+                label={user.profile_validated ? "Verified" : "Unverified"}
+                color={user.profile_validated ? "success" : "warning"}
+                size="small"
+              />
+              {user.vip_subscription && (
                 <Chip
-                  label={user.account_locked ? "Locked" : "Active"}
-                  color={user.account_locked ? "error" : "success"}
+                  icon={<VipIcon />}
+                  label="VIP Member"
+                  color="primary"
                   size="small"
                 />
-                <Chip
-                  label={user.profile_validated ? "Verified" : "Unverified"}
-                  color={user.profile_validated ? "success" : "warning"}
-                  size="small"
-                />
-                {user.vip_subscription && (
-                  <Chip
-                    icon={<VipIcon />}
-                    label="VIP Member"
-                    color="primary"
-                    size="small"
-                  />
-                )}
-              </Box>
-            </Box>
-
-            <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                display="block"
-                gutterBottom
-              >
-                Security Information
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <SecurityIcon color="action" fontSize="small" />
-                <Typography variant="body2">
-                  Last updated:{" "}
-                  {user.updated_at
-                    ? new Date(user.updated_at).toLocaleDateString()
-                    : "Unknown"}
-                </Typography>
-              </Box>
+              )}
             </Box>
           </Box>
-        </CardContent>
-      </Card>
 
-      {/* Section 3: Informations d'anonymisation (seulement si applicable) */}
-      {isDeleted && (
-        <Card sx={{ border: 1, borderColor: "warning.main" }}>
-          <CardContent>
-            {/* Alerte principale pour utilisateur supprimé */}
-            {user.deleted_at && (
-              <Alert severity="warning" sx={{ mb: 2 }}>
-                <Typography variant="body2" fontWeight="medium">
-                  🗑️ Utilisateur supprimé le{" "}
-                  {new Date(user.deleted_at).toLocaleDateString()}
-                </Typography>
-              </Alert>
-            )}
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              {getAnonymizationIcon(user.anonymization_level)}
-              <Typography variant="h6" color="text.primary">
-                Statut d'anonymisation
+          <Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+              gutterBottom
+            >
+              Security Information
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <SecurityIcon color="action" fontSize="small" />
+              <Typography variant="body2">
+                Last updated:{" "}
+                {user.updated_at
+                  ? new Date(user.updated_at).toLocaleDateString()
+                  : "Unknown"}
               </Typography>
             </Box>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
+  );
 
-            {/* Niveau d'anonymisation */}
-            <Box sx={{ mb: 2 }}>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-              >
-                <Typography variant="body2" color="text.secondary">
-                  Niveau:
+  // Section Abonnements compacte pour la sidebar
+  const SubscriptionInfoSection = () => {
+    const { data: subscriptions = [], isLoading: loadingSubscriptions } =
+      useUserSubscriptions(user.id, { enabled: !!user.id });
+
+    const activeSubscription = subscriptions.find((s) => s.status === "active");
+
+    // Utiliser activityData pour le total global des dépenses au lieu de seulement les abonnements
+    const userActivity = activityData?.[user.id];
+    const totalSpent = userActivity?.totalSpent || 0;
+    const subscriptionSpent = subscriptions.reduce(
+      (sum, sub) => sum + sub.amount,
+      0
+    );
+
+    const formatCurrency = (amount: number) => {
+      return new Intl.NumberFormat("fr-FR", {
+        style: "currency",
+        currency: "EUR",
+      }).format(amount);
+    };
+
+    const getStatusColor = (status: string) => {
+      switch (status?.toLowerCase()) {
+        case "active":
+          return "success";
+        case "expired":
+          return "error";
+        case "pending":
+          return "warning";
+        default:
+          return "default";
+      }
+    };
+
+    return (
+      <Card>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <SubscriptionsIcon />
+              Subscription Info
+            </Box>
+          </Typography>
+
+          {loadingSubscriptions ? (
+            <LinearProgress sx={{ mb: 2 }} />
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {/* Statut d'abonnement */}
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  display="block"
+                  gutterBottom
+                >
+                  Current Status
                 </Typography>
                 <Chip
-                  label={user.anonymization_level}
-                  color={getAnonymizationColor(user.anonymization_level)}
+                  icon={activeSubscription ? <CheckIcon /> : <WarningIcon />}
+                  label={
+                    activeSubscription ? "Active" : "No Active Subscription"
+                  }
+                  color={activeSubscription ? "success" : "default"}
                   size="small"
-                  icon={getAnonymizationIcon(user.anonymization_level)}
                 />
               </Box>
-              <Typography variant="body2" color="text.secondary">
+
+              {/* Total dépensé global */}
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  display="block"
+                  gutterBottom
+                >
+                  Total dépensé
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <PaymentIcon color="action" fontSize="small" />
+                  <Typography variant="body2" fontWeight="medium">
+                    {formatCurrency(totalSpent)}
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Total abonnements */}
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  display="block"
+                  gutterBottom
+                >
+                  Abonnements
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <SubscriptionsIcon color="action" fontSize="small" />
+                  <Typography variant="body2" fontWeight="medium">
+                    {formatCurrency(subscriptionSpent)}
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Nombre d'abonnements */}
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  display="block"
+                  gutterBottom
+                >
+                  Subscriptions Count
+                </Typography>
+                <Typography variant="body2">
+                  {subscriptions.length} subscription
+                  {subscriptions.length !== 1 ? "s" : ""}
+                </Typography>
+              </Box>
+
+              {/* Détails abonnement actif */}
+              {activeSubscription && (
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                    gutterBottom
+                  >
+                    Active Until
+                  </Typography>
+                  <Typography variant="body2">
+                    {activeSubscription.period_end
+                      ? new Date(
+                          activeSubscription.period_end
+                        ).toLocaleDateString("fr-FR")
+                      : "Unknown"}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const AnonymizationSection = () =>
+    isDeleted ? (
+      <Card sx={{ border: 1, borderColor: "warning.main" }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Data Protection & Privacy
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {/* Niveau d'anonymisation */}
+            <Box>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                display="block"
+                gutterBottom
+              >
+                Anonymization Level
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                {getAnonymizationIcon(user.anonymization_level)}
+                <Chip
+                  label={user.anonymization_level || "Non spécifié"}
+                  color={getAnonymizationColor(user.anonymization_level)}
+                  size="small"
+                />
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 {getAnonymizationDescription(user.anonymization_level)}
               </Typography>
             </Box>
 
-            {/* Raison de la suppression/anonymisation */}
+            {/* Raison de la suppression */}
             {user.deletion_reason && (
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Raison: {getDeletionReasonLabel(user.deletion_reason)}
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  display="block"
+                  gutterBottom
+                >
+                  Deletion Reason
                 </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <WarningIcon color="warning" fontSize="small" />
+                  <Typography variant="body2" color="text.secondary">
+                    {getDeletionReasonLabel(user.deletion_reason)}
+                  </Typography>
+                </Box>
               </Box>
             )}
 
             {/* Dates importantes */}
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
               {user.deleted_at && (
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                   Supprimé le: {new Date(user.deleted_at).toLocaleDateString()}
@@ -373,7 +534,6 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({ user }) => {
                       Rétention des données
                     </Typography>
                   </Box>
-
                   <LinearProgress
                     variant="determinate"
                     value={retentionInfo.progress}
@@ -386,7 +546,6 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({ user }) => {
                         : "primary"
                     }
                   />
-
                   <Typography variant="caption" color="text.secondary">
                     {retentionInfo.isExpired
                       ? "Période de rétention expirée - Purge programmée"
@@ -423,9 +582,38 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({ user }) => {
                 </Typography>
               </Alert>
             )}
-          </CardContent>
-        </Card>
-      )}
+          </Box>
+        </CardContent>
+      </Card>
+    ) : null;
+
+  // Layout conditionnel selon le mode
+  if (layoutMode === "sidebar") {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <AccountInfoSection />
+        <SubscriptionInfoSection />
+        <AnonymizationSection />
+      </Box>
+    );
+  }
+
+  if (layoutMode === "main") {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <BasicInfoSection />
+        {/* Ici on peut ajouter d'autres sections spécifiques au contenu principal */}
+      </Box>
+    );
+  }
+
+  // Mode "full" - layout original
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <BasicInfoSection />
+      <AccountInfoSection />
+      <SubscriptionInfoSection />
+      <AnonymizationSection />
     </Box>
   );
 };

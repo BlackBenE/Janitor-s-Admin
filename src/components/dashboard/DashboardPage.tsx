@@ -7,11 +7,11 @@ import {
   DashboardStatsCards,
   DashboardChartsSection,
   DashboardActivitiesSection,
-  DashboardLoadingIndicator,
   DashboardStatsSkeleton,
   DashboardChartsSkeleton,
   DashboardActivitiesSkeleton,
 } from "./components";
+import { LoadingIndicator } from "../shared";
 
 function DashboardPage() {
   const {
@@ -73,7 +73,13 @@ function DashboardPage() {
       )}
 
       {/* Indicateur de chargement pendant le rafraîchissement */}
-      <DashboardLoadingIndicator isRefreshing={isRefreshing} />
+      {isRefreshing && (
+        <LoadingIndicator
+          loadingText="Mise à jour des données..."
+          withLayout={false}
+          minHeight="50px"
+        />
+      )}
     </AdminLayout>
   );
 }

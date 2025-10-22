@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 
 export interface ServiceProperty extends Record<string, unknown> {
-  Property: string;
-  Owner: string;
-  Location: string;
-  Price: string;
+  Service: string;
+  Category: string;
+  Providers: string;
+  Avg_Price?: string;
+  "Avg Price"?: string;
+  Popularity: number;
   Status: string;
-  Submitted: string;
-  Actions: string;
 }
 
 export interface ServiceStats {
@@ -27,87 +27,49 @@ export const useServicesCatalog = () => {
 
   // Mock data - replace with real API calls
   const columns: ServiceColumn[] = [
-    { field: "Property", headerName: "Property" },
-    { field: "Owner", headerName: "Owner" },
-    { field: "Location", headerName: "Location" },
-    { field: "Price", headerName: "Price" },
+    { field: "Service	", headerName: "Service" },
+    { field: "Category", headerName: "Category" },
+    { field: "Providers", headerName: "Providers" },
+    { field: "Avg Price	", headerName: "Avg Price" },
+    { field: "Popularity	", headerName: "Popularity" },
     { field: "Status", headerName: "Status" },
-    { field: "Submitted", headerName: "Submitted" },
-    { field: "Actions", headerName: "Actions" },
   ];
 
   const data: ServiceProperty[] = [
     {
-      Property: "Luxury Apartment",
-      Owner: "John Doe",
-      Location: "New York",
-      Price: "$3,000",
+      Service: "Home Cleaning",
+      Category: "Home Services",
+      Providers: "Acme Cleaners",
+      Popularity: 87,
+      Status: "Active",
+    },
+    {
+      Service: "Lawn Maintenance",
+      Category: "Outdoor",
+      Providers: "GreenThumb Ltd.",
+      Popularity: 72,
+      Status: "Inactive",
+    },
+    {
+      Service: "Plumbing Repair",
+      Category: "Home Repair",
+      Providers: "PipeWorks",
+      Popularity: 64,
       Status: "Pending",
-      Submitted: "2023-10-01",
-      Actions: "Edit | Delete",
     },
     {
-      Property: "Cozy Cottage",
-      Owner: "Jane Smith",
-      Location: "California",
-      Price: "$2,500",
-      Status: "Approved",
-      Submitted: "2023-09-15",
-      Actions: "Edit | Delete",
+      Service: "Dog Walking",
+      Category: "Pet Care",
+      Providers: "Paws & Co.",
+      Popularity: 90,
+      Status: "Active",
     },
     {
-      Property: "Luxury Apartment",
-      Owner: "John Doe",
-      Location: "New York",
-      Price: "$3,000",
-      Status: "Pending",
-      Submitted: "2023-10-01",
-      Actions: "Edit | Delete",
-    },
-    {
-      Property: "Cozy Cottage",
-      Owner: "Jane Smith",
-      Location: "California",
-      Price: "$2,500",
-      Status: "Approved",
-      Submitted: "2023-09-15",
-      Actions: "Edit | Delete",
-    },
-    {
-      Property: "Luxury Apartment",
-      Owner: "John Doe",
-      Location: "New York",
-      Price: "$3,000",
-      Status: "Pending",
-      Submitted: "2023-10-01",
-      Actions: "Edit | Delete",
-    },
-    {
-      Property: "Cozy Cottage",
-      Owner: "Jane Smith",
-      Location: "California",
-      Price: "$2,500",
-      Status: "Approved",
-      Submitted: "2023-09-15",
-      Actions: "Edit | Delete",
-    },
-    {
-      Property: "Luxury Apartment",
-      Owner: "John Doe",
-      Location: "New York",
-      Price: "$3,000",
-      Status: "Pending",
-      Submitted: "2023-10-01",
-      Actions: "Edit | Delete",
-    },
-    {
-      Property: "Cozy Cottage",
-      Owner: "Jane Smith",
-      Location: "California",
-      Price: "$2,500",
-      Status: "Approved",
-      Submitted: "2023-09-15",
-      Actions: "Edit | Delete",
+      Service: "Personal Training",
+      Category: "Wellness",
+      Providers: "FitLife",
+      Popularity: 81,
+      Status: "Active",
     },
   ];
 

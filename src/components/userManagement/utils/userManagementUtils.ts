@@ -64,9 +64,9 @@ export const formatDate = (dateString: string | null): string => {
  * Formate un montant en devise pour l'affichage
  */
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("fr-FR", {
     style: "currency",
-    currency: "USD",
+    currency: "EUR",
   }).format(amount);
 };
 

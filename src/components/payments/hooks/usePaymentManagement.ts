@@ -4,6 +4,7 @@ import {
   PaymentFilters,
   PaymentNotificationState,
 } from "../../../types/payments";
+import { useExport } from "../../../hooks/shared/useExport";
 
 const initialFilters: PaymentFilters = {
   search: "",
@@ -25,6 +26,9 @@ const initialNotification: PaymentNotificationState = {
  * Hook principal pour la gestion de l'état de la page Payments Management
  */
 export const usePaymentManagement = () => {
+  // Hook d'export
+  const { exportToCSV, commonColumns, formatters } = useExport();
+
   // États principaux
   const [selectedPayment, setSelectedPayment] =
     useState<PaymentWithDetails | null>(null);
@@ -193,14 +197,97 @@ export const usePaymentManagement = () => {
   // ACTIONS GROUPÉES
   // =====================================================
 
-  const exportSelectedToCSV = () => {
-    console.log("Export selected payments to CSV:", selectedPayments);
-    showNotification("Paiements sélectionnés exportés", "success");
+  const exportSelectedToCSV = (allPayments: PaymentWithDetails[]) => {
+    const selectedPaymentDetails = allPayments.filter((payment) =>
+      selectedPayments.includes(payment.id)
+    );
+
+    if (selectedPaymentDetails.length === 0) {
+      showNotification("Aucun paiement sélectionné à exporter", "warning");
+      return;
+    }
+
+    // Transformer les données pour inclure les propriétés calculées
+    const transformedData = selectedPaymentDetails.map((payment) => ({
+      ...payment,
+      payer_name: payment.payer
+        ? `${payment.payer.first_name || ""} ${
+            payment.payer.last_name || ""
+          }`.trim()
+        : "N/A",
+      payee_name: payment.payee
+        ? `${payment.payee.first_name || ""} ${
+            payment.payee.last_name || ""
+          }`.trim()
+        : "N/A",
+      service_name:
+        payment.service_request?.service?.title || "Service général",
+      stripe_id: payment.stripe_payment_intent_id || "N/A",
+    }));
+
+    const columns = [
+      { key: "id", label: "ID" },
+      { key: "stripe_id", label: "Stripe ID" },
+      { key: "payer_name", label: "Client" },
+      { key: "payee_name", label: "Prestataire" },
+      commonColumns.currency("amount", "Montant"),
+      { key: "status", label: "Statut" },
+      { key: "service_name", label: "Service" },
+      commonColumns.date("created_at", "Date de création"),
+    ];
+
+    exportToCSV(transformedData, columns, {
+      filename: `paiements_selection_${
+        new Date().toISOString().split("T")[0]
+      }.csv`,
+    });
+
+    showNotification(
+      `${selectedPaymentDetails.length} paiements exportés`,
+      "success"
+    );
   };
 
-  const exportAllToCSV = () => {
-    console.log("Export all payments to CSV");
-    showNotification("Tous les paiements exportés", "success");
+  const exportAllToCSV = (allPayments: PaymentWithDetails[]) => {
+    if (!allPayments || allPayments.length === 0) {
+      showNotification("Aucun paiement à exporter", "warning");
+      return;
+    }
+
+    // Transformer les données pour inclure les propriétés calculées
+    const transformedData = allPayments.map((payment) => ({
+      ...payment,
+      payer_name: payment.payer
+        ? `${payment.payer.first_name || ""} ${
+            payment.payer.last_name || ""
+          }`.trim()
+        : "N/A",
+      payee_name: payment.payee
+        ? `${payment.payee.first_name || ""} ${
+            payment.payee.last_name || ""
+          }`.trim()
+        : "N/A",
+      service_name:
+        payment.service_request?.service?.title || "Service général",
+      stripe_id: payment.stripe_payment_intent_id || "N/A",
+    }));
+
+    const columns = [
+      { key: "id", label: "ID" },
+      { key: "stripe_id", label: "Stripe ID" },
+      { key: "payer_name", label: "Client" },
+      { key: "payee_name", label: "Prestataire" },
+      commonColumns.currency("amount", "Montant"),
+      { key: "status", label: "Statut" },
+      { key: "service_name", label: "Service" },
+      commonColumns.date("created_at", "Date de création"),
+    ];
+
+    exportToCSV(transformedData, columns, {
+      filename: `tous_paiements_${new Date().toISOString().split("T")[0]}.csv`,
+    });
+
+    showNotification(`${allPayments.length} paiements exportés`, "success");
   };
 
   const markSelectedAsPaid = () => {

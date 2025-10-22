@@ -2,7 +2,6 @@ import React from "react";
 import { SvgIconTypeMap } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import DashboardPage from "../components/dashboard/DashboardPage";
-import FinancialOverviewPage from "../components/financialoverview/FinancialOverviewPage";
 import { AuthPage as RefactoredAuthPage } from "../components/auth/AuthPage";
 import { ProfilePage as RefactoredProfilePage } from "../components/profile/ProfilePage";
 import PropertyApprovalsPage from "../components/property-approvals/PropertyApprovalsPage";
@@ -82,16 +81,6 @@ export const routes: Route[] = [
       </ProtectedRoute>
     ),
     icon: AnalyticsOutlinedIcon,
-    protected: true,
-  },
-  {
-    path: "/financial-overview",
-    element: (
-      <ProtectedRoute>
-        <FinancialOverviewPage />
-      </ProtectedRoute>
-    ),
-    icon: EuroOutlinedIcon,
     protected: true,
   },
   {

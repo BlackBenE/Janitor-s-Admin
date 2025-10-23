@@ -5,14 +5,20 @@ import {
   ProfileStats,
 } from "../../types/profile";
 import { useAuth } from "../../providers/authProvider";
-import { dataProvider } from "../../providers/dataProvider";
+import { ProfileService } from "../../services/profileService";
 import { useUINotifications } from "../shared";
 
 /**
  * Hook principal pour la gestion de l'état de la page Profile
  */
 export const useProfile = () => {
-  const { user, userProfile, getUserFullName, getUserPhone } = useAuth();
+  const {
+    user,
+    userProfile,
+    getUserFullName,
+    getUserPhone,
+    refetchUserProfile,
+  } = useAuth();
   const { showSuccess, showError } = useUINotifications();
 
   const [state, setState] = useState<ProfileState>({
@@ -37,13 +43,21 @@ export const useProfile = () => {
   };
 
   const resetForm = () => {
+    console.log("🔄 resetForm called. Current user data:", {
+      fullName: getUserFullName(),
+      phone: getUserPhone(),
+    });
+
     setState((prev) => ({
       ...prev,
       formData: {
         full_name: getUserFullName() || "",
         phone: getUserPhone() || "",
       },
+      isEditMode: false,
     }));
+
+    console.log("✅ Form reset completed");
   };
 
   // Sauvegarde du profil
@@ -59,22 +73,44 @@ export const useProfile = () => {
     }
 
     try {
-      setState((prev) => ({ ...prev, isLoading: true }));
-
-      const response = await dataProvider.update("profiles", user.id, {
-        full_name: state.formData.full_name.trim(),
-        phone: state.formData.phone.trim() || null,
-        updated_at: new Date().toISOString(),
+      console.log("🚀 saveProfile called with:", {
+        userId: user.id,
+        formData: state.formData,
+        currentUserData: {
+          fullName: getUserFullName(),
+          phone: getUserPhone(),
+        },
       });
 
-      if (!response.success) {
-        throw new Error(response.error?.message || "Failed to update profile");
+      setState((prev) => ({ ...prev, isLoading: true }));
+
+      const result = await ProfileService.updateProfile(user.id, {
+        full_name: state.formData.full_name.trim(),
+        phone: state.formData.phone.trim() || null,
+      });
+
+      console.log("📝 ProfileService result:", result);
+
+      if (!result.success) {
+        showError(result.error || "Failed to update profile");
+        return false;
       }
 
       showSuccess("Profile updated successfully!");
       setState((prev) => ({ ...prev, isEditMode: false }));
+
+      console.log("🔄 Refetching user profile...");
+      // Recharger le profil depuis la base de données
+      await refetchUserProfile();
+
+      console.log("✅ Profile update completed. New data:", {
+        fullName: getUserFullName(),
+        phone: getUserPhone(),
+      });
+
       return true;
     } catch (err) {
+      console.error("❌ saveProfile error:", err);
       showError(
         err instanceof Error ? err.message : "Failed to update profile"
       );

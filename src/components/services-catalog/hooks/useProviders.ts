@@ -271,8 +271,77 @@ export const useProvider = (id: string) => {
     queryFn: async (): Promise<ProviderWithMetrics | null> => {
       console.log("🔍 Fetching provider:", id);
 
-      const providers = await useProviders.queryFn?.({ filters: {} });
-      const provider = providers?.find((p) => p.id === id) || null;
+      // Requête directe pour un seul provider
+      const { data: providerData, error } = await supabase
+        .from("profiles")
+        .select(
+          `
+          id,
+          first_name,
+          last_name,
+          email,
+          full_name,
+          phone,
+          avatar_url,
+          created_at,
+          services:services!services_provider_id_fkey (
+            id,
+            name,
+            category,
+            base_price,
+            is_active,
+            description
+          )
+        `
+        )
+        .eq("role", "provider")
+        .eq("id", id)
+        .single();
+
+      if (error || !providerData) {
+        console.warn("Provider not found:", id);
+        return null;
+      }
+
+      // Calculer les métriques pour ce provider
+      const services = providerData.services || [];
+      const activeServices = services.filter((s) => s.is_active);
+
+      // Récupérer les demandes de service pour calculer les métriques
+      const { data: requests } = await supabase
+        .from("service_requests")
+        .select("status, total_amount")
+        .eq("provider_id", id);
+
+      const totalRequests = requests?.length || 0;
+      const pendingRequests =
+        requests?.filter((r) => r.status === "pending").length || 0;
+      const completedRequests =
+        requests?.filter((r) => r.status === "completed").length || 0;
+      const totalRevenue =
+        requests
+          ?.filter((r) => r.status === "completed")
+          .reduce((sum, r) => sum + (r.total_amount || 0), 0) || 0;
+
+      const averageRating =
+        completedRequests > 0
+          ? Math.min(
+              5,
+              Math.max(3, 4 + completedRequests / 10 - pendingRequests / 20)
+            )
+          : 0;
+
+      const provider: ProviderWithMetrics = {
+        ...providerData,
+        servicesCount: services.length,
+        activeServicesCount: activeServices.length,
+        totalRequests,
+        pendingRequests,
+        completedRequests,
+        averageRating: Math.round(averageRating * 10) / 10,
+        totalRevenue,
+        services: services,
+      };
 
       return provider;
     },

@@ -12,6 +12,7 @@ interface PaymentTableColumnsProps {
   onMarkPaid: (paymentId: string) => void;
   onRefund: (paymentId: string) => void;
   onRetry: (paymentId: string) => void;
+  highlightId?: string; // Pour l'highlighting depuis le dashboard
 }
 
 const getStatusColor = (
@@ -133,6 +134,7 @@ export const createPaymentTableColumns = ({
   onMarkPaid,
   onRefund,
   onRetry,
+  highlightId,
 }: PaymentTableColumnsProps): GridColDef[] => [
   {
     field: "select",

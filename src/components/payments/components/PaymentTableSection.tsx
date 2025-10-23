@@ -12,9 +12,10 @@ interface PaymentTableSectionProps {
     event: React.MouseEvent<HTMLElement>,
     newValue: number | null
   ) => void;
-  columns: any[];
+  columns: any;
   transformedData: any[];
   isLoading: boolean;
+  highlightId?: string | null;
 }
 
 export const PaymentTableSection: React.FC<PaymentTableSectionProps> = ({
@@ -25,6 +26,7 @@ export const PaymentTableSection: React.FC<PaymentTableSectionProps> = ({
   columns,
   transformedData,
   isLoading,
+  highlightId,
 }) => {
   return (
     <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
@@ -53,8 +55,32 @@ export const PaymentTableSection: React.FC<PaymentTableSectionProps> = ({
         onBulkExport={paymentManagement.exportSelectedToCSV || (() => {})}
       />
 
-      {/* Table des paiements */}
-      <DataTable columns={columns} data={transformedData} />
+      {/* Table des paiements avec highlighting */}
+      <Box
+        sx={{
+          height: 400,
+          width: "100%",
+          // Style pour l'highlighting
+          ...(highlightId && {
+            "& .MuiDataGrid-row": {
+              transition: "all 0.3s ease",
+            },
+            [`& .MuiDataGrid-row[data-rowindex]:has([data-field="id"][title="${highlightId}"])`]:
+              {
+                backgroundColor: "#fff3cd !important",
+                border: "2px solid #ffc107 !important",
+                animation: "pulseHighlight 2s ease-in-out",
+              },
+            "@keyframes pulseHighlight": {
+              "0%": { backgroundColor: "#fff3cd" },
+              "50%": { backgroundColor: "#fff8e1" },
+              "100%": { backgroundColor: "#fff3cd" },
+            },
+          }),
+        }}
+      >
+        <DataTable columns={columns} data={transformedData} />
+      </Box>
 
       {/* Loading indicator */}
       {isLoading && <Box sx={{ textAlign: "center", py: 2 }}>Loading...</Box>}

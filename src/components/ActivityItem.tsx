@@ -6,6 +6,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import { orange, blue, green } from "@mui/material/colors";
+import { useNavigate } from "react-router-dom";
 
 // Mettez à jour les couleurs pour correspondre au fond de la pastille
 type Status = "Pending" | "Review Required" | "Completed";
@@ -27,6 +28,8 @@ interface ActivityItemProps {
   title: string;
   description: string;
   actionLabel?: string;
+  activityId?: string;
+  activityType?: string;
 }
 
 const ActivityItem: React.FC<ActivityItemProps> = ({
@@ -34,9 +37,58 @@ const ActivityItem: React.FC<ActivityItemProps> = ({
   title,
   description,
   actionLabel,
+  activityId,
+  activityType,
 }) => {
+  const navigate = useNavigate();
+
+  // Mapping des types d'activités vers les routes et actions
+  const getNavigationInfo = (type: string) => {
+    switch (type) {
+      case "property":
+        return { route: "/property-approvals", param: activityId };
+      case "provider":
+      case "pending_user":
+      case "locked_account":
+        return { route: "/user-management", param: activityId };
+      case "service":
+        return { route: "/services-catalog", param: activityId };
+      case "payment":
+      case "failed_payment":
+      case "overdue_payment":
+      case "pending_refund":
+        return { route: "/payments", param: activityId };
+      case "chat_report":
+        return { route: "/user-management", param: activityId }; // Peut-être une future page de modération
+      default:
+        return { route: "/dashboard", param: null };
+    }
+  };
+
+  const handleActionClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Empêche le clic sur la row
+
+    if (!activityType || !activityId) return;
+
+    const navInfo = getNavigationInfo(activityType);
+
+    // Navigation avec paramètre pour ouvrir directement le détail/modale
+    if (navInfo.param) {
+      navigate(`${navInfo.route}?highlight=${navInfo.param}`);
+    } else {
+      navigate(navInfo.route);
+    }
+  };
+  const handleRowClick = () => {
+    if (!activityType) return;
+
+    const navInfo = getNavigationInfo(activityType);
+    navigate(navInfo.route);
+  };
+
   return (
     <Box
+      onClick={handleRowClick}
       sx={{
         display: "flex",
         alignItems: "center",
@@ -44,6 +96,11 @@ const ActivityItem: React.FC<ActivityItemProps> = ({
         p: 2,
         borderBottom: "1px solid #ffffffff", // Bordure fine en bas pour séparer les items
         "&:last-child": { borderBottom: "none" },
+        cursor: "pointer",
+        "&:hover": {
+          backgroundColor: "#f5f5f5",
+        },
+        transition: "background-color 0.2s ease",
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -77,6 +134,7 @@ const ActivityItem: React.FC<ActivityItemProps> = ({
           <Button
             variant="contained"
             disableElevation
+            onClick={handleActionClick}
             sx={{
               backgroundColor: "#1a202c",
               color: "white",

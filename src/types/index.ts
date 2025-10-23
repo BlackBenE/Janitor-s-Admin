@@ -52,3 +52,24 @@ export type {
 } from "./services";
 
 export { SERVICE_CATEGORIES } from "./services";
+
+// Types domaine Quote Requests
+export type {
+  QuoteRequest,
+  QuoteRequestInsert,
+  QuoteRequestUpdate,
+  QuoteRequestWithDetails,
+  QuoteRequestProfile,
+  QuoteRequestService,
+  QuoteRequestProperty,
+  QuoteRequestStatus,
+  QuoteRequestStatusFilter,
+  QuoteRequestFilters,
+  QuoteRequestStats,
+  QuoteRequestTab,
+  QuoteRequestActionConfig,
+  QuoteRequestNotificationState,
+  QuoteRequestPriority,
+} from "./quoteRequests";
+
+export { QUOTE_REQUEST_STATUSES, QUOTE_REQUEST_ACTIONS } from "./quoteRequests";

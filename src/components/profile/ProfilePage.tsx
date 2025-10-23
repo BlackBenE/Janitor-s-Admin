@@ -69,6 +69,7 @@ export const ProfilePage: React.FC = () => {
               {/* Carte profil avec avatar */}
               <ProfileCard
                 avatarInitials={profile.getAvatarInitials()}
+                avatarUrl={profile.userProfile?.avatar_url}
                 fullName={profile.formData.full_name}
                 email={profile.user.email || ""}
                 isAdmin={profile.user.role === "admin"}
@@ -105,6 +106,7 @@ export const ProfilePage: React.FC = () => {
               <SecuritySettingsCard
                 onChangePassword={modals.openChangePasswordModal}
                 onToggleTwoFactor={modals.openTwoFactorModal}
+                onDeleteAccount={modals.openDeleteAccountModal}
                 twoFactorEnabled={false} // TODO: Récupérer depuis les settings
               />
             </>
@@ -125,6 +127,10 @@ export const ProfilePage: React.FC = () => {
           data={modals.avatarUploadData}
           onClose={modals.closeAvatarUploadModal}
           onFileSelect={modals.updateAvatarData}
+          onUploadSuccess={() => {
+            // Force un re-render en rechargeant les données utilisateur
+            window.location.reload();
+          }}
         />
 
         <DeleteAccountModal

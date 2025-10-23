@@ -1,7 +1,6 @@
 // Services Catalog components
 export { ServicesHeader } from "./ServicesHeader";
 export { ServicesStatsSection } from "./ServicesStatsSection";
-export { ServicesTableSection } from "./ServicesTableSection";
 export { ServiceFiltersSection } from "./ServiceFiltersSection";
 export { ServiceTableActions } from "./ServiceTableActions";
 export { createServiceTableColumns } from "./ServiceTableColumns";

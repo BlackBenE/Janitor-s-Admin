@@ -10,8 +10,16 @@ import {
   TextField,
   Alert,
   Stack,
+  CircularProgress,
 } from "@mui/material";
-import { Warning as WarningIcon } from "@mui/icons-material";
+import {
+  Warning as WarningIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
+import { ProfileService } from "../../../services/profileService";
+import { useUINotifications } from "../../../hooks/shared";
+import { useAuth } from "../../../providers/authProvider";
+import { useNavigate } from "react-router-dom";
 
 interface DeleteAccountModalProps {
   open: boolean;
@@ -25,20 +33,51 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   userEmail,
 }) => {
   const [confirmationText, setConfirmationText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("");
+
   const expectedText = "DELETE";
   const isConfirmed = confirmationText === expectedText;
 
-  const handleSubmit = () => {
-    if (isConfirmed) {
-      // TODO: Implement account deletion logic
-      console.log("Deleting account...");
-      onClose();
+  const { user } = useAuth();
+  const { showSuccess, showError } = useUINotifications();
+  const navigate = useNavigate();
+
+  const handleSubmit = async () => {
+    if (!isConfirmed || !user?.id || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      const result = await ProfileService.deleteAccount(
+        user.id,
+        deleteReason || "User requested account deletion"
+      );
+
+      if (result.success) {
+        showSuccess(
+          "Account deleted successfully. You will be redirected to the login page."
+        );
+        // Rediriger vers la page de connexion après 2 secondes
+        setTimeout(() => {
+          navigate("/auth/login");
+        }, 2000);
+      } else {
+        showError(result.error || "Failed to delete account");
+      }
+    } catch (error) {
+      console.error("Delete account error:", error);
+      showError("An unexpected error occurred");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   const handleClose = () => {
-    setConfirmationText("");
-    onClose();
+    if (!isDeleting) {
+      setConfirmationText("");
+      setDeleteReason("");
+      onClose();
+    }
   };
 
   return (
@@ -76,6 +115,21 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
 
           <Box>
             <Typography variant="body2" gutterBottom>
+              Reason for deletion (optional):
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              rows={2}
+              value={deleteReason}
+              onChange={(e) => setDeleteReason(e.target.value)}
+              placeholder="Tell us why you're leaving (optional)"
+              disabled={isDeleting}
+            />
+          </Box>
+
+          <Box>
+            <Typography variant="body2" gutterBottom>
               Please type <strong>DELETE</strong> to confirm:
             </Typography>
             <TextField
@@ -83,6 +137,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
               value={confirmationText}
               onChange={(e) => setConfirmationText(e.target.value)}
               placeholder="Type DELETE to confirm"
+              disabled={isDeleting}
               error={confirmationText.length > 0 && !isConfirmed}
               helperText={
                 confirmationText.length > 0 && !isConfirmed
@@ -95,16 +150,19 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={handleClose} variant="outlined">
+        <Button onClick={handleClose} variant="outlined" disabled={isDeleting}>
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
           color="error"
-          disabled={!isConfirmed}
+          disabled={!isConfirmed || isDeleting}
+          startIcon={
+            isDeleting ? <CircularProgress size={16} /> : <DeleteIcon />
+          }
         >
-          Delete Account
+          {isDeleting ? "Deleting..." : "Delete Account"}
         </Button>
       </DialogActions>
     </Dialog>

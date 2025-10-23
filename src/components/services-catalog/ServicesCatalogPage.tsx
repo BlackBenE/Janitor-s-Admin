@@ -10,9 +10,9 @@ import { useServices, useServiceManagement } from "./hooks";
 import {
   ServicesHeader,
   ServicesStatsSection,
-  ServicesTableSection,
   ServiceRequestsSection,
 } from "./components";
+import { ServicesTableSection } from "./components/ServicesTableSection";
 import { createServiceTableColumns } from "./components/ServiceTableColumns";
 import { ServiceDetailsModal } from "./modals";
 import { LoadingIndicator } from "../shared";

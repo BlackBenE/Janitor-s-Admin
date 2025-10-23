@@ -19,7 +19,7 @@ export {
 export { useProviderStats, useProviderServices } from "./useProviderStats";
 
 // Export service history hooks
-export { useServiceHistory, useServicePerformance } from "./useServiceHistory";
+export { useServiceHistory } from "./useServiceHistory";
 
 // Export service requests hooks
 export {

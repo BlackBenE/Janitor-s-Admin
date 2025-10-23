@@ -5,6 +5,7 @@ export { useUINotifications } from "./useUINotifications";
 export { useExport } from "./useExport";
 export { useDataTable } from "./useDataTable";
 export { useAudit } from "./useAudit";
+export { useHighlightFromUrl } from "./useHighlightFromUrl";
 
 // Types partagés
 export type { FilterState } from "./useFilters";

@@ -17,6 +17,7 @@ import {
 
 interface ProfileCardProps {
   avatarInitials: string;
+  avatarUrl?: string | null;
   fullName: string;
   email: string;
   isAdmin: boolean;
@@ -26,6 +27,7 @@ interface ProfileCardProps {
 
 export const ProfileCard: React.FC<ProfileCardProps> = ({
   avatarInitials,
+  avatarUrl,
   fullName,
   email,
   isAdmin,
@@ -38,6 +40,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         {/* Avatar avec bouton upload */}
         <Box sx={{ position: "relative", display: "inline-block", mb: 2 }}>
           <Avatar
+            src={avatarUrl || undefined}
             sx={{
               width: 120,
               height: 120,
@@ -45,7 +48,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               bgcolor: "primary.main",
             }}
           >
-            {avatarInitials}
+            {!avatarUrl && avatarInitials}
           </Avatar>
           <Button
             variant="contained"

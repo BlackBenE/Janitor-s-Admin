@@ -21,6 +21,7 @@ import {
   PaymentInvoicePdf,
 } from "./components";
 import { LoadingIndicator } from "../shared";
+import { useHighlightFromUrl } from "../../hooks/shared";
 
 // Configuration
 import { paymentTabConfigs } from "../shared";
@@ -30,6 +31,9 @@ import { PaymentWithDetails, PaymentStatusFilter } from "../../types/payments";
 
 export const PaymentsPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState(0);
+
+  // Hook pour gérer le highlight depuis l'URL (navigation depuis dashboard)
+  const { highlightId, isHighlighted, clearHighlight } = useHighlightFromUrl();
 
   const {
     payments: paymentsData = [],
@@ -47,6 +51,17 @@ export const PaymentsPage: React.FC = () => {
 
   // Utilisation des données
   const payments = paymentsData || [];
+
+  // Effect pour ouvrir automatiquement la modale du paiement highlighté
+  React.useEffect(() => {
+    if (highlightId && payments.length > 0) {
+      const paymentToHighlight = payments.find((p) => p.id === highlightId);
+      if (paymentToHighlight) {
+        // Ouvrir automatiquement la modale de détails
+        modals.openPaymentDetailsModal(paymentToHighlight);
+      }
+    }
+  }, [highlightId, payments, modals]);
 
   // Filtrage des données par onglet actuel
   const currentTabConfig = paymentTabConfigs[activeTab];
@@ -136,6 +151,7 @@ export const PaymentsPage: React.FC = () => {
     selectedPayments: paymentManagement.selectedPayments || [],
     onTogglePaymentSelection:
       paymentManagement.togglePaymentSelection || (() => {}),
+    highlightId: highlightId || undefined, // Ajout pour l'highlighting
     onViewDetails: (payment: PaymentWithDetails) => {
       console.log("🔍 View Details clicked for payment:", payment);
       modals.openPaymentDetailsModal(payment);
@@ -246,6 +262,7 @@ export const PaymentsPage: React.FC = () => {
           columns={columns}
           transformedData={filteredPayments}
           isLoading={isLoading}
+          highlightId={highlightId}
         />
 
         {/* Modales Manager */}

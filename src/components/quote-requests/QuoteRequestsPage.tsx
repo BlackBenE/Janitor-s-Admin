@@ -1,9 +1,23 @@
+import React, { useMemo, useState } from "react";
+import { Box, Stack, Typography } from "@mui/material";
+
 import AdminLayout from "../AdminLayout";
-import DashboardItem from "../DashboardItem";
-import { Box, Grid } from "@mui/material";
-import InfoCard from "../InfoCard";
+import { LoadingIndicator } from "../shared";
 import DataTable from "../Table";
-import { useQuoteRequests } from "../../hooks/quote-requests/useQuoteRequests";
+
+import { QuoteRequestHeader } from "./components/QuoteRequestHeader";
+import { QuoteRequestStatsSection } from "./components/QuoteRequestStatsSection";
+
+// Hooks
+import {
+  useQuoteRequests,
+  useQuoteRequestStats,
+  useQuoteRequestManagement,
+  useQuoteRequestMutations,
+} from "./hooks";
+
+// Types
+import { QuoteRequestWithDetails } from "../../types/quoteRequests";
 
 /**
  * QuoteRequestsPage Component
@@ -13,125 +27,175 @@ import { useQuoteRequests } from "../../hooks/quote-requests/useQuoteRequests";
  *
  * Features:
  * - Quote request statistics overview (4 metric cards)
- * - Service providers data table
+ * - Quote requests data table with filters and actions
  * - Accept/Reject quote requests
  * - Edit/Delete actions for requests
  */
-const QuoteRequestsPage = () => {
+export const QuoteRequestsPage: React.FC = () => {
+  // Management hook for UI state
   const {
-    serviceRequests,
-    useServiceRequestStats,
-    acceptServiceRequest,
-    rejectServiceRequest,
-  } = useQuoteRequests();
+    filters,
+    updateFilters,
+    selectedQuoteRequests,
+    handleSelectQuoteRequest,
+    handleSelectAllQuoteRequests,
+    openEditModal,
+    showNotification,
+    formatters,
+  } = useQuoteRequestManagement();
 
-  const { data: stats } = useServiceRequestStats();
+  // Data hooks
+  const {
+    data: quoteRequests = [],
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useQuoteRequests({
+    filters,
+    orderBy: "created_at",
+    orderDirection: "desc",
+  });
 
-  // Mapping pour l'affichage
-  const data = serviceRequests;
+  const { data: stats } = useQuoteRequestStats();
+
+  const { approveQuoteRequest, rejectQuoteRequest, deleteQuoteRequest } =
+    useQuoteRequestMutations();
+
+  // Handlers
+  const handleEdit = (quoteRequest: QuoteRequestWithDetails) => {
+    openEditModal(quoteRequest);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteQuoteRequest.mutateAsync(id);
+      showNotification("Demande supprimée avec succès");
+      refetch();
+    } catch (error) {
+      showNotification("Erreur lors de la suppression", "error");
+    }
+  };
+
+  const handleApprove = async (id: string) => {
+    try {
+      await approveQuoteRequest.mutateAsync(id);
+      showNotification("Demande approuvée avec succès");
+      refetch();
+    } catch (error) {
+      showNotification("Erreur lors de l'approbation", "error");
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    try {
+      await rejectQuoteRequest.mutateAsync({
+        id,
+        reason: "Rejetée par l'admin",
+      });
+      showNotification("Demande rejetée avec succès");
+      refetch();
+    } catch (error) {
+      showNotification("Erreur lors du rejet", "error");
+    }
+  };
 
   // Colonnes pour le tableau
   const columns = [
-    { field: "Request ID", headerName: "Request ID" },
-    { field: "Client", headerName: "Client" },
-    { field: "Service", headerName: "Service" },
-    { field: "Location", headerName: "Location" },
-    { field: "Priority", headerName: "Priority" },
-    { field: "Status", headerName: "Status" },
-    { field: "Responses", headerName: "Responses" },
-    { field: "Actions", headerName: "Actions" },
+    { field: "id", headerName: "Request ID" },
+    { field: "requester_id", headerName: "Client ID" },
+    { field: "service_id", headerName: "Service ID" },
+    { field: "status", headerName: "Status" },
+    {
+      field: "total_amount",
+      headerName: "Montant",
+      render: (value: number) => formatters.currency(value || 0),
+    },
+    {
+      field: "created_at",
+      headerName: "Date création",
+      render: (value: string) => formatters.date(value),
+    },
   ];
 
-  const handleEdit = (id: string) => {
-    console.log("Edit quote request:", id);
-  };
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <LoadingIndicator />
+      </AdminLayout>
+    );
+  }
 
-  const handleDelete = (id: string) => {
-    console.log("Delete quote request:", id);
-  };
+  if (error) {
+    return (
+      <AdminLayout>
+        <Box>
+          <h2>Erreur</h2>
+          <p>Impossible de charger les demandes de devis: {error.message}</p>
+        </Box>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
-      {/* Page Header - EXACT comme l'original */}
-      <Box>
-        <h2>Demandes de devis</h2>
-        <p>
-          Surveillez et gérez les demandes de devis de service et les
-          interventions en cours.
-        </p>
-      </Box>
+      {/* Page Header */}
+      <QuoteRequestHeader
+        onRefresh={refetch}
+        onExport={async () => {
+          showNotification("Export en cours...", "info");
+          // TODO: Implémenter l'export
+        }}
+        onAddQuoteRequest={() => {
+          showNotification("Ajout de demande - À implémenter", "info");
+          // TODO: Ouvrir modal d'ajout
+        }}
+        isLoading={isFetching}
+        totalCount={quoteRequests.length}
+      />
 
-      {/* Statistics Cards Grid - EXACT comme l'original */}
-      <Grid container spacing={3} sx={{ width: "100%", display: "flex" }}>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 0 }}
-        >
-          <DashboardItem>
-            <InfoCard
-              title="Total des demandes"
-              value={stats?.total || 0}
-              progressText="+170 this month"
-              showTrending={false}
-              progressTextColor="text.secondary"
-            />
-          </DashboardItem>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 220 }}
-        >
-          <DashboardItem>
-            <InfoCard
-              title="Devis en attente"
-              value={stats?.pending || 0}
-              progressText="+95 this month"
-              showTrending={false}
-              progressTextColor="text.secondary"
-            />
-          </DashboardItem>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 220 }}
-        >
-          <DashboardItem>
-            <InfoCard
-              title="Emplois actifs"
-              value={stats?.inProgress || 0}
-              progressText="+15.3% from last month"
-              showTrending={false}
-              progressTextColor="text.secondary"
-            />
-          </DashboardItem>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 220 }}
-        >
-          <DashboardItem>
-            <InfoCard
-              title="Taux d'achèvement"
-              value={stats?.completed || 0}
-              progressText="-5 from yesterday"
-              showTrending={false}
-              progressTextColor="text.secondary"
-            />
-          </DashboardItem>
-        </Grid>
-      </Grid>
+      {/* Statistics Section */}
+      <QuoteRequestStatsSection
+        stats={
+          stats || {
+            totalRequests: 0,
+            pendingRequests: 0,
+            acceptedRequests: 0,
+            inProgressRequests: 0,
+            completedRequests: 0,
+            cancelledRequests: 0,
+            rejectedRequests: 0,
+            totalRevenue: 0,
+            averageAmount: 0,
+            averageCompletionTime: 0,
+          }
+        }
+        isLoading={!stats}
+      />
 
-      {/* Data Table Section - EXACT comme l'original */}
+      {/* Data Table Section */}
       <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
-        <h3>Gestion des demandes de devis</h3>
+        <h3>Gestion des demandes de devis ({quoteRequests.length})</h3>
         <p>Suivre les demandes de service et les réponses des fournisseurs</p>
         <DataTable
           columns={columns}
-          data={data}
-          renderActions={() => (
+          data={quoteRequests as any[]}
+          renderActions={(quoteRequest: any) => (
             <>
-              <button>Edit</button>
-              <button>Delete</button>
+              <button onClick={() => handleEdit(quoteRequest)}>Edit</button>
+              {quoteRequest.status === "pending" && (
+                <>
+                  <button onClick={() => handleApprove(quoteRequest.id)}>
+                    Approuver
+                  </button>
+                  <button onClick={() => handleReject(quoteRequest.id)}>
+                    Rejeter
+                  </button>
+                </>
+              )}
+              <button onClick={() => handleDelete(quoteRequest.id)}>
+                Delete
+              </button>
             </>
           )}
         />

@@ -208,8 +208,8 @@ export const useProviders = (options?: {
         const orderBy = options.orderBy;
         const direction = options.orderDirection || "desc";
 
-        filteredProviders.sort((a, b) => {
-          let valueA: any, valueB: any;
+        filteredProviders.sort((a: ProviderWithMetrics, b: ProviderWithMetrics) => {
+          let valueA: string | number, valueB: string | number;
 
           switch (orderBy) {
             case "name":
@@ -242,8 +242,12 @@ export const useProviders = (options?: {
             return direction === "asc" ? comparison : -comparison;
           }
 
-          const comparison = valueA - valueB;
-          return direction === "asc" ? comparison : -comparison;
+          if (typeof valueA === "number" && typeof valueB === "number") {
+            const comparison = valueA - valueB;
+            return direction === "asc" ? comparison : -comparison;
+          }
+
+          return 0;
         });
       }
 

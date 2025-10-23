@@ -1,126 +1,367 @@
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import EuroOutlinedIcon from "@mui/icons-material/EuroOutlined";
-import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
-import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
-import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
+import React from "react";
+import { Box, Tabs, Tab, Typography } from "@mui/material";
 
 import AdminLayout from "../AdminLayout";
-import InfoCard from "../InfoCard";
-import DataTable from "../Table";
-import DashboardItem from "../DashboardItem";
-import { useServicesCatalog } from "../../hooks/services-catalog/useServicesCatalog";
 
-/**
- * ServicesCatalogPage Component
- *
- * Manages available services, categories, and pricing across the platform.
- * Displays statistics cards and property listings table.
- *
- * Features:
- * - Service statistics overview (4 metric cards)
- * - Property listings management table
- * - Edit/Delete actions for properties
- */
-function ServicesCatalogPage() {
-  const { columns, data, stats } = useServicesCatalog();
+// Hooks
+import { useServices, useServiceManagement } from "./hooks";
+
+// Components
+import {
+  ServicesHeader,
+  ServicesStatsSection,
+  ServiceRequestsSection,
+} from "./components";
+import { ServicesTableSection } from "./components/ServicesTableSection";
+import { createServiceTableColumns } from "./components/ServiceTableColumns";
+import { ServiceDetailsModal } from "./modals";
+import { LoadingIndicator } from "../shared";
+
+// Configuration
+import { serviceTabConfigs } from "../shared";
+
+// Types
+import { ServiceWithDetails, ServiceStatusFilter } from "../../types/services";
+
+export const ServicesCatalogPage: React.FC = () => {
+  const [activeTab, setActiveTab] = React.useState(0);
+  const [mainTab, setMainTab] = React.useState(0); // 0: Prestataires, 1: Demandes
+
+  const {
+    services: servicesData = [],
+    stats,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+    updateService,
+    bulkActivateServices,
+    bulkDeactivateServices,
+    deleteManyServices,
+  } = useServices();
+
+  const serviceManagement = useServiceManagement();
+
+  // Utilisation des données
+  const services = servicesData || [];
+
+  // =====================================================
+  // LOGIQUE DE FILTRAGE (même pattern que Payments)
+  // =====================================================
+
+  // Configuration de l'onglet actuel
+  const currentTabConfig = serviceTabConfigs[activeTab];
+
+  // Application des filtres
+  let filteredServices = [...services];
+
+  // Filtre par recherche
+  if (serviceManagement.filters.search) {
+    const searchTerm = serviceManagement.filters.search.toLowerCase();
+    filteredServices = filteredServices.filter(
+      (service) =>
+        service.name?.toLowerCase().includes(searchTerm) ||
+        service.description?.toLowerCase().includes(searchTerm) ||
+        service.category?.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  // Filtre par statut
+  if (serviceManagement.filters.status) {
+    if (serviceManagement.filters.status === "active") {
+      filteredServices = filteredServices.filter(
+        (service) => service.is_active === true
+      );
+    } else if (serviceManagement.filters.status === "inactive") {
+      filteredServices = filteredServices.filter(
+        (service) => service.is_active === false
+      );
+    }
+  }
+
+  // Filtre par catégorie
+  if (serviceManagement.filters.category) {
+    filteredServices = filteredServices.filter(
+      (service) => service.category === serviceManagement.filters.category
+    );
+  }
+
+  // Filtre par prix minimum
+  if (serviceManagement.filters.priceFrom) {
+    const minPrice = parseFloat(serviceManagement.filters.priceFrom);
+    filteredServices = filteredServices.filter(
+      (service) => service.base_price >= minPrice
+    );
+  }
+
+  // Filtre par prix maximum
+  if (serviceManagement.filters.priceTo) {
+    const maxPrice = parseFloat(serviceManagement.filters.priceTo);
+    filteredServices = filteredServices.filter(
+      (service) => service.base_price <= maxPrice
+    );
+  }
+
+  // Filtrer par onglet actuel (si différent des filtres de statut)
+  if (
+    currentTabConfig &&
+    currentTabConfig.key !== "all" &&
+    !serviceManagement.filters.status
+  ) {
+    if (currentTabConfig.key === "active") {
+      filteredServices = filteredServices.filter((s) => s.is_active === true);
+    } else if (currentTabConfig.key === "inactive") {
+      filteredServices = filteredServices.filter((s) => s.is_active === false);
+    } else if (currentTabConfig.key === "vip") {
+      filteredServices = filteredServices.filter((s) => s.is_vip_only === true);
+    }
+  }
+
+  // Configuration des colonnes du tableau (comme PaymentManagement)
+  const columns = createServiceTableColumns({
+    selectedServices: serviceManagement.selectedServices || [],
+    onToggleServiceSelection:
+      serviceManagement.toggleServiceSelection || (() => {}),
+    onViewDetails: (service: ServiceWithDetails) => {
+      console.log("🔍 View Details clicked for service:", service);
+      serviceManagement.openModal(service);
+    },
+    onApproveService: async (serviceId: string) => {
+      console.log("✅ Approve service:", serviceId);
+      try {
+        await updateService(serviceId, { is_active: true });
+        serviceManagement.showNotification(
+          "Service approuvé avec succès",
+          "success"
+        );
+      } catch (error) {
+        console.error("Error approving service:", error);
+        serviceManagement.showNotification(
+          "Erreur lors de l'approbation",
+          "error"
+        );
+      }
+    },
+    onRejectService: async (serviceId: string) => {
+      console.log("❌ Reject service:", serviceId);
+      try {
+        await updateService(serviceId, { is_active: false });
+        serviceManagement.showNotification(
+          "Service rejeté avec succès",
+          "success"
+        );
+      } catch (error) {
+        console.error("Error rejecting service:", error);
+        serviceManagement.showNotification("Erreur lors du rejet", "error");
+      }
+    },
+    onDeleteService: async (serviceId: string) => {
+      console.log("🗑️ Delete service:", serviceId);
+      // TODO: Implémenter la suppression
+      serviceManagement.showNotification(
+        "Suppression non implémentée",
+        "warning"
+      );
+    },
+  });
+
+  // =====================================================
+  // GESTION DES ÉVÉNEMENTS
+  // =====================================================
+
+  const handleRefresh = () => {
+    refetch();
+  };
+
+  const handleExportServices = async () => {
+    // Export les services sélectionnés s'il y en a, sinon tous les services filtrés
+    if (
+      serviceManagement.selectedServices &&
+      serviceManagement.selectedServices.length > 0
+    ) {
+      serviceManagement.exportSelectedToCSV(filteredServices);
+    } else {
+      serviceManagement.exportAllToCSV(filteredServices);
+    }
+  };
+
+  const handleTabChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newValue: number | null
+  ) => {
+    if (newValue !== null) {
+      setActiveTab(newValue);
+    }
+  };
+
+  // Format currency helper
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "EUR",
+    }).format(amount);
+  };
+
+  // =====================================================
+  // GESTION DES ERREURS
+  // =====================================================
+
+  if (error) {
+    return (
+      <LoadingIndicator
+        error={error}
+        onRefresh={handleRefresh}
+        errorTitle="Erreur lors du chargement des services"
+        withLayout={true}
+      />
+    );
+  }
+
+  // =====================================================
+  // RENDU
+  // =====================================================
 
   return (
     <AdminLayout>
-      {/* Page Header - EXACT comme l'original */}
-      <Box>
-        <h2>Services Catalog</h2>
-        <p>
-          Manage available services, categories, and pricing across the
-          platform.
-        </p>
-      </Box>
-
-      {/* Statistics Cards Grid - EXACT comme l'original */}
-      <Grid container spacing={3} sx={{ width: "100%", display: "flex" }}>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 230 }}
-        >
-          <DashboardItem>
-            <InfoCard
-              title="Pending Property Validations"
-              icon={ApartmentOutlinedIcon}
-              value={stats.pendingValidations}
-              bottomLeft="Active this month"
-              progressText="75% growth"
-              showTrending={false}
-              progressTextColor="text.secondary"
-            />
-          </DashboardItem>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 220 }}
-        >
-          <DashboardItem>
-            <InfoCard
-              title="Provider Moderation Cases"
-              icon={HowToRegOutlinedIcon}
-              value={stats.moderationCases}
-              bottomLeft="Active this month"
-              progressText="75% growth"
-              showTrending={false}
-              progressTextColor="text.secondary"
-            />
-          </DashboardItem>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 220 }}
-        >
-          <DashboardItem>
-            <InfoCard
-              title="Active Users"
-              icon={GroupOutlinedIcon}
-              value={stats.activeUsers}
-              bottomLeft="Active this month"
-              progressText="75% growth"
-              showTrending={false}
-              progressTextColor="text.secondary"
-            />
-          </DashboardItem>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3 }}
-          sx={{ display: "flex", flex: 1, minWidth: 220 }}
-        >
-          <DashboardItem>
-            <InfoCard
-              title="Monthly Revenue"
-              icon={EuroOutlinedIcon}
-              value={stats.monthlyRevenue}
-              bottomLeft="Active this month"
-              progressText="75% growth"
-              showTrending={false}
-              progressTextColor="text.secondary"
-            />
-          </DashboardItem>
-        </Grid>
-      </Grid>
-
-      {/* Property Listings Table - EXACT comme l'original */}
-      <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
-        <h3>Property Listings</h3>
-        <p>Manage property submissions and approvals</p>
-        <DataTable
-          columns={columns}
-          data={data}
-          renderActions={() => (
-            <>
-              <button>Edit</button>
-              <button>Delete</button>
-            </>
-          )}
+      <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        {/* En-tête de la page */}
+        <ServicesHeader
+          onRefresh={handleRefresh}
+          onExport={handleExportServices}
+          onAddService={() => serviceManagement.openCreateModal()}
+          isLoading={isLoading}
         />
+
+        {/* Cartes de statistiques */}
+        <ServicesStatsSection stats={stats} error={error} />
+
+        {/* Onglets principaux */}
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={mainTab}
+            onChange={(event, newValue) => setMainTab(newValue)}
+            aria-label="Services catalog tabs"
+          >
+            <Tab label="Services" />
+            <Tab label="Demandes de Service" />
+          </Tabs>
+        </Box>
+
+        {/* Contenu selon l'onglet sélectionné */}
+        {mainTab === 0 && (
+          <Box sx={{ flex: 1 }}>
+            {/* Section tableau avec filtres et onglets - DESIGN ORIGINAL */}
+            <ServicesTableSection
+              services={services}
+              activeTab={activeTab}
+              serviceManagement={serviceManagement}
+              onTabChange={handleTabChange}
+              columns={columns}
+              transformedData={filteredServices}
+              isLoading={isLoading}
+              bulkActivateServices={bulkActivateServices}
+              bulkDeactivateServices={bulkDeactivateServices}
+              deleteManyServices={deleteManyServices}
+            />
+          </Box>
+        )}
+
+        {mainTab === 1 && (
+          <Box sx={{ flex: 1 }}>
+            <ServiceRequestsSection />
+          </Box>
+        )}
       </Box>
+
+      {/* Modal de détails du service */}
+      <ServiceDetailsModal
+        open={serviceManagement.isModalOpen}
+        service={serviceManagement.selectedService}
+        editForm={serviceManagement.editForm}
+        onClose={serviceManagement.closeModal}
+        onSave={async () => {
+          if (!serviceManagement.selectedService?.id) {
+            serviceManagement.showNotification(
+              "Aucun service sélectionné",
+              "error"
+            );
+            return;
+          }
+
+          try {
+            console.log(
+              "💾 Saving service:",
+              serviceManagement.selectedService.id,
+              serviceManagement.editForm
+            );
+            await updateService(
+              serviceManagement.selectedService.id,
+              serviceManagement.editForm
+            );
+            serviceManagement.showNotification(
+              "Service modifié avec succès",
+              "success"
+            );
+            serviceManagement.closeModal();
+          } catch (error) {
+            console.error("Error saving service:", error);
+            serviceManagement.showNotification(
+              "Erreur lors de la sauvegarde",
+              "error"
+            );
+          }
+        }}
+        onApproveService={async (serviceId: string) => {
+          try {
+            await updateService(serviceId, { is_active: true });
+            serviceManagement.showNotification(
+              "Service approuvé avec succès",
+              "success"
+            );
+            serviceManagement.closeModal();
+          } catch (error) {
+            console.error("Error approving service:", error);
+            serviceManagement.showNotification(
+              "Erreur lors de l'approbation",
+              "error"
+            );
+          }
+        }}
+        onRejectService={async (serviceId: string) => {
+          try {
+            await updateService(serviceId, { is_active: false });
+            serviceManagement.showNotification(
+              "Service rejeté avec succès",
+              "success"
+            );
+            serviceManagement.closeModal();
+          } catch (error) {
+            console.error("Error rejecting service:", error);
+            serviceManagement.showNotification("Erreur lors du rejet", "error");
+          }
+        }}
+        onDeleteService={async (serviceId: string) => {
+          try {
+            console.log("🗑️ Deleting service:", serviceId);
+            await deleteManyServices([serviceId]);
+            serviceManagement.showNotification(
+              "Service supprimé avec succès",
+              "success"
+            );
+            serviceManagement.closeModal();
+          } catch (error) {
+            console.error("Error deleting service:", error);
+            serviceManagement.showNotification(
+              "Erreur lors de la suppression",
+              "error"
+            );
+          }
+        }}
+        onInputChange={serviceManagement.updateEditForm}
+        isLoading={isLoading}
+      />
     </AdminLayout>
   );
-}
+};
 
 export default ServicesCatalogPage;

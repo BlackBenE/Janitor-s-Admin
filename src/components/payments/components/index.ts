@@ -5,7 +5,13 @@ export { PaymentFiltersSection } from "./PaymentFiltersSection";
 // Payment modular components
 export { PaymentHeader } from "./PaymentHeader";
 export { PaymentTableSection } from "./PaymentTableSection";
-export { PaymentLoadingIndicator } from "./PaymentLoadingIndicator";
 
 // Payment configuration components
-export { createPaymentTableConfig } from "./PaymentTableConfig";
+export { createPaymentTableColumns } from "./PaymentTableColumns";
+export { PaymentTableActions } from "./PaymentTableActions";
+
+// Payment modals management
+export { PaymentModalsManager } from "./PaymentModalsManager";
+
+// Payment PDF generation
+export { PaymentInvoicePdf } from "./PaymentInvoicePdf";

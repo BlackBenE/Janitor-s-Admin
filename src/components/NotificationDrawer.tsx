@@ -217,7 +217,7 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
           navigate("/reservations");
           break;
         case "payment":
-          navigate("/financial-overview");
+          navigate("/payments");
           break;
         case "provider":
           navigate("/providers-moderation");

@@ -231,7 +231,7 @@ const NotificationCenter: React.FC = () => {
           navigate("/reservations");
           break;
         case "payment":
-          navigate("/financial-overview");
+          navigate("/payments");
           break;
         case "provider":
           navigate("/providers-moderation");
@@ -611,7 +611,7 @@ const NotificationCenter: React.FC = () => {
                                     navigate("/reservations");
                                     break;
                                   case "payment":
-                                    navigate("/financial-overview");
+                                    navigate("/payments");
                                     break;
                                   case "provider":
                                     navigate("/providers-moderation");
@@ -785,7 +785,7 @@ const NotificationCenter: React.FC = () => {
                                     navigate("/reservations");
                                     break;
                                   case "payment":
-                                    navigate("/financial-overview");
+                                    navigate("/payments");
                                     break;
                                   case "provider":
                                     navigate("/providers-moderation");

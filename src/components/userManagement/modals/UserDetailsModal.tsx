@@ -1,20 +1,22 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, Box } from "@mui/material";
+import { Dialog, DialogContent, Box, Divider, Collapse } from "@mui/material";
 import { UserDetailsHeader } from "./UserDetailsHeader";
-import { UserBasicInfo } from "./UserBasicInfo";
-import { UserAccountInfo } from "./UserAccountInfo";
+import { UserInfoSections } from "./UserInfoSections";
 import { UserEditForm } from "./UserEditForm";
 import { UserActions } from "./UserActions";
-import { UserAnonymizationInfo } from "./UserAnonymizationInfo";
+import { BookingsSection } from "./sections/BookingsSection";
+import { ServicesSection } from "./sections/ServicesSection";
 import {
   UserProfile,
   UserProfileWithAnonymization,
+  UserActivityData,
 } from "../../../types/userManagement";
 
 interface UserDetailsModalProps {
   open: boolean;
   user: UserProfileWithAnonymization | null;
   editForm: Partial<UserProfile>;
+  activityData?: Record<string, UserActivityData>;
   onClose: () => void;
   onSave: () => void;
   onOpenLockModal: () => void;
@@ -34,6 +36,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   open,
   user,
   editForm,
+  activityData,
   onClose,
   onSave,
   onOpenLockModal,
@@ -74,50 +77,76 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
       <UserDetailsHeader user={user} onClose={handleClose} />
 
       <DialogContent dividers>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {isEditMode ? (
-            <UserEditForm
-              user={user}
-              editForm={editForm}
-              onInputChange={onInputChange}
-              isLoading={isLoading}
-            />
-          ) : (
-            <Box
-              sx={{
-                display: "flex",
-                gap: 3,
-                flexDirection: { xs: "column", md: "row" },
-              }}
-            >
-              {/* Left column - Main details */}
-              <Box
-                sx={{
-                  flex: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                }}
-              >
-                <UserBasicInfo user={user} />
-              </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 3,
+            minHeight: "500px",
+          }}
+        >
+          {/* Contenu principal - Centre */}
+          <Box sx={{ flex: 1, order: { xs: 2, md: 1 } }}>
+            {isEditMode ? (
+              <UserEditForm
+                user={user}
+                editForm={editForm}
+                onInputChange={onInputChange}
+                isLoading={isLoading}
+              />
+            ) : (
+              <>
+                {/* Basic Information */}
+                <UserInfoSections
+                  user={user}
+                  layoutMode="main"
+                  activityData={activityData}
+                />
 
-              {/* Right column - Account info and additional details */}
-              <Box
-                sx={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                }}
-              >
-                <UserAccountInfo user={user} />
+                {/* Section spécifique au rôle - intégrée dans le contenu principal */}
+                {user &&
+                  (user.role === "traveler" ||
+                    user.role === "property_owner") && (
+                    <BookingsSection
+                      userId={user.id}
+                      userName={user.full_name || user.email || "Utilisateur"}
+                      userRole={user.role}
+                      isVisible={true}
+                    />
+                  )}
 
-                {/* Informations d'anonymisation si l'utilisateur est anonymisé */}
-                <UserAnonymizationInfo user={user} />
-              </Box>
-            </Box>
-          )}
+                {/* Section Services pour prestataires et clients de services */}
+                {user &&
+                  (user.role === "service_provider" ||
+                    user.role === "provider" ||
+                    user.role === "traveler") && (
+                    <ServicesSection
+                      userId={user.id}
+                      userName={user.full_name || user.email || "Utilisateur"}
+                      userRole={user.role}
+                      isVisible={true}
+                    />
+                  )}
+              </>
+            )}
+          </Box>
+
+          {/* Account Information - Droite */}
+          <Box
+            sx={{
+              width: { xs: "100%", md: "320px" },
+              order: { xs: 1, md: 2 },
+              flexShrink: 0,
+            }}
+          >
+            {!isEditMode && (
+              <UserInfoSections
+                user={user}
+                layoutMode="sidebar"
+                activityData={activityData}
+              />
+            )}
+          </Box>
         </Box>
       </DialogContent>
 

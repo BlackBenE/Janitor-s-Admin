@@ -2,26 +2,20 @@ import React from "react";
 import { Alert, Grid } from "@mui/material";
 import InfoCard from "../../InfoCard";
 import DashboardItem from "../../DashboardItem";
-import { PaymentWithDetails } from "../../../types/payments";
+import { PaymentStats } from "../../../types/payments";
 
 interface PaymentStatsSectionProps {
-  allPayments: PaymentWithDetails[];
+  stats: PaymentStats;
   error?: Error | null;
 }
 
 const PaymentStatsCards: React.FC<{
-  payments: PaymentWithDetails[];
+  stats: PaymentStats;
   formatCurrency: (amount: number) => string;
-}> = ({ payments, formatCurrency }) => {
-  // Calcul des statistiques
-  const totalPayments = payments.length;
-  const paidPayments = payments.filter((p) => p.status === "paid").length;
-  const pendingPayments = payments.filter((p) => p.status === "pending").length;
-  const failedPayments = payments.filter((p) => p.status === "failed").length;
-
-  const monthlyRevenue = payments
-    .filter((p) => p.status === "paid")
-    .reduce((sum, p) => sum + (p.amount || 0), 0);
+}> = ({ stats, formatCurrency }) => {
+  // Utilisation des stats pré-calculées
+  const { totalPayments, paidPayments, pendingPayments, monthlyRevenue } =
+    stats;
 
   const paidPercentage =
     totalPayments > 0 ? Math.round((paidPayments / totalPayments) * 100) : 0;
@@ -44,9 +38,9 @@ const PaymentStatsCards: React.FC<{
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <DashboardItem>
           <InfoCard
-            title="Paiements payés"
+            title="Payés & Réussis"
             value={paidPayments}
-            progressText={`${paidPercentage}% payés`}
+            progressText={`${paidPercentage}% terminés`}
             showTrending={false}
           />
         </DashboardItem>
@@ -57,7 +51,7 @@ const PaymentStatsCards: React.FC<{
           <InfoCard
             title="En attente"
             value={pendingPayments}
-            progressText={`${pendingPercentage}% en attente`}
+            progressText={`${pendingPercentage}% à traiter`}
             showTrending={false}
           />
         </DashboardItem>
@@ -68,17 +62,32 @@ const PaymentStatsCards: React.FC<{
           <InfoCard
             title="Revenus mensuels"
             value={formatCurrency(monthlyRevenue)}
-            progressText="Ce mois"
+            progressText="20% bookings + 100% subscriptions"
             showTrending={false}
           />
         </DashboardItem>
       </Grid>
+
+      {stats.failedPayments > 0 && (
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <DashboardItem>
+            <InfoCard
+              title="Paiements échoués"
+              value={stats.failedPayments}
+              progressText={`${Math.round(
+                (stats.failedPayments / totalPayments) * 100
+              )}% échoués`}
+              showTrending={false}
+            />
+          </DashboardItem>
+        </Grid>
+      )}
     </Grid>
   );
 };
 
 export const PaymentStatsSection: React.FC<PaymentStatsSectionProps> = ({
-  allPayments,
+  stats,
   error,
 }) => {
   // Helper function to format currency
@@ -92,10 +101,7 @@ export const PaymentStatsSection: React.FC<PaymentStatsSectionProps> = ({
   return (
     <>
       {/* Cartes de statistiques globales */}
-      <PaymentStatsCards
-        payments={allPayments}
-        formatCurrency={formatCurrency}
-      />
+      <PaymentStatsCards stats={stats} formatCurrency={formatCurrency} />
 
       {/* Message d'erreur */}
       {error && (

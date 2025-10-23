@@ -11,11 +11,7 @@ export * from "./profile";
 // Provider moderation hooks
 export * from "./providers-moderation";
 
-// Services catalog hooks
-export * from "./services-catalog";
-
-// Quote requests hooks
-export * from "./quote-requests";
+// Quote requests hooks - moved to component module
 
 // Property approvals hooks - moved to component module
 

@@ -2,13 +2,24 @@ import React from "react";
 import { SvgIconTypeMap } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import DashboardPage from "../components/dashboard/DashboardPage";
-import FinancialOverviewPage from "../components/financialoverview/FinancialOverviewPage";
 import { AuthPage as RefactoredAuthPage } from "../components/auth/AuthPage";
 import { ProfilePage as RefactoredProfilePage } from "../components/profile/ProfilePage";
 import PropertyApprovalsPage from "../components/property-approvals/PropertyApprovalsPage";
 import QuoteRequestsPage from "../components/quote-requests/QuoteRequestsPage";
 import ServicesCatalogPage from "../components/services-catalog/ServicesCatalogPage";
-import { UserManagementPage } from "../components/userManagement/UserManagementPage";
+import { UserManagementPage } from "../components/userManagement";
+// Test components moved to _obsolete
+// import TestCompatibleHooks from "../components/userManagement/hooks/TestCompatibleHooks";
+// import TestNewStatsSection from "../components/userManagement/hooks/TestNewStatsSection";
+// Test components moved to _obsolete after migration
+// import TestExportButton from "../components/userManagement/TestExportButton";
+// import TestFiltersAndSearch from "../components/userManagement/TestFiltersAndSearch";
+// import TestIntegrationFilters from "../components/userManagement/TestIntegrationFilters";
+// import TestTabsWithNewHooks from "../components/userManagement/TestTabsWithNewHooks";
+// import TestTableWithNewHooks from "../components/userManagement/TestTableWithNewHooks";
+// import TestTableActionsSimple from "../components/userManagement/TestTableActionsSimple";
+// import TestUseUsersHook from "../components/userManagement/TestUseUsersHook";
+// import { TestUserMigrationMinimal } from "../components/userManagement/TestUserMigrationMinimal";
 import AnalyticsPage from "../components/analytics/AnalyticsPage";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { ResetPasswordPage } from "../components/auth/ResetPasswordPage";
@@ -73,16 +84,6 @@ export const routes: Route[] = [
     protected: true,
   },
   {
-    path: "/financial-overview",
-    element: (
-      <ProtectedRoute>
-        <FinancialOverviewPage />
-      </ProtectedRoute>
-    ),
-    icon: EuroOutlinedIcon,
-    protected: true,
-  },
-  {
     path: "/services-catalog",
     element: (
       <ProtectedRoute>
@@ -121,6 +122,101 @@ export const routes: Route[] = [
     ),
     protected: true,
   },
+
+  // 🧪 ROUTES DE TEST - Désactivées après migration (composants dans _obsolete)
+  /*
+  {
+    path: "/test-compatible-hooks",
+    element: (
+      <ProtectedRoute>
+        <TestCompatibleHooks />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  {
+    path: "/test-new-stats",
+    element: (
+      <ProtectedRoute>
+        <TestNewStatsSection />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  {
+    path: "/test-export-button",
+    element: (
+      <ProtectedRoute>
+        <TestExportButton />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  {
+    path: "/test-filters-search",
+    element: (
+      <ProtectedRoute>
+        <TestFiltersAndSearch />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  {
+    path: "/test-integration-filters",
+    element: (
+      <ProtectedRoute>
+        <TestIntegrationFilters />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  {
+    path: "/test-tabs-hooks",
+    element: (
+      <ProtectedRoute>
+        <TestTabsWithNewHooks />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  {
+    path: "/test-table-hooks",
+    element: (
+      <ProtectedRoute>
+        <TestTableWithNewHooks />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  {
+    path: "/test-table-actions",
+    element: (
+      <ProtectedRoute>
+        <TestTableActionsSimple />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  {
+    path: "/test-useusers-hook",
+    element: (
+      <ProtectedRoute>
+        <TestUseUsersHook />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  {
+    path: "/test-users-migration",
+    element: (
+      <ProtectedRoute>
+        <TestUserMigrationMinimal />
+      </ProtectedRoute>
+    ),
+    protected: true,
+  },
+  */
+
   // Public routes
   { path: "/auth", element: <RefactoredAuthPage /> },
   { path: "/reset-password", element: <ResetPasswordPage /> },

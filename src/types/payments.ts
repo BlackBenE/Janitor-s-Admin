@@ -5,43 +5,74 @@ export type Payment = Database["public"]["Tables"]["payments"]["Row"];
 export type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
 export type PaymentUpdate = Database["public"]["Tables"]["payments"]["Update"];
 
-// Extended Payment with joined data for display
-export interface PaymentWithDetails extends Payment {
-  // Related data from joins
-  payer?: {
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-  payee?: {
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-  booking?: {
-    id: string;
-    property?: {
-      title?: string;
-      address?: string;
-      city?: string;
-    };
-  };
-  service_request?: {
-    id: string;
-    service?: {
-      title?: string;
-      description?: string;
-    };
-  };
+// Profile type extracted for relations
+export interface PaymentProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string;
+  full_name: string | null;
+  phone: string | null;
 }
 
-// Payment status enum based on database values
-export enum PaymentStatus {
-  ALL = "ALL",
-  PENDING = "pending",
-  PAID = "paid",
-  REFUNDED = "refunded",
+// Property type for booking relations
+export interface PaymentProperty {
+  id: string;
+  title: string | null;
+  address: string | null;
+  city: string | null;
 }
+
+// Service type for service request relations
+export interface PaymentService {
+  id: string;
+  title: string | null;
+  description: string | null;
+}
+
+// Booking with property relation
+export interface PaymentBooking {
+  id: string;
+  check_in: string;
+  check_out: string;
+  total_amount: number;
+  status: string | null;
+  property?: PaymentProperty;
+}
+
+// Service request with service relation
+export interface PaymentServiceRequest {
+  id: string;
+  requested_date: string;
+  status: string | null;
+  total_amount: number;
+  address: string | null;
+  service?: PaymentService;
+}
+
+// Extended Payment with joined data for display
+export interface PaymentWithDetails extends Payment {
+  // Related profiles
+  payer?: PaymentProfile;
+  payee?: PaymentProfile;
+
+  // Related booking with property
+  booking?: PaymentBooking;
+
+  // Related service request with service
+  service_request?: PaymentServiceRequest;
+}
+
+// Payment status type based on database values
+export type PaymentStatus =
+  | "pending"
+  | "paid"
+  | "refunded"
+  | "failed"
+  | "succeeded";
+
+// Status for tabs (including "all" for filtering)
+export type PaymentStatusFilter = "all" | PaymentStatus;
 
 export interface PaymentFilters {
   search: string;
@@ -58,6 +89,7 @@ export interface PaymentStats {
   paidPayments: number;
   pendingPayments: number;
   refundedPayments: number;
+  failedPayments: number;
   monthlyRevenue: number;
   averageAmount: number;
 }

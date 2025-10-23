@@ -1,0 +1,1846 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { supabase } from "../../lib/supabaseClient";
+
+import { import { supabase } from "../../lib/supabaseClient";import { supabase } from "../../lib/supabaseClient";
+
+  QuoteRequest,
+
+  QuoteRequestInsert,import { import { 
+
+  QuoteRequestUpdate,
+
+  QuoteRequestWithDetails,  QuoteRequest,  QuoteRequest,
+
+  QuoteRequestFilters,
+
+  QuoteRequestStats,  QuoteRequestInsert,  QuoteRequestInsert,
+
+  QuoteRequestStatus
+
+} from "../../types/quoteRequests";  QuoteRequestUpdate,  QuoteRequestUpdate,
+
+
+
+// Query Keys pour les quote requests  QuoteRequestWithDetails,  QuoteRequestWithDetails,
+
+export const QUOTE_REQUESTS_QUERY_KEYS = {
+
+  all: ["quote-requests"] as const,  QuoteRequestFilters,  QuoteRequestFilters,
+
+  lists: () => [...QUOTE_REQUESTS_QUERY_KEYS.all, "list"] as const,
+
+  list: (filters: QuoteRequestFilters) =>  QuoteRequestStats,  QuoteRequestStats,
+
+    [...QUOTE_REQUESTS_QUERY_KEYS.lists(), { filters }] as const,
+
+  details: () => [...QUOTE_REQUESTS_QUERY_KEYS.all, "detail"] as const,  QuoteRequestStatus  QuoteRequestStatus
+
+  detail: (id: string) =>
+
+    [...QUOTE_REQUESTS_QUERY_KEYS.details(), id] as const,} from "../../types/quoteRequests";} from "../../types/quoteRequests";
+
+  stats: () => [...QUOTE_REQUESTS_QUERY_KEYS.all, "stats"] as const,
+
+  byStatus: (status: QuoteRequestStatus) =>
+
+    [...QUOTE_REQUESTS_QUERY_KEYS.all, "byStatus", status] as const,
+
+  byRequester: (requesterId: string) =>// Query Keys pour les quote requests// Query Keys pour les quote requests
+
+    [...QUOTE_REQUESTS_QUERY_KEYS.all, "byRequester", requesterId] as const,
+
+  byProvider: (providerId: string) =>export const QUOTE_REQUESTS_QUERY_KEYS = {export const QUOTE_REQUESTS_QUERY_KEYS = {
+
+    [...QUOTE_REQUESTS_QUERY_KEYS.all, "byProvider", providerId] as const,
+
+} as const;  all: ["quote-requests"] as const,  all: ["quote-requests"] as const,
+
+
+
+/**  lists: () => [...QUOTE_REQUESTS_QUERY_KEYS.all, "list"] as const,  lists: () => [...QUOTE_REQUESTS_QUERY_KEYS.all, "list"] as const,
+
+ * Hook pour récupérer les demandes de devis avec toutes les relations
+
+ */  list: (filters: QuoteRequestFilters) =>  list: (filters: QuoteRequestFilters) =>
+
+export const useQuoteRequests = (options?: {
+
+  filters?: QuoteRequestFilters;    [...QUOTE_REQUESTS_QUERY_KEYS.lists(), { filters }] as const,    [...QUOTE_REQUESTS_QUERY_KEYS.lists(), { filters }] as const,
+
+  limit?: number;
+
+  orderBy?: keyof QuoteRequest;  details: () => [...QUOTE_REQUESTS_QUERY_KEYS.all, "detail"] as const,  details: () => [...QUOTE_REQUESTS_QUERY_KEYS.all, "detail"] as const,
+
+  orderDirection?: "asc" | "desc";
+
+  enabled?: boolean;  detail: (id: string) =>  detail: (id: string) =>
+
+  refetchOnWindowFocus?: boolean;
+
+}) => {    [...QUOTE_REQUESTS_QUERY_KEYS.details(), id] as const,    [...QUOTE_REQUESTS_QUERY_KEYS.details(), id] as const,
+
+  return useQuery({
+
+    queryKey: QUOTE_REQUESTS_QUERY_KEYS.list(options?.filters || {} as QuoteRequestFilters),  stats: () => [...QUOTE_REQUESTS_QUERY_KEYS.all, "stats"] as const,  stats: () => [...QUOTE_REQUESTS_QUERY_KEYS.all, "stats"] as const,
+
+    queryFn: async (): Promise<QuoteRequestWithDetails[]> => {
+
+      console.log("🔍 Fetching quote requests with relations...");  byStatus: (status: QuoteRequestStatus) =>  byStatus: (status: QuoteRequestStatus) =>
+
+
+
+      let query = supabase.from("service_requests").select(`    [...QUOTE_REQUESTS_QUERY_KEYS.all, "byStatus", status] as const,    [...QUOTE_REQUESTS_QUERY_KEYS.all, "byStatus", status] as const,
+
+        *,
+
+        requester:profiles!service_requests_requester_id_fkey (  byRequester: (requesterId: string) =>  byRequester: (requesterId: string) =>
+
+          id,
+
+          first_name,    [...QUOTE_REQUESTS_QUERY_KEYS.all, "byRequester", requesterId] as const,    [...QUOTE_REQUESTS_QUERY_KEYS.all, "byRequester", requesterId] as const,
+
+          last_name,
+
+          email,  byProvider: (providerId: string) =>  byProvider: (providerId: string) =>
+
+          full_name,
+
+          phone,    [...QUOTE_REQUESTS_QUERY_KEYS.all, "byProvider", providerId] as const,    [...QUOTE_REQUESTS_QUERY_KEYS.all, "byProvider", providerId] as const,
+
+          role,
+
+          avatar_url} as const;} as const;
+
+        ),
+
+        provider:profiles!service_requests_provider_id_fkey (
+
+          id,
+
+          first_name,/**/**
+
+          last_name,
+
+          email, * Hook pour récupérer les demandes de devis avec toutes les relations * Hook pour récupérer les demandes de devis avec toutes les relations
+
+          full_name,
+
+          phone, */ */
+
+          role,
+
+          avatar_urlexport const useQuoteRequests = (options?: {export const useQuoteRequests = (options?: {
+
+        ),
+
+        service:services!service_requests_service_id_fkey (  filters?: QuoteRequestFilters;  filters?: QuoteRequestFilters;
+
+          id,
+
+          name,  limit?: number;  limit?: number;
+
+          description,
+
+          category,  orderBy?: keyof QuoteRequest;  orderBy?: keyof QuoteRequest;
+
+          base_price,
+
+          is_active,  orderDirection?: "asc" | "desc";  orderDirection?: "asc" | "desc";
+
+          provider_id
+
+        ),  enabled?: boolean;  enabled?: boolean;
+
+        property:properties!service_requests_property_id_fkey (
+
+          id,  refetchOnWindowFocus?: boolean;  refetchOnWindowFocus?: boolean;
+
+          title,
+
+          address,}) => {}) => {
+
+          city,
+
+          type  return useQuery({  return useQuery({
+
+        )
+
+      `);    queryKey: QUOTE_REQUESTS_QUERY_KEYS.list(options?.filters || {} as QuoteRequestFilters),    queryKey: QUOTE_REQUESTS_QUERY_KEYS.list(options?.filters || {} as QuoteRequestFilters),
+
+
+
+      // Application des filtres    queryFn: async (): Promise<QuoteRequestWithDetails[]> => {    queryFn: async (): Promise<QuoteRequestWithDetails[]> => {
+
+      if (options?.filters) {
+
+        const filters = options.filters;      console.log("🔍 Fetching quote requests with relations...");      console.log("🔍 Fetching quote requests with relations...");
+
+        
+
+        // Filtre par recherche (nom client, service, adresse)
+
+        if (filters.search) {
+
+          // Note: Pour une recherche plus complexe, on pourrait utiliser une fonction PostgreSQL      let query = supabase.from("service_requests").select(`      let query = supabase.from("service_requests").select(`
+
+          query = query.or(`
+
+            requester.full_name.ilike.%${filters.search}%,        *,        *,
+
+            service.name.ilike.%${filters.search}%,
+
+            property.address.ilike.%${filters.search}%        requester:profiles!service_requests_requester_id_fkey (        requester:profiles!service_requests_requester_id_fkey (
+
+          `);
+
+        }          id,          id,
+
+        
+
+        // Filtre par statut          first_name,          first_name,
+
+        if (filters.status && filters.status !== "all") {
+
+          query = query.eq("status", filters.status);          last_name,          last_name,
+
+        }
+
+                  email,          email,
+
+        // Filtre par service
+
+        if (filters.service) {          full_name,          full_name,
+
+          query = query.eq("service_id", filters.service);
+
+        }          phone,          phone,
+
+        
+
+        // Filtre par prestataire          role,          role,
+
+        if (filters.provider) {
+
+          query = query.eq("provider_id", filters.provider);          avatar_url          avatar_url
+
+        }
+
+                ),        ),
+
+        // Filtre par client
+
+        if (filters.requester) {        provider:profiles!service_requests_provider_id_fkey (        provider:profiles!service_requests_provider_id_fkey (
+
+          query = query.eq("requester_id", filters.requester);
+
+        }          id,          id,
+
+        
+
+        // Filtres de date          first_name,          first_name,
+
+        if (filters.dateFrom) {
+
+          query = query.gte("requested_date", filters.dateFrom);          last_name,          last_name,
+
+        }
+
+        if (filters.dateTo) {          email,          email,
+
+          query = query.lte("requested_date", filters.dateTo);
+
+        }          full_name,          full_name,
+
+        
+
+        // Filtres de montant          phone,          phone,
+
+        if (filters.minAmount) {
+
+          query = query.gte("total_amount", parseFloat(filters.minAmount));          role,          role,
+
+        }
+
+        if (filters.maxAmount) {          avatar_url          avatar_url
+
+          query = query.lte("total_amount", parseFloat(filters.maxAmount));
+
+        }        ),        ),
+
+      }
+
+        service:services!service_requests_service_id_fkey (        service:services!service_requests_service_id_fkey (
+
+      // Tri
+
+      const orderBy = options?.orderBy || "created_at";          id,          id,
+
+      const orderDirection = options?.orderDirection || "desc";
+
+      query = query.order(orderBy, { ascending: orderDirection === "asc" });          name,          name,
+
+
+
+      // Limite          description,          description,
+
+      if (options?.limit) {
+
+        query = query.limit(options.limit);          category,          category,
+
+      }
+
+          base_price,          base_price,
+
+      const { data, error } = await query;
+
+          is_active,          is_active,
+
+      if (error) {
+
+        throw new Error(`Erreur chargement quote requests: ${error.message}`);          provider_id          provider_id
+
+      }
+
+        ),        ),
+
+      const quoteRequests: QuoteRequestWithDetails[] = (data || []).map((item: any) => ({
+
+        ...item,        property:properties!service_requests_property_id_fkey (        property:properties!service_requests_property_id_fkey (
+
+        requester: Array.isArray(item.requester) ? item.requester[0] : item.requester,
+
+        provider: Array.isArray(item.provider) ? item.provider[0] : item.provider,          id,          id,
+
+        service: Array.isArray(item.service) ? item.service[0] : item.service,
+
+        property: Array.isArray(item.property) ? item.property[0] : item.property,          title,          title,
+
+      }));
+
+          address,          address,
+
+      console.log(`✅ Quote requests loaded: ${quoteRequests.length} items`);
+
+      return quoteRequests;          city,          city,
+
+    },
+
+    enabled: options?.enabled !== false,          type          type
+
+    staleTime: 3 * 60 * 1000, // 3 minutes
+
+    refetchOnWindowFocus: options?.refetchOnWindowFocus !== false,        )        )
+
+  });
+
+};      `);      `);
+
+
+
+/**
+
+ * Hook pour récupérer une demande de devis spécifique
+
+ */      // Application des filtres      // Application des filtres
+
+export const useQuoteRequest = (quoteRequestId: string) => {
+
+  return useQuery({      if (options?.filters) {      if (options?.filters) {
+
+    queryKey: QUOTE_REQUESTS_QUERY_KEYS.detail(quoteRequestId),
+
+    queryFn: async (): Promise<QuoteRequestWithDetails | null> => {        const filters = options.filters;        const filters = options.filters;
+
+      if (!quoteRequestId) return null;
+
+                
+
+      const { data, error } = await supabase
+
+        .from("service_requests")        // Filtre par statut        // Filtre par recherche (nom client, service, adresse)
+
+        .select(`
+
+          *,        if (filters.status && filters.status !== "all") {        if (filters.search) {
+
+          requester:profiles!service_requests_requester_id_fkey (
+
+            id,          query = query.eq("status", filters.status);          // Note: Pour une recherche plus complexe, on pourrait utiliser une fonction PostgreSQL
+
+            first_name,
+
+            last_name,        }          query = query.or(`
+
+            email,
+
+            full_name,                    requester.full_name.ilike.%${filters.search}%,
+
+            phone,
+
+            role,        // Filtre par service            service.name.ilike.%${filters.search}%,
+
+            avatar_url
+
+          ),        if (filters.service) {            property.address.ilike.%${filters.search}%
+
+          provider:profiles!service_requests_provider_id_fkey (
+
+            id,          query = query.eq("service_id", filters.service);          `);
+
+            first_name,
+
+            last_name,        }        }
+
+            email,
+
+            full_name,                
+
+            phone,
+
+            role,        // Filtre par prestataire        // Filtre par statut
+
+            avatar_url
+
+          ),        if (filters.provider) {        if (filters.status && filters.status !== "all") {
+
+          service:services!service_requests_service_id_fkey (
+
+            id,          query = query.eq("provider_id", filters.provider);          query = query.eq("status", filters.status);
+
+            name,
+
+            description,        }        }
+
+            category,
+
+            base_price,                
+
+            is_active,
+
+            provider_id        // Filtre par client        // Filtre par service
+
+          ),
+
+          property:properties!service_requests_property_id_fkey (        if (filters.requester) {        if (filters.service) {
+
+            id,
+
+            title,          query = query.eq("requester_id", filters.requester);          query = query.eq("service_id", filters.service);
+
+            address,
+
+            city,        }        }
+
+            type
+
+          )                
+
+        `)
+
+        .eq("id", quoteRequestId)        // Filtres de date        // Filtre par prestataire
+
+        .single();
+
+        if (filters.dateFrom) {        if (filters.provider) {
+
+      if (error) {
+
+        throw new Error(`Erreur chargement quote request: ${error.message}`);          query = query.gte("requested_date", filters.dateFrom);          query = query.eq("provider_id", filters.provider);
+
+      }
+
+        }        }
+
+      const quoteRequest: QuoteRequestWithDetails = {
+
+        ...data,        if (filters.dateTo) {        
+
+        requester: Array.isArray(data.requester) ? data.requester[0] : data.requester,
+
+        provider: Array.isArray(data.provider) ? data.provider[0] : data.provider,          query = query.lte("requested_date", filters.dateTo);        // Filtre par client
+
+        service: Array.isArray(data.service) ? data.service[0] : data.service,
+
+        property: Array.isArray(data.property) ? data.property[0] : data.property,        }        if (filters.requester) {
+
+      };
+
+                  query = query.eq("requester_id", filters.requester);
+
+      return quoteRequest;
+
+    },        // Filtres de montant        }
+
+    enabled: !!quoteRequestId,
+
+    staleTime: 2 * 60 * 1000, // 2 minutes        if (filters.minAmount) {        
+
+  });
+
+};          query = query.gte("total_amount", parseFloat(filters.minAmount));        // Filtres de date
+
+
+
+/**        }        if (filters.dateFrom) {
+
+ * Hook pour récupérer les statistiques des demandes de devis
+
+ */        if (filters.maxAmount) {          query = query.gte("requested_date", filters.dateFrom);
+
+export const useQuoteRequestStats = (options?: { enabled?: boolean }) => {
+
+  return useQuery({          query = query.lte("total_amount", parseFloat(filters.maxAmount));        }
+
+    queryKey: QUOTE_REQUESTS_QUERY_KEYS.stats(),
+
+    queryFn: async (): Promise<QuoteRequestStats> => {        }        if (filters.dateTo) {
+
+      console.log("📊 Fetching quote request statistics...");
+
+      }          query = query.lte("requested_date", filters.dateTo);
+
+      // Récupérer toutes les demandes pour calculer les stats
+
+      const { data: requests, error } = await supabase        }
+
+        .from("service_requests")
+
+        .select("id, status, total_amount, created_at, completed_at");      // Tri        
+
+
+
+      if (error) {      const orderBy = options?.orderBy || "created_at";        // Filtres de montant
+
+        throw new Error(`Erreur calcul statistiques: ${error.message}`);
+
+      }      const orderDirection = options?.orderDirection || "desc";        if (filters.minAmount) {
+
+
+
+      const requestsArray = requests || [];      query = query.order(orderBy, { ascending: orderDirection === "asc" });          query = query.gte("total_amount", parseFloat(filters.minAmount));
+
+      const totalRequests = requestsArray.length;
+
+        }
+
+      // Stats par statut
+
+      const pendingRequests = requestsArray.filter(r => r.status === "pending").length;      // Limite        if (filters.maxAmount) {
+
+      const acceptedRequests = requestsArray.filter(r => r.status === "accepted").length;
+
+      const inProgressRequests = requestsArray.filter(r => r.status === "in_progress").length;      if (options?.limit) {          query = query.lte("total_amount", parseFloat(filters.maxAmount));
+
+      const completedRequests = requestsArray.filter(r => r.status === "completed").length;
+
+      const cancelledRequests = requestsArray.filter(r => r.status === "cancelled").length;        query = query.limit(options.limit);        }
+
+      const rejectedRequests = requestsArray.filter(r => r.status === "rejected").length;
+
+      }      }
+
+      // Calculs financiers
+
+      const totalRevenue = requestsArray
+
+        .filter(r => r.status === "completed")
+
+        .reduce((sum, r) => sum + (r.total_amount || 0), 0);      const { data, error } = await query;      // Tri
+
+
+
+      const averageAmount = totalRequests > 0       const orderBy = options?.orderBy || "created_at";
+
+        ? requestsArray.reduce((sum, r) => sum + (r.total_amount || 0), 0) / totalRequests
+
+        : 0;      if (error) {      const orderDirection = options?.orderDirection || "desc";
+
+
+
+      // Temps moyen de completion (en jours)        throw new Error(`Erreur chargement quote requests: ${error.message}`);      query = query.order(orderBy, { ascending: orderDirection === "asc" });
+
+      const completedWithDates = requestsArray.filter(r => 
+
+        r.status === "completed" && r.created_at && r.completed_at      }
+
+      );
+
+            // Limite
+
+      const averageCompletionTime = completedWithDates.length > 0
+
+        ? completedWithDates.reduce((sum, r) => {      const quoteRequests: QuoteRequestWithDetails[] = (data || []).map((item: any) => ({      if (options?.limit) {
+
+            const created = new Date(r.created_at!);
+
+            const completed = new Date(r.completed_at!);        ...item,        query = query.limit(options.limit);
+
+            const diffDays = (completed.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+
+            return sum + diffDays;        requester: Array.isArray(item.requester) ? item.requester[0] : item.requester,      }
+
+          }, 0) / completedWithDates.length
+
+        : 0;        provider: Array.isArray(item.provider) ? item.provider[0] : item.provider,
+
+
+
+      const stats: QuoteRequestStats = {        service: Array.isArray(item.service) ? item.service[0] : item.service,      const { data, error } = await query;
+
+        totalRequests,
+
+        pendingRequests,        property: Array.isArray(item.property) ? item.property[0] : item.property,
+
+        acceptedRequests,
+
+        inProgressRequests,      }));      if (error) {
+
+        completedRequests,
+
+        cancelledRequests,        throw new Error(`Erreur chargement quote requests: ${error.message}`);
+
+        rejectedRequests,
+
+        totalRevenue,      console.log(`✅ Quote requests loaded: ${quoteRequests.length} items`);      }
+
+        averageAmount,
+
+        averageCompletionTime: Math.round(averageCompletionTime * 10) / 10,      return quoteRequests;
+
+      };
+
+    },      const quoteRequests: QuoteRequestWithDetails[] = (data || []).map((item: any) => ({
+
+      console.log("📊 Quote request stats calculated:", stats);
+
+      return stats;    enabled: options?.enabled !== false,        ...item,
+
+    },
+
+    enabled: options?.enabled !== false,    staleTime: 3 * 60 * 1000, // 3 minutes        requester: Array.isArray(item.requester) ? item.requester[0] : item.requester,
+
+    staleTime: 5 * 60 * 1000, // 5 minutes
+
+  });    refetchOnWindowFocus: options?.refetchOnWindowFocus !== false,        provider: Array.isArray(item.provider) ? item.provider[0] : item.provider,
+
+};
+
+  });        service: Array.isArray(item.service) ? item.service[0] : item.service,
+
+/**
+
+ * Hook pour les mutations (CRUD operations)};        property: Array.isArray(item.property) ? item.property[0] : item.property,
+
+ */
+
+export const useQuoteRequestMutations = () => {      }));
+
+  const queryClient = useQueryClient();
+
+/**
+
+  const updateQuoteRequest = useMutation({
+
+    mutationFn: async ({ * Hook pour récupérer une demande de devis spécifique      console.log(`✅ Quote requests loaded: ${quoteRequests.length} items`);
+
+      id,
+
+      updates, */      return quoteRequests;
+
+    }: {
+
+      id: string;export const useQuoteRequest = (quoteRequestId: string) => {    },
+
+      updates: QuoteRequestUpdate;
+
+    }) => {  return useQuery({    enabled: options?.enabled !== false,
+
+      console.log("🔄 Updating quote request:", id, updates);
+
+    queryKey: QUOTE_REQUESTS_QUERY_KEYS.detail(quoteRequestId),    staleTime: 3 * 60 * 1000, // 3 minutes
+
+      const { data, error } = await supabase
+
+        .from("service_requests")    queryFn: async (): Promise<QuoteRequestWithDetails | null> => {    refetchOnWindowFocus: options?.refetchOnWindowFocus !== false,
+
+        .update({
+
+          ...updates,      if (!quoteRequestId) return null;  });
+
+          updated_at: new Date().toISOString(),
+
+        })};
+
+        .eq("id", id)
+
+        .select()      const { data, error } = await supabase
+
+        .single();
+
+        .from("service_requests")/**
+
+      if (error) {
+
+        throw new Error(`Erreur mise à jour: ${error.message}`);        .select(` * Hook pour récupérer une demande de devis spécifique
+
+      }
+
+          *, */
+
+      return data;
+
+    },          requester:profiles!service_requests_requester_id_fkey (export const useQuoteRequest = (quoteRequestId: string) => {
+
+    onSuccess: () => {
+
+      queryClient.invalidateQueries({ queryKey: QUOTE_REQUESTS_QUERY_KEYS.all });            id,  return useQuery({
+
+    },
+
+  });            first_name,    queryKey: QUOTE_REQUESTS_QUERY_KEYS.detail(quoteRequestId),
+
+
+
+  const createQuoteRequest = useMutation({            last_name,    queryFn: async (): Promise<QuoteRequestWithDetails | null> => {
+
+    mutationFn: async (quoteRequest: QuoteRequestInsert) => {
+
+      console.log("➕ Creating quote request:", quoteRequest);            email,      if (!quoteRequestId) return null;
+
+
+
+      const { data, error } = await supabase            full_name,
+
+        .from("service_requests")
+
+        .insert(quoteRequest)            phone,      const { data, error } = await supabase
+
+        .select()
+
+        .single();            role,        .from("service_requests")
+
+
+
+      if (error) {            avatar_url        .select(`
+
+        throw new Error(`Erreur création: ${error.message}`);
+
+      }          ),          *,
+
+
+
+      return data;          provider:profiles!service_requests_provider_id_fkey (          requester:profiles!service_requests_requester_id_fkey (
+
+    },
+
+    onSuccess: () => {            id,            id,
+
+      queryClient.invalidateQueries({ queryKey: QUOTE_REQUESTS_QUERY_KEYS.all });
+
+    },            first_name,            first_name,
+
+  });
+
+            last_name,            last_name,
+
+  const deleteQuoteRequest = useMutation({
+
+    mutationFn: async (id: string) => {            email,            email,
+
+      console.log("🗑️ Deleting quote request:", id);
+
+            full_name,            full_name,
+
+      const { data, error } = await supabase
+
+        .from("service_requests")            phone,            phone,
+
+        .delete()
+
+        .eq("id", id)            role,            role,
+
+        .select();
+
+            avatar_url            avatar_url
+
+      if (error) {
+
+        throw new Error(`Erreur suppression: ${error.message}`);          ),          ),
+
+      }
+
+          service:services!service_requests_service_id_fkey (          provider:profiles!service_requests_provider_id_fkey (
+
+      return data;
+
+    },            id,            id,
+
+    onSuccess: () => {
+
+      queryClient.invalidateQueries({ queryKey: QUOTE_REQUESTS_QUERY_KEYS.all });            name,            first_name,
+
+    },
+
+  });            description,            last_name,
+
+
+
+  // Actions spécifiques pour les statuts            category,            email,
+
+  const approveQuoteRequest = useMutation({
+
+    mutationFn: async (id: string) => {            base_price,            full_name,
+
+      return updateQuoteRequest.mutateAsync({
+
+        id,            is_active,            phone,
+
+        updates: { status: "accepted" },
+
+      });            provider_id            role,
+
+    },
+
+  });          ),            avatar_url
+
+
+
+  const rejectQuoteRequest = useMutation({          property:properties!service_requests_property_id_fkey (          ),
+
+    mutationFn: async ({
+
+      id,            id,          service:services!service_requests_service_id_fkey (
+
+      reason,
+
+    }: {            title,            id,
+
+      id: string;
+
+      reason?: string;            address,            name,
+
+    }) => {
+
+      return updateQuoteRequest.mutateAsync({            city,            description,
+
+        id,
+
+        updates: {             type            category,
+
+          status: "rejected",
+
+          cancellation_reason: reason,          )            base_price,
+
+          cancelled_at: new Date().toISOString(),
+
+        },        `)            is_active,
+
+      });
+
+    },        .eq("id", quoteRequestId)            provider_id
+
+  });
+
+        .single();          ),
+
+  const assignProvider = useMutation({
+
+    mutationFn: async ({          property:properties!service_requests_property_id_fkey (
+
+      id,
+
+      providerId,      if (error) {            id,
+
+    }: {
+
+      id: string;        throw new Error(`Erreur chargement quote request: ${error.message}`);            title,
+
+      providerId: string;
+
+    }) => {      }            address,
+
+      return updateQuoteRequest.mutateAsync({
+
+        id,            city,
+
+        updates: { 
+
+          provider_id: providerId,      const quoteRequest: QuoteRequestWithDetails = {            type
+
+          status: "accepted",
+
+        },        ...data,          )
+
+      });
+
+    },        requester: Array.isArray(data.requester) ? data.requester[0] : data.requester,        `)
+
+  });
+
+        provider: Array.isArray(data.provider) ? data.provider[0] : data.provider,        .eq("id", quoteRequestId)
+
+  return {
+
+    // CRUD mutations        service: Array.isArray(data.service) ? data.service[0] : data.service,        .single();
+
+    updateQuoteRequest,
+
+    createQuoteRequest,        property: Array.isArray(data.property) ? data.property[0] : data.property,
+
+    deleteQuoteRequest,
+
+          };      if (error) {
+
+    // Status mutations
+
+    approveQuoteRequest,        throw new Error(`Erreur chargement quote request: ${error.message}`);
+
+    rejectQuoteRequest,
+
+    assignProvider,      return quoteRequest;      }
+
+  };
+
+};    },
+
+    enabled: !!quoteRequestId,      const quoteRequest: QuoteRequestWithDetails = {
+
+    staleTime: 2 * 60 * 1000, // 2 minutes        ...data,
+
+  });        requester: Array.isArray(data.requester) ? data.requester[0] : data.requester,
+
+};        provider: Array.isArray(data.provider) ? data.provider[0] : data.provider,
+
+        service: Array.isArray(data.service) ? data.service[0] : data.service,
+
+/**        property: Array.isArray(data.property) ? data.property[0] : data.property,
+
+ * Hook pour récupérer les statistiques des demandes de devis      };
+
+ */
+
+export const useQuoteRequestStats = (options?: { enabled?: boolean }) => {      return quoteRequest;
+
+  return useQuery({    },
+
+    queryKey: QUOTE_REQUESTS_QUERY_KEYS.stats(),    enabled: !!quoteRequestId,
+
+    queryFn: async (): Promise<QuoteRequestStats> => {    staleTime: 2 * 60 * 1000, // 2 minutes
+
+      console.log("📊 Fetching quote request statistics...");  });
+
+};
+
+      // Récupérer toutes les demandes pour calculer les stats
+
+      const { data: requests, error } = await supabase/**
+
+        .from("service_requests") * Hook pour récupérer les statistiques des demandes de devis
+
+        .select("id, status, total_amount, created_at, completed_at"); */
+
+export const useQuoteRequestStats = (options?: { enabled?: boolean }) => {
+
+      if (error) {  return useQuery({
+
+        throw new Error(`Erreur calcul statistiques: ${error.message}`);    queryKey: QUOTE_REQUESTS_QUERY_KEYS.stats(),
+
+      }    queryFn: async (): Promise<QuoteRequestStats> => {
+
+      console.log("📊 Fetching quote request statistics...");
+
+      const requestsArray = requests || [];
+
+      const totalRequests = requestsArray.length;      // Récupérer toutes les demandes pour calculer les stats
+
+      const { data: requests, error } = await supabase
+
+      // Stats par statut        .from("service_requests")
+
+      const pendingRequests = requestsArray.filter(r => r.status === "pending").length;        .select("id, status, total_amount, created_at, completed_at");
+
+      const acceptedRequests = requestsArray.filter(r => r.status === "accepted").length;
+
+      const inProgressRequests = requestsArray.filter(r => r.status === "in_progress").length;      if (error) {
+
+      const completedRequests = requestsArray.filter(r => r.status === "completed").length;        throw new Error(`Erreur calcul statistiques: ${error.message}`);
+
+      const cancelledRequests = requestsArray.filter(r => r.status === "cancelled").length;      }
+
+      const rejectedRequests = requestsArray.filter(r => r.status === "rejected").length;
+
+      const requestsArray = requests || [];
+
+      // Calculs financiers      const totalRequests = requestsArray.length;
+
+      const totalRevenue = requestsArray
+
+        .filter(r => r.status === "completed")      // Stats par statut
+
+        .reduce((sum, r) => sum + (r.total_amount || 0), 0);      const pendingRequests = requestsArray.filter(r => r.status === "pending").length;
+
+      const acceptedRequests = requestsArray.filter(r => r.status === "accepted").length;
+
+      const averageAmount = totalRequests > 0       const inProgressRequests = requestsArray.filter(r => r.status === "in_progress").length;
+
+        ? requestsArray.reduce((sum, r) => sum + (r.total_amount || 0), 0) / totalRequests      const completedRequests = requestsArray.filter(r => r.status === "completed").length;
+
+        : 0;      const cancelledRequests = requestsArray.filter(r => r.status === "cancelled").length;
+
+      const rejectedRequests = requestsArray.filter(r => r.status === "rejected").length;
+
+      // Temps moyen de completion (en jours)
+
+      const completedWithDates = requestsArray.filter(r =>       // Calculs financiers
+
+        r.status === "completed" && r.created_at && r.completed_at      const totalRevenue = requestsArray
+
+      );        .filter(r => r.status === "completed")
+
+              .reduce((sum, r) => sum + (r.total_amount || 0), 0);
+
+      const averageCompletionTime = completedWithDates.length > 0
+
+        ? completedWithDates.reduce((sum, r) => {      const averageAmount = totalRequests > 0 
+
+            const created = new Date(r.created_at!);        ? requestsArray.reduce((sum, r) => sum + (r.total_amount || 0), 0) / totalRequests
+
+            const completed = new Date(r.completed_at!);        : 0;
+
+            const diffDays = (completed.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+
+            return sum + diffDays;      // Temps moyen de completion (en jours)
+
+          }, 0) / completedWithDates.length      const completedWithDates = requestsArray.filter(r => 
+
+        : 0;        r.status === "completed" && r.created_at && r.completed_at
+
+      );
+
+      const stats: QuoteRequestStats = {      
+
+        totalRequests,      const averageCompletionTime = completedWithDates.length > 0
+
+        pendingRequests,        ? completedWithDates.reduce((sum, r) => {
+
+        acceptedRequests,            const created = new Date(r.created_at!);
+
+        inProgressRequests,            const completed = new Date(r.completed_at!);
+
+        completedRequests,            const diffDays = (completed.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+
+        cancelledRequests,            return sum + diffDays;
+
+        rejectedRequests,          }, 0) / completedWithDates.length
+
+        totalRevenue,        : 0;
+
+        averageAmount,
+
+        averageCompletionTime: Math.round(averageCompletionTime * 10) / 10,      const stats: QuoteRequestStats = {
+
+      };        totalRequests,
+
+        pendingRequests,
+
+      console.log("📊 Quote request stats calculated:", stats);        acceptedRequests,
+
+      return stats;        inProgressRequests,
+
+    },        completedRequests,
+
+    enabled: options?.enabled !== false,        cancelledRequests,
+
+    staleTime: 5 * 60 * 1000, // 5 minutes        rejectedRequests,
+
+  });        totalRevenue,
+
+};        averageAmount,
+
+        averageCompletionTime: Math.round(averageCompletionTime * 10) / 10,
+
+/**      };
+
+ * Hook pour les mutations (CRUD operations)
+
+ */      console.log("📊 Quote request stats calculated:", stats);
+
+export const useQuoteRequestMutations = () => {      return stats;
+
+  const queryClient = useQueryClient();    },
+
+    enabled: options?.enabled !== false,
+
+  const updateQuoteRequest = useMutation({    staleTime: 5 * 60 * 1000, // 5 minutes
+
+    mutationFn: async ({  });
+
+      id,};
+
+      updates,
+
+    }: {/**
+
+      id: string; * Hook pour les mutations (CRUD operations)
+
+      updates: QuoteRequestUpdate; */
+
+    }) => {export const useQuoteRequestMutations = () => {
+
+      console.log("🔄 Updating quote request:", id, updates);  const queryClient = useQueryClient();
+
+      const { data, error } = await supabase
+
+        .from("service_requests")  const updateQuoteRequest = useMutation({
+
+        .update({    mutationFn: async ({
+
+          ...updates,      id,
+
+          updated_at: new Date().toISOString(),      updates,
+
+        })    }: {
+
+        .eq("id", id)      id: string;
+
+        .select()      updates: QuoteRequestUpdate;
+
+        .single();    }) => {
+
+      console.log("🔄 Updating quote request:", id, updates);
+
+      if (error) {      const { data, error } = await supabase
+
+        throw new Error(`Erreur mise à jour: ${error.message}`);        .from("service_requests")
+
+      }        .update({
+
+          ...updates,
+
+      return data;          updated_at: new Date().toISOString(),
+
+    },        })
+
+    onSuccess: () => {        .eq("id", id)
+
+      queryClient.invalidateQueries({ queryKey: QUOTE_REQUESTS_QUERY_KEYS.all });        .select()
+
+    },        .single();
+
+  });
+
+      if (error) {
+
+  const createQuoteRequest = useMutation({        throw new Error(`Erreur mise à jour: ${error.message}`);
+
+    mutationFn: async (quoteRequest: QuoteRequestInsert) => {      }
+
+      console.log("➕ Creating quote request:", quoteRequest);
+
+      const { data, error } = await supabase      return data;
+
+        .from("service_requests")    },
+
+        .insert(quoteRequest)    onSuccess: () => {
+
+        .select()      queryClient.invalidateQueries({ queryKey: QUOTE_REQUESTS_QUERY_KEYS.all });
+
+        .single();    },
+
+  });
+
+      if (error) {
+
+        throw new Error(`Erreur création: ${error.message}`);  const createQuoteRequest = useMutation({
+
+      }    mutationFn: async (quoteRequest: QuoteRequestInsert) => {
+
+      console.log("➕ Creating quote request:", quoteRequest);
+
+      return data;      const { data, error } = await supabase
+
+    },        .from("service_requests")
+
+    onSuccess: () => {        .insert(quoteRequest)
+
+      queryClient.invalidateQueries({ queryKey: QUOTE_REQUESTS_QUERY_KEYS.all });        .select()
+
+    },        .single();
+
+  });
+
+      if (error) {
+
+  const deleteQuoteRequest = useMutation({        throw new Error(`Erreur création: ${error.message}`);
+
+    mutationFn: async (id: string) => {      }
+
+      console.log("🗑️ Deleting quote request:", id);
+
+      const { data, error } = await supabase      return data;
+
+        .from("service_requests")    },
+
+        .delete()    onSuccess: () => {
+
+        .eq("id", id)      queryClient.invalidateQueries({ queryKey: QUOTE_REQUESTS_QUERY_KEYS.all });
+
+        .select();    },
+
+  });
+
+      if (error) {
+
+        throw new Error(`Erreur suppression: ${error.message}`);  const deleteQuoteRequest = useMutation({
+
+      }    mutationFn: async (id: string) => {
+
+      console.log("🗑️ Deleting quote request:", id);
+
+      return data;      const { data, error } = await supabase
+
+    },        .from("service_requests")
+
+    onSuccess: () => {        .delete()
+
+      queryClient.invalidateQueries({ queryKey: QUOTE_REQUESTS_QUERY_KEYS.all });        .eq("id", id)
+
+    },        .select();
+
+  });
+
+      if (error) {
+
+  // Actions spécifiques pour les statuts        throw new Error(`Erreur suppression: ${error.message}`);
+
+  const approveQuoteRequest = useMutation({      }
+
+    mutationFn: async (id: string) => {
+
+      return updateQuoteRequest.mutateAsync({      return data;
+
+        id,    },
+
+        updates: { status: "accepted" },    onSuccess: () => {
+
+      });      queryClient.invalidateQueries({ queryKey: QUOTE_REQUESTS_QUERY_KEYS.all });
+
+    },    },
+
+  });  });
+
+
+
+  const rejectQuoteRequest = useMutation({  // Actions spécifiques pour les statuts
+
+    mutationFn: async ({  const approveQuoteRequest = useMutation({
+
+      id,    mutationFn: async (id: string) => {
+
+      reason,      return updateQuoteRequest.mutateAsync({
+
+    }: {        id,
+
+      id: string;        updates: { status: "accepted" },
+
+      reason?: string;      });
+
+    }) => {    },
+
+      return updateQuoteRequest.mutateAsync({  });
+
+        id,
+
+        updates: {   const rejectQuoteRequest = useMutation({
+
+          status: "rejected",    mutationFn: async ({
+
+          cancellation_reason: reason,      id,
+
+          cancelled_at: new Date().toISOString(),      reason,
+
+        },    }: {
+
+      });      id: string;
+
+    },      reason?: string;
+
+  });    }) => {
+
+      return updateQuoteRequest.mutateAsync({
+
+  const assignProvider = useMutation({        id,
+
+    mutationFn: async ({        updates: { 
+
+      id,          status: "rejected",
+
+      providerId,          cancellation_reason: reason,
+
+    }: {          cancelled_at: new Date().toISOString(),
+
+      id: string;        },
+
+      providerId: string;      });
+
+    }) => {    },
+
+      return updateQuoteRequest.mutateAsync({  });
+
+        id,
+
+        updates: {   const assignProvider = useMutation({
+
+          provider_id: providerId,    mutationFn: async ({
+
+          status: "accepted",      id,
+
+        },      providerId,
+
+      });    }: {
+
+    },      id: string;
+
+  });      providerId: string;
+
+    }) => {
+
+  return {      return updateQuoteRequest.mutateAsync({
+
+    // CRUD mutations        id,
+
+    updateQuoteRequest,        updates: { 
+
+    createQuoteRequest,          provider_id: providerId,
+
+    deleteQuoteRequest,          status: "accepted",
+
+            },
+
+    // Status mutations      });
+
+    approveQuoteRequest,    },
+
+    rejectQuoteRequest,  });
+
+    assignProvider,
+
+  };  return {
+
+};    // CRUD mutations
+    updateQuoteRequest,
+    createQuoteRequest,
+    deleteQuoteRequest,
+    
+    // Status mutations
+    approveQuoteRequest,
+    rejectQuoteRequest,
+    assignProvider,
+  };
+};
+    };
+};
+
+  // Get pending service requests (admin priority view)
+  const usePendingServiceRequests = () => {
+    return useQuery({
+      queryKey: SERVICE_REQUESTS_QUERY_KEYS.pending(),
+      queryFn: async () => {
+        const response = await dataProvider.getList(
+          "service_requests",
+          {
+            orderBy: "created_at",
+          },
+          { status: "pending" }
+        );
+
+        if (!response.success) {
+          throw response.error;
+        }
+
+        return response.data;
+      },
+      staleTime: 2 * 60 * 1000, // 2 minutes for pending items
+      refetchInterval: 60 * 1000, // Check every minute for new pending requests
+    });
+  };
+
+  // Get recent service requests for dashboard
+  const useRecentServiceRequests = (limit = 10) => {
+    return useQuery({
+      queryKey: SERVICE_REQUESTS_QUERY_KEYS.recent(),
+      queryFn: async () => {
+        const response = await dataProvider.getList("service_requests", {
+          limit,
+          orderBy: "created_at",
+        });
+
+        if (!response.success) {
+          throw response.error;
+        }
+
+        return response.data;
+      },
+      staleTime: 5 * 60 * 1000,
+    });
+  };
+
+  // Get service request statistics for dashboard
+  const useServiceRequestStats = () => {
+    return useQuery({
+      queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      queryFn: async () => {
+        // Get counts for different statuses
+        const [pending, accepted, inProgress, completed, cancelled, total] =
+          await Promise.all([
+            dataProvider.getList("service_requests", {}, { status: "pending" }),
+            dataProvider.getList(
+              "service_requests",
+              {},
+              { status: "accepted" }
+            ),
+            dataProvider.getList(
+              "service_requests",
+              {},
+              { status: "in_progress" }
+            ),
+            dataProvider.getList(
+              "service_requests",
+              {},
+              { status: "completed" }
+            ),
+            dataProvider.getList(
+              "service_requests",
+              {},
+              { status: "cancelled" }
+            ),
+            dataProvider.getList("service_requests", {}),
+          ]);
+
+        // Calculate total revenue from completed requests
+        const completedRequests =
+          completed.success && completed.data ? completed.data : [];
+        const totalRevenue = completedRequests.reduce(
+          (sum, request) => sum + request.total_amount,
+          0
+        );
+
+        return {
+          pending: pending.success && pending.data ? pending.data.length : 0,
+          accepted:
+            accepted.success && accepted.data ? accepted.data.length : 0,
+          inProgress:
+            inProgress.success && inProgress.data ? inProgress.data.length : 0,
+          completed:
+            completed.success && completed.data ? completed.data.length : 0,
+          cancelled:
+            cancelled.success && cancelled.data ? cancelled.data.length : 0,
+          total: total.success && total.data ? total.data.length : 0,
+          totalRevenue,
+        };
+      },
+      staleTime: 10 * 60 * 1000, // 10 minutes for stats
+    });
+  };
+
+  // Create service request mutation
+  const createServiceRequest = useMutation({
+    mutationFn: async (payload: ServiceRequestInsert) => {
+      const response = await dataProvider.create("service_requests", payload);
+
+      if (!response.success) {
+        throw response.error;
+      }
+
+      return response.data;
+    },
+    onMutate: async (newRequest) => {
+      await queryClient.cancelQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+
+      const previousRequests = queryClient.getQueryData(
+        SERVICE_REQUESTS_QUERY_KEYS.list(options?.filters)
+      );
+
+      if (previousRequests) {
+        const optimisticRequest = {
+          ...newRequest,
+          id: `temp-${Date.now()}`,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          status: "pending",
+        } as ServiceRequest;
+
+        queryClient.setQueryData(
+          SERVICE_REQUESTS_QUERY_KEYS.list(options?.filters),
+          (old: ServiceRequest[] | undefined) =>
+            old ? [optimisticRequest, ...old] : [optimisticRequest]
+        );
+      }
+
+      return { previousRequests };
+    },
+    onError: (err, newRequest, context) => {
+      if (context?.previousRequests) {
+        queryClient.setQueryData(
+          SERVICE_REQUESTS_QUERY_KEYS.list(options?.filters),
+          context.previousRequests
+        );
+      }
+    },
+    onSettled: (newRequest) => {
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+        refetchType: "none",
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+
+      if (newRequest) {
+        queryClient.setQueryData(
+          SERVICE_REQUESTS_QUERY_KEYS.detail(newRequest.id),
+          newRequest
+        );
+      }
+    },
+  });
+
+  // Update service request mutation
+  const updateServiceRequest = useMutation({
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: ServiceRequestUpdate;
+    }) => {
+      const response = await dataProvider.update("service_requests", id, {
+        ...payload,
+        updated_at: new Date().toISOString(),
+      });
+
+      if (!response.success) {
+        throw response.error;
+      }
+
+      return response.data;
+    },
+    onSuccess: (updatedRequest, { id }) => {
+      queryClient.setQueryData(
+        SERVICE_REQUESTS_QUERY_KEYS.detail(id),
+        updatedRequest
+      );
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+    },
+  });
+
+  // Delete service request mutation
+  const deleteServiceRequest = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await dataProvider.delete("service_requests", id);
+
+      if (!response.success) {
+        throw response.error;
+      }
+
+      return response.data;
+    },
+    onSuccess: (_, deletedId) => {
+      queryClient.removeQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.detail(deletedId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+    },
+  });
+
+  // Accept/Approve service request mutation (admin/provider action)
+  const acceptServiceRequest = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await dataProvider.update("service_requests", id, {
+        status: "accepted",
+        updated_at: new Date().toISOString(),
+      });
+
+      if (!response.success) {
+        throw response.error;
+      }
+
+      return response.data;
+    },
+    onSuccess: (updatedRequest, id) => {
+      queryClient.setQueryData(
+        SERVICE_REQUESTS_QUERY_KEYS.detail(id),
+        updatedRequest
+      );
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.pending(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+    },
+  });
+
+  // Reject service request mutation
+  const rejectServiceRequest = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await dataProvider.update("service_requests", id, {
+        status: "rejected",
+        updated_at: new Date().toISOString(),
+      });
+
+      if (!response.success) {
+        throw response.error;
+      }
+
+      return response.data;
+    },
+    onSuccess: (updatedRequest, id) => {
+      queryClient.setQueryData(
+        SERVICE_REQUESTS_QUERY_KEYS.detail(id),
+        updatedRequest
+      );
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.pending(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+    },
+  });
+
+  // Mark service request as completed
+  const completeServiceRequest = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await dataProvider.update("service_requests", id, {
+        status: "completed",
+        updated_at: new Date().toISOString(),
+      });
+
+      if (!response.success) {
+        throw response.error;
+      }
+
+      return response.data;
+    },
+    onSuccess: (updatedRequest, id) => {
+      queryClient.setQueryData(
+        SERVICE_REQUESTS_QUERY_KEYS.detail(id),
+        updatedRequest
+      );
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+    },
+  });
+
+  // Cancel service request
+  const cancelServiceRequest = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await dataProvider.update("service_requests", id, {
+        status: "cancelled",
+        updated_at: new Date().toISOString(),
+      });
+
+      if (!response.success) {
+        throw response.error;
+      }
+
+      return response.data;
+    },
+    onSuccess: (updatedRequest, id) => {
+      queryClient.setQueryData(
+        SERVICE_REQUESTS_QUERY_KEYS.detail(id),
+        updatedRequest
+      );
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+    },
+  });
+
+  // Bulk operations
+  const acceptManyServiceRequests = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const updates = ids.map((id) =>
+        dataProvider.update("service_requests", id, {
+          status: "accepted",
+          updated_at: new Date().toISOString(),
+        })
+      );
+
+      const responses = await Promise.all(updates);
+      const failed = responses.filter((r) => !r.success);
+
+      if (failed.length > 0) {
+        throw new Error(`Failed to accept ${failed.length} service requests`);
+      }
+
+      return responses.map((r) => r.data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.pending(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+    },
+  });
+
+  const deleteManyServiceRequests = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const response = await dataProvider.deleteMany("service_requests", ids);
+
+      if (!response.success) {
+        throw response.error;
+      }
+
+      return response.data;
+    },
+    onSuccess: (_, deletedIds) => {
+      deletedIds.forEach((id) => {
+        queryClient.removeQueries({
+          queryKey: SERVICE_REQUESTS_QUERY_KEYS.detail(id),
+        });
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+    },
+  });
+
+  return {
+    // Query data
+    serviceRequests: serviceRequests || [],
+    isLoading,
+    isFetching,
+    isStale,
+    error,
+    refetch,
+
+    // Specialized hooks
+    useServiceRequest,
+    usePendingServiceRequests,
+    useRecentServiceRequests,
+    useServiceRequestStats,
+
+    // Basic mutations
+    createServiceRequest: {
+      mutate: createServiceRequest.mutate,
+      mutateAsync: createServiceRequest.mutateAsync,
+      isPending: createServiceRequest.isPending,
+      error: createServiceRequest.error,
+      isSuccess: createServiceRequest.isSuccess,
+    },
+
+    updateServiceRequest: {
+      mutate: updateServiceRequest.mutate,
+      mutateAsync: updateServiceRequest.mutateAsync,
+      isPending: updateServiceRequest.isPending,
+      error: updateServiceRequest.error,
+      isSuccess: updateServiceRequest.isSuccess,
+    },
+
+    deleteServiceRequest: {
+      mutate: deleteServiceRequest.mutate,
+      mutateAsync: deleteServiceRequest.mutateAsync,
+      isPending: deleteServiceRequest.isPending,
+      error: deleteServiceRequest.error,
+      isSuccess: deleteServiceRequest.isSuccess,
+    },
+
+    // Status change mutations
+    acceptServiceRequest: {
+      mutate: acceptServiceRequest.mutate,
+      mutateAsync: acceptServiceRequest.mutateAsync,
+      isPending: acceptServiceRequest.isPending,
+      error: acceptServiceRequest.error,
+      isSuccess: acceptServiceRequest.isSuccess,
+    },
+
+    rejectServiceRequest: {
+      mutate: rejectServiceRequest.mutate,
+      mutateAsync: rejectServiceRequest.mutateAsync,
+      isPending: rejectServiceRequest.isPending,
+      error: rejectServiceRequest.error,
+      isSuccess: rejectServiceRequest.isSuccess,
+    },
+
+    completeServiceRequest: {
+      mutate: completeServiceRequest.mutate,
+      mutateAsync: completeServiceRequest.mutateAsync,
+      isPending: completeServiceRequest.isPending,
+      error: completeServiceRequest.error,
+      isSuccess: completeServiceRequest.isSuccess,
+    },
+
+    cancelServiceRequest: {
+      mutate: cancelServiceRequest.mutate,
+      mutateAsync: cancelServiceRequest.mutateAsync,
+      isPending: cancelServiceRequest.isPending,
+      error: cancelServiceRequest.error,
+      isSuccess: cancelServiceRequest.isSuccess,
+    },
+
+    // Bulk operations
+    acceptManyServiceRequests: {
+      mutate: acceptManyServiceRequests.mutate,
+      mutateAsync: acceptManyServiceRequests.mutateAsync,
+      isPending: acceptManyServiceRequests.isPending,
+      error: acceptManyServiceRequests.error,
+      isSuccess: acceptManyServiceRequests.isSuccess,
+    },
+
+    deleteManyServiceRequests: {
+      mutate: deleteManyServiceRequests.mutate,
+      mutateAsync: deleteManyServiceRequests.mutateAsync,
+      isPending: deleteManyServiceRequests.isPending,
+      error: deleteManyServiceRequests.error,
+      isSuccess: deleteManyServiceRequests.isSuccess,
+    },
+
+    // Utilities
+    invalidateServiceRequests: (forceRefetch = false) =>
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+        refetchType: forceRefetch ? "active" : "none",
+      }),
+
+    refreshServiceRequests: () => refetch(),
+
+    // Query keys for external use
+    queryKeys: SERVICE_REQUESTS_QUERY_KEYS,
+  };
+};

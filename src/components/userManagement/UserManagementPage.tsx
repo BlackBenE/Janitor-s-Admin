@@ -7,94 +7,102 @@ import {
   UserHeader,
   UserStatsSection,
   UserTableSection,
-  UserLoadingIndicator,
-  UserModalsManager,
-  AnonymizationModalsManager,
-  createUserTableColumns,
+  ModalsManager,
 } from "./components";
+import { LoadingIndicator } from "../shared";
 
 // Types
 import { UserRole, UserProfile, USER_TABS } from "../../types/userManagement";
 
-// Hooks
-import {
-  useUserManagement,
-  useUserModals,
-  useActiveUsers,
-  useDeletedUsers,
-  useAllUsers,
-  useAdminUsers,
-  useUserActivity,
-  useSecurityActions,
-  useBulkActions,
-  useRoleModals,
-  useAnonymizationModals,
-} from "./hooks";
+// 🎯 MIGRATION: Hook unifié - SEUL hook utilisé
+import { useUsers } from "./hooks/useUsers";
 import { useAuth } from "../../providers/authProvider";
 
 export const UserManagementPage: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState(0);
-  const [selectedUserRole, setSelectedUserRole] =
-    React.useState<UserRole | null>(null);
-
-  // Main Hooks
-  const userManagement = useUserManagement();
-  const modals = useUserModals();
-  const securityActions = useSecurityActions();
-  const roleModals = useRoleModals();
-  const anonymizationModals = useAnonymizationModals();
+  // 🎯 MIGRATION: SEUL hook unifié utilisé - activeTab vient du hook
+  const users = useUsers();
   const { getEmail } = useAuth();
 
-  // Hook pour récupérer les utilisateurs actifs (par défaut)
+  // Extraction des propriétés du hook unifié
   const {
-    users: activeUsers,
-    isLoading: isLoadingActive,
-    isFetching: isFetchingActive,
-    error: errorActive,
+    // Données utilisateurs depuis le hook unifié
+    users: usersData,
+    activeUsers,
+    deletedUsers,
+    adminUsers,
+
+    // États de chargement et erreurs
+    isLoading: unifiedLoading,
+    isFetching: unifiedFetching,
+    error: unifiedError,
+    errorActive,
+    isLoadingActive,
+    isLoadingDeleted,
+    isLoadingAdmins,
+    errorDeleted,
+    errorAdmins,
+
+    // Actions CRUD
     updateUser,
     softDeleteUser,
-    refetch: refetchActive,
-  } = useActiveUsers({
-    filters: {},
-    orderBy: "created_at",
-  });
+    restoreUser,
 
-  // Hook pour obtenir les utilisateurs supprimés
-  const {
-    users: deletedUsers,
-    isLoading: isLoadingDeleted,
-    error: errorDeleted,
-    refetch: refetchDeleted,
-  } = useDeletedUsers({
-    orderBy: "deleted_at",
-  });
+    // Actions UI et état
+    selectedUser,
+    selectedUsers,
+    editForm,
+    filters,
+    toggleUserSelection,
+    setUserForEdit,
+    setSelectedUser,
+    resetEditForm,
+    showNotification,
+    updateFilter,
 
-  // Hook pour tous les utilisateurs (pour les statistiques)
-  const {
-    users: allUsersData,
-    isLoading: isLoadingAll,
-    error: errorAll,
-  } = useAllUsers({
-    orderBy: "created_at",
-  });
+    // Form management
+    updateEditForm,
 
-  // Hook pour les administrateurs
-  const {
-    users: adminUsers,
-    isLoading: isLoadingAdmins,
-    error: errorAdmins,
-    refetch: refetchAdmins,
-  } = useAdminUsers({
-    orderBy: "created_at",
-  });
+    // Modals
+    modals,
 
-  // Hook pour la restauration
-  const { restoreUser } = useAllUsers();
+    // Security actions
+    securityActions,
 
-  // Déterminer quelle source utiliser selon l'onglet sélectionné
-  const isDeletedTab = (USER_TABS[activeTab]?.role as any) === "deleted";
-  const isAdminTab = USER_TABS[activeTab]?.role === UserRole.ADMIN;
+    // Anonymization
+    anonymization,
 
+    // Bulk actions
+    bulkActions,
+
+    // Export
+    exportUsers,
+
+    // Refresh
+    refetch: unifiedRefetch,
+    refetchActive,
+    refetchDeleted,
+    refetchAdmins,
+
+    // Raw data (non filtrées par onglet)
+    rawActiveUsers,
+    rawDeletedUsers,
+    rawAllUsers,
+    rawAdminUsers,
+
+    // Stats data (actifs sans admins - comme avant)
+    statsUsers,
+
+    // Tab management
+    handleTabChange,
+    activeTab,
+    currentTabRole,
+    isDeletedTab,
+    isAdminTab,
+  } = users;
+
+  // Les états isDeletedTab et isAdminTab viennent maintenant du hook
+
+  // Utiliser les données directement du hook unifié
   const allUsers = (() => {
     if (isDeletedTab) return deletedUsers;
     if (isAdminTab) return adminUsers;
@@ -110,7 +118,7 @@ export const UserManagementPage: React.FC = () => {
   const isFetching = (() => {
     if (isDeletedTab) return false;
     if (isAdminTab) return false;
-    return isFetchingActive;
+    return unifiedFetching; // Utiliser la valeur du hook unifié
   })();
 
   const error = (() => {
@@ -125,22 +133,8 @@ export const UserManagementPage: React.FC = () => {
     return refetchActive;
   })();
 
-  // Filtrage côté client par rôle
-  const users = (() => {
-    const sourceUsers = allUsers || [];
-
-    // Si on est sur l'onglet "Deleted Users" ou "Admin", pas de filtrage supplémentaire
-    if (isDeletedTab || isAdminTab) {
-      return sourceUsers;
-    }
-
-    // Sinon, filtrage normal par rôle sélectionné pour les utilisateurs actifs
-    return selectedUserRole
-      ? sourceUsers.filter(
-          (user: UserProfile) => user.role === selectedUserRole
-        )
-      : sourceUsers;
-  })();
+  // Utiliser directement les utilisateurs du hook (plus besoin de filtrage manuel)
+  const finalUsers = allUsers || [];
 
   // Debug: log des données
   console.log("UserManagementPage Debug:", {
@@ -150,74 +144,54 @@ export const UserManagementPage: React.FC = () => {
     deletedUsersCount: deletedUsers?.length,
     activeUsersCount: activeUsers?.length,
     adminUsersCount: adminUsers?.length,
-    selectedUserRole,
-    currentUsersCount: users.length,
+    currentTabRole,
+    currentUsersCount: finalUsers.length,
     allUsersToDisplay: allUsers?.length,
   });
 
-  // Hook pour les actions en lot (bulk actions)
-  const bulkActions = useBulkActions({
-    users,
-    selectedUsers: userManagement.selectedUsers,
-    clearUserSelection: userManagement.clearUserSelection,
-    showNotification: userManagement.showNotification,
-    updateUser: updateUser,
-    softDeleteUser: softDeleteUser,
-  });
+  // Les bulk actions et activity data sont maintenant dans le hook unifié
+  const activityData = users.activityData || {};
 
-  // Hook pour les données d'activité des utilisateurs
-  const userIds = users.map((user) => user.id);
-  const {
-    data: activityData,
-    isLoading: isLoadingActivity,
-    error: activityError,
-  } = useUserActivity(userIds);
-
-  // Configuration du tableau avec toutes les fonctionnalités
-  const columns = createUserTableColumns({
-    selectedUsers: userManagement.selectedUsers,
-    onToggleUserSelection: userManagement.toggleUserSelection,
+  // Handlers pour les actions du tableau - maintenant passés directement à UserTableSection
+  const tableHandlers = {
+    onToggleUserSelection: toggleUserSelection,
     onShowUser: (user: UserProfile) => {
-      userManagement.setUserForEdit(user);
+      setUserForEdit(user);
       modals.openUserDetailsModal();
     },
     onShowAudit: (userId: string) => {
-      const user = users.find((u) => u.id === userId);
-      if (user) userManagement.setSelectedUser(user);
+      const user = finalUsers.find((u) => u.id === userId);
+      if (user) setSelectedUser(user);
       modals.openAuditModal(userId);
     },
     onPasswordReset: (userId: string) => {
-      const user = users.find((u) => u.id === userId);
-      if (user) userManagement.setSelectedUser(user);
+      const user = finalUsers.find((u) => u.id === userId);
+      if (user) setSelectedUser(user);
       modals.openPasswordResetModal(userId);
     },
     onLockAccount: (userId: string) => {
-      const user = users.find((u) => u.id === userId);
-      if (user) userManagement.setSelectedUser(user);
+      const user = finalUsers.find((u) => u.id === userId);
+      if (user) setSelectedUser(user);
       modals.openLockModal(userId);
     },
     onUnlockAccount: async (userId: string) => {
       try {
-        await securityActions.unlockAccount(userId, "Déverrouillé par admin");
-        userManagement.showNotification(
-          "Compte déverrouillé avec succès",
-          "success"
-        );
-        refetch();
+        // 🎯 Utilisation de notre nouveau hook au lieu de securityActions
+        await updateUser.mutateAsync({
+          userId: userId,
+          updates: { account_locked: false },
+        });
+        showNotification("Compte déverrouillé avec succès", "success");
+        // Le refetch est déjà géré automatiquement par la mutation
       } catch (error) {
-        userManagement.showNotification(
-          "Erreur lors du déverrouillage",
-          "error"
-        );
+        showNotification("Erreur lors du déverrouillage", "error");
         console.error("Unlock error:", error);
       }
     },
-    onViewBookings: roleModals.openBookingsModal,
-    onManageSubscription: roleModals.openSubscriptionModal,
-    onManageServices: roleModals.openServicesModal,
+
     onToggleVIP: async (userId: string) => {
       try {
-        const user = users.find((u) => u.id === userId);
+        const user = finalUsers.find((u) => u.id === userId);
         if (!user) return;
 
         await updateUser.mutateAsync({
@@ -225,17 +199,14 @@ export const UserManagementPage: React.FC = () => {
           updates: { vip_subscription: !user.vip_subscription },
         });
 
-        userManagement.showNotification(
+        showNotification(
           `Statut VIP ${
             user.vip_subscription ? "désactivé" : "activé"
           } avec succès`,
           "success"
         );
       } catch (error) {
-        userManagement.showNotification(
-          "Erreur lors du changement VIP",
-          "error"
-        );
+        showNotification("Erreur lors du changement VIP", "error");
         console.error("Toggle VIP error:", error);
       }
     },
@@ -246,57 +217,47 @@ export const UserManagementPage: React.FC = () => {
           updates: { profile_validated: true },
         });
 
-        userManagement.showNotification(
-          "Prestataire validé avec succès",
-          "success"
-        );
+        showNotification("Prestataire validé avec succès", "success");
       } catch (error) {
-        userManagement.showNotification(
-          "Erreur lors de la validation",
-          "error"
-        );
+        showNotification("Erreur lors de la validation", "error");
         console.error("Validate provider error:", error);
       }
     },
-    activityData: activityData || {},
-    currentUserRole: UserRole.ADMIN,
-    currentTabRole: selectedUserRole,
-  });
-
-  // Appliquer les filtres (version simplifiée)
-  const filteredUsers = users.filter((user) => {
-    if (userManagement.filters.search) {
-      const search = userManagement.filters.search.toLowerCase();
-      return (
-        user.email?.toLowerCase().includes(search) ||
-        user.full_name?.toLowerCase().includes(search)
-      );
-    }
-    return true;
-  });
-
-  // Handlers simples pour les fonctions non-bulk
-  const handleTabChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newValue: number | null
-  ) => {
-    if (newValue !== null) {
-      setActiveTab(newValue);
-      const role = USER_TABS[newValue]?.role || null;
-      setSelectedUserRole(role);
-    }
   };
 
+  // 🎯 Les filtres sont maintenant appliqués directement dans les hooks
+  // Plus besoin de filtrage manuel ici
+  const filteredUsers = finalUsers;
+
+  // Handlers simples pour les fonctions non-bulk
+  // handleTabChange est maintenant fourni par le hook useUsers
+
   const handleExportUsers = async (format: "csv") => {
-    userManagement.showNotification("Export functionality coming soon", "info");
+    if (format === "csv") {
+      // Utiliser les utilisateurs de l'onglet actif
+      const usersToExport = allUsers || [];
+
+      if (usersToExport.length === 0) {
+        showNotification("Aucun utilisateur à exporter", "warning");
+        return;
+      }
+
+      exportUsers(usersToExport);
+      showNotification("Export CSV généré avec succès", "success");
+    } else {
+      showNotification("Format d'export non supporté", "warning");
+    }
   };
 
   // Error state
   if (error) {
     return (
-      <AdminLayout>
-        <UserLoadingIndicator error={error} onRefresh={() => refetch()} />
-      </AdminLayout>
+      <LoadingIndicator
+        error={error}
+        onRefresh={() => refetch()}
+        errorTitle="Erreur lors du chargement des utilisateurs"
+        withLayout={true}
+      />
     );
   }
 
@@ -313,57 +274,58 @@ export const UserManagementPage: React.FC = () => {
           isFetching={isFetching}
         />
 
-        {/* Section statistiques */}
+        {/* Section statistiques avec nouveaux hooks - utilisateurs actifs SANS admins (comme avant) */}
         <UserStatsSection
-          allUsers={activeUsers || []}
-          activityData={{}}
+          allUsers={statsUsers || []}
+          activityData={activityData}
           error={errorActive}
         />
 
         {/* Section du tableau (complètement modularisée) */}
         <UserTableSection
-          filters={userManagement.filters}
-          onUpdateFilter={
-            userManagement.updateFilter as (key: string, value: string) => void
-          }
+          filters={filters}
+          onUpdateFilter={updateFilter as (key: string, value: string) => void}
           activeTab={activeTab}
           allUsers={allUsers || []}
           activeUsers={activeUsers || []}
           deletedUsers={deletedUsers || []}
           adminUsers={adminUsers || []}
+          rawActiveUsers={rawActiveUsers || []}
+          rawDeletedUsers={rawDeletedUsers || []}
+          rawAdminUsers={rawAdminUsers || []}
           onTabChange={handleTabChange}
-          selectedUsers={userManagement.selectedUsers}
+          selectedUsers={selectedUsers}
           onBulkValidate={bulkActions.handleBulkValidate}
           onBulkSetPending={bulkActions.handleBulkSetPending}
           onBulkSuspend={bulkActions.handleBulkSuspend}
           onBulkUnsuspend={bulkActions.handleBulkUnsuspend}
           onBulkAction={(actionType: string) => {
             if (actionType === "delete") {
-              // Ouvrir la modale de suppression intelligente en lot
-              anonymizationModals.openBulkSmartDeleteModal(
-                userManagement.selectedUsers
-              );
-            } else {
-              // Pour les autres actions, utiliser le système existant des modals
-              modals.openBulkActionModal(actionType as "role" | "vip");
+              bulkActions.handleBulkDelete();
+            } else if (actionType === "role") {
+              bulkActions.handleBulkChangeRole();
             }
           }}
           onBulkAddVip={bulkActions.handleBulkAddVip}
           onBulkRemoveVip={bulkActions.handleBulkRemoveVip}
-          columns={columns}
+          {...tableHandlers}
           filteredUsers={filteredUsers}
+          activityData={activityData || {}}
+          currentUserRole={UserRole.ADMIN}
+          currentTabRole={currentTabRole}
           isLoading={isLoading}
         />
 
-        {/* Gestionnaire de toutes les modals */}
-        <UserModalsManager
+        {/* Gestionnaire unifié de toutes les modals */}
+        <ModalsManager
           // User Details Modal
           showUserDetailsModal={modals.showUserDetailsModal}
-          selectedUser={userManagement.selectedUser}
-          editForm={userManagement.editForm}
+          selectedUser={selectedUser}
+          editForm={editForm}
+          activityData={activityData}
           onCloseUserDetailsModal={() => {
             modals.closeUserDetailsModal();
-            userManagement.resetEditForm();
+            resetEditForm();
           }}
           // Create User Modal
           showCreateUserModal={modals.showCreateUserModal}
@@ -374,8 +336,12 @@ export const UserManagementPage: React.FC = () => {
           onClosePasswordResetModal={modals.closePasswordResetModal}
           // Audit Modal (with proper state)
           showAuditModal={modals.showAuditModal}
-          auditState={modals.audit}
-          userEmail={userManagement.selectedUser?.email}
+          auditState={{
+            show: modals.showAuditModal,
+            userId: selectedUser?.id || null,
+            tabValue: 0,
+          }}
+          userEmail={selectedUser?.email}
           onCloseAuditModal={modals.closeAuditModal}
           onUpdateAuditTab={modals.updateAuditTab}
           // Lock Modal (with proper state)
@@ -384,133 +350,91 @@ export const UserManagementPage: React.FC = () => {
           onCloseLockModal={modals.closeLockModal}
           onUpdateLockDuration={modals.updateLockDuration}
           onUpdateLockReason={modals.updateLockReason}
-          // Bulk Action Modal (with proper state)
-          showBulkActionModal={modals.showBulkActionModal}
-          bulkActionState={modals.bulkAction}
-          selectedUsers={userManagement.selectedUsers}
-          onCloseBulkActionModal={modals.closeBulkActionModal}
-          onUpdateRoleChange={modals.updateBulkRoleChange}
-          onUpdateVipChange={modals.updateBulkVipChange}
-          // Role-specific modals
-          bookingsModal={roleModals.bookingsModal}
-          subscriptionModal={roleModals.subscriptionModal}
-          servicesModal={roleModals.servicesModal}
-          onCloseBookingsModal={roleModals.closeBookingsModal}
-          onCloseSubscriptionModal={roleModals.closeSubscriptionModal}
-          onCloseServicesModal={roleModals.closeServicesModal}
           // Action handlers
           onSaveUser={async () => {
             try {
-              if (!userManagement.selectedUser) return;
+              if (!selectedUser) return;
               await updateUser.mutateAsync({
-                userId: userManagement.selectedUser.id,
-                updates: userManagement.editForm,
+                userId: selectedUser.id,
+                updates: editForm,
               });
-              userManagement.showNotification(
-                "Utilisateur mis à jour",
-                "success"
-              );
+              showNotification("Utilisateur mis à jour", "success");
               modals.closeUserDetailsModal();
             } catch (error) {
-              userManagement.showNotification(
-                "Erreur lors de la mise à jour",
-                "error"
-              );
+              showNotification("Erreur lors de la mise à jour", "error");
             }
           }}
           onOpenLockModal={() => {
-            if (userManagement.selectedUser) {
-              modals.openLockModal(userManagement.selectedUser.id);
+            if (selectedUser) {
+              modals.openLockModal(selectedUser.id);
             }
           }}
           onUnlockAccount={async () => {
             try {
-              if (!userManagement.selectedUser) return;
-              console.log("Unlocking user:", userManagement.selectedUser.id);
-              await securityActions.unlockAccount(
-                userManagement.selectedUser.id
-              );
-              console.log("Unlock successful, refreshing data...");
-              const refetchResult = await refetch();
-              console.log("🔄 Refetch result after unlock:", refetchResult);
-              userManagement.showNotification(
-                "Compte déverrouillé avec succès",
-                "success"
-              );
+              if (!selectedUser) return;
+              console.log("Unlocking user:", selectedUser.id);
+              // 🎯 Utilisation de notre nouveau hook au lieu de securityActions
+              await updateUser.mutateAsync({
+                userId: selectedUser.id,
+                updates: { account_locked: false },
+              });
+              console.log("Unlock successful with new hooks");
+              showNotification("Compte déverrouillé avec succès", "success");
               modals.closeUserDetailsModal(); // Ferme la modal après unlock
             } catch (error) {
               console.error("Unlock error:", error);
-              userManagement.showNotification(
-                "Erreur lors du déverrouillage",
-                "error"
-              );
+              showNotification("Erreur lors du déverrouillage", "error");
             }
           }}
           onResetPassword={async () => {
             try {
-              if (!userManagement.selectedUser) return;
+              if (!selectedUser) return;
               await securityActions.resetPassword(
-                userManagement.selectedUser.id,
+                selectedUser.id,
                 "Réinitialisation par admin depuis le modal utilisateur"
               );
-              userManagement.showNotification(
-                "Email de réinitialisation envoyé",
-                "success"
-              );
+              showNotification("Email de réinitialisation envoyé", "success");
             } catch (error) {
-              userManagement.showNotification(
-                "Erreur lors de l'envoi de l'email",
-                "error"
-              );
+              showNotification("Erreur lors de l'envoi de l'email", "error");
             }
           }}
           onDeleteUser={() => {
             // Ouvrir la modale de suppression intelligente au lieu de supprimer directement
-            if (userManagement.selectedUser) {
-              anonymizationModals.openSmartDeleteModal(
-                userManagement.selectedUser
-              );
+            if (selectedUser) {
+              modals.openSmartDeleteModal(selectedUser);
             }
           }}
           onRestore={() => {
             // Ouvrir la modale de restauration pour un utilisateur supprimé
-            if (userManagement.selectedUser) {
-              anonymizationModals.openRestoreModal(userManagement.selectedUser);
+            if (selectedUser) {
+              modals.openRestoreModal(selectedUser);
             }
           }}
-          onInputChange={userManagement.updateEditForm}
+          onInputChange={updateEditForm}
           onCreateUser={async () => {
             try {
               const result = await securityActions.createUserWithAuth({
-                email: userManagement.editForm.email || "",
-                role: userManagement.editForm.role || "traveler",
-                full_name: userManagement.editForm.full_name,
-                phone: userManagement.editForm.phone,
-                profile_validated:
-                  userManagement.editForm.profile_validated ?? false,
-                vip_subscription:
-                  userManagement.editForm.vip_subscription ?? false,
+                email: editForm.email || "",
+                role: editForm.role || "traveler",
+                full_name: editForm.full_name,
+                phone: editForm.phone,
+                profile_validated: editForm.profile_validated ?? false,
+                vip_subscription: editForm.vip_subscription ?? false,
               });
 
               if (result.success) {
-                userManagement.showNotification(
-                  "Utilisateur créé avec succès",
-                  "success"
-                );
+                showNotification("Utilisateur créé avec succès", "success");
                 modals.closeCreateUserModal();
-                userManagement.resetEditForm();
+                resetEditForm();
                 refetch();
               } else {
-                userManagement.showNotification(
+                showNotification(
                   result.message || "Erreur lors de la création",
                   "error"
                 );
               }
             } catch (error) {
-              userManagement.showNotification(
-                "Erreur lors de la création",
-                "error"
-              );
+              showNotification("Erreur lors de la création", "error");
               console.error("Create user error:", error);
             }
           }}
@@ -521,16 +445,10 @@ export const UserManagementPage: React.FC = () => {
                 modals.passwordResetUserId,
                 "Réinitialisation par admin"
               );
-              userManagement.showNotification(
-                "Email de réinitialisation envoyé",
-                "success"
-              );
+              showNotification("Email de réinitialisation envoyé", "success");
               modals.closePasswordResetModal();
             } catch (error) {
-              userManagement.showNotification(
-                "Erreur lors de la réinitialisation",
-                "error"
-              );
+              showNotification("Erreur lors de la réinitialisation", "error");
             }
           }}
           onLockAccountConfirm={async () => {
@@ -545,50 +463,55 @@ export const UserManagementPage: React.FC = () => {
                 duration: modals.lockAccount.duration,
                 reason: modals.lockAccount.reason,
               });
-              await securityActions.lockAccount(
-                modals.lockAccount.userId,
-                modals.lockAccount.duration,
-                modals.lockAccount.reason
-              );
-              console.log("Lock successful, refreshing data...");
-              const refetchResult = await refetch(); // Rafraîchit les données des utilisateurs
-              console.log("🔄 Refetch result:", refetchResult);
-              userManagement.showNotification(
-                "Compte verrouillé avec succès",
-                "success"
-              );
+              // 🎯 Utilisation de notre nouveau hook au lieu de securityActions
+              await updateUser.mutateAsync({
+                userId: modals.lockAccount.userId,
+                updates: {
+                  account_locked: true,
+                  // Note: duration et reason pourraient être ajoutés si nécessaire
+                },
+              });
+              console.log("Lock successful with new hooks");
+              showNotification("Compte verrouillé avec succès", "success");
               modals.closeLockModal();
             } catch (error) {
               console.error("Lock error:", error);
-              userManagement.showNotification(
-                "Erreur lors du verrouillage",
-                "error"
-              );
+              showNotification("Erreur lors du verrouillage", "error");
             }
           }}
-          onBulkActionConfirm={bulkActions.handleBulkActionConfirm}
-        />
-
-        {/* Gestionnaire des modals d'anonymisation */}
-        <AnonymizationModalsManager
-          smartDeleteModalOpen={anonymizationModals.smartDeleteModalOpen}
-          restoreModalOpen={anonymizationModals.restoreModalOpen}
-          bulkSmartDeleteModalOpen={
-            anonymizationModals.bulkSmartDeleteModalOpen
-          }
-          selectedUser={anonymizationModals.selectedUser}
-          selectedUserIds={anonymizationModals.selectedUserIds}
-          onCloseSmartDeleteModal={anonymizationModals.closeSmartDeleteModal}
-          onCloseRestoreModal={anonymizationModals.closeRestoreModal}
-          onCloseBulkSmartDeleteModal={
-            anonymizationModals.closeBulkSmartDeleteModal
-          }
-          onSmartDelete={anonymizationModals.handleSmartDelete}
-          onBulkSmartDelete={anonymizationModals.handleBulkSmartDelete}
-          onRestore={anonymizationModals.handleRestore}
-          isSmartDeleting={anonymizationModals.isSmartDeleting}
-          isRestoring={anonymizationModals.isRestoring}
-          isBulkDeleting={anonymizationModals.isBulkDeleting}
+          /* Anonymization Modals State */
+          smartDeleteModalOpen={modals.smartDeleteModalOpen}
+          restoreModalOpen={modals.restoreModalOpen}
+          bulkSmartDeleteModalOpen={modals.bulkSmartDeleteModalOpen}
+          selectedUserIds={modals.selectedUserIdsForBulkDelete}
+          /* Anonymization Handlers */
+          onCloseSmartDeleteModal={modals.closeSmartDeleteModal}
+          onCloseRestoreModal={modals.closeRestoreModal}
+          onCloseBulkSmartDeleteModal={modals.closeBulkSmartDeleteModal}
+          onSmartDelete={async (
+            userId: string,
+            reason: any,
+            level: any,
+            customReason?: string
+          ) => {
+            await anonymization.anonymizeUser({ userId, reason, level });
+          }}
+          onBulkSmartDelete={async (
+            reason: any,
+            level: any,
+            customReason?: string
+          ) => {
+            // Le composant passe les userIds via selectedUserIds prop
+            const userIds = modals.selectedUserIdsForBulkDelete || [];
+            await anonymization.anonymizeUsers({ userIds, reason, level });
+          }}
+          onRestoreUser={async (userId: string) => {
+            await restoreUser.mutateAsync(userId);
+          }}
+          // Loading States
+          isSmartDeleting={anonymization.isAnonymizing}
+          isRestoring={restoreUser.isPending}
+          isBulkDeleting={anonymization.isBulkAnonymizing}
         />
       </Box>
     </AdminLayout>

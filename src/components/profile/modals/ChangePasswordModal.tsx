@@ -10,9 +10,11 @@ import {
   Typography,
   Box,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { Lock as LockIcon } from "@mui/icons-material";
 import { ChangePasswordData } from "../../../types/profile";
+import { useChangePassword } from "../../../hooks/profile/useChangePassword";
 
 interface ChangePasswordModalProps {
   open: boolean;
@@ -29,12 +31,15 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   onChange,
   isValid,
 }) => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const { changePassword, isLoading } = useChangePassword();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isValid) {
-      // TODO: Implement password change logic
-      console.log("Changing password...", data);
-      onClose();
+    if (isValid && !isLoading) {
+      const success = await changePassword(data);
+      if (success) {
+        onClose();
+      }
     }
   };
 
@@ -65,6 +70,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               value={data.currentPassword}
               onChange={(e) => onChange("currentPassword", e.target.value)}
               required
+              disabled={isLoading}
               autoComplete="current-password"
             />
 
@@ -75,6 +81,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               value={data.newPassword}
               onChange={(e) => onChange("newPassword", e.target.value)}
               required
+              disabled={isLoading}
               error={data.newPassword.length > 0 && !isNewPasswordValid}
               helperText={
                 data.newPassword.length > 0 && !isNewPasswordValid
@@ -91,6 +98,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               value={data.confirmPassword}
               onChange={(e) => onChange("confirmPassword", e.target.value)}
               required
+              disabled={isLoading}
               error={data.confirmPassword.length > 0 && !passwordsMatch}
               helperText={
                 data.confirmPassword.length > 0 && !passwordsMatch
@@ -103,11 +111,18 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={onClose} variant="outlined">
+          <Button onClick={onClose} variant="outlined" disabled={isLoading}>
             Cancel
           </Button>
-          <Button type="submit" variant="contained" disabled={!isValid}>
-            Change Password
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={!isValid || isLoading}
+            startIcon={
+              isLoading ? <CircularProgress size={16} /> : <LockIcon />
+            }
+          >
+            {isLoading ? "Changing..." : "Change Password"}
           </Button>
         </DialogActions>
       </form>

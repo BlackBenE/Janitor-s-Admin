@@ -27,6 +27,9 @@ type AuthContextType = {
   isAdmin: () => boolean;
   isProfilValidated: () => boolean;
   userProfile: Tables<"profiles"> | null;
+
+  // Profile management
+  refetchUserProfile: () => Promise<void>;
 };
 
 const AuthContextObject = createContext<AuthContextType | undefined>(undefined);
@@ -316,6 +319,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const isAdmin = () => getUserRole() === "admin";
   const isProfilValidated = () => userProfile?.profile_validated === true;
 
+  // Fonction pour recharger le profil utilisateur
+  const refetchUserProfile = async () => {
+    if (user?.id) {
+      await fetchUserProfile(user.id);
+    }
+  };
+
   return (
     <AuthContextObject.Provider
       value={{
@@ -334,6 +344,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isAdmin,
         isProfilValidated,
         userProfile,
+        refetchUserProfile,
       }}
     >
       {children}

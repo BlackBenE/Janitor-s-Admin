@@ -4,31 +4,40 @@ import { Box } from "@mui/material";
 import AdminLayout from "../AdminLayout";
 
 // Hooks
-import { usePayments, usePaymentManagement, usePaymentStats } from "./hooks";
+import {
+  usePayments,
+  usePaymentManagement,
+  usePaymentModals,
+  usePaymentPdf,
+} from "./hooks";
 
 // Components
 import {
   PaymentHeader,
   PaymentStatsSection,
   PaymentTableSection,
-  PaymentLoadingIndicator,
+  PaymentModalsManager,
+  createPaymentTableColumns,
+  PaymentInvoicePdf,
 } from "./components";
+import { LoadingIndicator } from "../shared";
+import { useHighlightFromUrl } from "../../hooks/shared";
 
 // Configuration
-import { paymentTabConfigs, PaymentStatus } from "../shared";
+import { paymentTabConfigs } from "../shared";
 
 // Types
-import { PaymentWithDetails } from "../../types/payments";
-import {
-  createPaymentTableConfig,
-  transformPaymentsForTable,
-} from "./components/PaymentTableConfig";
+import { PaymentWithDetails, PaymentStatusFilter } from "../../types/payments";
 
 export const PaymentsPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState(0);
 
+  // Hook pour gérer le highlight depuis l'URL (navigation depuis dashboard)
+  const { highlightId, isHighlighted, clearHighlight } = useHighlightFromUrl();
+
   const {
     payments: paymentsData = [],
+    stats,
     isLoading,
     isFetching,
     error,
@@ -37,10 +46,22 @@ export const PaymentsPage: React.FC = () => {
   } = usePayments();
 
   const paymentManagement = usePaymentManagement();
+  const modals = usePaymentModals();
+  const { generatePaymentPdf, isGenerating } = usePaymentPdf();
 
-  // Calcul des statistiques
+  // Utilisation des données
   const payments = paymentsData || [];
-  const stats = usePaymentStats(payments);
+
+  // Effect pour ouvrir automatiquement la modale du paiement highlighté
+  React.useEffect(() => {
+    if (highlightId && payments.length > 0) {
+      const paymentToHighlight = payments.find((p) => p.id === highlightId);
+      if (paymentToHighlight) {
+        // Ouvrir automatiquement la modale de détails
+        modals.openPaymentDetailsModal(paymentToHighlight);
+      }
+    }
+  }, [highlightId, payments, modals]);
 
   // Filtrage des données par onglet actuel
   const currentTabConfig = paymentTabConfigs[activeTab];
@@ -125,31 +146,43 @@ export const PaymentsPage: React.FC = () => {
     );
   }
 
-  // Transform pour le tableau
-  const transformedData = transformPaymentsForTable(filteredPayments);
-
-  // Configuration du tableau
-  const tableConfig = createPaymentTableConfig({
-    selectedInvoices: paymentManagement.selectedPayments || [],
-    onToggleInvoiceSelection:
+  // Configuration des colonnes du tableau (comme UserManagement)
+  const columns = createPaymentTableColumns({
+    selectedPayments: paymentManagement.selectedPayments || [],
+    onTogglePaymentSelection:
       paymentManagement.togglePaymentSelection || (() => {}),
-    onViewDetails: (payment: any) => {
-      console.log("View payment details:", payment);
+    highlightId: highlightId || undefined, // Ajout pour l'highlighting
+    onViewDetails: (payment: PaymentWithDetails) => {
+      console.log("🔍 View Details clicked for payment:", payment);
+      modals.openPaymentDetailsModal(payment);
     },
-    onDownloadPdf: (paymentId: string) => {
-      console.log("Download PDF for payment:", paymentId);
-      // TODO: Implémenter le téléchargement PDF
+    onDownloadPdf: async (paymentId: string) => {
+      console.log("📄 Download PDF for payment:", paymentId);
+      try {
+        const payment = payments.find((p) => p.id === paymentId);
+        if (payment) {
+          await generatePaymentPdf(payment);
+        } else {
+          console.error("Payment not found:", paymentId);
+        }
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+      }
     },
     onMarkPaid: async (paymentId: string) => {
+      console.log("✅ Mark as paid:", paymentId);
       await updatePayment(paymentId, { status: "paid" });
     },
     onRefund: async (paymentId: string) => {
+      console.log("🔄 Refund payment:", paymentId);
       await updatePayment(paymentId, { status: "refunded" });
     },
+    onRetry: async (paymentId: string) => {
+      console.log("🔄 Retry payment:", paymentId);
+      // TODO: Implémenter la relance de paiement
+      await updatePayment(paymentId, { status: "pending" });
+    },
   });
-
-  // Colonnes du tableau
-  const columns = tableConfig.columns;
 
   // =====================================================
   // GESTION DES ÉVÉNEMENTS
@@ -160,8 +193,14 @@ export const PaymentsPage: React.FC = () => {
   };
 
   const handleExportPayments = async () => {
-    if (paymentManagement.exportSelectedToCSV) {
-      await paymentManagement.exportSelectedToCSV();
+    // Export les paiements sélectionnés s'il y en a, sinon tous les paiements filtrés
+    if (
+      paymentManagement.selectedPayments &&
+      paymentManagement.selectedPayments.length > 0
+    ) {
+      paymentManagement.exportSelectedToCSV(filteredPayments);
+    } else {
+      paymentManagement.exportAllToCSV(filteredPayments);
     }
   };
 
@@ -187,7 +226,14 @@ export const PaymentsPage: React.FC = () => {
   // =====================================================
 
   if (error) {
-    return <PaymentLoadingIndicator error={error} onRefresh={handleRefresh} />;
+    return (
+      <LoadingIndicator
+        error={error}
+        onRefresh={handleRefresh}
+        errorTitle="Erreur lors du chargement des paiements"
+        withLayout={true}
+      />
+    );
   }
 
   // =====================================================
@@ -205,7 +251,7 @@ export const PaymentsPage: React.FC = () => {
         />
 
         {/* Cartes de statistiques */}
-        <PaymentStatsSection allPayments={payments} error={null} />
+        <PaymentStatsSection stats={stats} error={error} />
 
         {/* Section tableau avec filtres et onglets */}
         <PaymentTableSection
@@ -214,9 +260,53 @@ export const PaymentsPage: React.FC = () => {
           paymentManagement={paymentManagement}
           onTabChange={handleTabChange}
           columns={columns}
-          transformedData={transformedData}
+          transformedData={filteredPayments}
+          isLoading={isLoading}
+          highlightId={highlightId}
+        />
+
+        {/* Modales Manager */}
+        <PaymentModalsManager
+          showPaymentDetailsModal={modals.showPaymentDetailsModal}
+          selectedPayment={modals.selectedPayment}
+          editForm={paymentManagement.editForm}
+          onClosePaymentDetailsModal={modals.closePaymentDetailsModal}
+          onSavePayment={async () => {
+            // TODO: Implémenter la sauvegarde
+            console.log("Save payment:", paymentManagement.editForm);
+            modals.closePaymentDetailsModal();
+          }}
+          onMarkPaid={async (paymentId: string) => {
+            await updatePayment(paymentId, { status: "paid" });
+          }}
+          onRefund={async (paymentId: string) => {
+            await updatePayment(paymentId, { status: "refunded" });
+          }}
+          onDownloadPdf={async (paymentId: string) => {
+            console.log("Download PDF for payment:", paymentId);
+            try {
+              const payment = payments.find((p) => p.id === paymentId);
+              if (payment) {
+                await generatePaymentPdf(payment);
+              } else {
+                console.error("Payment not found:", paymentId);
+              }
+            } catch (error) {
+              console.error("Error generating PDF:", error);
+            }
+          }}
+          onInputChange={paymentManagement.updateEditForm}
           isLoading={isLoading}
         />
+
+        {/* Composants PDF invisibles pour la génération */}
+        {payments.map((payment) => (
+          <PaymentInvoicePdf
+            key={`pdf-${payment.id}`}
+            payment={payment}
+            isVisible={false}
+          />
+        ))}
       </Box>
     </AdminLayout>
   );

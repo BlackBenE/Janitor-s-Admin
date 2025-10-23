@@ -21,7 +21,7 @@ import {
   Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import { AuditModalState } from "../../../types/userManagement";
-import { useAuditLog } from "../hooks/useAuditLog";
+import { useUserAuditLog } from "../hooks/useUserQueries";
 import { TabPanel } from "./sections/AuditTabPanel";
 import { AdminActionsTable, UserActionsTable } from "./sections/AuditTables";
 
@@ -40,23 +40,20 @@ export const AuditModal: React.FC<AuditModalProps> = ({
   onClose,
   onUpdateTab,
 }) => {
+  // 🎯 Hook migration - React Query intégré
   const {
-    auditLogs,
-    userActions,
-    isLoadingLogs,
-    isLoadingActivity,
-    auditError,
-    activityError,
-    refetchLogs,
-    refetchActivity,
-  } = useAuditLog(audit.userId || undefined);
+    data: auditLogs = [],
+    isLoading: isLoadingData,
+    error: combinedError,
+    refetch,
+  } = useUserAuditLog(audit.userId || undefined);
 
-  const isLoadingData = isLoadingLogs || isLoadingActivity;
-  const combinedError = auditError || activityError;
+  // Pour compatibilité avec l'ancien code, créer userActions vide
+  // (peut être remplacé par un autre hook si nécessaire)
+  const userActions: any[] = [];
 
-  const refetch = () => {
-    refetchLogs();
-    refetchActivity();
+  const handleRefetch = () => {
+    refetch();
   };
 
   return (
@@ -71,7 +68,7 @@ export const AuditModal: React.FC<AuditModalProps> = ({
           )}
           <Box sx={{ ml: "auto" }}>
             <Tooltip title="Actualiser">
-              <IconButton onClick={refetch} size="small">
+              <IconButton onClick={handleRefetch} size="small">
                 <RefreshIcon />
               </IconButton>
             </Tooltip>

@@ -13,7 +13,12 @@ import {
   formatDate,
   formatCurrency,
   calculateLockTimeRemaining,
-} from "../../../utils/userTableFormatters";
+} from "../utils/userManagementUtils";
+import {
+  shouldShowEarnings,
+  formatFinancialAmount,
+  getFinancialColor,
+} from "../utils/financialUtils";
 
 /**
  * Cellule de sélection avec checkbox
@@ -171,7 +176,8 @@ export const ActivityCell: React.FC<{
 };
 
 /**
- * Cellule de dépenses
+ * Cellule de dépenses/gains (role-aware)
+ * Affiche les dépenses pour travelers/clients et les gains pour providers/owners
  */
 export const SpendingCell: React.FC<{
   params: GridRenderCellParams<UserProfile>;
@@ -184,8 +190,13 @@ export const SpendingCell: React.FC<{
   }
 
   return (
-    <Box sx={{ fontWeight: "medium" }}>
-      {formatCurrency(activity.totalSpent)}
+    <Box
+      sx={{
+        fontWeight: "medium",
+        color: getFinancialColor(params.row, activity),
+      }}
+    >
+      {formatFinancialAmount(params.row, activity, formatCurrency)}
     </Box>
   );
 };

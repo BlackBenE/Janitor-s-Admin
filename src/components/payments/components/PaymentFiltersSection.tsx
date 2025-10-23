@@ -12,8 +12,8 @@ import {
   paymentFilterConfigs,
   paymentTabConfigs,
   getPaymentCount,
-  PaymentStatus,
 } from "../../shared";
+import { PaymentStatusFilter } from "../../../types/payments";
 import { PaymentWithDetails, PaymentFilters } from "../../../types/payments";
 
 interface PaymentFiltersSectionProps {
@@ -139,7 +139,7 @@ const PaymentTabsComponent: React.FC<{
   ) => void;
 }> = ({ activeTab, payments, onTabChange }) => {
   return (
-    <GenericTabs<PaymentWithDetails, PaymentStatus>
+    <GenericTabs<PaymentWithDetails, PaymentStatusFilter>
       activeTab={activeTab}
       items={payments}
       tabConfigs={paymentTabConfigs}

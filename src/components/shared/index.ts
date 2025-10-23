@@ -4,6 +4,7 @@ export { ActionToolbar } from "./ActionToolbar";
 export { StatsCardGrid } from "./StatsCardGrid";
 export { GenericFilters } from "./GenericFilters";
 export { GenericTabs } from "./GenericTabs";
+export { LoadingIndicator } from "./LoadingIndicator";
 
 // Configurations de filtres
 export {
@@ -18,13 +19,16 @@ export {
   userTabConfigs,
   propertyTabConfigs,
   paymentTabConfigs,
+  serviceTabConfigs,
   getUserCount,
   getPropertyCount,
   getPaymentCount,
+  getServiceCount,
 } from "./tabConfigs";
 
-// Types de statuts
-export type { PaymentStatus } from "./tabConfigs";
+// Types de statuts (définis dans les types domaines respectifs)
+// PaymentStatus défini dans types/payments.ts
+// ServiceStatusFilter défini dans types/services.ts
 
 // Types partagés
 export type { FilterOption, FilterConfig } from "./FilterPanel";

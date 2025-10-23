@@ -16,12 +16,13 @@ const mapStatusToDisplay = (
       return "Pending";
     case "approved":
     case "accepted":
+    case "completed":
       return "Completed";
     case "rejected":
     case "cancelled":
+    case "review_required":
+    case "failed":
       return "Review Required";
-    case "completed":
-      return "Completed";
     default:
       return "Pending";
   }
@@ -44,24 +45,72 @@ export const DashboardActivitiesSection: React.FC<
       }}
     >
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h6">Recent Activity</Typography>
+        <Typography variant="h6">
+          Recent Activity {activities.length > 0 && `(${activities.length})`}
+        </Typography>
         <Typography variant="body2" color="text.secondary">
           Latest actions requiring your attention
+          {activities.length > 5 && " - Scroll to see more"}
         </Typography>
       </Box>
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
-        {activities && activities.length > 0 ? (
-          activities.map((activity) => (
-            <ActivityItem
-              key={activity.id}
-              status={mapStatusToDisplay(activity.status)}
-              title={activity.title}
-              description={activity.description}
-              actionLabel={activity.actionLabel}
-            />
-          ))
-        ) : (
-          <Typography>No recent activities</Typography>
+      <Box sx={{ position: "relative", flex: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            maxHeight: "400px", // Hauteur maximale pour déclencher le scroll
+            overflowY: "auto", // Scroll vertical
+            overflowX: "hidden", // Pas de scroll horizontal
+            pr: 1, // Padding right pour éviter que le contenu touche le scrollbar
+            // Style du scrollbar
+            "&::-webkit-scrollbar": {
+              width: "6px",
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#f1f1f1",
+              borderRadius: "3px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#c1c1c1",
+              borderRadius: "3px",
+              "&:hover": {
+                backgroundColor: "#a8a8a8",
+              },
+            },
+          }}
+        >
+          {activities && activities.length > 0 ? (
+            activities.map((activity) => (
+              <ActivityItem
+                key={activity.id}
+                status={mapStatusToDisplay(activity.status)}
+                title={activity.title}
+                description={activity.description}
+                actionLabel={activity.actionLabel}
+                activityId={activity.id}
+                activityType={activity.type}
+              />
+            ))
+          ) : (
+            <Typography>No recent activities</Typography>
+          )}
+        </Box>
+
+        {/* Gradient fade-out en bas si beaucoup d'éléments */}
+        {activities.length > 5 && (
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "30px",
+              background:
+                "linear-gradient(transparent, rgba(255, 255, 255, 0.9))",
+              pointerEvents: "none",
+              borderRadius: "0 0 16px 16px",
+            }}
+          />
         )}
       </Box>
     </Box>

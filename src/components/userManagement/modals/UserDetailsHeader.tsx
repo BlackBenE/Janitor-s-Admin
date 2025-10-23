@@ -81,6 +81,7 @@ export const UserDetailsHeader: React.FC<UserDetailsHeaderProps> = ({
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
         <Avatar
+          src={user.avatar_url || undefined}
           sx={{
             width: 64,
             height: 64,
@@ -88,7 +89,8 @@ export const UserDetailsHeader: React.FC<UserDetailsHeaderProps> = ({
             fontSize: "24px",
           }}
         >
-          {(user.full_name || user.email || "U").charAt(0).toUpperCase()}
+          {!user.avatar_url &&
+            (user.full_name || user.email || "U").charAt(0).toUpperCase()}
         </Avatar>
         <Box sx={{ flex: 1 }}>
           <Typography variant="h5" component="h2" gutterBottom>

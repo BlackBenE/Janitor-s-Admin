@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabaseClient";
-import { useAuditLog } from "./useAuditLog";
+import { useAudit } from "../../../hooks/shared/useAudit";
 import { Tables } from "../../../types";
 
 export interface SecurityAction {
@@ -16,7 +16,7 @@ export type UserProfile = Tables<"profiles">;
 export const useSecurityActions = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { logAction } = useAuditLog();
+  const { createAuditLog } = useAudit();
 
   // Fonction de diagnostic (désactivée côté client, pas de Service Role ici)
   const testSupabaseAdminConfig = async () => false;
@@ -116,13 +116,13 @@ export const useSecurityActions = () => {
       }
 
       // Log l'action dans l'audit
-      await logAction(
-        "password_reset",
-        userId,
-        `Réinitialisation de mot de passe envoyée à ${userProfile.email}`,
-        "system",
-        { reason, email: userProfile.email }
-      );
+      await createAuditLog({
+        actionType: "password_reset",
+        userId: userId,
+        description: `Réinitialisation de mot de passe envoyée à ${userProfile.email}`,
+        actorType: "system",
+        metadata: { reason, email: userProfile.email },
+      });
 
       return {
         success: true,
@@ -192,20 +192,20 @@ export const useSecurityActions = () => {
       const userProfile = await getUserProfile(userId);
 
       // Log l'action dans l'audit
-      await logAction(
-        "account_lock",
-        userId,
-        `Compte verrouillé jusqu'à ${lockedUntil.toLocaleString()}${
+      await createAuditLog({
+        actionType: "account_lock",
+        userId: userId,
+        description: `Compte verrouillé jusqu'à ${lockedUntil.toLocaleString()}${
           userProfile ? ` pour ${userProfile.email}` : ""
         } - Session invalidée: ${sessionInvalidated ? "Oui" : "Non"}`,
-        "system",
-        {
+        actorType: "system",
+        metadata: {
           reason,
           duration,
           lockedUntil: lockedUntil.toISOString(),
           sessionInvalidated,
-        }
-      );
+        },
+      });
 
       return {
         success: true,
@@ -252,13 +252,15 @@ export const useSecurityActions = () => {
       const userProfile = await getUserProfile(userId);
 
       // Log l'action dans l'audit (déjà fait côté Edge Function)
-      await logAction(
-        "account_unlock",
-        userId,
-        `Compte déverrouillé${userProfile ? ` pour ${userProfile.email}` : ""}`,
-        "system",
-        { reason }
-      );
+      await createAuditLog({
+        actionType: "account_unlock",
+        userId: userId,
+        description: `Compte déverrouillé${
+          userProfile ? ` pour ${userProfile.email}` : ""
+        }`,
+        actorType: "system",
+        metadata: { reason },
+      });
 
       return {
         success: true,
@@ -314,17 +316,17 @@ export const useSecurityActions = () => {
       if (error) throw error;
 
       // Log l'action dans l'audit
-      await logAction(
-        "user_creation",
-        data.user.id,
-        `Nouvel utilisateur créé : ${userData.email}`,
-        "system",
-        {
+      await createAuditLog({
+        actionType: "user_creation",
+        userId: data.user.id,
+        description: `Nouvel utilisateur créé : ${userData.email}`,
+        actorType: "system",
+        metadata: {
           email: userData.email,
           role: userData.role,
           created_by: "admin_interface",
-        }
-      );
+        },
+      });
 
       return {
         success: true,

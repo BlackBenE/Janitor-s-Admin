@@ -38,12 +38,28 @@ import {
 
 export interface RecentActivity {
   id: string;
-  status: PropertyValidationStatus | ServiceRequestStatus;
+  status:
+    | PropertyValidationStatus
+    | ServiceRequestStatus
+    | "pending"
+    | "review_required"
+    | "failed";
   title: string;
   description: string;
   actionLabel?: string;
   timestamp: string;
-  type: "property" | "provider" | "quote" | "service";
+  type:
+    | "property"
+    | "provider"
+    | "quote"
+    | "service"
+    | "payment"
+    | "chat_report"
+    | "failed_payment"
+    | "overdue_payment"
+    | "pending_refund"
+    | "pending_user"
+    | "locked_account";
 }
 
 export type Profile = Tables<"profiles">;

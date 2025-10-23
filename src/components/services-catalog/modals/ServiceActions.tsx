@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  DialogActions,
-  Button,
-  Box,
-  Divider,
-} from "@mui/material";
+import { DialogActions, Button, Box, Divider } from "@mui/material";
 import {
   Edit as EditIcon,
   Save as SaveIcon,
@@ -122,7 +117,7 @@ export const ServiceActions: React.FC<ServiceActionsProps> = ({
                 Éditer
               </Button>
             )}
-            
+
             {/* Supprimer (dangereux) */}
             {onDeleteService && (
               <Button

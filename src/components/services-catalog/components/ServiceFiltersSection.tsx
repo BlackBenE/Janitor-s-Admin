@@ -6,10 +6,7 @@ import {
   Pause as SuspendIcon,
   Download as DownloadIcon,
 } from "@mui/icons-material";
-import {
-  GenericFilters,
-  GenericTabs,
-} from "../../shared";
+import { GenericFilters, GenericTabs } from "../../shared";
 import { ServiceWithDetails, ServiceFilters } from "../../../types/services";
 
 // Configuration des filtres pour services - seulement la recherche
@@ -29,7 +26,7 @@ const getServiceCount = (
   services: ServiceWithDetails[]
 ) => {
   if (!services) return 0;
-  
+
   switch (filterKey) {
     case "active":
       return services.filter((s) => s.is_active === true).length;

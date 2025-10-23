@@ -3,9 +3,12 @@ import { supabase } from "../../../lib/supabaseClient";
 import { Database } from "../../../types";
 
 // Types de base depuis la database
-type ServiceRequestRow = Database["public"]["Tables"]["service_requests"]["Row"];
-type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
-type ServiceRequestUpdate = Database["public"]["Tables"]["service_requests"]["Update"];
+type ServiceRequestRow =
+  Database["public"]["Tables"]["service_requests"]["Row"];
+type ServiceRequestInsert =
+  Database["public"]["Tables"]["service_requests"]["Insert"];
+type ServiceRequestUpdate =
+  Database["public"]["Tables"]["service_requests"]["Update"];
 
 // Types étendus avec les relations
 export interface ServiceRequestWithDetails extends ServiceRequestRow {
@@ -19,7 +22,7 @@ export interface ServiceRequestWithDetails extends ServiceRequestRow {
     is_active: boolean | null;
     provider_id: string;
   };
-  
+
   // Relation avec le client (requester)
   requester?: {
     id: string;
@@ -32,7 +35,7 @@ export interface ServiceRequestWithDetails extends ServiceRequestRow {
     avatar_url: string | null;
     vip_subscription: boolean | null;
   };
-  
+
   // Relation avec le prestataire (provider)
   provider?: {
     id: string;
@@ -44,7 +47,7 @@ export interface ServiceRequestWithDetails extends ServiceRequestRow {
     role: string;
     avatar_url: string | null;
   };
-  
+
   // Relation avec la propriété (optionnelle)
   property?: {
     id: string;
@@ -85,7 +88,8 @@ export const SERVICE_REQUESTS_QUERY_KEYS = {
   list: (filters: ServiceRequestFilters) =>
     [...SERVICE_REQUESTS_QUERY_KEYS.lists(), { filters }] as const,
   details: () => [...SERVICE_REQUESTS_QUERY_KEYS.all, "detail"] as const,
-  detail: (id: string) => [...SERVICE_REQUESTS_QUERY_KEYS.details(), id] as const,
+  detail: (id: string) =>
+    [...SERVICE_REQUESTS_QUERY_KEYS.details(), id] as const,
   stats: () => [...SERVICE_REQUESTS_QUERY_KEYS.all, "stats"] as const,
   byService: (serviceId: string) =>
     [...SERVICE_REQUESTS_QUERY_KEYS.all, "byService", serviceId] as const,
@@ -180,7 +184,9 @@ export const useServiceRequests = (options?: {
 
       // Recherche textuelle dans les notes et adresses
       if (filters?.search) {
-        query = query.or(`notes.ilike.%${filters.search}%,address.ilike.%${filters.search}%`);
+        query = query.or(
+          `notes.ilike.%${filters.search}%,address.ilike.%${filters.search}%`
+        );
       }
 
       // Tri
@@ -197,7 +203,9 @@ export const useServiceRequests = (options?: {
 
       if (error) {
         console.error("❌ Error fetching service requests:", error);
-        throw new Error(`Erreur lors de la récupération des demandes: ${error.message}`);
+        throw new Error(
+          `Erreur lors de la récupération des demandes: ${error.message}`
+        );
       }
 
       console.log(`✅ Fetched ${data?.length || 0} service requests`);
@@ -220,7 +228,8 @@ export const useServiceRequest = (id: string) => {
 
       const { data, error } = await supabase
         .from("service_requests")
-        .select(`
+        .select(
+          `
           *,
           service:services!service_requests_service_id_fkey (
             id,
@@ -259,13 +268,16 @@ export const useServiceRequest = (id: string) => {
             city,
             postal_code
           )
-        `)
+        `
+        )
         .eq("id", id)
         .single();
 
       if (error) {
         console.error("❌ Error fetching service request:", error);
-        throw new Error(`Erreur lors de la récupération de la demande: ${error.message}`);
+        throw new Error(
+          `Erreur lors de la récupération de la demande: ${error.message}`
+        );
       }
 
       return data;
@@ -290,7 +302,9 @@ export const useServiceRequestStats = () => {
 
       if (error) {
         console.error("❌ Error fetching stats:", error);
-        throw new Error(`Erreur lors de la récupération des statistiques: ${error.message}`);
+        throw new Error(
+          `Erreur lors de la récupération des statistiques: ${error.message}`
+        );
       }
 
       const stats: ServiceRequestStats = {
@@ -306,7 +320,7 @@ export const useServiceRequestStats = () => {
 
       data.forEach((request) => {
         const status = request.status?.toLowerCase();
-        
+
         switch (status) {
           case "pending":
             stats.pending++;
@@ -327,7 +341,8 @@ export const useServiceRequestStats = () => {
         }
       });
 
-      stats.averageAmount = stats.completed > 0 ? stats.totalRevenue / stats.completed : 0;
+      stats.averageAmount =
+        stats.completed > 0 ? stats.totalRevenue / stats.completed : 0;
 
       console.log("📊 Stats calculated:", stats);
       return stats;
@@ -354,7 +369,7 @@ export const useServiceRequestsByService = (serviceId: string) => {
 export const useServiceRequestsByProvider = (providerId: string) => {
   return useServiceRequests({
     filters: { provider_id: providerId },
-    orderBy: "created_at", 
+    orderBy: "created_at",
     orderDirection: "desc",
     enabled: !!providerId,
   });
@@ -367,7 +382,7 @@ export const useServiceRequestsByRequester = (requesterId: string) => {
   return useServiceRequests({
     filters: { requester_id: requesterId },
     orderBy: "created_at",
-    orderDirection: "desc", 
+    orderDirection: "desc",
     enabled: !!requesterId,
   });
 };
@@ -380,12 +395,18 @@ export const useServiceRequestMutations = () => {
 
   // Mutation pour accepter une demande
   const acceptServiceRequest = useMutation({
-    mutationFn: async ({ id, providerId }: { id: string; providerId?: string }) => {
+    mutationFn: async ({
+      id,
+      providerId,
+    }: {
+      id: string;
+      providerId?: string;
+    }) => {
       const updates: ServiceRequestUpdate = {
         status: "accepted",
         updated_at: new Date().toISOString(),
       };
-      
+
       if (providerId) {
         updates.provider_id = providerId;
       }
@@ -404,9 +425,16 @@ export const useServiceRequestMutations = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats() });
-      queryClient.setQueryData(SERVICE_REQUESTS_QUERY_KEYS.detail(data.id), data);
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+      queryClient.setQueryData(
+        SERVICE_REQUESTS_QUERY_KEYS.detail(data.id),
+        data
+      );
     },
   });
 
@@ -430,9 +458,16 @@ export const useServiceRequestMutations = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats() });
-      queryClient.setQueryData(SERVICE_REQUESTS_QUERY_KEYS.detail(data.id), data);
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+      queryClient.setQueryData(
+        SERVICE_REQUESTS_QUERY_KEYS.detail(data.id),
+        data
+      );
     },
   });
 
@@ -457,9 +492,16 @@ export const useServiceRequestMutations = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats() });
-      queryClient.setQueryData(SERVICE_REQUESTS_QUERY_KEYS.detail(data.id), data);
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+      queryClient.setQueryData(
+        SERVICE_REQUESTS_QUERY_KEYS.detail(data.id),
+        data
+      );
     },
   });
 
@@ -485,9 +527,16 @@ export const useServiceRequestMutations = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats() });
-      queryClient.setQueryData(SERVICE_REQUESTS_QUERY_KEYS.detail(data.id), data);
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: SERVICE_REQUESTS_QUERY_KEYS.stats(),
+      });
+      queryClient.setQueryData(
+        SERVICE_REQUESTS_QUERY_KEYS.detail(data.id),
+        data
+      );
     },
   });
 

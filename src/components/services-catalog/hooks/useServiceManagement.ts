@@ -90,7 +90,9 @@ export const useServiceManagement = () => {
       const matchesSearch =
         !filters.search ||
         service.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        service.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        service.description
+          ?.toLowerCase()
+          .includes(filters.search.toLowerCase()) ||
         service.provider?.email
           ?.toLowerCase()
           .includes(filters.search.toLowerCase()) ||
@@ -102,7 +104,7 @@ export const useServiceManagement = () => {
           .includes(filters.search.toLowerCase());
 
       const matchesStatus =
-        !filters.status || 
+        !filters.status ||
         (filters.status === "active" && service.is_active) ||
         (filters.status === "inactive" && !service.is_active);
 
@@ -290,17 +292,14 @@ export const useServiceManagement = () => {
 
   const rejectSelectedServices = () => {
     console.log("Reject selected services:", selectedServices);
-    showNotification(
-      `${selectedServices.length} services rejetés`,
-      "success"
-    );
+    showNotification(`${selectedServices.length} services rejetés`, "success");
     clearSelection();
   };
 
-
-
   // Bulk actions avec vraies mutations
-  const approveSelectedServicesReal = async (bulkActivateServices: (ids: string[]) => Promise<any>) => {
+  const approveSelectedServicesReal = async (
+    bulkActivateServices: (ids: string[]) => Promise<any>
+  ) => {
     try {
       await bulkActivateServices(selectedServices);
       showNotification(
@@ -314,7 +313,9 @@ export const useServiceManagement = () => {
     }
   };
 
-  const rejectSelectedServicesReal = async (bulkDeactivateServices: (ids: string[]) => Promise<any>) => {
+  const rejectSelectedServicesReal = async (
+    bulkDeactivateServices: (ids: string[]) => Promise<any>
+  ) => {
     try {
       await bulkDeactivateServices(selectedServices);
       showNotification(
@@ -328,7 +329,9 @@ export const useServiceManagement = () => {
     }
   };
 
-  const deleteSelectedServicesReal = async (deleteManyServices: (ids: string[]) => Promise<any>) => {
+  const deleteSelectedServicesReal = async (
+    deleteManyServices: (ids: string[]) => Promise<any>
+  ) => {
     try {
       await deleteManyServices(selectedServices);
       showNotification(

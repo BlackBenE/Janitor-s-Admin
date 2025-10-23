@@ -13,12 +13,12 @@ const ServicesStatsCards: React.FC<{
   stats: ServiceStats;
   formatCurrency: (amount: number) => string;
 }> = ({ stats, formatCurrency }) => {
-  const { 
-    totalServices, 
-    activeServices, 
-    totalProviders, 
+  const {
+    totalServices,
+    activeServices,
+    totalProviders,
     totalCategories,
-    averagePrice 
+    averagePrice,
   } = stats;
 
   const activePercentage =
@@ -88,10 +88,7 @@ export const ServicesStatsSection: React.FC<ServicesStatsSectionProps> = ({
   return (
     <>
       {/* Cartes de statistiques globales */}
-      <ServicesStatsCards
-        stats={stats}
-        formatCurrency={formatCurrency}
-      />
+      <ServicesStatsCards stats={stats} formatCurrency={formatCurrency} />
 
       {/* Message d'erreur */}
       {error && (

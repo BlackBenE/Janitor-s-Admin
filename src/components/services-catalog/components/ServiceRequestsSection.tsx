@@ -76,8 +76,6 @@ export const ServiceRequestsSection: React.FC = () => {
     cancelServiceRequest,
   } = useServiceRequestMutations();
 
-
-
   const handleStatusFilter = (status: string) => {
     setFilters((prev) => ({
       ...prev,
@@ -207,18 +205,24 @@ export const ServiceRequestsSection: React.FC = () => {
           Aucune demande de service trouvée avec les filtres actuels.
         </Alert>
       ) : (
-        <Box 
-          sx={{ 
+        <Box
+          sx={{
             height: 600,
             overflow: "auto",
             pr: 1,
           }}
         >
-          <Box sx={{ 
-            display: "grid", 
-            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", lg: "1fr 1fr 1fr" }, 
-            gap: 2 
-          }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                md: "1fr 1fr",
+                lg: "1fr 1fr 1fr",
+              },
+              gap: 2,
+            }}
+          >
             {serviceRequests.map((request) => (
               <Card key={request.id} variant="outlined">
                 <CardContent>
@@ -316,11 +320,22 @@ export const ServiceRequestsSection: React.FC = () => {
               </Card>
             ))}
           </Box>
-          
+
           {/* Indicateur du nombre total */}
-          <Box sx={{ textAlign: "center", mt: 2, mb: 2, position: "sticky", bottom: 0, bgcolor: "background.default", py: 1 }}>
+          <Box
+            sx={{
+              textAlign: "center",
+              mt: 2,
+              mb: 2,
+              position: "sticky",
+              bottom: 0,
+              bgcolor: "background.default",
+              py: 1,
+            }}
+          >
             <Typography variant="body2" color="text.secondary">
-              {serviceRequests.length} demande{serviceRequests.length > 1 ? 's' : ''} au total
+              {serviceRequests.length} demande
+              {serviceRequests.length > 1 ? "s" : ""} au total
             </Typography>
           </Box>
         </Box>

@@ -45,8 +45,14 @@ export const ServiceEditForm: React.FC<ServiceEditFormProps> = ({
         <Typography variant="h6" gutterBottom>
           Informations générales
         </Typography>
-        
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
+
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+            gap: 2,
+          }}
+        >
           <TextField
             label="Nom du service"
             value={editForm.name ?? service.name ?? ""}
@@ -54,7 +60,7 @@ export const ServiceEditForm: React.FC<ServiceEditFormProps> = ({
             fullWidth
             required
           />
-          
+
           <FormControl fullWidth>
             <InputLabel>Catégorie</InputLabel>
             <Select
@@ -88,20 +94,28 @@ export const ServiceEditForm: React.FC<ServiceEditFormProps> = ({
         <Typography variant="h6" gutterBottom>
           Tarification
         </Typography>
-        
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "2fr 1fr 1fr" }, gap: 2 }}>
+
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "2fr 1fr 1fr" },
+            gap: 2,
+          }}
+        >
           <TextField
             label="Prix de base"
             type="number"
             value={editForm.base_price ?? service.base_price ?? ""}
-            onChange={(e) => onInputChange("base_price", parseFloat(e.target.value) || 0)}
+            onChange={(e) =>
+              onInputChange("base_price", parseFloat(e.target.value) || 0)
+            }
             InputProps={{
               endAdornment: "€",
             }}
             fullWidth
             required
           />
-          
+
           <FormControl fullWidth>
             <InputLabel>Type de prix</InputLabel>
             <Select
@@ -119,7 +133,12 @@ export const ServiceEditForm: React.FC<ServiceEditFormProps> = ({
             label="Durée (minutes)"
             type="number"
             value={editForm.duration_minutes ?? service.duration_minutes ?? ""}
-            onChange={(e) => onInputChange("duration_minutes", parseInt(e.target.value) || null)}
+            onChange={(e) =>
+              onInputChange(
+                "duration_minutes",
+                parseInt(e.target.value) || null
+              )
+            }
             fullWidth
           />
         </Box>
@@ -130,7 +149,7 @@ export const ServiceEditForm: React.FC<ServiceEditFormProps> = ({
         <Typography variant="h6" gutterBottom>
           Paramètres
         </Typography>
-        
+
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <FormControlLabel
             control={
@@ -141,7 +160,7 @@ export const ServiceEditForm: React.FC<ServiceEditFormProps> = ({
             }
             label="Service actif"
           />
-          
+
           <FormControlLabel
             control={
               <Switch
@@ -167,7 +186,7 @@ export const ServiceEditForm: React.FC<ServiceEditFormProps> = ({
         <Typography variant="h6" gutterBottom>
           Tags et qualifications
         </Typography>
-        
+
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Box>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
@@ -177,7 +196,10 @@ export const ServiceEditForm: React.FC<ServiceEditFormProps> = ({
               placeholder="nettoyage, rapide, écologique..."
               value={((editForm.tags ?? service.tags) || []).join(", ")}
               onChange={(e) => {
-                const tags = e.target.value.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0);
+                const tags = e.target.value
+                  .split(",")
+                  .map((tag) => tag.trim())
+                  .filter((tag) => tag.length > 0);
                 handleTagsChange(tags);
               }}
               fullWidth
@@ -185,7 +207,12 @@ export const ServiceEditForm: React.FC<ServiceEditFormProps> = ({
             {((editForm.tags ?? service.tags) || []).length > 0 && (
               <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                 {((editForm.tags ?? service.tags) || []).map((tag, index) => (
-                  <Chip key={index} label={tag} size="small" variant="outlined" />
+                  <Chip
+                    key={index}
+                    label={tag}
+                    size="small"
+                    variant="outlined"
+                  />
                 ))}
               </Box>
             )}
@@ -199,17 +226,38 @@ export const ServiceEditForm: React.FC<ServiceEditFormProps> = ({
             </Typography>
             <TextField
               placeholder="certificat, formation, expérience..."
-              value={((editForm.qualifications_required ?? service.qualifications_required) || []).join(", ")}
+              value={(
+                (editForm.qualifications_required ??
+                  service.qualifications_required) ||
+                []
+              ).join(", ")}
               onChange={(e) => {
-                const qualifications = e.target.value.split(",").map(q => q.trim()).filter(q => q.length > 0);
+                const qualifications = e.target.value
+                  .split(",")
+                  .map((q) => q.trim())
+                  .filter((q) => q.length > 0);
                 handleQualificationsChange(qualifications);
               }}
               fullWidth
             />
-            {((editForm.qualifications_required ?? service.qualifications_required) || []).length > 0 && (
+            {(
+              (editForm.qualifications_required ??
+                service.qualifications_required) ||
+              []
+            ).length > 0 && (
               <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {((editForm.qualifications_required ?? service.qualifications_required) || []).map((qual, index) => (
-                  <Chip key={index} label={qual} size="small" color="secondary" variant="outlined" />
+                {(
+                  (editForm.qualifications_required ??
+                    service.qualifications_required) ||
+                  []
+                ).map((qual, index) => (
+                  <Chip
+                    key={index}
+                    label={qual}
+                    size="small"
+                    color="secondary"
+                    variant="outlined"
+                  />
                 ))}
               </Box>
             )}

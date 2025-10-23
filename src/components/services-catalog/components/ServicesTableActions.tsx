@@ -52,10 +52,7 @@ export const ServicesTableActions: React.FC<ServicesTableActionsProps> = ({
     setAnchorEl(null);
   };
 
-  const handleAction = (
-    event: React.MouseEvent,
-    action: () => void
-  ) => {
+  const handleAction = (event: React.MouseEvent, action: () => void) => {
     event.stopPropagation();
     action();
     handleClose();
@@ -87,14 +84,18 @@ export const ServicesTableActions: React.FC<ServicesTableActionsProps> = ({
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={(e) => handleAction(e, () => onViewDetails(service))}>
+        <MenuItem
+          onClick={(e) => handleAction(e, () => onViewDetails(service))}
+        >
           <ListItemIcon>
             <ViewIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Voir détails</ListItemText>
         </MenuItem>
 
-        <MenuItem onClick={(e) => handleAction(e, () => onEditService(service))}>
+        <MenuItem
+          onClick={(e) => handleAction(e, () => onEditService(service))}
+        >
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
@@ -105,7 +106,9 @@ export const ServicesTableActions: React.FC<ServicesTableActionsProps> = ({
 
         {service.is_active ? (
           <MenuItem
-            onClick={(e) => handleAction(e, () => onDeactivateService(service.id))}
+            onClick={(e) =>
+              handleAction(e, () => onDeactivateService(service.id))
+            }
             sx={{ color: "warning.main" }}
           >
             <ListItemIcon>
@@ -115,7 +118,9 @@ export const ServicesTableActions: React.FC<ServicesTableActionsProps> = ({
           </MenuItem>
         ) : (
           <MenuItem
-            onClick={(e) => handleAction(e, () => onActivateService(service.id))}
+            onClick={(e) =>
+              handleAction(e, () => onActivateService(service.id))
+            }
             sx={{ color: "success.main" }}
           >
             <ListItemIcon>

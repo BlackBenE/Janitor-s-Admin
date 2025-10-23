@@ -101,7 +101,7 @@ export const useServices = (options?: {
   const deleteServicesMutation = useMutation({
     mutationFn: async (serviceIds: string[]) => {
       console.log("🗑️ Hard deleting services:", serviceIds);
-      
+
       // Hard delete: suppression définitive
       const { data, error } = await supabase
         .from("services")
@@ -130,12 +130,12 @@ export const useServices = (options?: {
       updates: Partial<ServiceUpdate>;
     }) => {
       console.log("🔄 Bulk updating services:", serviceIds, updates);
-      
+
       const { data, error } = await supabase
         .from("services")
         .update({
           ...updates,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .in("id", serviceIds)
         .select();
@@ -165,7 +165,10 @@ export const useServices = (options?: {
   };
 
   // Bulk actions
-  const bulkUpdateServices = (serviceIds: string[], updates: Partial<ServiceUpdate>) => {
+  const bulkUpdateServices = (
+    serviceIds: string[],
+    updates: Partial<ServiceUpdate>
+  ) => {
     return bulkUpdateServicesMutation.mutateAsync({ serviceIds, updates });
   };
 

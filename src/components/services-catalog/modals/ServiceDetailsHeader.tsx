@@ -35,7 +35,11 @@ const getStatusColor = (
 };
 
 const getStatusIcon = (isActive: boolean | null) => {
-  return isActive ? <ActiveIcon fontSize="small" /> : <InactiveIcon fontSize="small" />;
+  return isActive ? (
+    <ActiveIcon fontSize="small" />
+  ) : (
+    <InactiveIcon fontSize="small" />
+  );
 };
 
 const getStatusLabel = (isActive: boolean | null): string => {

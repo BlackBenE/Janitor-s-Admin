@@ -45,7 +45,11 @@ import {
   Assignment as AssignmentIcon,
   AttachMoney as MoneyIcon,
 } from "@mui/icons-material";
-import { useProviders, ProviderWithMetrics, ProvidersFilters } from "../hooks/useProviders";
+import {
+  useProviders,
+  ProviderWithMetrics,
+  ProvidersFilters,
+} from "../hooks/useProviders";
 
 interface ProvidersTableSectionProps {
   onProviderSelect?: (provider: ProviderWithMetrics) => void;
@@ -57,11 +61,18 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
   // État local pour les filtres
   const [filters, setFilters] = useState<ProvidersFilters>({});
   const [searchText, setSearchText] = useState("");
-  const [orderBy, setOrderBy] = useState<"name" | "servicesCount" | "totalRequests" | "averageRating" | "totalRevenue">("name");
+  const [orderBy, setOrderBy] = useState<
+    | "name"
+    | "servicesCount"
+    | "totalRequests"
+    | "averageRating"
+    | "totalRevenue"
+  >("name");
   const [orderDirection, setOrderDirection] = useState<"asc" | "desc">("asc");
-  
+
   // États pour les modals
-  const [selectedProvider, setSelectedProvider] = useState<ProviderWithMetrics | null>(null);
+  const [selectedProvider, setSelectedProvider] =
+    useState<ProviderWithMetrics | null>(null);
   const [showProviderDetails, setShowProviderDetails] = useState(false);
 
   // Query pour récupérer les providers
@@ -81,7 +92,7 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
 
   // Gestionnaires d'événements
   const handleSearch = () => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       search: searchText.trim() || undefined,
     }));
@@ -89,7 +100,7 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
 
   const handleClearSearch = () => {
     setSearchText("");
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       search: undefined,
     }));
@@ -107,121 +118,134 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
   };
 
   // Configuration des colonnes du DataGrid
-  const columns: GridColDef[] = useMemo(() => [
-    {
-      field: "provider",
-      headerName: "Prestataire",
-      flex: 2,
-      minWidth: 250,
-      renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, py: 1 }}>
-          <Avatar 
-            src={params.row.avatar_url || undefined}
-            sx={{ width: 40, height: 40 }}
-          >
-            {(params.row.full_name || params.row.email)?.[0]?.toUpperCase()}
-          </Avatar>
-          <Box>
+  const columns: GridColDef[] = useMemo(
+    () => [
+      {
+        field: "provider",
+        headerName: "Prestataire",
+        flex: 2,
+        minWidth: 250,
+        renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, py: 1 }}>
+            <Avatar
+              src={params.row.avatar_url || undefined}
+              sx={{ width: 40, height: 40 }}
+            >
+              {(params.row.full_name || params.row.email)?.[0]?.toUpperCase()}
+            </Avatar>
+            <Box>
+              <Typography variant="body2" fontWeight="medium">
+                {params.row.full_name ||
+                  `${params.row.first_name || ""} ${
+                    params.row.last_name || ""
+                  }`.trim() ||
+                  "Sans nom"}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {params.row.email}
+              </Typography>
+              {params.row.phone && (
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  display="block"
+                >
+                  {params.row.phone}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        ),
+      },
+      {
+        field: "servicesCount",
+        headerName: "Services",
+        width: 120,
+        renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
+          <Box sx={{ textAlign: "center" }}>
             <Typography variant="body2" fontWeight="medium">
-              {params.row.full_name || `${params.row.first_name || ""} ${params.row.last_name || ""}`.trim() || "Sans nom"}
+              {params.row.servicesCount}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {params.row.email}
+              {params.row.activeServicesCount} actifs
             </Typography>
-            {params.row.phone && (
-              <Typography variant="caption" color="text.secondary" display="block">
-                {params.row.phone}
-              </Typography>
-            )}
           </Box>
-        </Box>
-      ),
-    },
-    {
-      field: "servicesCount",
-      headerName: "Services",
-      width: 120,
-      renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
-        <Box sx={{ textAlign: "center" }}>
-          <Typography variant="body2" fontWeight="medium">
-            {params.row.servicesCount}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {params.row.activeServicesCount} actifs
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      field: "totalRequests",
-      headerName: "Demandes",
-      width: 120,
-      renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
-        <Box sx={{ textAlign: "center" }}>
-          <Typography variant="body2" fontWeight="medium">
-            {params.row.totalRequests}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {params.row.pendingRequests} en cours
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      field: "averageRating",
-      headerName: "Note",
-      width: 130,
-      renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <Rating
-            value={params.row.averageRating}
-            readOnly
-            precision={0.1}
-            size="small"
-          />
-          <Typography variant="caption" color="text.secondary">
-            {params.row.averageRating > 0 ? params.row.averageRating.toFixed(1) : "N/A"}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      field: "totalRevenue",
-      headerName: "CA Total",
-      width: 120,
-      renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
-        <Box sx={{ textAlign: "right" }}>
-          <Typography variant="body2" fontWeight="medium">
-            {params.row.totalRevenue.toLocaleString("fr-FR", {
-              style: "currency",
-              currency: "EUR",
-            })}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 120,
-      sortable: false,
-      renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
-        <Box sx={{ display: "flex", gap: 0.5 }}>
-          <Tooltip title="Voir détails">
-            <IconButton
+        ),
+      },
+      {
+        field: "totalRequests",
+        headerName: "Demandes",
+        width: 120,
+        renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
+          <Box sx={{ textAlign: "center" }}>
+            <Typography variant="body2" fontWeight="medium">
+              {params.row.totalRequests}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {params.row.pendingRequests} en cours
+            </Typography>
+          </Box>
+        ),
+      },
+      {
+        field: "averageRating",
+        headerName: "Note",
+        width: 130,
+        renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Rating
+              value={params.row.averageRating}
+              readOnly
+              precision={0.1}
               size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleViewProvider(params.row);
-              }}
-            >
-              <ViewIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
-  ], []);
+            />
+            <Typography variant="caption" color="text.secondary">
+              {params.row.averageRating > 0
+                ? params.row.averageRating.toFixed(1)
+                : "N/A"}
+            </Typography>
+          </Box>
+        ),
+      },
+      {
+        field: "totalRevenue",
+        headerName: "CA Total",
+        width: 120,
+        renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
+          <Box sx={{ textAlign: "right" }}>
+            <Typography variant="body2" fontWeight="medium">
+              {params.row.totalRevenue.toLocaleString("fr-FR", {
+                style: "currency",
+                currency: "EUR",
+              })}
+            </Typography>
+          </Box>
+        ),
+      },
+      {
+        field: "actions",
+        headerName: "Actions",
+        width: 120,
+        sortable: false,
+        renderCell: (params: GridRenderCellParams<ProviderWithMetrics>) => (
+          <Box sx={{ display: "flex", gap: 0.5 }}>
+            <Tooltip title="Voir détails">
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleViewProvider(params.row);
+                }}
+              >
+                <ViewIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        ),
+      },
+    ],
+    []
+  );
 
   // Calcul des statistiques globales
   const totalProviders = providers.length;
@@ -284,7 +308,10 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
           <Card>
             <CardContent sx={{ textAlign: "center" }}>
               <Typography variant="h4" color="success.main">
-                {totalRevenue.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                {totalRevenue.toLocaleString("fr-FR", {
+                  style: "currency",
+                  currency: "EUR",
+                })}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 CA Total
@@ -296,7 +323,14 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
 
       {/* Barre de recherche et filtres */}
       <Paper sx={{ p: 2, mb: 2 }}>
-        <Box sx={{ display: "flex", gap: 2, alignItems: "flex-end", flexWrap: "wrap" }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            alignItems: "flex-end",
+            flexWrap: "wrap",
+          }}
+        >
           <TextField
             label="Rechercher un prestataire"
             value={searchText}
@@ -311,7 +345,7 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
             }}
             sx={{ minWidth: 300 }}
           />
-          
+
           <Button
             variant="contained"
             startIcon={<SearchIcon />}
@@ -413,28 +447,62 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
               {/* Métriques */}
               <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
                 <Box sx={{ flex: 1, minWidth: 120 }}>
-                  <Box sx={{ textAlign: "center", p: 1, bgcolor: "primary.light", borderRadius: 1 }}>
-                    <Typography variant="h4">{selectedProvider.servicesCount}</Typography>
+                  <Box
+                    sx={{
+                      textAlign: "center",
+                      p: 1,
+                      bgcolor: "primary.light",
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Typography variant="h4">
+                      {selectedProvider.servicesCount}
+                    </Typography>
                     <Typography variant="caption">Services</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 120 }}>
-                  <Box sx={{ textAlign: "center", p: 1, bgcolor: "info.light", borderRadius: 1 }}>
-                    <Typography variant="h4">{selectedProvider.totalRequests}</Typography>
+                  <Box
+                    sx={{
+                      textAlign: "center",
+                      p: 1,
+                      bgcolor: "info.light",
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Typography variant="h4">
+                      {selectedProvider.totalRequests}
+                    </Typography>
                     <Typography variant="caption">Demandes</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 120 }}>
-                  <Box sx={{ textAlign: "center", p: 1, bgcolor: "warning.light", borderRadius: 1 }}>
-                    <Typography variant="h4">{selectedProvider.averageRating.toFixed(1)}</Typography>
+                  <Box
+                    sx={{
+                      textAlign: "center",
+                      p: 1,
+                      bgcolor: "warning.light",
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Typography variant="h4">
+                      {selectedProvider.averageRating.toFixed(1)}
+                    </Typography>
                     <Typography variant="caption">Note</Typography>
                   </Box>
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 120 }}>
-                  <Box sx={{ textAlign: "center", p: 1, bgcolor: "success.light", borderRadius: 1 }}>
+                  <Box
+                    sx={{
+                      textAlign: "center",
+                      p: 1,
+                      bgcolor: "success.light",
+                      borderRadius: 1,
+                    }}
+                  >
                     <Typography variant="h4">
-                      {selectedProvider.totalRevenue.toLocaleString("fr-FR", { 
-                        style: "currency", 
+                      {selectedProvider.totalRevenue.toLocaleString("fr-FR", {
+                        style: "currency",
                         currency: "EUR",
                         minimumFractionDigits: 0,
                       })}
@@ -454,8 +522,16 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
                     <ListItem>
                       <ListItemText
                         primary={
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <Typography variant="body1">{service.name}</Typography>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <Typography variant="body1">
+                              {service.name}
+                            </Typography>
                             <Chip
                               label={service.is_active ? "Actif" : "Inactif"}
                               color={service.is_active ? "success" : "default"}
@@ -478,7 +554,9 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
                         }
                       />
                     </ListItem>
-                    {index < (selectedProvider.services?.length || 0) - 1 && <Divider />}
+                    {index < (selectedProvider.services?.length || 0) - 1 && (
+                      <Divider />
+                    )}
                   </React.Fragment>
                 ))}
                 {!selectedProvider.services?.length && (
@@ -494,9 +572,7 @@ export const ProvidersTableSection: React.FC<ProvidersTableSectionProps> = ({
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowProviderDetails(false)}>
-            Fermer
-          </Button>
+          <Button onClick={() => setShowProviderDetails(false)}>Fermer</Button>
         </DialogActions>
       </Dialog>
     </Box>

@@ -53,19 +53,28 @@ export const useProviderStats = (providerId: string) => {
 
       // 3. Calculer les statistiques
       const totalServices = services?.length || 0;
-      const activeServices = services?.filter(s => s.is_active === true).length || 0;
-      
+      const activeServices =
+        services?.filter((s) => s.is_active === true).length || 0;
+
       const totalRequests = requests?.length || 0;
-      const pendingRequests = requests?.filter(r => r.status === "pending").length || 0;
-      const completedRequests = requests?.filter(r => r.status === "completed").length || 0;
-      
-      const totalRevenue = requests?.filter(r => r.status === "completed")
-        .reduce((sum, r) => sum + (r.total_amount || 0), 0) || 0;
+      const pendingRequests =
+        requests?.filter((r) => r.status === "pending").length || 0;
+      const completedRequests =
+        requests?.filter((r) => r.status === "completed").length || 0;
+
+      const totalRevenue =
+        requests
+          ?.filter((r) => r.status === "completed")
+          .reduce((sum, r) => sum + (r.total_amount || 0), 0) || 0;
 
       // Note moyenne simulée basée sur les performances (à remplacer si table ratings existe)
-      const averageRating = completedRequests > 0 
-        ? Math.min(5, Math.max(3, 4 + (completedRequests / 10) - (pendingRequests / 20)))
-        : 0;
+      const averageRating =
+        completedRequests > 0
+          ? Math.min(
+              5,
+              Math.max(3, 4 + completedRequests / 10 - pendingRequests / 20)
+            )
+          : 0;
 
       return {
         totalServices,
@@ -85,7 +94,10 @@ export const useProviderStats = (providerId: string) => {
 /**
  * Hook pour récupérer les autres services d'un prestataire
  */
-export const useProviderServices = (providerId: string, excludeServiceId?: string) => {
+export const useProviderServices = (
+  providerId: string,
+  excludeServiceId?: string
+) => {
   return useQuery({
     queryKey: ["provider-services", providerId, excludeServiceId],
     queryFn: async (): Promise<ProviderService[]> => {

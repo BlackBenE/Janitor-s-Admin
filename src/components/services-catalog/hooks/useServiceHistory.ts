@@ -25,7 +25,8 @@ export const useServiceHistory = (serviceId: string) => {
 
       const { data, error } = await supabase
         .from("service_requests")
-        .select(`
+        .select(
+          `
           id,
           status,
           total_amount,
@@ -36,7 +37,8 @@ export const useServiceHistory = (serviceId: string) => {
             full_name,
             email
           )
-        `)
+        `
+        )
         .eq("service_id", serviceId)
         .order("created_at", { ascending: false })
         .limit(10); // Limiter aux 10 dernières demandes
@@ -45,9 +47,11 @@ export const useServiceHistory = (serviceId: string) => {
         throw new Error(`Erreur historique: ${error.message}`);
       }
 
-      return (data || []).map(item => ({
+      return (data || []).map((item) => ({
         ...item,
-        requester: Array.isArray(item.requester) ? item.requester[0] : item.requester
+        requester: Array.isArray(item.requester)
+          ? item.requester[0]
+          : item.requester,
       }));
     },
     enabled: !!serviceId,
@@ -75,17 +79,20 @@ export const useServicePerformance = (serviceId: string) => {
       }
 
       const totalRequests = requests?.length || 0;
-      const completedRequests = requests?.filter(r => r.status === "completed").length || 0;
+      const completedRequests =
+        requests?.filter((r) => r.status === "completed").length || 0;
       const thisMonth = new Date();
       thisMonth.setDate(1);
-      
-      const thisMonthRequests = requests?.filter(r => 
-        r.created_at && new Date(r.created_at) >= thisMonth
-      ).length || 0;
 
-      const satisfactionRate = totalRequests > 0 
-        ? Math.round((completedRequests / totalRequests) * 100)
-        : 0;
+      const thisMonthRequests =
+        requests?.filter(
+          (r) => r.created_at && new Date(r.created_at) >= thisMonth
+        ).length || 0;
+
+      const satisfactionRate =
+        totalRequests > 0
+          ? Math.round((completedRequests / totalRequests) * 100)
+          : 0;
 
       return {
         totalRequests,

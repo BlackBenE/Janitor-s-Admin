@@ -69,9 +69,13 @@ export const ServicesCatalogPage: React.FC = () => {
   // Filtre par statut
   if (serviceManagement.filters.status) {
     if (serviceManagement.filters.status === "active") {
-      filteredServices = filteredServices.filter((service) => service.is_active === true);
+      filteredServices = filteredServices.filter(
+        (service) => service.is_active === true
+      );
     } else if (serviceManagement.filters.status === "inactive") {
-      filteredServices = filteredServices.filter((service) => service.is_active === false);
+      filteredServices = filteredServices.filter(
+        (service) => service.is_active === false
+      );
     }
   }
 
@@ -126,17 +130,26 @@ export const ServicesCatalogPage: React.FC = () => {
       console.log("✅ Approve service:", serviceId);
       try {
         await updateService(serviceId, { is_active: true });
-        serviceManagement.showNotification("Service approuvé avec succès", "success");
+        serviceManagement.showNotification(
+          "Service approuvé avec succès",
+          "success"
+        );
       } catch (error) {
         console.error("Error approving service:", error);
-        serviceManagement.showNotification("Erreur lors de l'approbation", "error");
+        serviceManagement.showNotification(
+          "Erreur lors de l'approbation",
+          "error"
+        );
       }
     },
     onRejectService: async (serviceId: string) => {
       console.log("❌ Reject service:", serviceId);
       try {
         await updateService(serviceId, { is_active: false });
-        serviceManagement.showNotification("Service rejeté avec succès", "success");
+        serviceManagement.showNotification(
+          "Service rejeté avec succès",
+          "success"
+        );
       } catch (error) {
         console.error("Error rejecting service:", error);
         serviceManagement.showNotification("Erreur lors du rejet", "error");
@@ -145,7 +158,10 @@ export const ServicesCatalogPage: React.FC = () => {
     onDeleteService: async (serviceId: string) => {
       console.log("🗑️ Delete service:", serviceId);
       // TODO: Implémenter la suppression
-      serviceManagement.showNotification("Suppression non implémentée", "warning");
+      serviceManagement.showNotification(
+        "Suppression non implémentée",
+        "warning"
+      );
     },
   });
 
@@ -221,8 +237,8 @@ export const ServicesCatalogPage: React.FC = () => {
 
         {/* Onglets principaux */}
         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-          <Tabs 
-            value={mainTab} 
+          <Tabs
+            value={mainTab}
             onChange={(event, newValue) => setMainTab(newValue)}
             aria-label="Services catalog tabs"
           >
@@ -265,34 +281,59 @@ export const ServicesCatalogPage: React.FC = () => {
         onClose={serviceManagement.closeModal}
         onSave={async () => {
           if (!serviceManagement.selectedService?.id) {
-            serviceManagement.showNotification("Aucun service sélectionné", "error");
+            serviceManagement.showNotification(
+              "Aucun service sélectionné",
+              "error"
+            );
             return;
           }
-          
+
           try {
-            console.log("💾 Saving service:", serviceManagement.selectedService.id, serviceManagement.editForm);
-            await updateService(serviceManagement.selectedService.id, serviceManagement.editForm);
-            serviceManagement.showNotification("Service modifié avec succès", "success");
+            console.log(
+              "💾 Saving service:",
+              serviceManagement.selectedService.id,
+              serviceManagement.editForm
+            );
+            await updateService(
+              serviceManagement.selectedService.id,
+              serviceManagement.editForm
+            );
+            serviceManagement.showNotification(
+              "Service modifié avec succès",
+              "success"
+            );
             serviceManagement.closeModal();
           } catch (error) {
             console.error("Error saving service:", error);
-            serviceManagement.showNotification("Erreur lors de la sauvegarde", "error");
+            serviceManagement.showNotification(
+              "Erreur lors de la sauvegarde",
+              "error"
+            );
           }
         }}
         onApproveService={async (serviceId: string) => {
           try {
             await updateService(serviceId, { is_active: true });
-            serviceManagement.showNotification("Service approuvé avec succès", "success");
+            serviceManagement.showNotification(
+              "Service approuvé avec succès",
+              "success"
+            );
             serviceManagement.closeModal();
           } catch (error) {
             console.error("Error approving service:", error);
-            serviceManagement.showNotification("Erreur lors de l'approbation", "error");
+            serviceManagement.showNotification(
+              "Erreur lors de l'approbation",
+              "error"
+            );
           }
         }}
         onRejectService={async (serviceId: string) => {
           try {
             await updateService(serviceId, { is_active: false });
-            serviceManagement.showNotification("Service rejeté avec succès", "success");
+            serviceManagement.showNotification(
+              "Service rejeté avec succès",
+              "success"
+            );
             serviceManagement.closeModal();
           } catch (error) {
             console.error("Error rejecting service:", error);
@@ -303,11 +344,17 @@ export const ServicesCatalogPage: React.FC = () => {
           try {
             console.log("🗑️ Deleting service:", serviceId);
             await deleteManyServices([serviceId]);
-            serviceManagement.showNotification("Service supprimé avec succès", "success");
+            serviceManagement.showNotification(
+              "Service supprimé avec succès",
+              "success"
+            );
             serviceManagement.closeModal();
           } catch (error) {
             console.error("Error deleting service:", error);
-            serviceManagement.showNotification("Erreur lors de la suppression", "error");
+            serviceManagement.showNotification(
+              "Erreur lors de la suppression",
+              "error"
+            );
           }
         }}
         onInputChange={serviceManagement.updateEditForm}

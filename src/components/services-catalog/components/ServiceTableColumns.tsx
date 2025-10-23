@@ -152,7 +152,7 @@ export const createServiceTableColumns = ({
     renderCell: (params: GridRenderCellParams) => {
       const provider = params.row.provider;
       if (!provider) return <Box>N/A</Box>;
-      
+
       return (
         <Box>
           <Box sx={{ fontWeight: "medium" }}>
@@ -184,16 +184,10 @@ export const createServiceTableColumns = ({
     field: "is_vip_only",
     headerName: "VIP",
     width: 80,
-    renderCell: (params: GridRenderCellParams) => (
+    renderCell: (params: GridRenderCellParams) =>
       params.row.is_vip_only ? (
-        <Chip
-          label="VIP"
-          color="warning"
-          size="small"
-          variant="filled"
-        />
-      ) : null
-    ),
+        <Chip label="VIP" color="warning" size="small" variant="filled" />
+      ) : null,
   },
   {
     field: "created_at",

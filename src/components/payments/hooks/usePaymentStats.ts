@@ -21,6 +21,7 @@ export const usePaymentStats = (
         paidPayments: 0,
         pendingPayments: 0,
         refundedPayments: 0,
+        failedPayments: 0,
         monthlyRevenue: 0,
         averageAmount: 0,
       };
@@ -37,6 +38,7 @@ export const usePaymentStats = (
     const pendingPayments = payments.filter((p) => p.status === "pending");
     const paidPayments = payments.filter((p) => p.status === "paid");
     const refundedPayments = payments.filter((p) => p.status === "refunded");
+    const failedPayments = payments.filter((p) => p.status === "failed");
 
     const pendingAmount = pendingPayments.reduce(
       (sum, payment) => sum + (payment.amount || 0),
@@ -96,6 +98,7 @@ export const usePaymentStats = (
       paidPayments: paidPayments.length,
       pendingPayments: pendingPayments.length,
       refundedPayments: refundedPayments.length,
+      failedPayments: failedPayments.length,
       monthlyRevenue: recentAmount,
       averageAmount,
     };

@@ -97,20 +97,54 @@ export const useServices = (options?: {
     },
   });
 
-  // Delete services mutation
+  // Delete services mutation (hard delete)
   const deleteServicesMutation = useMutation({
     mutationFn: async (serviceIds: string[]) => {
-      console.log("🗑️ Deleting services:", serviceIds);
-      const { error } = await supabase
+      console.log("🗑️ Hard deleting services:", serviceIds);
+      
+      // Hard delete: suppression définitive
+      const { data, error } = await supabase
         .from("services")
         .delete()
-        .in("id", serviceIds);
+        .in("id", serviceIds)
+        .select();
 
       if (error) {
         throw new Error(`Error deleting services: ${error.message}`);
       }
 
-      return serviceIds;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SERVICE_QUERY_KEYS.all });
+    },
+  });
+
+  // Bulk update services mutation
+  const bulkUpdateServicesMutation = useMutation({
+    mutationFn: async ({
+      serviceIds,
+      updates,
+    }: {
+      serviceIds: string[];
+      updates: Partial<ServiceUpdate>;
+    }) => {
+      console.log("🔄 Bulk updating services:", serviceIds, updates);
+      
+      const { data, error } = await supabase
+        .from("services")
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .in("id", serviceIds)
+        .select();
+
+      if (error) {
+        throw new Error(`Error bulk updating services: ${error.message}`);
+      }
+
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SERVICE_QUERY_KEYS.all });
@@ -130,13 +164,25 @@ export const useServices = (options?: {
     return deleteServicesMutation.mutateAsync(serviceIds);
   };
 
-  // Actions métier spécifiques
-  const activateService = (id: string) => {
-    return updateService(id, { is_active: true });
+  // Bulk actions
+  const bulkUpdateServices = (serviceIds: string[], updates: Partial<ServiceUpdate>) => {
+    return bulkUpdateServicesMutation.mutateAsync({ serviceIds, updates });
   };
 
-  const deactivateService = (id: string) => {
-    return updateService(id, { is_active: false });
+  const bulkActivateServices = (serviceIds: string[]) => {
+    return bulkUpdateServices(serviceIds, { is_active: true });
+  };
+
+  const bulkDeactivateServices = (serviceIds: string[]) => {
+    return bulkUpdateServices(serviceIds, { is_active: false });
+  };
+
+  const bulkChangeCategory = (serviceIds: string[], category: string) => {
+    return bulkUpdateServices(serviceIds, { category });
+  };
+
+  const bulkUpdatePrice = (serviceIds: string[], basePrice: number) => {
+    return bulkUpdateServices(serviceIds, { base_price: basePrice });
   };
 
   return {
@@ -156,16 +202,21 @@ export const useServices = (options?: {
     isFetching,
     error,
     refetch,
-    // Mutations
+    // CRUD Mutations
     updateService,
     createService,
     deleteManyServices,
-    activateService,
-    deactivateService,
+    // Bulk Actions
+    bulkUpdateServices,
+    bulkActivateServices,
+    bulkDeactivateServices,
+    bulkChangeCategory,
+    bulkUpdatePrice,
     // Mutation states
     isUpdating: updateServiceMutation.isPending,
     isCreating: createServiceMutation.isPending,
     isDeleting: deleteServicesMutation.isPending,
+    isBulkUpdating: bulkUpdateServicesMutation.isPending,
   };
 };
 

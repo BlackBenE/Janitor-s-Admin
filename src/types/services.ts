@@ -14,6 +14,7 @@ export interface ServiceProvider {
   full_name: string | null;
   phone: string | null;
   role: string;
+  avatar_url: string | null;
 }
 
 // Extended Service with joined data for display

@@ -37,7 +37,8 @@ export const useServices = (options?: {
             email,
             full_name,
             phone,
-            role
+            role,
+            avatar_url
           )
         `);
 
@@ -116,7 +117,8 @@ export const useService = (serviceId?: string) => {
             email,
             full_name,
             phone,
-            role
+            role,
+            avatar_url
           )
         `
         )

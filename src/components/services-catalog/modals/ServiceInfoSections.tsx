@@ -24,16 +24,12 @@ import {
   AccessTime as TimeIcon,
   Star as StarIcon,
   Description as DescriptionIcon,
-  BusinessCenter as BusinessIcon,
   Assignment as AssignmentIcon,
-  TrendingUp as TrendingUpIcon,
 } from "@mui/icons-material";
 import { ServiceWithDetails } from "../../../types/services";
 import {
-  useProviderStats,
-  useProviderServices,
   useServiceHistory,
-  useServicePerformance,
+  useProviderServices,
 } from "../hooks";
 
 interface ServiceInfoSectionsProps {
@@ -226,260 +222,7 @@ const ServiceDetailsTab: React.FC<{ service: ServiceWithDetails }> = ({
   </Box>
 );
 
-// Composant pour l'onglet prestataire
-const ProviderDetailsTab: React.FC<{ service: ServiceWithDetails }> = ({
-  service,
-}) => {
-  // Récupérer les vraies données du prestataire
-  const { data: providerStats, isLoading: statsLoading } = useProviderStats(
-    service.provider?.id || ""
-  );
 
-  const { data: otherServices, isLoading: servicesLoading } =
-    useProviderServices(
-      service.provider?.id || "",
-      service.id // Exclure le service actuel
-    );
-
-  if (!service.provider) {
-    return (
-      <Card variant="outlined">
-        <CardContent>
-          <Typography variant="h6" color="text.secondary" textAlign="center">
-            Aucun prestataire assigné à ce service
-          </Typography>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* Informations principales du prestataire */}
-      <Card variant="outlined">
-        <CardContent>
-          <Typography
-            variant="h6"
-            gutterBottom
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <PersonIcon color="primary" />
-            Informations du prestataire
-          </Typography>
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 3 }}>
-            <Avatar
-              sx={{ width: 80, height: 80 }}
-              src={service.provider.avatar_url || undefined}
-            >
-              {service.provider.first_name?.charAt(0) ||
-                service.provider.full_name?.charAt(0) ||
-                "P"}
-            </Avatar>
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h5" fontWeight="medium">
-                {service.provider.first_name && service.provider.last_name
-                  ? `${service.provider.first_name} ${service.provider.last_name}`
-                  : service.provider.full_name || "N/A"}
-              </Typography>
-              <Typography variant="body1" color="text.secondary" gutterBottom>
-                {service.provider.role || "Prestataire"}
-              </Typography>
-              <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
-                <Chip label="Professionnel" color="primary" size="small" />
-              </Box>
-            </Box>
-          </Box>
-
-          <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
-            <Box sx={{ flex: 1, minWidth: 200 }}>
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                gutterBottom
-              >
-                <EmailIcon
-                  sx={{ fontSize: 16, mr: 1, verticalAlign: "middle" }}
-                />
-                Email
-              </Typography>
-              <Typography variant="body1">{service.provider.email}</Typography>
-            </Box>
-
-            {service.provider.phone && (
-              <Box sx={{ flex: 1, minWidth: 200 }}>
-                <Typography
-                  variant="subtitle2"
-                  color="text.secondary"
-                  gutterBottom
-                >
-                  <PhoneIcon
-                    sx={{ fontSize: 16, mr: 1, verticalAlign: "middle" }}
-                  />
-                  Téléphone
-                </Typography>
-                <Typography variant="body1">
-                  {service.provider.phone}
-                </Typography>
-              </Box>
-            )}
-          </Box>
-        </CardContent>
-      </Card>
-
-      {/* Statistiques du prestataire */}
-      <Card variant="outlined">
-        <CardContent>
-          <Typography
-            variant="h6"
-            gutterBottom
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <TrendingUpIcon color="primary" />
-            Statistiques
-          </Typography>
-
-          {statsLoading ? (
-            <Box sx={{ textAlign: "center", py: 2 }}>
-              <CircularProgress size={24} />
-            </Box>
-          ) : providerStats ? (
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              <Box sx={{ flex: 1, minWidth: 120 }}>
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    p: 1,
-                    bgcolor: "primary.light",
-                    borderRadius: 1,
-                  }}
-                >
-                  <Typography variant="h4" color="primary.main">
-                    {providerStats.activeServices}
-                  </Typography>
-                  <Typography variant="caption">Services actifs</Typography>
-                </Box>
-              </Box>
-              <Box sx={{ flex: 1, minWidth: 120 }}>
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    p: 1,
-                    bgcolor: "success.light",
-                    borderRadius: 1,
-                  }}
-                >
-                  <Typography variant="h4" color="success.main">
-                    {providerStats.completedRequests}
-                  </Typography>
-                  <Typography variant="caption">Demandes traitées</Typography>
-                </Box>
-              </Box>
-              <Box sx={{ flex: 1, minWidth: 120 }}>
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    p: 1,
-                    bgcolor: "warning.light",
-                    borderRadius: 1,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Typography variant="h4" color="warning.main">
-                      {providerStats.averageRating.toFixed(1)}
-                    </Typography>
-                    <StarIcon sx={{ color: "warning.main", ml: 0.5 }} />
-                  </Box>
-                  <Typography variant="caption">Note moyenne</Typography>
-                </Box>
-              </Box>
-              <Box sx={{ flex: 1, minWidth: 120 }}>
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    p: 1,
-                    bgcolor: "info.light",
-                    borderRadius: 1,
-                  }}
-                >
-                  <Typography variant="h4" color="info.main">
-                    {providerStats.totalRevenue.toLocaleString("fr-FR", {
-                      style: "currency",
-                      currency: "EUR",
-                      maximumFractionDigits: 0,
-                    })}
-                  </Typography>
-                  <Typography variant="caption">CA Total</Typography>
-                </Box>
-              </Box>
-            </Box>
-          ) : (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              textAlign="center"
-            >
-              Aucune statistique disponible
-            </Typography>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Autres services du prestataire */}
-      <Card variant="outlined">
-        <CardContent>
-          <Typography
-            variant="h6"
-            gutterBottom
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <BusinessIcon color="primary" />
-            Autres services de ce prestataire
-          </Typography>
-
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Services proposés par{" "}
-            {service.provider.first_name || "ce prestataire"}
-          </Typography>
-
-          {servicesLoading ? (
-            <Box sx={{ textAlign: "center", py: 2 }}>
-              <CircularProgress size={20} />
-            </Box>
-          ) : otherServices && otherServices.length > 0 ? (
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {otherServices.map((otherService) => (
-                <Chip
-                  key={otherService.id}
-                  label={`${otherService.name} (${formatCurrency(
-                    otherService.base_price
-                  )})`}
-                  color={otherService.is_active ? "primary" : "default"}
-                  size="small"
-                  variant={otherService.is_active ? "filled" : "outlined"}
-                />
-              ))}
-            </Box>
-          ) : (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              fontStyle="italic"
-            >
-              Aucun autre service trouvé pour ce prestataire
-            </Typography>
-          )}
-        </CardContent>
-      </Card>
-    </Box>
-  );
-};
 
 // Composant pour l'onglet historique
 const ServiceHistoryTab: React.FC<{ service: ServiceWithDetails }> = ({
@@ -488,8 +231,7 @@ const ServiceHistoryTab: React.FC<{ service: ServiceWithDetails }> = ({
   const { data: history, isLoading: historyLoading } = useServiceHistory(
     service.id
   );
-  const { data: performance, isLoading: performanceLoading } =
-    useServicePerformance(service.id);
+
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -580,56 +322,78 @@ const ServiceHistoryTab: React.FC<{ service: ServiceWithDetails }> = ({
         </CardContent>
       </Card>
 
-      {/* Évolution des performances */}
-      <Card variant="outlined">
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Performances du service
-          </Typography>
 
-          {performanceLoading ? (
-            <Box sx={{ textAlign: "center", py: 2 }}>
-              <CircularProgress size={24} />
-            </Box>
-          ) : performance ? (
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              <Box sx={{ flex: 1, minWidth: 200 }}>
-                <Box
-                  sx={{ p: 2, bgcolor: "background.default", borderRadius: 1 }}
-                >
-                  <Typography variant="h4" color="primary">
-                    {performance.thisMonthRequests}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Demandes ce mois
-                  </Typography>
-                </Box>
-              </Box>
-              <Box sx={{ flex: 1, minWidth: 200 }}>
-                <Box
-                  sx={{ p: 2, bgcolor: "background.default", borderRadius: 1 }}
-                >
-                  <Typography variant="h4" color="success.main">
-                    {performance.satisfactionRate}%
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Taux de satisfaction
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          ) : (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              textAlign="center"
-            >
-              Aucune statistique disponible
-            </Typography>
-          )}
-        </CardContent>
-      </Card>
     </Box>
+  );
+};
+
+// Composant pour afficher les autres services du prestataire (utilisé dans la sidebar)
+const ProviderServicesSection: React.FC<{ service: ServiceWithDetails }> = ({
+  service,
+}) => {
+  const { data: otherServices, isLoading: servicesLoading } =
+    useProviderServices(
+      service.provider?.id || "",
+      service.id // Exclure le service actuel
+    );
+
+  if (!service.provider) return null;
+
+  return (
+    <Card variant="outlined">
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          Autres services de ce prestataire
+        </Typography>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Services proposés par {service.provider.first_name || "ce prestataire"}
+        </Typography>
+
+        {servicesLoading ? (
+          <Box sx={{ textAlign: "center", py: 2 }}>
+            <CircularProgress size={20} />
+          </Box>
+        ) : otherServices && otherServices.length > 0 ? (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {otherServices.map((otherService) => (
+              <Box
+                key={otherService.id}
+                sx={{
+                  p: 2,
+                  bgcolor: "grey.50",
+                  borderRadius: 1,
+                  border: "1px solid",
+                  borderColor: "grey.200",
+                }}
+              >
+                <Typography variant="subtitle2" fontWeight="medium">
+                  {otherService.name}
+                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {formatCurrency(otherService.base_price)}
+                  </Typography>
+                  <Chip
+                    label={otherService.is_active ? "Actif" : "Inactif"}
+                    color={otherService.is_active ? "success" : "default"}
+                    size="small"
+                  />
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            fontStyle="italic"
+          >
+            Aucun autre service trouvé pour ce prestataire
+          </Typography>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
@@ -750,6 +514,9 @@ export const ServiceInfoSections: React.FC<ServiceInfoSectionsProps> = ({
             </Box>
           </CardContent>
         </Card>
+
+        {/* Autres services de ce prestataire */}
+        {service.provider && <ProviderServicesSection service={service} />}
       </Box>
     );
   }
@@ -764,7 +531,6 @@ export const ServiceInfoSections: React.FC<ServiceInfoSectionsProps> = ({
           onChange={(_, newValue) => setActiveTab(newValue)}
         >
           <Tab label="Détails du Service" />
-          <Tab label="Prestataire" />
           <Tab label="Historique" />
         </Tabs>
       </Box>
@@ -772,9 +538,7 @@ export const ServiceInfoSections: React.FC<ServiceInfoSectionsProps> = ({
       {/* Contenu des onglets */}
       {activeTab === 0 && <ServiceDetailsTab service={service} />}
 
-      {activeTab === 1 && <ProviderDetailsTab service={service} />}
-
-      {activeTab === 2 && <ServiceHistoryTab service={service} />}
+      {activeTab === 1 && <ServiceHistoryTab service={service} />}
     </Box>
   );
 };

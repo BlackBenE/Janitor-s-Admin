@@ -27,10 +27,7 @@ import {
   Assignment as AssignmentIcon,
 } from "@mui/icons-material";
 import { ServiceWithDetails } from "../../../types/services";
-import {
-  useServiceHistory,
-  useProviderServices,
-} from "../hooks";
+import { useServiceHistory, useProviderServices } from "../hooks";
 
 interface ServiceInfoSectionsProps {
   service: ServiceWithDetails;
@@ -222,8 +219,6 @@ const ServiceDetailsTab: React.FC<{ service: ServiceWithDetails }> = ({
   </Box>
 );
 
-
-
 // Composant pour l'onglet historique
 const ServiceHistoryTab: React.FC<{ service: ServiceWithDetails }> = ({
   service,
@@ -231,7 +226,6 @@ const ServiceHistoryTab: React.FC<{ service: ServiceWithDetails }> = ({
   const { data: history, isLoading: historyLoading } = useServiceHistory(
     service.id
   );
-
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -321,8 +315,6 @@ const ServiceHistoryTab: React.FC<{ service: ServiceWithDetails }> = ({
           )}
         </CardContent>
       </Card>
-
-
     </Box>
   );
 };
@@ -347,7 +339,8 @@ const ProviderServicesSection: React.FC<{ service: ServiceWithDetails }> = ({
         </Typography>
 
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Services proposés par {service.provider.first_name || "ce prestataire"}
+          Services proposés par{" "}
+          {service.provider.first_name || "ce prestataire"}
         </Typography>
 
         {servicesLoading ? (
@@ -370,7 +363,14 @@ const ProviderServicesSection: React.FC<{ service: ServiceWithDetails }> = ({
                 <Typography variant="subtitle2" fontWeight="medium">
                   {otherService.name}
                 </Typography>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mt: 1,
+                  }}
+                >
                   <Typography variant="body2" color="text.secondary">
                     {formatCurrency(otherService.base_price)}
                   </Typography>
@@ -384,11 +384,7 @@ const ProviderServicesSection: React.FC<{ service: ServiceWithDetails }> = ({
             ))}
           </Box>
         ) : (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            fontStyle="italic"
-          >
+          <Typography variant="body2" color="text.secondary" fontStyle="italic">
             Aucun autre service trouvé pour ce prestataire
           </Typography>
         )}

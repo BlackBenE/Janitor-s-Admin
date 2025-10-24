@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/core/config/supabase";
-import { useAudit } from "@/shared/hooks/useAudit";
-import { Tables } from "@/types";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/core/config/supabase';
+import { useAudit } from '@/shared/hooks/useAudit';
+import { Tables } from '@/types';
 
 export interface SecurityAction {
-  type: "password_reset" | "force_logout" | "account_lock" | "account_unlock";
+  type: 'password_reset' | 'force_logout' | 'account_lock' | 'account_unlock';
   userId: string;
   reason?: string;
   duration?: number; // en minutes pour les blocages temporaires
 }
 
 // Utilise les types de la base de données - SUPPRESSION DE UserSession
-export type UserProfile = Tables<"profiles">;
+export type UserProfile = Tables<'profiles'>;
 
 export const useSecurityActions = () => {
   const [loading, setLoading] = useState(false);
@@ -22,17 +22,11 @@ export const useSecurityActions = () => {
   const testSupabaseAdminConfig = async () => false;
 
   // Récupère les informations utilisateur pour les actions de sécurité
-  const getUserProfile = async (
-    userId: string
-  ): Promise<UserProfile | null> => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+  const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
     if (error) {
-      console.error("Error fetching user profile:", error);
+      console.error('Error fetching user profile:', error);
       return null;
     }
 
@@ -48,19 +42,17 @@ export const useSecurityActions = () => {
       // Récupère les informations utilisateur
       const userProfile = await getUserProfile(userId);
       if (!userProfile) {
-        throw new Error("Utilisateur non trouvé");
+        throw new Error('Utilisateur non trouvé');
       }
 
       if (!userProfile.email) {
-        throw new Error("Aucune adresse email trouvée pour cet utilisateur");
+        throw new Error('Aucune adresse email trouvée pour cet utilisateur');
       }
 
       // Pas de vérification via auth admin côté client
 
       if (import.meta.env.DEV) {
-        console.log(
-          `Tentative d'envoi d'email de réinitialisation à: ${userProfile.email}`
-        );
+        console.log(`Tentative d'envoi d'email de réinitialisation à: ${userProfile.email}`);
       }
 
       // Fonction pour déterminer l'URL de redirection selon le rôle
@@ -72,52 +64,44 @@ export const useSecurityActions = () => {
       const redirectUrl = getRedirectUrl(userProfile.role);
 
       if (import.meta.env.DEV) {
-        console.log(
-          `URL de redirection pour ${userProfile.role}:`,
-          redirectUrl
-        );
+        console.log(`URL de redirection pour ${userProfile.role}:`, redirectUrl);
       }
 
       // Méthode 1: Utiliser resetPasswordForEmail (recommandé)
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-        userProfile.email,
-        {
-          redirectTo: redirectUrl,
-        }
-      );
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(userProfile.email, {
+        redirectTo: redirectUrl,
+      });
 
       if (resetError) {
         if (import.meta.env.DEV) {
-          console.error("Erreur avec resetPasswordForEmail:", resetError);
+          console.error('Erreur avec resetPasswordForEmail:', resetError);
         }
 
-        throw new Error(
-          `Erreur lors de l'envoi de l'email: ${resetError.message}`
-        );
+        throw new Error(`Erreur lors de l'envoi de l'email: ${resetError.message}`);
       }
 
       if (import.meta.env.DEV) {
-        console.log("Email de réinitialisation envoyé avec succès");
+        console.log('Email de réinitialisation envoyé avec succès');
       }
 
       // Log l'action dans l'audit
       await createAuditLog({
-        actionType: "password_reset",
+        actionType: 'password_reset',
         userId: userId,
         description: `Réinitialisation de mot de passe envoyée à ${userProfile.email}`,
-        actorType: "system",
+        actorType: 'system',
         metadata: { reason, email: userProfile.email },
       });
 
       return {
         success: true,
-        message: "Email de réinitialisation envoyé avec succès",
+        message: 'Email de réinitialisation envoyé avec succès',
         userId,
         email: userProfile.email,
         timestamp: new Date().toISOString(),
       };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
       throw err;
     } finally {
@@ -128,11 +112,7 @@ export const useSecurityActions = () => {
   // Force logout supprimé
 
   // Verrouille temporairement un compte avec invalidation de session
-  const lockAccount = async (
-    userId: string,
-    duration: number = 60,
-    reason?: string
-  ) => {
+  const lockAccount = async (userId: string, duration: number = 60, reason?: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -141,13 +121,13 @@ export const useSecurityActions = () => {
 
       // 1. D'abord verrouiller en base de données (comme avant)
       const { data: lockData, error: lockError } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({
           account_locked: true,
           locked_until: lockedUntil.toISOString(),
-          lock_reason: reason || "Verrouillage par un administrateur",
+          lock_reason: reason || 'Verrouillage par un administrateur',
         })
-        .eq("id", userId)
+        .eq('id', userId)
         .select();
 
       if (lockError) {
@@ -157,19 +137,21 @@ export const useSecurityActions = () => {
       // 2. Ensuite invalider les sessions via Edge Function
       let sessionInvalidated = false;
       try {
-        const { data: sessionData, error: sessionError } =
-          await supabase.functions.invoke("invalidate-user-session", {
+        const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
+          'invalidate-user-session',
+          {
             body: { userId },
-          });
+          }
+        );
 
         if (sessionError) {
-          console.error("Session invalidation failed:", sessionError);
+          console.error('Session invalidation failed:', sessionError);
         } else if (sessionData?.success) {
           sessionInvalidated = true;
-          console.log("Sessions invalidated successfully");
+          console.log('Sessions invalidated successfully');
         }
       } catch (sessionErr) {
-        console.error("Session invalidation error:", sessionErr);
+        console.error('Session invalidation error:', sessionErr);
         // On continue même si l'invalidation échoue, car l'utilisateur est déjà verrouillé
       }
 
@@ -178,12 +160,12 @@ export const useSecurityActions = () => {
 
       // Log l'action dans l'audit
       await createAuditLog({
-        actionType: "account_lock",
+        actionType: 'account_lock',
         userId: userId,
         description: `Compte verrouillé jusqu'à ${lockedUntil.toLocaleString()}${
-          userProfile ? ` pour ${userProfile.email}` : ""
-        } - Session invalidée: ${sessionInvalidated ? "Oui" : "Non"}`,
-        actorType: "system",
+          userProfile ? ` pour ${userProfile.email}` : ''
+        } - Session invalidée: ${sessionInvalidated ? 'Oui' : 'Non'}`,
+        actorType: 'system',
         metadata: {
           reason,
           duration,
@@ -195,9 +177,7 @@ export const useSecurityActions = () => {
       return {
         success: true,
         message: `Compte verrouillé pendant ${duration} minutes${
-          sessionInvalidated
-            ? " et sessions invalidées"
-            : " (échec invalidation session)"
+          sessionInvalidated ? ' et sessions invalidées' : ' (échec invalidation session)'
         }`,
         userId,
         lockedUntil: lockedUntil.toISOString(),
@@ -206,7 +186,7 @@ export const useSecurityActions = () => {
         timestamp: new Date().toISOString(),
       };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
       throw err;
     } finally {
@@ -221,7 +201,7 @@ export const useSecurityActions = () => {
       setError(null);
 
       // Appeler la Edge Function pour déverrouiller
-      const { data, error } = await supabase.functions.invoke("unlock-user", {
+      const { data, error } = await supabase.functions.invoke('unlock-user', {
         body: {
           userId,
         },
@@ -230,7 +210,7 @@ export const useSecurityActions = () => {
       if (error) throw error;
 
       if (!data.success) {
-        throw new Error(data.error || "Failed to unlock user account");
+        throw new Error(data.error || 'Failed to unlock user account');
       }
 
       // Récupère les informations utilisateur pour les logs
@@ -238,24 +218,22 @@ export const useSecurityActions = () => {
 
       // Log l'action dans l'audit (déjà fait côté Edge Function)
       await createAuditLog({
-        actionType: "account_unlock",
+        actionType: 'account_unlock',
         userId: userId,
-        description: `Compte déverrouillé${
-          userProfile ? ` pour ${userProfile.email}` : ""
-        }`,
-        actorType: "system",
+        description: `Compte déverrouillé${userProfile ? ` pour ${userProfile.email}` : ''}`,
+        actorType: 'system',
         metadata: { reason },
       });
 
       return {
         success: true,
-        message: "Compte déverrouillé avec succès",
+        message: 'Compte déverrouillé avec succès',
         userId,
         reason,
         timestamp: new Date().toISOString(),
       };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
       throw err;
     } finally {
@@ -284,10 +262,10 @@ export const useSecurityActions = () => {
         error: sessionError,
       } = await supabase.auth.getSession();
       if (sessionError) throw sessionError;
-      if (!session) throw new Error("No active session");
+      if (!session) throw new Error('No active session');
 
       // Appeler l'Edge Function avec le token JWT
-      const { data, error } = await supabase.functions.invoke("create-user", {
+      const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
           email: userData.email,
           role: userData.role,
@@ -302,24 +280,24 @@ export const useSecurityActions = () => {
 
       // Log l'action dans l'audit
       await createAuditLog({
-        actionType: "user_creation",
+        actionType: 'user_creation',
         userId: data.user.id,
         description: `Nouvel utilisateur créé : ${userData.email}`,
-        actorType: "system",
+        actorType: 'system',
         metadata: {
           email: userData.email,
           role: userData.role,
-          created_by: "admin_interface",
+          created_by: 'admin_interface',
         },
       });
 
       return {
         success: true,
         profile: data.profile,
-        message: "Utilisateur créé avec succès",
+        message: 'Utilisateur créé avec succès',
       };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
       throw err;
     } finally {
@@ -347,9 +325,7 @@ export const useSecurityActions = () => {
   };
 
   // Fonction pour traiter une liste d'utilisateurs et marquer les comptes expirés
-  const processUsersWithExpiredLocks = (
-    users: UserProfile[]
-  ): UserProfile[] => {
+  const processUsersWithExpiredLocks = (users: UserProfile[]): UserProfile[] => {
     return users.map((user) => {
       if (isAccountLockExpired(user)) {
         return {
@@ -369,10 +345,7 @@ export const useSecurityActions = () => {
     checkAndUnlockExpiredAccountsInDB();
 
     // Puis vérification toutes les 5 minutes
-    const interval = setInterval(
-      checkAndUnlockExpiredAccountsInDB,
-      5 * 60 * 1000
-    );
+    const interval = setInterval(checkAndUnlockExpiredAccountsInDB, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, []);

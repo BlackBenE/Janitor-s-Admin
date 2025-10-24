@@ -28,13 +28,13 @@
 export const calculateRevenue = (amount: number, paymentType: PaymentType): number => {
   switch (paymentType) {
     case 'booking':
-      return amount * FINANCIAL_CONSTANTS.COMMISSION_RATE;  // ✅ 20%
+      return amount * FINANCIAL_CONSTANTS.COMMISSION_RATE; // ✅ 20%
     case 'subscription':
-      return amount;  // ✅ 100%
+      return amount; // ✅ 100%
     case 'service':
     case 'other':
     default:
-      return amount * FINANCIAL_CONSTANTS.COMMISSION_RATE;  // ✅ 20%
+      return amount * FINANCIAL_CONSTANTS.COMMISSION_RATE; // ✅ 20%
   }
 };
 ```
@@ -49,8 +49,8 @@ export const calculateRevenue = (amount: number, paymentType: PaymentType): numb
 
 ```typescript
 export const FINANCIAL_CONSTANTS = {
-  COMMISSION_RATE: 0.2,           // ✅ 20%
-  ANNUAL_SUBSCRIPTION_FEE: 100,   // ✅ 100€
+  COMMISSION_RATE: 0.2, // ✅ 20%
+  ANNUAL_SUBSCRIPTION_FEE: 100, // ✅ 100€
 } as const;
 ```
 
@@ -68,7 +68,7 @@ const currentMonthlyRevenue =
   currentRevenues.data?.reduce((sum: number, payment: any) => {
     const amount = Number(payment.amount) || 0;
     const paymentType = payment.payment_type || 'other';
-    
+
     // ✅ Utilise le service de calcul centralisé
     return sum + calculateRevenue(amount, paymentType);
   }, 0) || 0;
@@ -87,21 +87,19 @@ const currentMonthlyRevenue =
 // Calcul du revenu total avec les règles de commission
 const totalRevenue = currentPeriodPayments.reduce((sum, p) => {
   const paymentType = (p.payment_type as any) || 'other';
-  return sum + calculateRevenue(p.amount, paymentType);  // ✅ Service centralisé
+  return sum + calculateRevenue(p.amount, paymentType); // ✅ Service centralisé
 }, 0);
 
 // Revenus du mois en cours
-const monthlyRevenue = payments
-  .filter(/* ... */)
-  .reduce((sum, p) => {
-    const paymentType = (p.payment_type as any) || 'other';
-    return sum + calculateRevenue(p.amount, paymentType);  // ✅ Service centralisé
-  }, 0);
+const monthlyRevenue = payments.filter(/* ... */).reduce((sum, p) => {
+  const paymentType = (p.payment_type as any) || 'other';
+  return sum + calculateRevenue(p.amount, paymentType); // ✅ Service centralisé
+}, 0);
 
 // Revenu de la période précédente
 const previousRevenue = previousPeriodPayments.reduce((sum, p) => {
   const paymentType = (p.payment_type as any) || 'other';
-  return sum + calculateRevenue(p.amount, paymentType);  // ✅ Service centralisé
+  return sum + calculateRevenue(p.amount, paymentType); // ✅ Service centralisé
 }, 0);
 ```
 
@@ -117,7 +115,7 @@ const previousRevenue = previousPeriodPayments.reduce((sum, p) => {
 ```typescript
 // Utilise le service centralisé pour les règles de calcul
 const paymentType = p.payment_type || 'other';
-const revenue = calculateRevenue(amount, paymentType as any);  // ✅ Service centralisé
+const revenue = calculateRevenue(amount, paymentType as any); // ✅ Service centralisé
 
 console.log(`📈 ${p.payment_type} revenue: ${revenue}€`);
 return sum + revenue;
@@ -131,6 +129,7 @@ return sum + revenue;
 ### 6. **Page Financial Overview** ✅ CONFORME
 
 **Fichiers** :
+
 - `src/features/financial-overview/FinancialOverviewPage.tsx`
 - `src/features/financial-overview/components/FinancialChartsSection.tsx`
 - `src/features/financial-overview/components/FinancialTransactionsTable.tsx`
@@ -138,6 +137,7 @@ return sum + revenue;
 - `src/features/financial-overview/hooks/useFinancialOverview.ts`
 
 **Mock Data** :
+
 ```typescript
 // ✅ Commission 20%
 { type: 'commission', amount: 300, description: 'Commission 20% sur location' }
@@ -156,20 +156,21 @@ return sum + revenue;
 
 ## 🎯 Résumé de Vérification
 
-| Composant | Conformité | Service Centralisé | Erreurs |
-|-----------|-----------|-------------------|---------|
-| **Service financialCalculations** | ✅ | N/A | ✅ 0 |
-| **Constantes FINANCIAL_CONSTANTS** | ✅ | N/A | ✅ 0 |
-| **Dashboard** | ✅ | ✅ Utilisé | ✅ 0 |
-| **Analytics** | ✅ | ✅ Utilisé | ✅ 0 |
-| **Payments** | ✅ | ✅ Utilisé | ✅ 0 |
-| **Financial Overview** | ✅ | N/A (Mock) | ✅ 0 |
+| Composant                          | Conformité | Service Centralisé | Erreurs |
+| ---------------------------------- | ---------- | ------------------ | ------- |
+| **Service financialCalculations**  | ✅         | N/A                | ✅ 0    |
+| **Constantes FINANCIAL_CONSTANTS** | ✅         | N/A                | ✅ 0    |
+| **Dashboard**                      | ✅         | ✅ Utilisé         | ✅ 0    |
+| **Analytics**                      | ✅         | ✅ Utilisé         | ✅ 0    |
+| **Payments**                       | ✅         | ✅ Utilisé         | ✅ 0    |
+| **Financial Overview**             | ✅         | N/A (Mock)         | ✅ 0    |
 
 ---
 
 ## ✅ Vérifications Effectuées
 
 ### Conformité des Règles
+
 - [x] Commission 20% appliquée sur les bookings
 - [x] Abonnements 100€ pris à 100%
 - [x] Service centralisé créé et documenté
@@ -177,6 +178,7 @@ return sum + revenue;
 - [x] Constantes définies et réutilisables
 
 ### Qualité du Code
+
 - [x] Aucune erreur de compilation
 - [x] Aucune erreur TypeScript
 - [x] Code bien documenté avec JSDoc
@@ -184,6 +186,7 @@ return sum + revenue;
 - [x] Cohérence dans tout le projet
 
 ### Cohérence
+
 - [x] Dashboard utilise le service centralisé
 - [x] Analytics utilise le service centralisé
 - [x] Payments utilise le service centralisé

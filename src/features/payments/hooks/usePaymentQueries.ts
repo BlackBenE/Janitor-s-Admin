@@ -5,35 +5,32 @@
  * Inspiré du pattern useUserQueries.ts de UserManagement
  */
 
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/core/config/supabase";
-import type { PaymentWithDetails } from "../../../types/payments";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/core/config/supabase';
+import type { PaymentWithDetails } from '../../../types/payments';
 import { calculateRevenue } from '@/core/services/financialCalculations.service';
 
 // Query keys pour la gestion du cache
 export const PAYMENT_QUERY_KEYS = {
-  all: ["payments"] as const,
-  lists: () => [...PAYMENT_QUERY_KEYS.all, "list"] as const,
+  all: ['payments'] as const,
+  lists: () => [...PAYMENT_QUERY_KEYS.all, 'list'] as const,
   list: (filters?: any) => [...PAYMENT_QUERY_KEYS.lists(), filters] as const,
-  details: () => [...PAYMENT_QUERY_KEYS.all, "detail"] as const,
+  details: () => [...PAYMENT_QUERY_KEYS.all, 'detail'] as const,
   detail: (id: string) => [...PAYMENT_QUERY_KEYS.details(), id] as const,
-  stats: () => [...PAYMENT_QUERY_KEYS.all, "stats"] as const,
+  stats: () => [...PAYMENT_QUERY_KEYS.all, 'stats'] as const,
 };
 
 /**
  * Hook pour récupérer un paiement par ID avec toutes ses relations
  */
-export const usePayment = (
-  paymentId?: string,
-  options?: { enabled?: boolean }
-) => {
+export const usePayment = (paymentId?: string, options?: { enabled?: boolean }) => {
   return useQuery({
-    queryKey: PAYMENT_QUERY_KEYS.detail(paymentId || ""),
+    queryKey: PAYMENT_QUERY_KEYS.detail(paymentId || ''),
     queryFn: async () => {
       if (!paymentId) return null;
 
       const { data, error } = await supabase
-        .from("payments")
+        .from('payments')
         .select(
           `
           *,
@@ -80,13 +77,11 @@ export const usePayment = (
           )
         `
         )
-        .eq("id", paymentId)
+        .eq('id', paymentId)
         .single();
 
-      if (error && error.code !== "PGRST116") {
-        throw new Error(
-          `Erreur lors de la récupération du paiement: ${error.message}`
-        );
+      if (error && error.code !== 'PGRST116') {
+        throw new Error(`Erreur lors de la récupération du paiement: ${error.message}`);
       }
 
       return data;
@@ -110,9 +105,9 @@ export const usePayments = (options?: {
   return useQuery({
     queryKey: PAYMENT_QUERY_KEYS.list(options?.filters),
     queryFn: async () => {
-      console.log("🔍 Fetching payments data from Supabase with relations...");
+      console.log('🔍 Fetching payments data from Supabase with relations...');
 
-      let query = supabase.from("payments").select(`
+      let query = supabase.from('payments').select(`
           *,
           payer:profiles!payments_payer_id_fkey (
             id,
@@ -160,7 +155,7 @@ export const usePayments = (options?: {
       // Appliquer les filtres si fournis
       if (options?.filters) {
         Object.entries(options.filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== "") {
+          if (value !== undefined && value !== null && value !== '') {
             query = query.eq(key, value);
           }
         });
@@ -170,7 +165,7 @@ export const usePayments = (options?: {
       if (options?.orderBy) {
         query = query.order(options.orderBy, { ascending: false });
       } else {
-        query = query.order("created_at", { ascending: false });
+        query = query.order('created_at', { ascending: false });
       }
 
       // Appliquer la limite
@@ -181,15 +176,13 @@ export const usePayments = (options?: {
       const { data, error } = await query;
 
       if (error) {
-        console.error("❌ Error fetching payments:", error);
-        throw new Error(
-          `Erreur lors de la récupération des paiements: ${error.message}`
-        );
+        console.error('❌ Error fetching payments:', error);
+        throw new Error(`Erreur lors de la récupération des paiements: ${error.message}`);
       }
 
-      console.log("🎯 Real payments loaded:", data?.length || 0);
+      console.log('🎯 Real payments loaded:', data?.length || 0);
       if (data && data.length > 0) {
-        console.log("📊 Sample payment data:", data[0]);
+        console.log('📊 Sample payment data:', data[0]);
       }
 
       return (data || []) as PaymentWithDetails[];
@@ -209,57 +202,50 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: PAYMENT_QUERY_KEYS.stats(),
     queryFn: async () => {
-      console.log("📊 Fetching payment statistics...");
+      console.log('📊 Fetching payment statistics...');
 
       // Récupérer les statistiques avec payment_type pour le calcul des revenus
       const { data: payments, error } = await supabase
-        .from("payments")
-        .select("id, amount, status, created_at, processed_at, payment_type");
+        .from('payments')
+        .select('id, amount, status, created_at, processed_at, payment_type');
 
       if (error) {
-        throw new Error(
-          `Erreur lors du calcul des statistiques: ${error.message}`
-        );
+        throw new Error(`Erreur lors du calcul des statistiques: ${error.message}`);
       }
 
       const paymentsArray = payments || [];
-      console.log("📊 Raw payments data:", paymentsArray);
+      console.log('📊 Raw payments data:', paymentsArray);
 
       // Calculer les stats avec la bonne logique
       const totalPayments = paymentsArray.length;
 
       // Paiements payés : "paid" ET "succeeded"
       const paidPayments = paymentsArray.filter(
-        (p) => p.status === "paid" || p.status === "succeeded"
+        (p) => p.status === 'paid' || p.status === 'succeeded'
       ).length;
 
       // En attente : tous sauf payés, remboursés, échoués
       const pendingPayments = paymentsArray.filter(
-        (p) =>
-          !["paid", "succeeded", "refunded", "failed"].includes(p.status || "")
+        (p) => !['paid', 'succeeded', 'refunded', 'failed'].includes(p.status || '')
       ).length;
 
-      const refundedPayments = paymentsArray.filter(
-        (p) => p.status === "refunded"
-      ).length;
+      const refundedPayments = paymentsArray.filter((p) => p.status === 'refunded').length;
 
-      const failedPayments = paymentsArray.filter(
-        (p) => p.status === "failed"
-      ).length;
+      const failedPayments = paymentsArray.filter((p) => p.status === 'failed').length;
 
       // Revenue du mois en cours avec logique métier
       const now = new Date();
       const paidThisMonth = paymentsArray
-        .filter((p) => p.status === "paid" || p.status === "succeeded")
+        .filter((p) => p.status === 'paid' || p.status === 'succeeded')
         .filter((p) => {
-          const createdDate = new Date(p.created_at || "");
+          const createdDate = new Date(p.created_at || '');
           return (
             createdDate.getMonth() === now.getMonth() &&
             createdDate.getFullYear() === now.getFullYear()
           );
         });
 
-      console.log("📊 Paiements payés ce mois:", paidThisMonth);
+      console.log('📊 Paiements payés ce mois:', paidThisMonth);
 
       const monthlyRevenue = paidThisMonth.reduce((sum, p) => {
         const amount = p.amount || 0;
@@ -274,7 +260,7 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
         // 20% pour les bookings, 100% pour les subscriptions
         const paymentType = p.payment_type || 'other';
         const revenue = calculateRevenue(amount, paymentType as any);
-        
+
         console.log(`📈 ${p.payment_type} revenue: ${revenue}€`);
         return sum + revenue;
       }, 0);
@@ -282,10 +268,7 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
       console.log(`📊 Revenue mensuel total: ${monthlyRevenue}€`);
 
       // Montant moyen
-      const totalAmount = paymentsArray.reduce(
-        (sum, p) => sum + (p.amount || 0),
-        0
-      );
+      const totalAmount = paymentsArray.reduce((sum, p) => sum + (p.amount || 0), 0);
       const averageAmount = totalPayments > 0 ? totalAmount / totalPayments : 0;
 
       const stats = {
@@ -299,8 +282,8 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
         totalAmount,
       };
 
-      console.log("📊 Calculated stats:", stats);
-      console.log("📊 Paid this month details:", paidThisMonth);
+      console.log('📊 Calculated stats:', stats);
+      console.log('📊 Paid this month details:', paidThisMonth);
 
       return stats;
     },

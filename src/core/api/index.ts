@@ -1,2 +1,2 @@
 // Core API exports
-// Export your API client configuration here
+export * from './data.provider';

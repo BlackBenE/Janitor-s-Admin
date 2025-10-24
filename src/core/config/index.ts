@@ -1,2 +1,4 @@
 // Core configuration exports
-// Export your app configuration here (env, settings, etc.)
+export * from './supabase';
+export * from './constants';
+export * from './labels';

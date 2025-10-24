@@ -20,24 +20,7 @@ import {
   useServiceRequestMutations,
   type ServiceRequestFilters,
 } from "../hooks";
-import { getStatusColor } from "../../../utils";
-
-const getStatusLabel = (status: string | null) => {
-  switch (status?.toLowerCase()) {
-    case "pending":
-      return "En attente";
-    case "accepted":
-      return "Acceptée";
-    case "rejected":
-      return "Rejetée";
-    case "completed":
-      return "Terminée";
-    case "cancelled":
-      return "Annulée";
-    default:
-      return status || "Inconnu";
-  }
-};
+import { getStatusColor, getStatusLabel } from "../../../utils/statusHelpers";
 
 export const ServiceRequestsSection: React.FC = () => {
   const [filters, setFilters] = useState<ServiceRequestFilters>({});
@@ -222,7 +205,7 @@ export const ServiceRequestsSection: React.FC = () => {
                       {request.service?.name || "Service inconnu"}
                     </Typography>
                     <Chip
-                      label={getStatusLabel(request.status)}
+                      label={getStatusLabel(request.status, "quote_request")}
                       color={getStatusColor(request.status, "quote_request")}
                       size="small"
                     />

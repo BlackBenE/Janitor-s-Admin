@@ -16,6 +16,7 @@ import {
 } from "@mui/icons-material";
 
 import { Property } from "../../../types";
+import { LABELS } from "../../../constants/labels";
 
 interface PropertyModerationActionsProps {
   property: Property;
@@ -93,14 +94,14 @@ export const PropertyModerationActions: React.FC<
       {/* Moderation Notes - Toujours visible */}
       <Box sx={{ p: 3, borderTop: 1, borderColor: "divider" }}>
         <Typography variant="h6" gutterBottom>
-          Moderation Notes
+          {LABELS.propertyApprovals.moderation.title}
         </Typography>
         <TextField
           fullWidth
           multiline
           rows={3}
           variant="outlined"
-          placeholder="Add notes for your decision (optional)..."
+          placeholder={LABELS.propertyApprovals.moderation.placeholder}
           value={moderationNotes}
           onChange={(e) => setModerationNotes(e.target.value)}
         />
@@ -116,7 +117,7 @@ export const PropertyModerationActions: React.FC<
             isUpdatePending
           }
         >
-          Close
+          {LABELS.propertyApprovals.moderation.actions.close}
         </Button>
 
         {isEditMode ? (
@@ -128,7 +129,7 @@ export const PropertyModerationActions: React.FC<
               onClick={onCancelEdit}
               disabled={isUpdatePending}
             >
-              Cancel
+              {LABELS.propertyApprovals.moderation.actions.cancel}
             </Button>
             <Button
               type="submit"
@@ -138,7 +139,9 @@ export const PropertyModerationActions: React.FC<
               startIcon={<SaveIcon />}
               disabled={isUpdatePending}
             >
-              {isUpdatePending ? "Saving..." : "Save Changes"}
+              {isUpdatePending
+                ? LABELS.propertyApprovals.moderation.actions.saving
+                : LABELS.propertyApprovals.moderation.actions.saveChanges}
             </Button>
           </Box>
         ) : (
@@ -154,7 +157,7 @@ export const PropertyModerationActions: React.FC<
                   isApprovePending || isRejectPending || isPendingPending
                 }
               >
-                Edit Property
+                {LABELS.propertyApprovals.moderation.actions.editProperty}
               </Button>
             )}
 
@@ -166,7 +169,9 @@ export const PropertyModerationActions: React.FC<
               onClick={handleReject}
               disabled={isRejectPending || isApprovePending || isPendingPending}
             >
-              {isRejectPending ? "Rejecting..." : "Reject"}
+              {isRejectPending
+                ? LABELS.propertyApprovals.moderation.actions.rejecting
+                : LABELS.propertyApprovals.moderation.actions.reject}
             </Button>
             <Button
               variant="contained"
@@ -175,7 +180,9 @@ export const PropertyModerationActions: React.FC<
               onClick={handleSetPending}
               disabled={isPendingPending || isApprovePending || isRejectPending}
             >
-              {isPendingPending ? "Setting Pending..." : "Set Pending"}
+              {isPendingPending
+                ? LABELS.propertyApprovals.moderation.actions.settingPending
+                : LABELS.propertyApprovals.moderation.actions.setPending}
             </Button>
             <Button
               variant="contained"
@@ -184,7 +191,9 @@ export const PropertyModerationActions: React.FC<
               onClick={handleApprove}
               disabled={isApprovePending || isRejectPending || isPendingPending}
             >
-              {isApprovePending ? "Approving..." : "Approve"}
+              {isApprovePending
+                ? LABELS.propertyApprovals.moderation.actions.approving
+                : LABELS.propertyApprovals.moderation.actions.approve}
             </Button>
           </Box>
         )}

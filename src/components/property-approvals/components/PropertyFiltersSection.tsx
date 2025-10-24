@@ -18,6 +18,7 @@ import {
   PropertyFilters,
   PropertyStatus,
 } from "../../../types/propertyApprovals";
+import { LABELS } from "../../../constants/labels";
 
 interface PropertyFiltersSectionProps {
   // Filters props
@@ -81,16 +82,20 @@ const PropertyBulkActions: React.FC<{
       }}
     >
       <Typography variant="body2" sx={{ fontWeight: 500 }}>
-        {selectedCount} propert{selectedCount === 1 ? "y" : "ies"} selected
+        {LABELS.propertyApprovals.bulk.selected.replace(
+          "{{count}}",
+          selectedCount.toString()
+        )}
       </Typography>
 
       <Divider orientation="vertical" flexItem />
 
       <Box sx={{ display: "flex", gap: 1 }}>
         <Tooltip
-          title={`Approve ${selectedCount} propert${
-            selectedCount === 1 ? "y" : "ies"
-          }`}
+          title={LABELS.propertyApprovals.bulk.tooltips.approve.replace(
+            "{{count}}",
+            selectedCount.toString()
+          )}
         >
           <Button
             variant="contained"
@@ -100,14 +105,15 @@ const PropertyBulkActions: React.FC<{
             onClick={onApproveSelected}
             disabled={isApprovePending}
           >
-            Approve All
+            {LABELS.propertyApprovals.bulk.actions.approveAll}
           </Button>
         </Tooltip>
 
         <Tooltip
-          title={`Set ${selectedCount} propert${
-            selectedCount === 1 ? "y" : "ies"
-          } to pending`}
+          title={LABELS.propertyApprovals.bulk.tooltips.setPending.replace(
+            "{{count}}",
+            selectedCount.toString()
+          )}
         >
           <Button
             variant="contained"
@@ -117,14 +123,15 @@ const PropertyBulkActions: React.FC<{
             onClick={onSetPendingSelected}
             disabled={isPendingPending}
           >
-            Set Pending
+            {LABELS.propertyApprovals.bulk.actions.setPending}
           </Button>
         </Tooltip>
 
         <Tooltip
-          title={`Reject ${selectedCount} propert${
-            selectedCount === 1 ? "y" : "ies"
-          }`}
+          title={LABELS.propertyApprovals.bulk.tooltips.reject.replace(
+            "{{count}}",
+            selectedCount.toString()
+          )}
         >
           <Button
             variant="contained"
@@ -134,18 +141,18 @@ const PropertyBulkActions: React.FC<{
             onClick={onRejectSelected}
             disabled={isRejectPending}
           >
-            Reject All
+            {LABELS.propertyApprovals.bulk.actions.rejectAll}
           </Button>
         </Tooltip>
 
-        <Tooltip title="Clear selection">
+        <Tooltip title={LABELS.propertyApprovals.bulk.tooltips.clear}>
           <Button
             variant="outlined"
             size="small"
             startIcon={<DeleteIcon />}
             onClick={onClearSelection}
           >
-            Clear
+            {LABELS.propertyApprovals.bulk.actions.clear}
           </Button>
         </Tooltip>
       </Box>
@@ -164,7 +171,7 @@ const PropertyFiltersComponent: React.FC<{
       filters={filters}
       onUpdateFilter={onUpdateFilter}
       searchConfig={{
-        placeholder: "Search properties...",
+        placeholder: LABELS.propertyApprovals.search.placeholder,
         minWidth: 200,
       }}
       filterConfigs={propertyFilterConfigs}
@@ -189,7 +196,7 @@ const PropertyTabsComponent: React.FC<{
       tabConfigs={propertyTabConfigs}
       onTabChange={onTabChange}
       getItemCount={getPropertyCount}
-      ariaLabel="property status filter"
+      ariaLabel={LABELS.propertyApprovals.search.ariaLabel}
     />
   );
 };

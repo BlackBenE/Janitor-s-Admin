@@ -125,8 +125,8 @@ export const PropertyTableSection: React.FC<PropertyTableSectionProps> = ({
       }}
     >
       {/* Section Title */}
-      <h3>All Properties</h3>
-      <p>Manage properties across all categories with specialized views</p>
+      <h3>{LABELS.propertyApprovals.table.title}</h3>
+      <p>{LABELS.propertyApprovals.table.subtitle}</p>
 
       {/* Filtres, onglets et actions combinés */}
       <PropertyFiltersSection
@@ -176,12 +176,12 @@ export const PropertyTableSection: React.FC<PropertyTableSectionProps> = ({
           }}
         >
           <Typography variant="h6" color="text.secondary">
-            No properties found
+            {LABELS.propertyApprovals.emptyState.title}
           </Typography>
           <Typography variant="body2" sx={{ mt: 1 }}>
             {filters.search || Object.values(filters).some((f) => f)
-              ? "No properties match your search criteria."
-              : "There are no properties in the system yet."}
+              ? LABELS.propertyApprovals.emptyState.noMatch
+              : LABELS.propertyApprovals.emptyState.noProperties}
           </Typography>
         </Box>
       )}

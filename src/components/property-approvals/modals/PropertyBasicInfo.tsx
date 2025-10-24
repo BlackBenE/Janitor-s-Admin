@@ -28,6 +28,7 @@ import {
 
 import { PropertyWithOwner } from "../../../types";
 import { LABELS } from "../../../constants/labels";
+import { getStatusLabel } from "../../../utils/statusHelpers";
 
 interface PropertyBasicInfoProps {
   property: PropertyWithOwner;
@@ -45,7 +46,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             variant="h6"
             sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
-            <InfoIcon /> Basic Information
+            <InfoIcon /> {LABELS.propertyApprovals.modals.sections.basicInfo}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -59,7 +60,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Property ID
+                  {LABELS.propertyApprovals.modals.fields.propertyId}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.id}
@@ -67,7 +68,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Title
+                  {LABELS.propertyApprovals.modals.fields.title}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.title || "N/A"}
@@ -76,10 +77,11 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             </Box>
             <Box>
               <Typography variant="subtitle2" color="text.secondary">
-                Description
+                {LABELS.propertyApprovals.modals.fields.description}
               </Typography>
               <Typography variant="body1" gutterBottom>
-                {property?.description || "No description provided"}
+                {property?.description ||
+                  LABELS.propertyApprovals.modals.placeholders.noDescription}
               </Typography>
             </Box>
             <Box
@@ -91,7 +93,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Nightly Rate
+                  {LABELS.propertyApprovals.modals.fields.nightlyRate}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.nightly_rate ? `€${property.nightly_rate}` : "N/A"}
@@ -99,10 +101,12 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Maximum Capacity
+                  {LABELS.propertyApprovals.modals.fields.maxCapacity}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  {property?.capacity ? `${property.capacity} guests` : "N/A"}
+                  {property?.capacity
+                    ? `${property.capacity} ${LABELS.propertyApprovals.modals.units.guests}`
+                    : "N/A"}
                 </Typography>
               </Box>
             </Box>
@@ -115,17 +119,17 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Images Count
+                  {LABELS.propertyApprovals.modals.fields.imagesCount}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.images && property.images.length > 0
-                    ? `${property.images.length} image(s)`
-                    : "No images uploaded"}
+                    ? `${property.images.length} ${LABELS.propertyApprovals.modals.units.images}`
+                    : LABELS.propertyApprovals.modals.placeholders.noImages}
                 </Typography>
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Owner ID
+                  {LABELS.propertyApprovals.modals.fields.ownerId}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -149,7 +153,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Bedrooms
+                  {LABELS.propertyApprovals.modals.fields.bedrooms}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.bedrooms !== null ? property.bedrooms : "N/A"}
@@ -157,7 +161,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Bathrooms
+                  {LABELS.propertyApprovals.modals.fields.bathrooms}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.bathrooms !== null ? property.bathrooms : "N/A"}
@@ -173,7 +177,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Created Date
+                  {LABELS.propertyApprovals.modals.fields.createdDate}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.created_at
@@ -183,7 +187,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Last Updated
+                  {LABELS.propertyApprovals.modals.fields.lastUpdated}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.updated_at
@@ -203,7 +207,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             variant="h6"
             sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
-            <LocationIcon /> Location
+            <LocationIcon /> {LABELS.propertyApprovals.modals.sections.location}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -217,7 +221,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Address
+                  {LABELS.propertyApprovals.modals.fields.address}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.address || LABELS.common.messages.noAddress}
@@ -225,7 +229,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  City
+                  {LABELS.propertyApprovals.modals.fields.city}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.city || "N/A"}
@@ -242,7 +246,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
               {/* Country field supprimé - n'existe pas dans le schéma Supabase */}
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Postal Code
+                  {LABELS.propertyApprovals.modals.fields.postalCode}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.postal_code || "N/A"}
@@ -260,14 +264,14 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             variant="h6"
             sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
-            <StarIcon /> Amenities & Features
+            <StarIcon /> {LABELS.propertyApprovals.modals.sections.amenities}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack spacing={2}>
             <Box>
               <Typography variant="subtitle2" color="text.secondary">
-                Available Amenities
+                {LABELS.propertyApprovals.modals.fields.availableAmenities}
               </Typography>
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
                 {property?.amenities && property.amenities.length > 0 ? (
@@ -282,7 +286,10 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                   ))
                 ) : (
                   <Typography variant="body2" color="text.secondary">
-                    No amenities listed
+                    {
+                      LABELS.propertyApprovals.modals.placeholders
+                        .noAmenitiesListed
+                    }
                   </Typography>
                 )}
               </Box>
@@ -298,7 +305,8 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             variant="h6"
             sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
-            <VerifiedIcon /> Validation Status
+            <VerifiedIcon />{" "}
+            {LABELS.propertyApprovals.modals.sections.validation}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -312,7 +320,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Status
+                  {LABELS.propertyApprovals.modals.fields.status}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Typography
@@ -337,18 +345,18 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                       textTransform: "capitalize",
                     }}
                   >
-                    {property?.validation_status || "Pending"}
+                    {getStatusLabel(property?.validation_status, "property")}
                   </Typography>
                 </Box>
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Validated Date
+                  {LABELS.propertyApprovals.modals.fields.validatedDate}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.validated_at
                     ? new Date(property.validated_at).toLocaleDateString()
-                    : "Not validated"}
+                    : LABELS.propertyApprovals.modals.placeholders.notValidated}
                 </Typography>
               </Box>
             </Box>
@@ -356,12 +364,12 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             {property?.validator && (
               <Box>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Validated By
+                  {LABELS.propertyApprovals.modals.fields.validatedBy}
                 </Typography>
                 <Typography variant="body1">
                   {`${property.validator.first_name || ""} ${
                     property.validator.last_name || ""
-                  }`.trim() || "Unknown Admin"}
+                  }`.trim() || LABELS.propertyApprovals.modals.unknownAdmin}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {property.validator.email}
@@ -372,7 +380,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             {property?.moderation_notes && (
               <Box>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Moderation Notes
+                  {LABELS.propertyApprovals.modals.fields.moderationNotes}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -400,7 +408,8 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             variant="h6"
             sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
-            <CalendarIcon /> Availability Calendar
+            <CalendarIcon />{" "}
+            {LABELS.propertyApprovals.modals.sections.availability}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -417,7 +426,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                 if (!Array.isArray(calendarData) || calendarData.length === 0) {
                   return (
                     <Typography variant="body2" color="text.secondary">
-                      No availability periods configured
+                      {LABELS.propertyApprovals.modals.calendar.noPeriods}
                     </Typography>
                   );
                 }
@@ -425,7 +434,10 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                 return (
                   <Stack spacing={2}>
                     <Typography variant="body2" color="text.secondary">
-                      {calendarData.length} availability period(s) configured
+                      {LABELS.propertyApprovals.modals.calendar.periodsConfigured.replace(
+                        "{{count}}",
+                        calendarData.length.toString()
+                      )}
                     </Typography>
 
                     <TableContainer component={Paper} variant="outlined">
@@ -433,13 +445,28 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                         <TableHead>
                           <TableRow>
                             <TableCell>
-                              <strong>Period</strong>
+                              <strong>
+                                {
+                                  LABELS.propertyApprovals.modals.calendar
+                                    .period
+                                }
+                              </strong>
                             </TableCell>
                             <TableCell>
-                              <strong>Status</strong>
+                              <strong>
+                                {
+                                  LABELS.propertyApprovals.modals.calendar
+                                    .status
+                                }
+                              </strong>
                             </TableCell>
                             <TableCell>
-                              <strong>Reason</strong>
+                              <strong>
+                                {
+                                  LABELS.propertyApprovals.modals.calendar
+                                    .reason
+                                }
+                              </strong>
                             </TableCell>
                           </TableRow>
                         </TableHead>
@@ -464,8 +491,10 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                                     size="small"
                                     label={
                                       period.available
-                                        ? "Available"
-                                        : "Unavailable"
+                                        ? LABELS.propertyApprovals.modals
+                                            .calendar.available
+                                        : LABELS.propertyApprovals.modals
+                                            .calendar.unavailable
                                     }
                                     color={
                                       period.available ? "success" : "error"
@@ -478,7 +507,9 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                                     variant="body2"
                                     color="text.secondary"
                                   >
-                                    {period.reason || "No reason provided"}
+                                    {period.reason ||
+                                      LABELS.propertyApprovals.modals.calendar
+                                        .noReason}
                                   </Typography>
                                 </TableCell>
                               </TableRow>
@@ -493,10 +524,10 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                 return (
                   <Stack spacing={1}>
                     <Typography variant="body2" color="error">
-                      Error parsing calendar data
+                      {LABELS.propertyApprovals.modals.calendar.parseError}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Raw data:{" "}
+                      {LABELS.propertyApprovals.modals.calendar.rawData}{" "}
                       {JSON.stringify(property.availability_calendar).substring(
                         0,
                         100
@@ -509,7 +540,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             })()
           ) : (
             <Typography variant="body2" color="text.secondary">
-              No availability calendar configured
+              {LABELS.propertyApprovals.modals.calendar.noCalendar}
             </Typography>
           )}
         </AccordionDetails>

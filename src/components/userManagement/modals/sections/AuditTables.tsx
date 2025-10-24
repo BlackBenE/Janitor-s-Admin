@@ -11,6 +11,10 @@ import {
   Typography,
 } from "@mui/material";
 import { formatDate, getActionColor } from "../utils/auditUtils";
+import {
+  getStatusLabel,
+  getStatusColor,
+} from "../../../../utils/statusHelpers";
 
 interface AdminActionsTableProps {
   auditLogs: any[];
@@ -124,17 +128,9 @@ export const UserActionsTable: React.FC<UserActionsTableProps> = ({
               <TableCell>{formatDate(action.created_at)}</TableCell>
               <TableCell>
                 <Chip
-                  label={action.status || "N/A"}
+                  label={getStatusLabel(action.status, "service")}
                   size="small"
-                  color={
-                    action.status === "completed"
-                      ? "success"
-                      : action.status === "pending"
-                      ? "warning"
-                      : action.status === "failed"
-                      ? "error"
-                      : "default"
-                  }
+                  color={getStatusColor(action.status, "service")}
                 />
               </TableCell>
               <TableCell>{action.metadata || "N/A"}</TableCell>

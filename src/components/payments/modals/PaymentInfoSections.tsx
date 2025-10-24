@@ -17,6 +17,10 @@ import {
 } from "@mui/icons-material";
 import { PaymentWithDetails } from "../../../types/payments";
 import { formatCurrency, formatDate } from "../../../utils";
+import {
+  getPaymentStatusLabel,
+  getPaymentStatusColor,
+} from "../../../utils/statusHelpers";
 
 interface PaymentInfoSectionsProps {
   payment: PaymentWithDetails;
@@ -53,22 +57,8 @@ export const PaymentInfoSections: React.FC<PaymentInfoSectionsProps> = ({
                   Statut
                 </Typography>
                 <Chip
-                  label={
-                    payment.status === "paid"
-                      ? "Payé"
-                      : payment.status === "pending"
-                      ? "En attente"
-                      : payment.status === "refunded"
-                      ? "Remboursé"
-                      : payment.status || "Statut inconnu"
-                  }
-                  color={
-                    payment.status === "paid"
-                      ? "success"
-                      : payment.status === "pending"
-                      ? "warning"
-                      : "error"
-                  }
+                  label={getPaymentStatusLabel(payment.status)}
+                  color={getPaymentStatusColor(payment.status)}
                   size="small"
                 />
               </Box>

@@ -2,6 +2,10 @@ import React from "react";
 import { Box, Typography, Divider, Paper, Chip } from "@mui/material";
 import { PaymentWithDetails } from "../../../types/payments";
 import { PaymentPdfService } from "../services/pdfService";
+import {
+  getPaymentStatusLabel,
+  getPaymentStatusColor,
+} from "../../../utils/statusHelpers";
 
 interface PaymentInvoicePdfProps {
   payment: PaymentWithDetails;
@@ -255,29 +259,9 @@ export const PaymentInvoicePdf: React.FC<PaymentInvoicePdfProps> = ({
           Statut du paiement
         </Typography>
         <Chip
-          label={
-            payment.status === "paid"
-              ? "Payé"
-              : payment.status === "pending"
-              ? "En attente"
-              : payment.status === "failed"
-              ? "Échoué"
-              : payment.status === "refunded"
-              ? "Remboursé"
-              : payment.status
-          }
-          color={
-            payment.status === "paid"
-              ? "success"
-              : payment.status === "pending"
-              ? "warning"
-              : payment.status === "failed"
-              ? "error"
-              : payment.status === "refunded"
-              ? "info"
-              : "default"
-          }
-          sx={{ fontWeight: "medium" }}
+          label={getPaymentStatusLabel(payment.status)}
+          color={getPaymentStatusColor(payment.status)}
+          sx={{ fontSize: "1rem", padding: "12px 24px", fontWeight: "bold" }}
         />
       </Box>
 

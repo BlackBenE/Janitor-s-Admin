@@ -13,6 +13,8 @@ import {
 } from "@mui/icons-material";
 
 import { PropertyWithOwner } from "../../../../types";
+import { LABELS } from "../../../../constants/labels";
+import { getStatusLabel } from "../../../../utils/statusHelpers";
 
 interface PropertyGeneralInfoProps {
   property: PropertyWithOwner;
@@ -28,7 +30,7 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({
           variant="h6"
           sx={{ display: "flex", alignItems: "center", gap: 1 }}
         >
-          <InfoIcon /> Basic Information
+          <InfoIcon /> {LABELS.propertyApprovals.modals.sections.basicInfo}
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
@@ -42,15 +44,16 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Property Title
+                {LABELS.propertyApprovals.modals.fields.propertyTitle}
               </Typography>
               <Typography variant="body1" gutterBottom>
-                {property?.title || "No title provided"}
+                {property?.title ||
+                  LABELS.propertyApprovals.modals.placeholders.noTitle}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                City
+                {LABELS.propertyApprovals.modals.fields.city}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 {property?.city || "N/A"}
@@ -60,10 +63,11 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({
 
           <Box>
             <Typography variant="subtitle2" color="text.secondary">
-              Description
+              {LABELS.propertyApprovals.modals.fields.description}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              {property?.description || "No description provided"}
+              {property?.description ||
+                LABELS.propertyApprovals.modals.placeholders.noDescription}
             </Typography>
           </Box>
 
@@ -76,20 +80,22 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Nightly Rate
+                {LABELS.propertyApprovals.modals.fields.nightlyRate}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 {property?.nightly_rate
-                  ? `$${property.nightly_rate}/night`
-                  : "Price not set"}
+                  ? `$${property.nightly_rate}${LABELS.propertyApprovals.modals.units.perNight}`
+                  : LABELS.propertyApprovals.modals.placeholders.priceNotSet}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Maximum Capacity
+                {LABELS.propertyApprovals.modals.fields.maxCapacity}
               </Typography>
               <Typography variant="body1" gutterBottom>
-                {property?.capacity ? `${property.capacity} guests` : "N/A"}
+                {property?.capacity
+                  ? `${property.capacity} ${LABELS.propertyApprovals.modals.units.guests}`
+                  : "N/A"}
               </Typography>
             </Box>
           </Box>
@@ -103,17 +109,17 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Images Count
+                {LABELS.propertyApprovals.modals.fields.imagesCount}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 {property?.images && property.images.length > 0
-                  ? `${property.images.length} image(s)`
-                  : "No images uploaded"}
+                  ? `${property.images.length} ${LABELS.propertyApprovals.modals.units.images}`
+                  : LABELS.propertyApprovals.modals.placeholders.noImages}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Owner ID
+                {LABELS.propertyApprovals.modals.fields.ownerId}
               </Typography>
               <Typography
                 variant="body2"
@@ -138,7 +144,7 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Created At
+                {LABELS.propertyApprovals.modals.fields.createdAt}
               </Typography>
               <Typography variant="body2" gutterBottom>
                 {property?.created_at
@@ -148,7 +154,7 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Updated At
+                {LABELS.propertyApprovals.modals.fields.updatedAt}
               </Typography>
               <Typography variant="body2" gutterBottom>
                 {property?.updated_at
@@ -167,7 +173,7 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Validation Status
+                {LABELS.propertyApprovals.modals.fields.validationStatus}
               </Typography>
               <Typography
                 variant="body1"
@@ -184,25 +190,27 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({
                   fontWeight: 500,
                 }}
               >
-                {property?.validation_status || "N/A"}
+                {getStatusLabel(property?.validation_status, "property")}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Validated By
+                {LABELS.propertyApprovals.modals.fields.validatedBy}
               </Typography>
               <Typography variant="body2" gutterBottom>
-                {property?.validated_by || "Not validated"}
+                {property?.validated_by ||
+                  LABELS.propertyApprovals.modals.placeholders.notValidated}
               </Typography>
             </Box>
           </Box>
 
           <Box>
             <Typography variant="subtitle2" color="text.secondary">
-              Moderation Notes
+              {LABELS.propertyApprovals.modals.fields.moderationNotes}
             </Typography>
             <Typography variant="body2" gutterBottom>
-              {property?.moderation_notes || "No moderation notes"}
+              {property?.moderation_notes ||
+                LABELS.propertyApprovals.modals.placeholders.noModerationNotes}
             </Typography>
           </Box>
         </Stack>

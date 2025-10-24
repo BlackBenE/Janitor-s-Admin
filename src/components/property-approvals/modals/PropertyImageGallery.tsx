@@ -18,6 +18,7 @@ import {
 import { Property } from "../../../types";
 import { ImageViewerModal } from "../components/ImageViewerModal";
 import { hasExpiredTokens, refreshImageUrls } from "../utils/imageUtils";
+import { LABELS } from "../../../constants/labels";
 
 interface PropertyImageGalleryProps {
   property: Property;
@@ -74,7 +75,7 @@ export const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
       <Card sx={{ p: 3, textAlign: "center" }}>
         <ImageIcon sx={{ fontSize: 48, color: "text.secondary", mb: 2 }} />
         <Typography variant="body1" color="text.secondary">
-          Aucune image disponible pour cette propriété
+          {LABELS.propertyApprovals.messages.noImagesAvailable}
         </Typography>
       </Card>
     );
@@ -84,7 +85,9 @@ export const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
     <Box>
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6">Images ({images.length})</Typography>
+          <Typography variant="h6">
+            {LABELS.propertyApprovals.table.headers.images} ({images.length})
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Box

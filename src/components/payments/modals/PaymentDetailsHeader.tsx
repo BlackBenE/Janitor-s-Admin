@@ -8,6 +8,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { formatCurrency, getPaymentStatusColor } from "../../../utils";
+import { getPaymentStatusLabel } from "../../../utils/statusHelpers";
 
 // Types
 import {
@@ -75,17 +76,7 @@ export const PaymentDetailsHeader: React.FC<PaymentDetailsHeaderProps> = ({
 
             <Chip
               icon={getStatusIcon(payment.status || "pending") || undefined}
-              label={
-                payment.status === "paid"
-                  ? "Payé"
-                  : payment.status === "pending"
-                  ? "En attente"
-                  : payment.status === "refunded"
-                  ? "Remboursé"
-                  : payment.status === "failed"
-                  ? "Échoué"
-                  : payment.status || "Statut inconnu"
-              }
+              label={getPaymentStatusLabel(payment.status)}
               color={getPaymentStatusColor(payment.status || "pending")}
               size="small"
               variant="outlined"

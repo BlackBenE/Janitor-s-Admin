@@ -20,6 +20,7 @@ import {
 } from "@mui/icons-material";
 
 import { Property } from "../../../types";
+import { LABELS } from "../../../constants/labels";
 
 interface PropertyEditFormProps {
   property: Property;
@@ -106,7 +107,7 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
             variant="h6"
             sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
-            <EditIcon /> Edit Property Information
+            <EditIcon /> {LABELS.propertyApprovals.edit.titles.propertyInfo}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -114,12 +115,12 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
             {/* Title */}
             <TextField
               fullWidth
-              label="Property Title"
+              label={LABELS.propertyApprovals.edit.fields.propertyTitle}
               value={formData.title}
               onChange={handleInputChange("title")}
               required
               disabled={isLoading}
-              helperText="Clear, descriptive title without excessive capitalization"
+              helperText={LABELS.propertyApprovals.edit.helpers.title}
             />
 
             {/* Description */}
@@ -127,11 +128,11 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
               fullWidth
               multiline
               rows={4}
-              label="Description"
+              label={LABELS.propertyApprovals.edit.fields.description}
               value={formData.description}
               onChange={handleInputChange("description")}
               disabled={isLoading}
-              helperText="Accurate description without contact information or external links"
+              helperText={LABELS.propertyApprovals.edit.helpers.description}
             />
 
             {/* Pricing and Capacity */}
@@ -144,25 +145,25 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
             >
               <TextField
                 sx={{ flex: 1 }}
-                label="Nightly Rate (€)"
+                label={LABELS.propertyApprovals.edit.fields.nightlyRate}
                 type="number"
                 value={formData.nightly_rate}
                 onChange={handleInputChange("nightly_rate")}
                 required
                 disabled={isLoading}
                 inputProps={{ min: 0, step: 0.01 }}
-                helperText="Market-appropriate pricing"
+                helperText={LABELS.propertyApprovals.edit.helpers.pricing}
               />
               <TextField
                 sx={{ flex: 1 }}
-                label="Maximum Capacity"
+                label={LABELS.propertyApprovals.edit.fields.maxCapacity}
                 type="number"
                 value={formData.capacity}
                 onChange={handleInputChange("capacity")}
                 required
                 disabled={isLoading}
                 inputProps={{ min: 1, max: 20 }}
-                helperText="Safe occupancy limit"
+                helperText={LABELS.propertyApprovals.edit.helpers.capacity}
               />
             </Box>
 
@@ -176,23 +177,23 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
             >
               <TextField
                 sx={{ flex: 1 }}
-                label="Bedrooms"
+                label={LABELS.propertyApprovals.edit.fields.bedrooms}
                 type="number"
                 value={formData.bedrooms}
                 onChange={handleInputChange("bedrooms")}
                 disabled={isLoading}
                 inputProps={{ min: 0, max: 20 }}
-                helperText="Actual bedrooms with privacy"
+                helperText={LABELS.propertyApprovals.edit.helpers.bedrooms}
               />
               <TextField
                 sx={{ flex: 1 }}
-                label="Bathrooms"
+                label={LABELS.propertyApprovals.edit.fields.bathrooms}
                 type="number"
                 value={formData.bathrooms}
                 onChange={handleInputChange("bathrooms")}
                 disabled={isLoading}
                 inputProps={{ min: 0, max: 20, step: 0.5 }}
-                helperText="Use 0.5 for half baths"
+                helperText={LABELS.propertyApprovals.edit.helpers.bathrooms}
               />
             </Box>
           </Stack>
@@ -206,7 +207,7 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
             variant="h6"
             sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
-            <LocationIcon /> Edit Location
+            <LocationIcon /> {LABELS.propertyApprovals.edit.titles.location}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -214,12 +215,12 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
             {/* Address */}
             <TextField
               fullWidth
-              label="Address"
+              label={LABELS.propertyApprovals.edit.fields.address}
               value={formData.address}
               onChange={handleInputChange("address")}
               required
               disabled={isLoading}
-              helperText="General address (avoid specific unit numbers for privacy)"
+              helperText={LABELS.propertyApprovals.edit.helpers.address}
             />
 
             {/* City and Postal Code */}
@@ -232,20 +233,20 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
             >
               <TextField
                 sx={{ flex: 2 }}
-                label="City"
+                label={LABELS.propertyApprovals.edit.fields.city}
                 value={formData.city}
                 onChange={handleInputChange("city")}
                 required
                 disabled={isLoading}
-                helperText="Standardized city name"
+                helperText={LABELS.propertyApprovals.edit.helpers.city}
               />
               <TextField
                 sx={{ flex: 1 }}
-                label="Postal Code"
+                label={LABELS.propertyApprovals.edit.fields.postalCode}
                 value={formData.postal_code}
                 onChange={handleInputChange("postal_code")}
                 disabled={isLoading}
-                helperText="Correct format for country"
+                helperText={LABELS.propertyApprovals.edit.helpers.postalCode}
               />
             </Box>
           </Stack>
@@ -255,7 +256,9 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
       {/* Amenities - Editable */}
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6">Edit Amenities</Typography>
+          <Typography variant="h6">
+            {LABELS.propertyApprovals.edit.titles.amenities}
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack spacing={2}>
@@ -263,7 +266,7 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
             <Box sx={{ display: "flex", gap: 1 }}>
               <TextField
                 size="small"
-                label="Add amenity"
+                label={LABELS.propertyApprovals.edit.fields.addAmenity}
                 value={newAmenity}
                 onChange={(e) => setNewAmenity(e.target.value)}
                 disabled={isLoading}
@@ -304,7 +307,7 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
               ))}
               {formData.amenities.length === 0 && (
                 <Typography variant="body2" color="text.secondary">
-                  No amenities listed
+                  {LABELS.propertyApprovals.edit.messages.noAmenities}
                 </Typography>
               )}
             </Box>
@@ -315,19 +318,21 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
       {/* Moderation Notes */}
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6">Admin Notes</Typography>
+          <Typography variant="h6">
+            {LABELS.propertyApprovals.edit.titles.adminNotes}
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <TextField
             fullWidth
             multiline
             rows={3}
-            label="Moderation Notes"
+            label={LABELS.propertyApprovals.edit.fields.moderationNotes}
             value={formData.moderation_notes}
             onChange={handleInputChange("moderation_notes")}
             disabled={isLoading}
-            placeholder="Document changes made and reasons..."
-            helperText="Internal notes about modifications and communications"
+            placeholder={LABELS.propertyApprovals.edit.helpers.moderationNotes}
+            helperText={LABELS.propertyApprovals.edit.helpers.internalNotes}
           />
         </AccordionDetails>
       </Accordion>

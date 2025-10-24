@@ -625,6 +625,9 @@ export const LABELS = {
       "Réviser et modérer les annonces immobilières soumises par les propriétaires.",
 
     table: {
+      title: "Toutes les propriétés",
+      subtitle:
+        "Gérer les propriétés de toutes catégories avec des vues spécialisées",
       headers: {
         property: "Propriété",
         owner: "Propriétaire",
@@ -634,6 +637,13 @@ export const LABELS = {
         images: "Images",
         createdAt: "Créé le",
         actions: "Actions",
+      },
+      unknownProperty: "Propriété inconnue",
+      untitled: "Sans titre",
+      status: {
+        approved: "Approuvé",
+        rejected: "Rejeté",
+        pending: "En attente",
       },
     },
 
@@ -660,12 +670,44 @@ export const LABELS = {
       edit: "Modifier",
       export: "Exporter vers CSV",
       addProperty: "Ajouter une propriété",
+      deleteProperty: "Supprimer la propriété",
+      viewDetails: "Voir les détails",
+      moreActions: "Plus d'actions",
+    },
+
+    bulk: {
+      selected: "{{count}} propriété(s) sélectionnée(s)",
+      tooltips: {
+        approve: "Approuver {{count}} propriété(s)",
+        setPending: "Mettre {{count}} propriété(s) en attente",
+        reject: "Rejeter {{count}} propriété(s)",
+        clear: "Effacer la sélection",
+      },
+      actions: {
+        approveAll: "Tout approuver",
+        setPending: "Mettre en attente",
+        rejectAll: "Tout rejeter",
+        clear: "Effacer",
+      },
+    },
+
+    search: {
+      placeholder: "Rechercher des propriétés...",
+      ariaLabel: "filtre de statut des propriétés",
+    },
+
+    emptyState: {
+      title: "Aucune propriété trouvée",
+      noMatch: "Aucune propriété ne correspond à vos critères de recherche.",
+      noProperties: "Il n'y a pas encore de propriétés dans le système.",
     },
 
     modals: {
+      title: "Détails de la propriété",
       ownerInfo: "Informations propriétaire",
       ownerName: "Nom du propriétaire",
       unknownOwner: "Propriétaire inconnu",
+      unknownAdmin: "Administrateur inconnu",
       noEmail: "Pas d'email",
       ownerId: "ID Propriétaire",
       basicInfo: "Informations de base",
@@ -673,6 +715,124 @@ export const LABELS = {
       rules: "Règles",
       availability: "Disponibilité",
       moderationNotes: "Notes de modération",
+      sections: {
+        basicInfo: "Informations de base",
+        location: "Localisation",
+        amenities: "Équipements et fonctionnalités",
+        validation: "Statut de validation",
+        availability: "Calendrier de disponibilité",
+      },
+      fields: {
+        propertyId: "ID de la propriété",
+        propertyTitle: "Titre de la propriété",
+        title: "Titre",
+        city: "Ville",
+        description: "Description",
+        nightlyRate: "Tarif par nuit",
+        maxCapacity: "Capacité maximale",
+        imagesCount: "Nombre d'images",
+        ownerId: "ID du propriétaire",
+        createdAt: "Créé le",
+        createdDate: "Date de création",
+        updatedAt: "Mis à jour le",
+        lastUpdated: "Dernière mise à jour",
+        validationStatus: "Statut de validation",
+        validatedBy: "Validé par",
+        validatedDate: "Date de validation",
+        moderationNotes: "Notes de modération",
+        bedrooms: "Chambres",
+        bathrooms: "Salles de bain",
+        address: "Adresse",
+        postalCode: "Code postal",
+        availableAmenities: "Équipements disponibles",
+        status: "Statut",
+      },
+      placeholders: {
+        noTitle: "Aucun titre fourni",
+        noDescription: "Aucune description fournie",
+        priceNotSet: "Prix non défini",
+        noImages: "Aucune image téléchargée",
+        notValidated: "Non validé",
+        noModerationNotes: "Aucune note de modération",
+        noAmenitiesListed: "Aucun équipement listé",
+      },
+      units: {
+        perNight: "/nuit",
+        guests: "invités",
+        images: "image(s)",
+      },
+      calendar: {
+        noPeriods: "Aucune période de disponibilité configurée",
+        periodsConfigured:
+          "{{count}} période(s) de disponibilité configurée(s)",
+        period: "Période",
+        status: "Statut",
+        reason: "Raison",
+        available: "Disponible",
+        unavailable: "Indisponible",
+        noReason: "Aucune raison fournie",
+        parseError: "Erreur lors de l'analyse des données du calendrier",
+        rawData: "Données brutes :",
+        noCalendar: "Aucun calendrier de disponibilité configuré",
+      },
+    },
+
+    edit: {
+      titles: {
+        propertyInfo: "Modifier les informations de la propriété",
+        location: "Modifier l'emplacement",
+        amenities: "Modifier les équipements",
+        adminNotes: "Notes d'administration",
+      },
+      fields: {
+        propertyTitle: "Titre de la propriété",
+        description: "Description",
+        nightlyRate: "Tarif par nuit (€)",
+        maxCapacity: "Capacité maximale",
+        bedrooms: "Chambres",
+        bathrooms: "Salles de bain",
+        address: "Adresse",
+        city: "Ville",
+        postalCode: "Code postal",
+        addAmenity: "Ajouter un équipement",
+        moderationNotes: "Notes de modération",
+      },
+      helpers: {
+        title: "Titre clair et descriptif sans majuscules excessives",
+        description: "Description précise sans coordonnées ni liens externes",
+        pricing: "Tarification adaptée au marché",
+        capacity: "Limite d'occupation sécurisée",
+        bedrooms: "Chambres réelles avec intimité",
+        bathrooms: "Utiliser 0,5 pour les demi-salles de bain",
+        address:
+          "Adresse générale (éviter les numéros d'unité spécifiques pour la confidentialité)",
+        city: "Nom de ville standardisé",
+        postalCode: "Format correct pour le pays",
+        moderationNotes:
+          "Documenter les modifications effectuées et les raisons...",
+        internalNotes: "Notes internes sur les modifications et communications",
+      },
+      messages: {
+        noAmenities: "Aucun équipement listé",
+      },
+    },
+
+    moderation: {
+      title: "Notes de modération",
+      placeholder: "Ajouter des notes pour votre décision (optionnel)...",
+      actions: {
+        close: "Fermer",
+        cancel: "Annuler",
+        saveChanges: "Enregistrer les modifications",
+        saving: "Enregistrement...",
+        editProperty: "Modifier la propriété",
+        reject: "Rejeter",
+        rejecting: "Rejet en cours...",
+        setPending: "Mettre en attente",
+        settingPending: "Mise en attente...",
+        approve: "Approuver",
+        approving: "Approbation en cours...",
+      },
     },
 
     filters: {
@@ -701,6 +861,7 @@ export const LABELS = {
       reviewSubtitle:
         "Réviser et modérer les annonces immobilières soumises par les propriétaires.",
       loadError: "Erreur lors du chargement des propriétés",
+      noImagesAvailable: "Aucune image disponible pour cette propriété",
     },
   },
 

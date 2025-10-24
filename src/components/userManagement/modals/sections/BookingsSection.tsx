@@ -33,6 +33,10 @@ import {
   useUserBookings,
 } from "../../hooks/useUserQueries";
 import { formatCurrency, formatDate, getStatusColor } from "../../../../utils";
+import {
+  getPaymentStatusLabel,
+  getPaymentStatusColor,
+} from "../../../../utils/statusHelpers";
 
 interface BookingsSectionProps {
   userId: string;
@@ -150,19 +154,6 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
   console.groupEnd();
 
   // Fonctions utilitaires
-  const getPaymentStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "paid":
-        return "success";
-      case "pending":
-        return "warning";
-      case "failed":
-        return "error";
-      default:
-        return "default";
-    }
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status?.toLowerCase()) {
       case "confirmed":
@@ -339,7 +330,7 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={booking.payment_status || "N/A"}
+                      label={getPaymentStatusLabel(booking.payment_status)}
                       color={getPaymentStatusColor(booking.payment_status)}
                       size="small"
                       variant="outlined"

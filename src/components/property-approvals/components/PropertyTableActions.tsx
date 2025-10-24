@@ -18,6 +18,7 @@ import {
   MoreVert as MoreVertIcon,
 } from "@mui/icons-material";
 import { GridRenderCellParams, GridCellParams } from "@mui/x-data-grid";
+import { LABELS } from "../../../constants/labels";
 
 // Import du type depuis PropertyTableConfig pour éviter la duplication
 interface PropertyTableItem {
@@ -101,7 +102,7 @@ const PropertyActionsMenu: React.FC<{
       <ListItemIcon>
         <CheckIcon fontSize="small" />
       </ListItemIcon>
-      <ListItemText primary="Approve" />
+      <ListItemText primary={LABELS.propertyApprovals.actions.approve} />
     </MenuItem>
 
     {/* Reject */}
@@ -115,7 +116,7 @@ const PropertyActionsMenu: React.FC<{
       <ListItemIcon>
         <CloseIcon fontSize="small" />
       </ListItemIcon>
-      <ListItemText primary="Reject" />
+      <ListItemText primary={LABELS.propertyApprovals.actions.reject} />
     </MenuItem>
 
     {/* Set Pending */}
@@ -129,7 +130,7 @@ const PropertyActionsMenu: React.FC<{
       <ListItemIcon>
         <ScheduleIcon fontSize="small" />
       </ListItemIcon>
-      <ListItemText primary="Set to Pending" />
+      <ListItemText primary={LABELS.propertyApprovals.actions.setPending} />
     </MenuItem>
 
     {/* Delete */}
@@ -143,7 +144,7 @@ const PropertyActionsMenu: React.FC<{
       <ListItemIcon>
         <DeleteIcon fontSize="small" />
       </ListItemIcon>
-      <ListItemText primary="Delete Property" />
+      <ListItemText primary={LABELS.propertyApprovals.actions.deleteProperty} />
     </MenuItem>
   </Menu>
 );
@@ -166,7 +167,8 @@ export const PropertyTableActions: React.FC<PropertyTableActionsProps> = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const propertyTitle = params.row.title || "Unknown Property";
+  const propertyTitle =
+    params.row.title || LABELS.propertyApprovals.table.unknownProperty;
 
   const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -179,7 +181,7 @@ export const PropertyTableActions: React.FC<PropertyTableActionsProps> = ({
   return (
     <Box sx={{ display: "flex", gap: 0.5 }}>
       {/* Action principale : View Details */}
-      <Tooltip title="View Details">
+      <Tooltip title={LABELS.propertyApprovals.actions.viewDetails}>
         <IconButton
           size="small"
           onClick={() => onViewProperty(params.row)}
@@ -193,7 +195,7 @@ export const PropertyTableActions: React.FC<PropertyTableActionsProps> = ({
       </Tooltip>
 
       {/* Menu des actions secondaires */}
-      <Tooltip title="More actions">
+      <Tooltip title={LABELS.propertyApprovals.actions.moreActions}>
         <IconButton
           size="small"
           onClick={handleMenuClick}

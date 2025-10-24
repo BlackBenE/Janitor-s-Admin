@@ -29,6 +29,7 @@ import {
 import { ServiceWithDetails } from "../../../types/services";
 import { useServiceHistory, useProviderServices } from "../hooks";
 import { formatCurrency, formatDate, formatDuration } from "../../../utils";
+import { getStatusLabel, getStatusColor } from "../../../utils/statusHelpers";
 
 interface ServiceInfoSectionsProps {
   service: ServiceWithDetails;
@@ -251,26 +252,8 @@ const ServiceHistoryTab: React.FC<{ service: ServiceWithDetails }> = ({
                     </Typography>
                   </Box>
                   <Chip
-                    label={
-                      request.status === "completed"
-                        ? "Terminée"
-                        : request.status === "pending"
-                        ? "En attente"
-                        : request.status === "accepted"
-                        ? "Acceptée"
-                        : request.status === "rejected"
-                        ? "Rejetée"
-                        : request.status
-                    }
-                    color={
-                      request.status === "completed"
-                        ? "success"
-                        : request.status === "accepted"
-                        ? "info"
-                        : request.status === "pending"
-                        ? "warning"
-                        : "error"
-                    }
+                    label={getStatusLabel(request.status, "quote_request")}
+                    color={getStatusColor(request.status, "quote_request")}
                     size="small"
                   />
                 </Box>

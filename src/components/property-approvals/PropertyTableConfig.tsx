@@ -20,6 +20,7 @@ import {
 } from "../shared/GenericTableColumns";
 import { PropertyWithOwner } from "../../types";
 import { LABELS } from "../../constants";
+import { getStatusLabel, getStatusColor } from "../../utils/statusHelpers";
 
 // =====================================================
 // TYPES SPÉCIFIQUES AUX PROPRIÉTÉS
@@ -82,7 +83,7 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
               fontWeight="medium"
               sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
             >
-              {params.value || "Untitled"}
+              {params.value || LABELS.propertyApprovals.table.untitled}
             </Typography>
             <Typography
               variant="caption"
@@ -181,34 +182,10 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
     width: 130,
     renderCell: (params: GridRenderCellParams) => {
       const status = params.value || "pending";
-      let chipProps;
+      const color = getStatusColor(status, "property");
+      const label = getStatusLabel(status, "property");
 
-      switch (status.toLowerCase()) {
-        case "approved":
-          chipProps = { color: "success" as const, variant: "filled" as const };
-          break;
-        case "rejected":
-          chipProps = { color: "error" as const, variant: "filled" as const };
-          break;
-        default:
-        case "pending":
-          chipProps = { color: "warning" as const, variant: "filled" as const };
-          break;
-      }
-
-      const statusText = (() => {
-        switch (status.toLowerCase()) {
-          case "approved":
-            return "Approved";
-          case "rejected":
-            return "Rejected";
-          default:
-          case "pending":
-            return "Pending";
-        }
-      })();
-
-      return <Chip {...chipProps} label={statusText} size="small" />;
+      return <Chip color={color} variant="filled" label={label} size="small" />;
     },
   },
   createDateColumn("created_at", LABELS.common.messages.submitted),
@@ -223,7 +200,7 @@ import { PropertyTableActions } from "./components/PropertyTableActions";
 
 const createActionsColumn = (config: PropertyTableConfig): ColumnConfig => ({
   field: "actions",
-  headerName: "Actions",
+  headerName: LABELS.propertyApprovals.table.headers.actions,
   width: 120,
   renderCell: (params: GridRenderCellParams) => (
     <PropertyTableActions

@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { DateRange } from '../../../types/analytics';
 import { Database } from '../../../types';
 import { isActiveUser } from '@/utils/userMetrics';
+import { calculateRevenue } from '@/core/services/financialCalculations.service';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type Booking = Database['public']['Tables']['bookings']['Row'];
@@ -92,7 +93,12 @@ export const useAnalyticsCalculations = () => {
         return paymentDate >= dateRange.from && paymentDate <= dateRange.to;
       });
 
-      const totalRevenue = currentPeriodPayments.reduce((sum, p) => sum + p.amount, 0);
+      // Calcul du revenu total avec les règles de commission
+      // 20% pour bookings, 100% pour subscriptions
+      const totalRevenue = currentPeriodPayments.reduce((sum, p) => {
+        const paymentType = (p.payment_type as any) || 'other';
+        return sum + calculateRevenue(p.amount, paymentType);
+      }, 0);
 
       // Revenus du mois en cours
       const currentMonth = new Date().getMonth();
@@ -105,7 +111,10 @@ export const useAnalyticsCalculations = () => {
             paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear
           );
         })
-        .reduce((sum, p) => sum + p.amount, 0);
+        .reduce((sum, p) => {
+          const paymentType = (p.payment_type as any) || 'other';
+          return sum + calculateRevenue(p.amount, paymentType);
+        }, 0);
 
       const averageOrderValue =
         currentPeriodPayments.length > 0 ? totalRevenue / currentPeriodPayments.length : 0;
@@ -117,7 +126,11 @@ export const useAnalyticsCalculations = () => {
         return paymentDate >= previousPeriodStart && paymentDate < previousPeriodEnd;
       });
 
-      const previousRevenue = previousPeriodPayments.reduce((sum, p) => sum + p.amount, 0);
+      // Calcul du revenu de la période précédente avec règles de commission
+      const previousRevenue = previousPeriodPayments.reduce((sum, p) => {
+        const paymentType = (p.payment_type as any) || 'other';
+        return sum + calculateRevenue(p.amount, paymentType);
+      }, 0);
 
       // Taux de croissance des revenus : seulement si on a des revenus dans la période actuelle
       const revenueGrowthRate =

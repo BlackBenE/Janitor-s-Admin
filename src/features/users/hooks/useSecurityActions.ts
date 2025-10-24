@@ -63,25 +63,10 @@ export const useSecurityActions = () => {
         );
       }
 
-      // Déterminer l'URL de redirection basée sur le rôle de l'utilisateur
-      const getRedirectUrl = (userRole: string) => {
-        // URL de l'application client (à configurer selon votre setup)
-        const CLIENT_APP_URL =
-          import.meta.env.VITE_CLIENT_APP_URL || "https://your-client-app.com";
-
-        switch (userRole.toLowerCase()) {
-          case "admin":
-            // Les admins utilisent le back-office
-            return `${window.location.origin}/reset-password`;
-          case "traveler":
-          case "property_owner":
-          case "service_provider":
-            // Les utilisateurs finaux utilisent l'app client
-            return `${CLIENT_APP_URL}/reset-password`;
-          default:
-            // Par défaut, utiliser l'app client
-            return `${CLIENT_APP_URL}/reset-password`;
-        }
+      // Fonction pour déterminer l'URL de redirection selon le rôle
+      const getRedirectUrl = (userRole: string): string => {
+        // Toujours utiliser l'URL du back-office Vercel
+        return 'https://janitor-s-admin.vercel.app/reset-password';
       };
 
       const redirectUrl = getRedirectUrl(userProfile.role);

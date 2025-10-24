@@ -2,6 +2,7 @@ import { supabase } from '@/core/config/supabase';
 import { ChartDataPoint, DashboardStats, RecentActivity } from '@/types/dashboard';
 import { LABELS } from '@/core/config/labels';
 import { ACTIVE_USER_FILTERS } from '@/utils/userMetrics';
+import { calculateRevenue } from '@/core/services/financialCalculations.service';
 
 // Types for the query results
 export interface ChartData {
@@ -59,12 +60,16 @@ export const fetchStats = async (): Promise<DashboardStats> => {
     if (currentActiveUsers.error) throw currentActiveUsers.error;
     if (currentRevenues.error) throw currentRevenues.error;
 
-    // Calculate monthly revenue
+    // Calculate monthly revenue with proper commission rules
+    // 20% pour les bookings, 100% pour les subscriptions
     const currentMonthlyRevenue =
-      currentRevenues.data?.reduce(
-        (sum: number, payment: { amount: number }) => sum + (Number(payment.amount) || 0),
-        0
-      ) || 0;
+      currentRevenues.data?.reduce((sum: number, payment: any) => {
+        const amount = Number(payment.amount) || 0;
+        const paymentType = payment.payment_type || 'other';
+
+        // Utilise le service de calcul centralisé
+        return sum + calculateRevenue(amount, paymentType);
+      }, 0) || 0;
 
     return {
       pendingValidations: currentPendingProps.count || 0,

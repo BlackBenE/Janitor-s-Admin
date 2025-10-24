@@ -270,7 +270,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Spécifier explicitement la redirection vers la page reset password
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: 'https://janitor-s-admin.vercel.app/reset-password',
       });
 
       if (error) {

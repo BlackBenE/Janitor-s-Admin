@@ -8,6 +8,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/core/config/supabase";
 import type { PaymentWithDetails } from "../../../types/payments";
+import { calculateRevenue } from '@/core/services/financialCalculations.service';
 
 // Query keys pour la gestion du cache
 export const PAYMENT_QUERY_KEYS = {
@@ -269,19 +270,13 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
           status: p.status,
         });
 
+        // Utilise le service centralisé pour les règles de calcul
         // 20% pour les bookings, 100% pour les subscriptions
-        if (p.payment_type === "booking") {
-          const bookingRevenue = amount * 0.2;
-          console.log(`📈 Booking revenue (20%): ${bookingRevenue}€`);
-          return sum + bookingRevenue;
-        } else if (p.payment_type === "subscription") {
-          console.log(`📈 Subscription revenue (100%): ${amount}€`);
-          return sum + amount;
-        } else {
-          // Pour les autres types, on prend 100%
-          console.log(`📈 Other revenue (100%): ${amount}€`);
-          return sum + amount;
-        }
+        const paymentType = p.payment_type || 'other';
+        const revenue = calculateRevenue(amount, paymentType as any);
+        
+        console.log(`📈 ${p.payment_type} revenue: ${revenue}€`);
+        return sum + revenue;
       }, 0);
 
       console.log(`📊 Revenue mensuel total: ${monthlyRevenue}€`);

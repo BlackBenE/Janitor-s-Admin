@@ -4,19 +4,22 @@
  */
 
 // Formatage
-export * from "./formatting";
+export * from './formatting';
 
 // Validation
-export * from "./validation";
+export * from './validation';
 
 // Manipulation de données
-export * from "./dataHelpers";
+export * from './dataHelpers';
 
 // Constantes
-export * from "./constants";
+export * from './constants';
 
 // Statuts et couleurs
-export * from "./statusHelpers";
+export * from './statusHelpers';
+
+// Métriques utilisateurs (standardisation)
+export * from './userMetrics';
 
 // Types utilitaires communs
 export interface SelectOption {
@@ -34,18 +37,12 @@ export interface PaginationConfig {
 
 export interface SortConfig<T> {
   field: keyof T;
-  direction: "asc" | "desc";
+  direction: 'asc' | 'desc';
 }
 
 export interface FilterConfig<T> {
   field: keyof T;
-  operator:
-    | "equals"
-    | "contains"
-    | "startsWith"
-    | "greaterThan"
-    | "lessThan"
-    | "between";
+  operator: 'equals' | 'contains' | 'startsWith' | 'greaterThan' | 'lessThan' | 'between';
   value: any;
 }
 
@@ -70,14 +67,14 @@ export interface StatItem {
   label: string;
   value: number | string;
   change?: number;
-  trend?: "up" | "down" | "stable";
+  trend?: 'up' | 'down' | 'stable';
   color?: string;
 }
 
 // Types pour les notifications
 export interface NotificationItem {
   id: string;
-  type: "success" | "error" | "warning" | "info";
+  type: 'success' | 'error' | 'warning' | 'info';
   title: string;
   message: string;
   timestamp: Date;

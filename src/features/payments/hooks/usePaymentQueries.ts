@@ -6,7 +6,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "../../../lib/supabaseClient";
+import { supabase } from "@/core/config/supabase";
 import type { PaymentWithDetails } from "../../../types/payments";
 
 // Query keys pour la gestion du cache

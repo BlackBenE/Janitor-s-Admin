@@ -16,7 +16,7 @@ import {
   CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "@/core/config/supabase";
 
 export const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();

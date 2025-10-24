@@ -18,7 +18,7 @@ import { ServiceDetailsModal } from "./modals";
 import { LoadingIndicator } from "@/shared/components/feedback";
 
 // Configuration
-import { serviceTabConfigs } from "../../components/shared";
+import { serviceTabConfigs } from "@/shared/config";
 import { formatCurrency } from "@/shared/utils";
 
 // Types

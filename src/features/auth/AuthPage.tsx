@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { Box, Container, Paper } from "@mui/material";
-import { Navigate } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { Box, Container, Paper } from '@mui/material';
+import { Navigate } from 'react-router-dom';
 
 // Sections modulaires
 import {
@@ -10,9 +10,9 @@ import {
   AuthFormSection,
   AuthBackNavigationSection,
   AuthLoadingSection,
-} from "./components";
+} from './components';
 
-import { useAuth } from "./hooks/useAuth";
+import { useAuth } from './hooks/useAuth';
 export const AuthPage: React.FC = () => {
   const auth = useAuth();
 
@@ -20,7 +20,7 @@ export const AuthPage: React.FC = () => {
   useEffect(() => {
     if (auth.error) {
       auth.setMessage({
-        type: "error",
+        type: 'error',
         text: auth.error,
       });
     }
@@ -40,11 +40,11 @@ export const AuthPage: React.FC = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         padding: 2,
       }}
     >
@@ -54,8 +54,8 @@ export const AuthPage: React.FC = () => {
           sx={{
             padding: 4,
             borderRadius: 3,
-            background: "rgba(255, 255, 255, 0.95)",
-            backdropFilter: "blur(10px)",
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
           }}
         >
           {/* En-tête */}
@@ -68,10 +68,7 @@ export const AuthPage: React.FC = () => {
           />
 
           {/* Messages d'état */}
-          <AuthMessageSection
-            message={auth.message}
-            onClearMessage={auth.clearMessage}
-          />
+          <AuthMessageSection message={auth.message} onClearMessage={auth.clearMessage} />
 
           {/* Formulaires d'authentification */}
           <AuthFormSection
@@ -85,7 +82,7 @@ export const AuthPage: React.FC = () => {
           {/* Navigation de retour */}
           <AuthBackNavigationSection
             currentView={auth.currentView}
-            onBackToSignIn={() => auth.setCurrentView("signin")}
+            onBackToSignIn={() => auth.setCurrentView('signin')}
           />
         </Paper>
       </Container>

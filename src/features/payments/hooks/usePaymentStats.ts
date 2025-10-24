@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { PaymentWithDetails, PaymentStats } from "../../../types/payments";
 
-import { supabase } from "../../../lib/supabaseClient";
+import { supabase } from "@/core/config/supabase";
 import { formatCurrency } from "../../../utils";
 
 /**

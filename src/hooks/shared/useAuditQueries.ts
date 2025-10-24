@@ -5,7 +5,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "@/core/config/supabase";
 import { AUDIT_QUERY_KEYS } from "./useAuditMutations";
 
 /**

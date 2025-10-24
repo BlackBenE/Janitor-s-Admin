@@ -1,11 +1,11 @@
-import React from "react";
-import { Box, Typography, Container, Alert, Snackbar } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { LABELS } from "@/core/config/labels";
+import React from 'react';
+import { Box, Typography, Container, Alert, Snackbar } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { LABELS } from '@/core/config/labels';
 
 // Composants spécialisés
-import { ProfileHeader } from "./components/ProfileHeader";
-import { ProfileAccountInfo } from "./components/ProfileAccountInfo";
+import { ProfileHeader } from './components/ProfileHeader';
+import { ProfileAccountInfo } from './components/ProfileAccountInfo';
 
 // Modales
 import {
@@ -13,16 +13,17 @@ import {
   AvatarUploadModal,
   DeleteAccountModal,
   TwoFactorModal,
-} from "./modals";
+} from './modals';
 
 // Hooks
-import { useProfile } from "./hooks/useProfile";
-import { useProfileModals } from "./hooks/useProfileModals";
-import { useUINotifications } from "@/shared/hooks";
-import { ProfileLayout } from "./components/ProfileLayout";
-import { ProfileCard } from "./components/ProfileCard";
-import { ProfileDetailsCard } from "./components/ProfileDetailsCard";
-import { SecuritySettingsCard } from "./components/SecuritySettingsCard";
+import { useProfile } from './hooks/useProfile';
+import { useProfileModals } from './hooks/useProfileModals';
+import { useUINotifications } from '@/shared/hooks';
+import { useTwoFactor } from './hooks/useTwoFactor';
+import { ProfileLayout } from './components/ProfileLayout';
+import { ProfileCard } from './components/ProfileCard';
+import { ProfileDetailsCard } from './components/ProfileDetailsCard';
+import { SecuritySettingsCard } from './components/SecuritySettingsCard';
 
 export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -30,23 +31,19 @@ export const ProfilePage: React.FC = () => {
   // Hooks principaux
   const profile = useProfile();
   const modals = useProfileModals();
+  const twoFactor = useTwoFactor();
   const { notification, hideNotification } = useUINotifications();
 
   // Navigation
   const handleReturnToDashboard = () => {
-    navigate("/dashboard");
+    navigate('/dashboard');
   };
 
   // Vérification de l'état de chargement
   if (!profile.user) {
     return (
       <Container maxWidth="lg">
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="400px"
-        >
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <Typography>{LABELS.common.messages.loading}</Typography>
         </Box>
       </Container>
@@ -72,9 +69,10 @@ export const ProfilePage: React.FC = () => {
                 avatarInitials={profile.getAvatarInitials()}
                 avatarUrl={profile.userProfile?.avatar_url}
                 fullName={profile.formData.full_name}
-                email={profile.user.email || ""}
-                isAdmin={profile.user.role === "admin"}
+                email={profile.user.email || ''}
+                isAdmin={profile.user.role === 'admin'}
                 isVerified={profile.userProfile?.profile_validated || false}
+                twoFactorEnabled={twoFactor.isEnabled}
                 onUploadAvatar={modals.openAvatarUploadModal}
               />
 
@@ -82,7 +80,7 @@ export const ProfilePage: React.FC = () => {
               <ProfileAccountInfo
                 userId={profile.user.id}
                 stats={profile.getProfileStats()}
-                role={profile.user.role || "user"}
+                role={profile.user.role || 'user'}
               />
             </>
           }
@@ -99,8 +97,8 @@ export const ProfilePage: React.FC = () => {
                 onCancel={profile.resetForm}
                 hasChanges={profile.hasChanges()}
                 isFormValid={profile.isFormValid()}
-                userEmail={profile.user.email || ""}
-                userRole={profile.user.role || "user"}
+                userEmail={profile.user.email || ''}
+                userRole={profile.user.role || 'user'}
               />
 
               {/* Paramètres de sécurité */}
@@ -108,7 +106,7 @@ export const ProfilePage: React.FC = () => {
                 onChangePassword={modals.openChangePasswordModal}
                 onToggleTwoFactor={modals.openTwoFactorModal}
                 onDeleteAccount={modals.openDeleteAccountModal}
-                twoFactorEnabled={false} // TODO: Récupérer depuis les settings
+                twoFactorEnabled={twoFactor.isEnabled}
               />
             </>
           }
@@ -137,12 +135,13 @@ export const ProfilePage: React.FC = () => {
         <DeleteAccountModal
           open={modals.showDeleteAccountModal}
           onClose={modals.closeDeleteAccountModal}
-          userEmail={profile.user.email || ""}
+          userEmail={profile.user.email || ''}
         />
 
         <TwoFactorModal
           open={modals.showTwoFactorModal}
           onClose={modals.closeTwoFactorModal}
+          isEnabled={twoFactor.isEnabled}
         />
 
         {/* Notifications */}
@@ -150,13 +149,9 @@ export const ProfilePage: React.FC = () => {
           open={notification.open}
           autoHideDuration={6000}
           onClose={hideNotification}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         >
-          <Alert
-            onClose={hideNotification}
-            severity={notification.type}
-            sx={{ width: "100%" }}
-          >
+          <Alert onClose={hideNotification} severity={notification.type} sx={{ width: '100%' }}>
             {notification.message}
           </Alert>
         </Snackbar>

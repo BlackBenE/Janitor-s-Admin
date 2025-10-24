@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -12,14 +12,14 @@ import {
   Chip,
   Box,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Lock as LockIcon,
   Security as SecurityIcon,
   Shield as ShieldIcon,
   Delete as DeleteIcon,
-} from "@mui/icons-material";
-import { LABELS } from "@/core/config/labels";
+} from '@mui/icons-material';
+import { LABELS } from '@/core/config/labels';
 
 interface SecuritySettingsCardProps {
   onChangePassword: () => void;
@@ -36,10 +36,7 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
 }) => {
   return (
     <Card>
-      <CardHeader
-        title={LABELS.profile.security.title}
-        avatar={<ShieldIcon color="primary" />}
-      />
+      <CardHeader title={LABELS.profile.security.title} avatar={<ShieldIcon color="primary" />} />
       <CardContent>
         <List>
           <ListItem>
@@ -64,17 +61,15 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
           <ListItem>
             <ListItemText
               primary={
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography variant="body1">
-                    {LABELS.profile.security.twoFactor.title}
-                  </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body1">{LABELS.profile.security.twoFactor.title}</Typography>
                   <Chip
                     label={
                       twoFactorEnabled
                         ? LABELS.profile.security.twoFactor.enabled
                         : LABELS.profile.security.twoFactor.disabled
                     }
-                    color={twoFactorEnabled ? "success" : "warning"}
+                    color={twoFactorEnabled ? 'success' : 'warning'}
                     size="small"
                     variant="outlined"
                   />
@@ -88,7 +83,7 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
                 startIcon={<SecurityIcon />}
                 onClick={onToggleTwoFactor}
                 size="small"
-                color={twoFactorEnabled ? "error" : "primary"}
+                color={twoFactorEnabled ? 'error' : 'primary'}
               >
                 {twoFactorEnabled
                   ? LABELS.profile.security.twoFactor.disableButton
@@ -104,19 +99,19 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
               primary={LABELS.profile.security.accountSecurity.title}
               secondary={
                 <Typography variant="body2" color="text.secondary">
-                  {LABELS.profile.security.password.lastChange}:{" "}
+                  {LABELS.profile.security.password.lastChange}:{' '}
                   {LABELS.profile.security.password.never}
                   <br />
-                  {LABELS.profile.security.accountSecurity.accountCreated}:{" "}
-                  {new Date().toLocaleDateString("fr-FR")}
+                  {LABELS.profile.security.accountSecurity.accountCreated}:{' '}
+                  {new Date().toLocaleDateString('fr-FR')}
                 </Typography>
               }
             />
           </ListItem>
         </List>
 
-        {/* Danger Zone */}
-        <Divider sx={{ my: 3 }} />
+        {/* Danger Zone - Caché */}
+        {/* <Divider sx={{ my: 3 }} />
 
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" color="error" gutterBottom>
@@ -161,9 +156,9 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
               </Button>
             </Box>
           </Box>
-        </Box>
+        </Box> */}
 
-        <Box sx={{ mt: 3, p: 2, bgcolor: "info.light", borderRadius: 1 }}>
+        <Box sx={{ mt: 3, p: 2, bgcolor: 'info.light', borderRadius: 1 }}>
           <Typography variant="body2" color="info.contrastText">
             {LABELS.profile.security.recommendation}
           </Typography>

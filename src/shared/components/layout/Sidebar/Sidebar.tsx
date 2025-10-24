@@ -67,7 +67,8 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
               (route: Route) =>
                 route.path !== '/auth' &&
                 route.path !== '/reset-password' &&
-                route.path !== '/profile'
+                route.path !== '/profile' &&
+                route.path !== '/financial-overview'
             )
             .map((route: Route) => {
               const isSelected = location.pathname === route.path;

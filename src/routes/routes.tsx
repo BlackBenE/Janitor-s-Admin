@@ -1,30 +1,29 @@
-import React from "react";
-import { SvgIconTypeMap } from "@mui/material";
-import { OverridableComponent } from "@mui/material/OverridableComponent";
-import DashboardPage from "../components/dashboard/DashboardPage";
-import { AuthPage as RefactoredAuthPage } from "../components/auth/AuthPage";
-import { ProfilePage as RefactoredProfilePage } from "../components/profile/ProfilePage";
-import PropertyApprovalsPage from "../components/property-approvals/PropertyApprovalsPage";
-import QuoteRequestsPage from "../components/quote-requests/QuoteRequestsPage";
-import ServicesCatalogPage from "../components/services-catalog/ServicesCatalogPage";
-import { UserManagementPage } from "../components/userManagement";
-import AnalyticsPage from "../components/analytics/AnalyticsPage";
-import { ProtectedRoute } from "@/shared/components/routing";
-import { ResetPasswordPage } from "../components/auth/ResetPasswordPage";
-import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
-import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
-import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
-import EuroOutlinedIcon from "@mui/icons-material/EuroOutlined";
-import MedicalInformationOutlinedIcon from "@mui/icons-material/MedicalInformationOutlined";
-import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
-import { PaymentsPage } from "../components/payments/PaymentsPage";
+import React from 'react';
+import { SvgIconTypeMap } from '@mui/material';
+import { OverridableComponent } from '@mui/material/OverridableComponent';
+import { DashboardPage } from '@/features/dashboard';
+import { AuthPage as RefactoredAuthPage, ResetPasswordPage } from '@/features/auth';
+import { ProfilePage as RefactoredProfilePage } from '@/features/profile';
+import { PropertyApprovalsPage } from '@/features/property-approvals';
+import { FinancialOverviewPage } from '@/features/financial-overview';
+import { ServicesCatalogPage } from '@/features/services-catalog';
+import { UserManagementPage } from '@/features/users';
+import { AnalyticsPage } from '@/features/analytics';
+import { PaymentsPage } from '@/features/payments';
+import { ProtectedRoute } from '@/shared/components/routing';
+import AppsOutlinedIcon from '@mui/icons-material/AppsOutlined';
+import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined';
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+import EuroOutlinedIcon from '@mui/icons-material/EuroOutlined';
+import MedicalInformationOutlinedIcon from '@mui/icons-material/MedicalInformationOutlined';
+import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import AnalyticsOutlinedIcon from '@mui/icons-material/AnalyticsOutlined';
 
 interface Route {
   path: string;
   element: React.ReactElement;
-  icon?: OverridableComponent<SvgIconTypeMap<object, "svg">> & {
+  icon?: OverridableComponent<SvgIconTypeMap<object, 'svg'>> & {
     muiName: string;
   };
   protected?: boolean;
@@ -32,7 +31,7 @@ interface Route {
 
 export const routes: Route[] = [
   {
-    path: "/dashboard",
+    path: '/dashboard',
     element: (
       <ProtectedRoute>
         <DashboardPage />
@@ -42,7 +41,7 @@ export const routes: Route[] = [
     protected: true,
   },
   {
-    path: "/property-approvals",
+    path: '/property-approvals',
     element: (
       <ProtectedRoute>
         <PropertyApprovalsPage />
@@ -52,7 +51,7 @@ export const routes: Route[] = [
     protected: true,
   },
   {
-    path: "/user-management",
+    path: '/user-management',
     element: (
       <ProtectedRoute>
         <UserManagementPage />
@@ -62,7 +61,7 @@ export const routes: Route[] = [
     protected: true,
   },
   {
-    path: "/analytics",
+    path: '/analytics',
     element: (
       <ProtectedRoute>
         <AnalyticsPage />
@@ -72,7 +71,7 @@ export const routes: Route[] = [
     protected: true,
   },
   {
-    path: "/services-catalog",
+    path: '/services-catalog',
     element: (
       <ProtectedRoute>
         <ServicesCatalogPage />
@@ -82,7 +81,7 @@ export const routes: Route[] = [
     protected: true,
   },
   {
-    path: "/payments",
+    path: '/payments',
     element: (
       <ProtectedRoute>
         <PaymentsPage />
@@ -92,17 +91,17 @@ export const routes: Route[] = [
     protected: true,
   },
   {
-    path: "/quote-requests",
+    path: '/financial-overview',
     element: (
       <ProtectedRoute>
-        <QuoteRequestsPage />
+        <FinancialOverviewPage />
       </ProtectedRoute>
     ),
-    icon: ChatBubbleOutlineOutlinedIcon,
+    // icon: ChatBubbleOutlineOutlinedIcon, // Caché de la navigation
     protected: true,
   },
   {
-    path: "/profile",
+    path: '/profile',
     element: (
       <ProtectedRoute>
         <RefactoredProfilePage />
@@ -112,11 +111,9 @@ export const routes: Route[] = [
   },
 
   // Public routes
-  { path: "/auth", element: <RefactoredAuthPage /> },
-  { path: "/reset-password", element: <ResetPasswordPage /> },
+  { path: '/auth', element: <RefactoredAuthPage /> },
+  { path: '/reset-password', element: <ResetPasswordPage /> },
 ];
 
 // Export only protected routes for sidebar navigation
-export const protectedRoutes = routes.filter(
-  (route) => route.protected && route.icon
-);
+export const protectedRoutes = routes.filter((route) => route.protected && route.icon);

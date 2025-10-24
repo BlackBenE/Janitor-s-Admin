@@ -13,7 +13,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Warning as WarningIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { ProfileService } from '../../../services/profileService';
+import { ProfileService } from '@/core/services/profile.service';
 import { useUINotifications } from '../../../hooks/shared';
 import { useAuth } from '@/core/providers/auth.provider';
 import { useNavigate } from 'react-router-dom';

@@ -1,20 +1,16 @@
-import React from "react";
-import { Box, Button, Tooltip } from "@mui/material";
+import React from 'react';
+import { Box, Button, Tooltip } from '@mui/material';
 import {
   Payment as PaymentIcon,
   Email as EmailIcon,
   Cancel as CancelIcon,
   Download as DownloadIcon,
-} from "@mui/icons-material";
-import {
-  GenericFilters,
-  GenericTabs,
-  paymentFilterConfigs,
-  paymentTabConfigs,
-  getPaymentCount,
-} from "@/components/shared"; // TODO: À migrer vers @/shared/config
-import { PaymentStatusFilter } from "@/types/payments";
-import { PaymentWithDetails, PaymentFilters } from "@/types/payments";
+} from '@mui/icons-material';
+import { GenericFilters } from '@/shared/components/filters';
+import { GenericTabs } from '@/shared/components/navigation';
+import { paymentFilterConfigs, paymentTabConfigs, getPaymentCount } from '@/shared/config';
+import { PaymentStatusFilter } from '@/types/payments';
+import { PaymentWithDetails, PaymentFilters } from '@/types/payments';
 
 interface PaymentFiltersSectionProps {
   // Filters props
@@ -25,10 +21,7 @@ interface PaymentFiltersSectionProps {
   // Tabs props
   activeTab: number;
   payments: PaymentWithDetails[];
-  onTabChange: (
-    event: React.MouseEvent<HTMLElement>,
-    newValue: number | null
-  ) => void;
+  onTabChange: (event: React.MouseEvent<HTMLElement>, newValue: number | null) => void;
 
   // Actions props
   selectedPayments: string[];
@@ -45,19 +38,13 @@ const PaymentBulkActions: React.FC<{
   onBulkSendReminders: () => void;
   onBulkCancel: () => void;
   onBulkExport: () => void;
-}> = ({
-  selectedPayments,
-  onBulkMarkPaid,
-  onBulkSendReminders,
-  onBulkCancel,
-  onBulkExport,
-}) => {
+}> = ({ selectedPayments, onBulkMarkPaid, onBulkSendReminders, onBulkCancel, onBulkExport }) => {
   if (selectedPayments.length === 0) {
     return null;
   }
 
   return (
-    <Box sx={{ display: "flex", gap: 1, ml: "auto", flexWrap: "wrap" }}>
+    <Box sx={{ display: 'flex', gap: 1, ml: 'auto', flexWrap: 'wrap' }}>
       <Tooltip title={`Mark ${selectedPayments.length} payment(s) as paid`}>
         <Button
           variant="contained"
@@ -70,9 +57,7 @@ const PaymentBulkActions: React.FC<{
         </Button>
       </Tooltip>
 
-      <Tooltip
-        title={`Send reminders for ${selectedPayments.length} payment(s)`}
-      >
+      <Tooltip title={`Send reminders for ${selectedPayments.length} payment(s)`}>
         <Button
           variant="outlined"
           size="small"
@@ -96,12 +81,7 @@ const PaymentBulkActions: React.FC<{
       </Tooltip>
 
       <Tooltip title={`Export ${selectedPayments.length} payment(s)`}>
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={onBulkExport}
-        >
+        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={onBulkExport}>
           Export
         </Button>
       </Tooltip>
@@ -120,7 +100,7 @@ const PaymentFiltersComponent: React.FC<{
       filters={filters}
       onUpdateFilter={onUpdateFilter}
       searchConfig={{
-        placeholder: "Search payments...",
+        placeholder: 'Search payments...',
         minWidth: 200,
       }}
       filterConfigs={paymentFilterConfigs}
@@ -133,10 +113,7 @@ const PaymentFiltersComponent: React.FC<{
 const PaymentTabsComponent: React.FC<{
   activeTab: number;
   payments: PaymentWithDetails[];
-  onTabChange: (
-    event: React.MouseEvent<HTMLElement>,
-    newValue: number | null
-  ) => void;
+  onTabChange: (event: React.MouseEvent<HTMLElement>, newValue: number | null) => void;
 }> = ({ activeTab, payments, onTabChange }) => {
   return (
     <GenericTabs<PaymentWithDetails, PaymentStatusFilter>
@@ -182,18 +159,14 @@ export const PaymentFiltersSection: React.FC<PaymentFiltersSectionProps> = ({
       {/* Onglets de statut et actions groupées */}
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
           gap: 2,
         }}
       >
-        <PaymentTabsComponent
-          activeTab={activeTab}
-          payments={payments}
-          onTabChange={onTabChange}
-        />
+        <PaymentTabsComponent activeTab={activeTab} payments={payments} onTabChange={onTabChange} />
 
         <PaymentBulkActions
           selectedPayments={selectedPayments}

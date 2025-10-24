@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -9,9 +9,9 @@ import {
   ListItemText,
   Divider,
   Chip,
-} from "@mui/material";
-import { ProfileStats } from "@/types/profile";
-import { formatDate } from "@/shared/utils";
+} from '@mui/material';
+import { ProfileStats } from '@/types/profile';
+import { formatDate } from '@/shared/utils';
 
 interface ProfileAccountInfoProps {
   userId: string;
@@ -19,19 +19,15 @@ interface ProfileAccountInfoProps {
   role: string;
 }
 
-export const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
-  userId,
-  stats,
-  role,
-}) => {
-  const getRoleColor = (role: string): "error" | "primary" | "default" => {
+export const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({ userId, stats, role }) => {
+  const getRoleColor = (role: string): 'error' | 'primary' | 'default' => {
     switch (role) {
-      case "admin":
-        return "error";
-      case "user":
-        return "primary";
+      case 'admin':
+        return 'error';
+      case 'user':
+        return 'primary';
       default:
-        return "default";
+        return 'default';
     }
   };
 
@@ -50,9 +46,9 @@ export const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
                 <Typography
                   variant="body2"
                   sx={{
-                    fontFamily: "monospace",
-                    fontSize: "0.8rem",
-                    wordBreak: "break-all",
+                    fontFamily: 'monospace',
+                    fontSize: '0.8rem',
+                    wordBreak: 'break-all',
                   }}
                 >
                   {userId}
@@ -67,12 +63,14 @@ export const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
             <ListItemText
               primary="Role"
               secondary={
-                <Chip
-                  label={role.charAt(0).toUpperCase() + role.slice(1)}
-                  color={getRoleColor(role)}
-                  size="small"
-                  variant="outlined"
-                />
+                <Box component="span" sx={{ display: 'inline-block' }}>
+                  <Chip
+                    label={role.charAt(0).toUpperCase() + role.slice(1)}
+                    color={getRoleColor(role)}
+                    size="small"
+                    variant="outlined"
+                  />
+                </Box>
               }
             />
           </ListItem>
@@ -80,24 +78,15 @@ export const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
           <Divider sx={{ my: 1 }} />
 
           <ListItem disablePadding>
-            <ListItemText
-              primary="Created"
-              secondary={formatDate(stats.createdAt)}
-            />
+            <ListItemText primary="Created" secondary={formatDate(stats.createdAt)} />
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemText
-              primary="Last Updated"
-              secondary={formatDate(stats.updatedAt)}
-            />
+            <ListItemText primary="Last Updated" secondary={formatDate(stats.updatedAt)} />
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemText
-              primary="Last Login"
-              secondary={formatDate(stats.lastSignInAt)}
-            />
+            <ListItemText primary="Last Login" secondary={formatDate(stats.lastSignInAt)} />
           </ListItem>
 
           <Divider sx={{ my: 1 }} />
@@ -105,25 +94,18 @@ export const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
           <ListItem disablePadding>
             <ListItemText
               primary="Profile Status"
+              secondaryTypographyProps={{ component: 'div' }}
               secondary={
-                <Box sx={{ display: "flex", gap: 1, mt: 0.5 }}>
+                <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
                   <Chip
-                    label={
-                      stats.emailConfirmed
-                        ? "Email Verified"
-                        : "Email Unverified"
-                    }
-                    color={stats.emailConfirmed ? "success" : "warning"}
+                    label={stats.emailConfirmed ? 'Email Verified' : 'Email Unverified'}
+                    color={stats.emailConfirmed ? 'success' : 'warning'}
                     size="small"
                     variant="outlined"
                   />
                   <Chip
-                    label={
-                      stats.profileValidated
-                        ? "Profile Validated"
-                        : "Profile Pending"
-                    }
-                    color={stats.profileValidated ? "success" : "warning"}
+                    label={stats.profileValidated ? 'Profile Validated' : 'Profile Pending'}
+                    color={stats.profileValidated ? 'success' : 'warning'}
                     size="small"
                     variant="outlined"
                   />

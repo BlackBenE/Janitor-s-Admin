@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { dataProvider } from "../../../providers/dataProvider";
-import { supabase } from "../../../lib/supabaseClient";
+import { supabase } from "@/core/config/supabase";
 import { PaymentWithDetails } from "../../../types/payments";
 import { Database } from "../../../types";
 

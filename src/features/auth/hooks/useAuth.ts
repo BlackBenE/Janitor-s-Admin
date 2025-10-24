@@ -8,12 +8,14 @@ import {
   ForgotPasswordFormData,
 } from '../../../types/auth';
 import { useAuth as useAuthProvider } from '@/core/providers/auth.provider';
+import { useTwoFactorLogin } from './useTwoFactorLogin';
 
 /**
  * Hook principal pour la gestion de l'état de la page Auth
  */
 export const useAuth = () => {
   const authProvider = useAuthProvider();
+  const twoFactorLogin = useTwoFactorLogin();
 
   const [state, setState] = useState<AuthState>({
     currentView: 'signin',
@@ -46,21 +48,23 @@ export const useAuth = () => {
       setMessage(null);
       setIsSubmitting(true);
 
-      const result = await authProvider.signIn(data.email, data.password);
+      // Vérifier si 2FA nécessaire et gérer la connexion
+      const success = await twoFactorLogin.checkAndPromptMFA(data.email, data.password);
 
-      if (result.error) {
-        setMessage({
-          type: 'error',
-          text: result.error.message,
-        });
+      // Si checkAndPromptMFA retourne false, la modal 2FA est affichée
+      // On attend que l'utilisateur entre le code
+      if (!success) {
+        // Laisser le modal gérer la suite
         return false;
-      } else {
-        setMessage({
-          type: 'success',
-          text: 'Sign in successful! Redirecting...',
-        });
-        return true;
       }
+
+      // Si success = true, l'utilisateur est déjà connecté
+      // (soit pas de 2FA, soit 2FA vérifiée)
+      setMessage({
+        type: 'success',
+        text: 'Sign in successful! Redirecting...',
+      });
+      return true;
     } catch (error: unknown) {
       setMessage({
         type: 'error',
@@ -161,6 +165,9 @@ export const useAuth = () => {
     loading: authProvider.loading,
     error: authProvider.error,
     isAdmin: authProvider.isAdmin,
+
+    // 2FA
+    twoFactorLogin,
 
     // Actions
     setCurrentView,

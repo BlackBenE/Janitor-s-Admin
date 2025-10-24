@@ -1,13 +1,8 @@
-import React from "react";
-import { Box } from "@mui/material";
-import { AdminLayout } from "@/shared/components/layout";
+import React from 'react';
+import { Box } from '@mui/material';
+import { AdminLayout } from '@/shared/components/layout';
 // Hooks
-import {
-  usePayments,
-  usePaymentManagement,
-  usePaymentModals,
-  usePaymentPdf,
-} from "./hooks";
+import { usePayments, usePaymentManagement, usePaymentModals, usePaymentPdf } from './hooks';
 // Components
 import {
   PaymentHeader,
@@ -16,15 +11,15 @@ import {
   PaymentModalsManager,
   createPaymentTableColumns,
   PaymentInvoicePdf,
-} from "./components";
-import { LoadingIndicator } from "@/shared/components/feedback";
-import { useHighlightFromUrl } from "@/shared/hooks";
+} from './components';
+import { LoadingIndicator } from '@/shared/components/feedback';
+import { useHighlightFromUrl } from '@/shared/hooks';
 // Configuration
-import { paymentTabConfigs } from "@/components/shared"; // TODO: À migrer vers @/shared/config
-import { formatCurrency } from "@/shared/utils";
+import { paymentTabConfigs } from '@/shared/config'; // TODO: À migrer vers @/shared/config
+import { formatCurrency } from '@/shared/utils';
 
 // Types
-import { PaymentWithDetails, PaymentStatusFilter } from "@/types/payments";
+import { PaymentWithDetails, PaymentStatusFilter } from '@/types/payments';
 
 export const PaymentsPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState(0);
@@ -75,16 +70,11 @@ export const PaymentsPage: React.FC = () => {
         payment.payer?.last_name?.toLowerCase().includes(searchLower) ||
         payment.payee?.first_name?.toLowerCase().includes(searchLower) ||
         payment.payee?.last_name?.toLowerCase().includes(searchLower) ||
-        payment.service_request?.service?.title
-          ?.toLowerCase()
-          .includes(searchLower)
+        payment.service_request?.service?.title?.toLowerCase().includes(searchLower)
     );
   }
 
-  if (
-    paymentManagement.filters.status &&
-    paymentManagement.filters.status !== "all"
-  ) {
+  if (paymentManagement.filters.status && paymentManagement.filters.status !== 'all') {
     filteredPayments = filteredPayments.filter(
       (payment) => payment.status === paymentManagement.filters.status
     );
@@ -94,9 +84,7 @@ export const PaymentsPage: React.FC = () => {
   if (paymentManagement.filters.minAmount) {
     const minAmount = parseFloat(paymentManagement.filters.minAmount);
     if (!isNaN(minAmount)) {
-      filteredPayments = filteredPayments.filter(
-        (payment) => payment.amount >= minAmount
-      );
+      filteredPayments = filteredPayments.filter((payment) => payment.amount >= minAmount);
     }
   }
 
@@ -104,9 +92,7 @@ export const PaymentsPage: React.FC = () => {
   if (paymentManagement.filters.maxAmount) {
     const maxAmount = parseFloat(paymentManagement.filters.maxAmount);
     if (!isNaN(maxAmount)) {
-      filteredPayments = filteredPayments.filter(
-        (payment) => payment.amount <= maxAmount
-      );
+      filteredPayments = filteredPayments.filter((payment) => payment.amount <= maxAmount);
     }
   }
 
@@ -114,9 +100,7 @@ export const PaymentsPage: React.FC = () => {
   if (paymentManagement.filters.dateFrom) {
     const dateFrom = new Date(paymentManagement.filters.dateFrom);
     filteredPayments = filteredPayments.filter((payment) => {
-      const paymentDate = payment.created_at
-        ? new Date(payment.created_at)
-        : null;
+      const paymentDate = payment.created_at ? new Date(payment.created_at) : null;
       return paymentDate && paymentDate >= dateFrom;
     });
   }
@@ -125,59 +109,50 @@ export const PaymentsPage: React.FC = () => {
   if (paymentManagement.filters.dateTo) {
     const dateTo = new Date(paymentManagement.filters.dateTo);
     filteredPayments = filteredPayments.filter((payment) => {
-      const paymentDate = payment.created_at
-        ? new Date(payment.created_at)
-        : null;
+      const paymentDate = payment.created_at ? new Date(payment.created_at) : null;
       return paymentDate && paymentDate <= dateTo;
     });
   }
 
   // Filtrer par onglet actuel (si différent des filtres de statut)
-  if (
-    currentTabConfig &&
-    currentTabConfig.key !== "all" &&
-    !paymentManagement.filters.status
-  ) {
-    filteredPayments = filteredPayments.filter(
-      (p) => p.status === currentTabConfig.key
-    );
+  if (currentTabConfig && currentTabConfig.key !== 'all' && !paymentManagement.filters.status) {
+    filteredPayments = filteredPayments.filter((p) => p.status === currentTabConfig.key);
   }
 
   // Configuration des colonnes du tableau (comme UserManagement)
   const columns = createPaymentTableColumns({
     selectedPayments: paymentManagement.selectedPayments || [],
-    onTogglePaymentSelection:
-      paymentManagement.togglePaymentSelection || (() => {}),
+    onTogglePaymentSelection: paymentManagement.togglePaymentSelection || (() => {}),
     highlightId: highlightId || undefined, // Ajout pour l'highlighting
     onViewDetails: (payment: PaymentWithDetails) => {
-      console.log("🔍 View Details clicked for payment:", payment);
+      console.log('🔍 View Details clicked for payment:', payment);
       modals.openPaymentDetailsModal(payment);
     },
     onDownloadPdf: async (paymentId: string) => {
-      console.log("📄 Download PDF for payment:", paymentId);
+      console.log('📄 Download PDF for payment:', paymentId);
       try {
         const payment = payments.find((p) => p.id === paymentId);
         if (payment) {
           await generatePaymentPdf(payment);
         } else {
-          console.error("Payment not found:", paymentId);
+          console.error('Payment not found:', paymentId);
         }
       } catch (error) {
-        console.error("Error generating PDF:", error);
+        console.error('Error generating PDF:', error);
       }
     },
     onMarkPaid: async (paymentId: string) => {
-      console.log("✅ Mark as paid:", paymentId);
-      await updatePayment(paymentId, { status: "paid" });
+      console.log('✅ Mark as paid:', paymentId);
+      await updatePayment(paymentId, { status: 'paid' });
     },
     onRefund: async (paymentId: string) => {
-      console.log("🔄 Refund payment:", paymentId);
-      await updatePayment(paymentId, { status: "refunded" });
+      console.log('🔄 Refund payment:', paymentId);
+      await updatePayment(paymentId, { status: 'refunded' });
     },
     onRetry: async (paymentId: string) => {
-      console.log("🔄 Retry payment:", paymentId);
+      console.log('🔄 Retry payment:', paymentId);
       // TODO: Implémenter la relance de paiement
-      await updatePayment(paymentId, { status: "pending" });
+      await updatePayment(paymentId, { status: 'pending' });
     },
   });
 
@@ -191,20 +166,14 @@ export const PaymentsPage: React.FC = () => {
 
   const handleExportPayments = async () => {
     // Export les paiements sélectionnés s'il y en a, sinon tous les paiements filtrés
-    if (
-      paymentManagement.selectedPayments &&
-      paymentManagement.selectedPayments.length > 0
-    ) {
+    if (paymentManagement.selectedPayments && paymentManagement.selectedPayments.length > 0) {
       paymentManagement.exportSelectedToCSV(filteredPayments);
     } else {
       paymentManagement.exportAllToCSV(filteredPayments);
     }
   };
 
-  const handleTabChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newValue: number | null
-  ) => {
+  const handleTabChange = (event: React.MouseEvent<HTMLElement>, newValue: number | null) => {
     if (newValue !== null) {
       setActiveTab(newValue);
     }
@@ -231,7 +200,7 @@ export const PaymentsPage: React.FC = () => {
 
   return (
     <AdminLayout>
-      <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* En-tête de la page */}
         <PaymentHeader
           onRefresh={handleRefresh}
@@ -262,26 +231,26 @@ export const PaymentsPage: React.FC = () => {
           onClosePaymentDetailsModal={modals.closePaymentDetailsModal}
           onSavePayment={async () => {
             // TODO: Implémenter la sauvegarde
-            console.log("Save payment:", paymentManagement.editForm);
+            console.log('Save payment:', paymentManagement.editForm);
             modals.closePaymentDetailsModal();
           }}
           onMarkPaid={async (paymentId: string) => {
-            await updatePayment(paymentId, { status: "paid" });
+            await updatePayment(paymentId, { status: 'paid' });
           }}
           onRefund={async (paymentId: string) => {
-            await updatePayment(paymentId, { status: "refunded" });
+            await updatePayment(paymentId, { status: 'refunded' });
           }}
           onDownloadPdf={async (paymentId: string) => {
-            console.log("Download PDF for payment:", paymentId);
+            console.log('Download PDF for payment:', paymentId);
             try {
               const payment = payments.find((p) => p.id === paymentId);
               if (payment) {
                 await generatePaymentPdf(payment);
               } else {
-                console.error("Payment not found:", paymentId);
+                console.error('Payment not found:', paymentId);
               }
             } catch (error) {
-              console.error("Error generating PDF:", error);
+              console.error('Error generating PDF:', error);
             }
           }}
           onInputChange={paymentManagement.updateEditForm}
@@ -290,11 +259,7 @@ export const PaymentsPage: React.FC = () => {
 
         {/* Composants PDF invisibles pour la génération */}
         {payments.map((payment) => (
-          <PaymentInvoicePdf
-            key={`pdf-${payment.id}`}
-            payment={payment}
-            isVisible={false}
-          />
+          <PaymentInvoicePdf key={`pdf-${payment.id}`} payment={payment} isVisible={false} />
         ))}
       </Box>
     </AdminLayout>

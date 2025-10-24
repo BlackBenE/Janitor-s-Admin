@@ -20,20 +20,22 @@ function CustomAppBar(): React.JSX.Element {
       <Box sx={{ flexGrow: 2 }}>
         <AppBar position="static" color="transparent" elevation={0} sx={{ boxShadow: 'none' }}>
           <Toolbar>
-            <Box sx={{ flexGrow: 2 }}>
+            {/* Barre de recherche - Cachée */}
+            {/* <Box sx={{ flexGrow: 2 }}>
               <SearchBar />
-            </Box>
+            </Box> */}
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 2 }}>
               <CacheStatusIndicator />
             </Box>
 
-            <IconButtonWithBadge
+            {/* Icône de message - Cachée */}
+            {/* <IconButtonWithBadge
               icon={MailIcon}
               badgeContent={5}
               color="error"
               onClick={handleCommunicationClick}
-            />
+            /> */}
           </Toolbar>
         </AppBar>
       </Box>

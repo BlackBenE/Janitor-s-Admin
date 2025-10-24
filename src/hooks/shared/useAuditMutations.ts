@@ -6,7 +6,7 @@
  */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "@/core/config/supabase";
 
 // Types pour l'audit
 export interface AuditLogEntry {

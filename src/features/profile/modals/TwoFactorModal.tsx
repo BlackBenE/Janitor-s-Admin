@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -14,21 +14,28 @@ import {
   Stack,
   TextField,
   Chip,
-} from "@mui/material";
-import { Security as SecurityIcon } from "@mui/icons-material";
-import { LABELS } from "../../../constants";
+  CircularProgress,
+} from '@mui/material';
+import { Security as SecurityIcon, CheckCircle as CheckCircleIcon } from '@mui/icons-material';
+import { LABELS } from '../../../constants';
+import { useTwoFactor } from '../hooks/useTwoFactor';
 
 interface TwoFactorModalProps {
   open: boolean;
   onClose: () => void;
+  isEnabled?: boolean;
 }
 
 export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
   open,
   onClose,
+  isEnabled = false,
 }) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationCode, setVerificationCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  const twoFactor = useTwoFactor();
 
   const steps = [
     LABELS.auth.twoFactor.steps.setup,
@@ -36,11 +43,29 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
     LABELS.auth.twoFactor.steps.complete,
   ];
 
-  const handleNext = () => {
-    if (activeStep === steps.length - 1) {
-      // Final step - enable 2FA
-      console.log("Enabling 2FA...");
-      handleClose();
+  // Démarrer l'enrollment quand on passe à l'étape 1
+  useEffect(() => {
+    if (open && activeStep === 1 && !twoFactor.enrollment && !isEnabled) {
+      twoFactor.startEnrollment();
+    }
+  }, [activeStep, open, isEnabled]);
+
+  const handleNext = async () => {
+    if (activeStep === 2) {
+      // Étape finale - vérifier le code
+      if (verificationCode.length !== 6) {
+        return;
+      }
+
+      setIsVerifying(true);
+      try {
+        const success = await twoFactor.verifyAndEnable(verificationCode);
+        if (success) {
+          handleClose();
+        }
+      } finally {
+        setIsVerifying(false);
+      }
     } else {
       setActiveStep((prev) => prev + 1);
     }
@@ -52,31 +77,52 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
 
   const handleClose = () => {
     setActiveStep(0);
-    setVerificationCode("");
+    setVerificationCode('');
     onClose();
   };
 
+  const handleDisable = async () => {
+    if (twoFactor.factors.length > 0) {
+      try {
+        await twoFactor.disable(twoFactor.factors[0].id);
+        handleClose();
+      } catch (error) {
+        console.error('Erreur lors de la désactivation:', error);
+      }
+    }
+  };
+
   const renderStepContent = (step: number) => {
+    // Mode désactivation - afficher confirmation
+    if (isEnabled) {
+      return (
+        <Stack spacing={2}>
+          <Alert severity="warning">
+            Vous êtes sur le point de désactiver l&apos;authentification à deux facteurs. Votre
+            compte sera moins sécurisé.
+          </Alert>
+          <Typography variant="body1">Êtes-vous sûr de vouloir désactiver la 2FA ?</Typography>
+        </Stack>
+      );
+    }
+
     switch (step) {
       case 0:
         return (
           <Stack spacing={2}>
             <Alert severity="info">
-              Two-factor authentication adds an extra layer of security to your
-              account.
+              Two-factor authentication adds an extra layer of security to your account.
             </Alert>
             <Typography variant="body1">
-              To set up 2FA, you&apos;ll need an authenticator app on your
-              mobile device such as:
+              To set up 2FA, you&apos;ll need an authenticator app on your mobile device such as:
             </Typography>
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               <Chip label="Google Authenticator" variant="outlined" />
               <Chip label="Authy" variant="outlined" />
               <Chip label="Microsoft Authenticator" variant="outlined" />
             </Box>
             <Typography variant="body2" color="text.secondary">
-              Once you have an authenticator app installed, click
-              &quot;Next&quot; to continue.
+              Once you have an authenticator app installed, click &quot;Next&quot; to continue.
             </Typography>
           </Stack>
         );
@@ -88,30 +134,45 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
               Scan this QR code with your authenticator app:
             </Typography>
 
-            {/* Placeholder for QR Code */}
-            <Box
-              sx={{
-                width: 200,
-                height: 200,
-                border: "2px dashed",
-                borderColor: "grey.400",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 2,
-              }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                QR Code Here
-              </Typography>
-            </Box>
-
-            <Alert severity="warning">
-              Can&apos;t scan the QR code? Use this setup key instead:
-              <Box sx={{ fontFamily: "monospace", fontSize: "0.9rem", mt: 1 }}>
-                ABCD EFGH IJKL MNOP QRST UVWX YZ12 3456
+            {/* QR Code */}
+            {twoFactor.isEnrolling ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                <CircularProgress />
               </Box>
-            </Alert>
+            ) : twoFactor.enrollment ? (
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: 'white',
+                  borderRadius: 2,
+                  boxShadow: 2,
+                }}
+              >
+                <img
+                  src={twoFactor.enrollment.totp.qr_code}
+                  alt="QR Code for 2FA"
+                  style={{ width: 200, height: 200, display: 'block' }}
+                />
+              </Box>
+            ) : (
+              <Alert severity="error">Erreur lors de la génération du QR code</Alert>
+            )}
+
+            {twoFactor.enrollment && (
+              <Alert severity="warning">
+                Can&apos;t scan the QR code? Use this setup key instead:
+                <Box
+                  sx={{
+                    fontFamily: 'monospace',
+                    fontSize: '0.9rem',
+                    mt: 1,
+                    wordBreak: 'break-all',
+                  }}
+                >
+                  {twoFactor.enrollment.totp.secret}
+                </Box>
+              </Alert>
+            )}
           </Stack>
         );
 
@@ -126,25 +187,27 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
               fullWidth
               label="Verification Code"
               value={verificationCode}
-              onChange={(e) =>
-                setVerificationCode(
-                  e.target.value.replace(/\D/g, "").slice(0, 6)
-                )
-              }
+              onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="123456"
+              disabled={isVerifying}
               inputProps={{
                 style: {
-                  textAlign: "center",
-                  fontSize: "1.5rem",
-                  letterSpacing: "0.5rem",
+                  textAlign: 'center',
+                  fontSize: '1.5rem',
+                  letterSpacing: '0.5rem',
                 },
               }}
             />
 
             <Alert severity="info">
-              The code refreshes every 30 seconds. Make sure to enter the
-              current code.
+              The code refreshes every 30 seconds. Make sure to enter the current code.
             </Alert>
+
+            {isVerifying && (
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <CircularProgress size={24} />
+              </Box>
+            )}
           </Stack>
         );
 
@@ -156,21 +219,27 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <SecurityIcon color="primary" />
-          <Typography variant="h6">{LABELS.auth.twoFactor.title}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {isEnabled ? <SecurityIcon color="error" /> : <SecurityIcon color="primary" />}
+          <Typography variant="h6">
+            {isEnabled
+              ? "Désactiver l'authentification à deux facteurs"
+              : LABELS.auth.twoFactor.title}
+          </Typography>
         </Box>
       </DialogTitle>
 
       <DialogContent>
         <Box sx={{ mt: 2 }}>
-          <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-            {steps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
+          {!isEnabled && (
+            <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+              {steps.map((label) => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+          )}
 
           {renderStepContent(activeStep)}
         </Box>
@@ -180,20 +249,38 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
         <Button onClick={handleClose} variant="outlined">
           {LABELS.auth.twoFactor.cancel}
         </Button>
-        {activeStep > 0 && (
-          <Button onClick={handleBack} variant="outlined">
-            {LABELS.auth.twoFactor.back}
+
+        {isEnabled ? (
+          <Button
+            onClick={handleDisable}
+            variant="contained"
+            color="error"
+            disabled={twoFactor.isLoading}
+          >
+            Désactiver la 2FA
           </Button>
+        ) : (
+          <>
+            {activeStep > 0 && (
+              <Button onClick={handleBack} variant="outlined">
+                {LABELS.auth.twoFactor.back}
+              </Button>
+            )}
+            <Button
+              onClick={handleNext}
+              variant="contained"
+              disabled={
+                (activeStep === 2 && verificationCode.length !== 6) ||
+                isVerifying ||
+                (activeStep === 1 && !twoFactor.enrollment)
+              }
+            >
+              {activeStep === steps.length - 1
+                ? LABELS.auth.twoFactor.complete
+                : LABELS.auth.twoFactor.next}
+            </Button>
+          </>
         )}
-        <Button
-          onClick={handleNext}
-          variant="contained"
-          disabled={activeStep === 2 && verificationCode.length !== 6}
-        >
-          {activeStep === steps.length - 1
-            ? LABELS.auth.twoFactor.complete
-            : LABELS.auth.twoFactor.next}
-        </Button>
       </DialogActions>
     </Dialog>
   );

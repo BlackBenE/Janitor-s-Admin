@@ -18,7 +18,7 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { AvatarUploadData } from '../../../types/profile';
-import { AvatarService } from '../../../services/avatarService';
+import { AvatarService } from '@/core/services/avatar.service';
 import { useAuth } from '@/core/providers/auth.provider';
 import { useUINotifications } from '../../../hooks/shared';
 

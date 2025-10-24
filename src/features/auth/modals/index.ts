@@ -1,2 +1,2 @@
-// Export centralisé des modales {{PAGE_NAME}}
-// export { Example{{PAGE_NAME}}Modal } from "./Example{{PAGE_NAME}}Modal";
+// Export centralisé des modales
+export { TwoFactorVerifyModal } from './TwoFactorVerifyModal';

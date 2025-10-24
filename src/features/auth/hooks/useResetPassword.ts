@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { supabase } from "../../../lib/supabaseClient";
+import { supabase } from "@/core/config/supabase";
 
 interface ResetPasswordState {
   password: string;

@@ -1,5 +1,5 @@
 import { supabase, supabaseAdmin } from "@/core/config/supabase";
-import { Database } from "@/core/types";
+import type { Database } from "@/core/types/database.types";
 
 type TableName = keyof Database["public"]["Tables"];
 type RowType<T extends TableName> = Database["public"]["Tables"][T]["Row"];

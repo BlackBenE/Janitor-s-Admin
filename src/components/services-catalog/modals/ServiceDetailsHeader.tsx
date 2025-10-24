@@ -15,7 +15,11 @@ import {
   Star as VipIcon,
 } from "@mui/icons-material";
 import { ServiceWithDetails } from "../../../types/services";
-import { formatCurrency, getActiveStatusColor, getActiveStatusLabel } from "../../../utils";
+import {
+  formatCurrency,
+  getActiveStatusColor,
+  getActiveStatusLabel,
+} from "../../../utils";
 
 interface ServiceDetailsHeaderProps {
   service: ServiceWithDetails;

@@ -3,6 +3,7 @@
 ## 🎯 **OBJECTIFS**
 
 Suite au succès de la Phase 1, cette phase visait à :
+
 1. ✅ Centraliser les fonctions de statut/couleur dupliquées
 2. ✅ Migrer `formatDuration` vers les utilitaires centraux
 3. ✅ Remplacer `filterUsersBySearch` par `searchInFields`
@@ -13,7 +14,9 @@ Suite au succès de la Phase 1, cette phase visait à :
 ## 📊 **DUPLICATIONS ÉLIMINÉES**
 
 ### **1. getStatusColor** - ✅ TERMINÉ
+
 **10 fichiers migrés** :
+
 - ✅ `UserInfoSections.tsx` - Fonction supprimée (non utilisée)
 - ✅ `ServiceDetailsHeader.tsx` - Migration vers `getActiveStatusColor`
 - ✅ `ServiceTableColumns.tsx` - Migration vers `getActiveStatusColor`
@@ -29,14 +32,18 @@ Suite au succès de la Phase 1, cette phase visait à :
 **Réduction** : **-94%** de duplication
 
 ### **2. formatDuration** - ✅ TERMINÉ
+
 **1 fichier migré** :
+
 - ✅ `ServiceInfoSections.tsx` - Migration vers utils/formatting.ts
 
 **Impact réel** : ~15 lignes de code
 **Réduction** : **-100%** de duplication (fonction déjà centralisée)
 
 ### **3. filterUsersBySearch** - ✅ TERMINÉ
+
 **1 fichier optimisé** :
+
 - ✅ `userManagementUtils.ts` - Réimplémentation avec `searchInFields`
 
 **Impact réel** : ~20 lignes de code simplifiées
@@ -51,6 +58,7 @@ Suite au succès de la Phase 1, cette phase visait à :
 **Créé** : `/src/utils/statusHelpers.ts` (122 lignes)
 
 **Fonctions implémentées** :
+
 ```typescript
 // Statuts génériques
 ✅ getStatusColor(status, type): ChipColor
@@ -73,6 +81,7 @@ Suite au succès de la Phase 1, cette phase visait à :
 ### **ÉTAPE 2 : Migrer formatDuration** ✅
 
 **Actions réalisées** :
+
 - ✅ Mise à jour de `formatDuration` dans `/src/utils/formatting.ts` pour accepter `null`
 - ✅ Suppression de la version locale dans `ServiceInfoSections.tsx`
 - ✅ Import depuis utils dans `ServiceInfoSections.tsx`
@@ -82,6 +91,7 @@ Suite au succès de la Phase 1, cette phase visait à :
 ### **ÉTAPE 3 : Remplacer filterUsersBySearch** ✅
 
 **Actions réalisées** :
+
 - ✅ Réimplémentation de `filterUsersBySearch` dans `userManagementUtils.ts`
 - ✅ Utilisation de `searchInFields` en interne
 - ✅ Signature maintenue pour compatibilité
@@ -91,6 +101,7 @@ Suite au succès de la Phase 1, cette phase visait à :
 ### **ÉTAPE 4 : Migrer getStatusColor** ✅
 
 **Lots de migration** :
+
 - ✅ **Lot 1** : Payments (2 fichiers) - PaymentTableColumns.tsx, PaymentDetailsHeader.tsx
 - ✅ **Lot 2** : Services-Catalog (2 fichiers) - ServiceDetailsHeader.tsx, ServiceTableColumns.tsx
 - ✅ **Lot 3** : UserManagement (4 fichiers) - ServicesSection.tsx, BookingsSection.tsx, SubscriptionSection.tsx, UserInfoSections.tsx
@@ -103,16 +114,17 @@ Suite au succès de la Phase 1, cette phase visait à :
 
 ## 📈 **MÉTRIQUES FINALES**
 
-| Métrique | Avant | Après | Réduction |
-|----------|-------|-------|-----------|
-| Fonctions `getStatusColor` | 10 | 1 (+ helpers) | **-90%** |
-| Fonctions `formatDuration` | 2 | 1 | **-50%** |
-| Fonctions de recherche custom | 2 | 1 | **-50%** |
-| Lignes de code dupliqué | ~195 | ~10 | **-95%** |
-| Fichiers modifiés | - | 13 | - |
-| Nouvelles fonctions utils | - | 6 | - |
+| Métrique                      | Avant | Après         | Réduction |
+| ----------------------------- | ----- | ------------- | --------- |
+| Fonctions `getStatusColor`    | 10    | 1 (+ helpers) | **-90%**  |
+| Fonctions `formatDuration`    | 2     | 1             | **-50%**  |
+| Fonctions de recherche custom | 2     | 1             | **-50%**  |
+| Lignes de code dupliqué       | ~195  | ~10           | **-95%**  |
+| Fichiers modifiés             | -     | 13            | -         |
+| Nouvelles fonctions utils     | -     | 6             | -         |
 
 **Résultat global Phase 1 + 2** :
+
 - **37 fichiers** refactorisés
 - **~400 lignes** de code dupliqué éliminées
 - **94% de réduction** de la duplication
@@ -154,9 +166,11 @@ grep -r "filterUsersBySearch" src/components/
 ## 📝 **FICHIERS CRÉÉS/MODIFIÉS**
 
 **Nouveaux fichiers** :
+
 - `/src/utils/statusHelpers.ts` (122 lignes)
 
 **Fichiers modifiés** :
+
 1. `/src/utils/formatting.ts` - Mise à jour formatDuration
 2. `/src/utils/userManagementUtils.ts` - Optimisation filterUsersBySearch
 3. `/src/components/payments/components/PaymentTableColumns.tsx`

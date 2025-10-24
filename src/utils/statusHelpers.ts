@@ -300,9 +300,7 @@ export const getCategoryColor = (category: string | null): ChipColor => {
  * @param paymentType - Le type de paiement
  * @returns La couleur du chip Material-UI
  */
-export const getPaymentTypeColor = (
-  paymentType: string | null
-): ChipColor => {
+export const getPaymentTypeColor = (paymentType: string | null): ChipColor => {
   if (!paymentType) return "default";
 
   const normalizedType = paymentType.toLowerCase();

@@ -226,7 +226,10 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
                   <TableCell>
                     <Chip
                       label={subscription.status}
-                      color={getStatusColor(subscription.status, "subscription")}
+                      color={getStatusColor(
+                        subscription.status,
+                        "subscription"
+                      )}
                       size="small"
                     />
                   </TableCell>

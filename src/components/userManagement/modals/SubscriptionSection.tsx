@@ -30,7 +30,7 @@ import {
 } from "@mui/icons-material";
 import { useUserSubscriptions } from "../hooks/useUserQueries";
 import { useUserActions } from "../hooks/useUserActions";
-import { formatCurrency, formatDate } from "../../../utils";
+import { formatCurrency, formatDate, getStatusColor } from "../../../utils";
 
 interface SubscriptionSectionProps {
   userId: string;
@@ -76,19 +76,6 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
       refetchSubscriptions();
     } catch (error) {
       console.error("Erreur lors du renouvellement:", error);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "active":
-        return "success";
-      case "expired":
-        return "error";
-      case "pending":
-        return "warning";
-      default:
-        return "default";
     }
   };
 
@@ -239,7 +226,7 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
                   <TableCell>
                     <Chip
                       label={subscription.status}
-                      color={getStatusColor(subscription.status) as any}
+                      color={getStatusColor(subscription.status, "subscription")}
                       size="small"
                     />
                   </TableCell>

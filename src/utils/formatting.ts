@@ -84,7 +84,8 @@ export const formatEmailForDisplay = (
 /**
  * Formate une durée en texte lisible
  */
-export const formatDuration = (minutes: number): string => {
+export const formatDuration = (minutes: number | null): string => {
+  if (!minutes || minutes === 0) return "Non spécifié";
   if (minutes < 60) return `${minutes}min`;
 
   const hours = Math.floor(minutes / 60);

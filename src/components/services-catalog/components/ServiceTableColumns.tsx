@@ -3,7 +3,13 @@ import { Box, Chip, Checkbox } from "@mui/material";
 import { GridRenderCellParams, GridColDef } from "@mui/x-data-grid";
 import { ServiceWithDetails } from "../../../types/services";
 import { ServiceTableActions } from "./ServiceTableActions";
-import { formatCurrency, formatDate } from "../../../utils";
+import {
+  formatCurrency,
+  formatDate,
+  getActiveStatusColor,
+  getActiveStatusLabel,
+  getCategoryColor,
+} from "../../../utils";
 
 interface ServiceTableColumnsProps {
   selectedServices: string[];
@@ -13,53 +19,6 @@ interface ServiceTableColumnsProps {
   onRejectService: (serviceId: string) => void;
   onDeleteService: (serviceId: string) => void;
 }
-
-const getStatusColor = (
-  isActive: boolean | null
-):
-  | "default"
-  | "primary"
-  | "secondary"
-  | "error"
-  | "info"
-  | "success"
-  | "warning" => {
-  return isActive ? "success" : "error";
-};
-
-const getCategoryColor = (
-  category: string
-):
-  | "default"
-  | "primary"
-  | "secondary"
-  | "error"
-  | "info"
-  | "success"
-  | "warning" => {
-  switch (category?.toLowerCase()) {
-    case "nettoyage":
-    case "ménage":
-      return "primary";
-    case "maintenance":
-    case "plomberie":
-    case "électricité":
-      return "info";
-    case "jardinage":
-      return "success";
-    case "peinture":
-      return "warning";
-    case "conciergerie":
-    case "sécurité":
-      return "secondary";
-    default:
-      return "default";
-  }
-};
-
-const getStatusLabel = (isActive: boolean | null): string => {
-  return isActive ? "Actif" : "Inactif";
-};
 
 // Composant pour la cellule de sélection
 const SelectCell: React.FC<{
@@ -162,8 +121,8 @@ export const createServiceTableColumns = ({
     width: 100,
     renderCell: (params: GridRenderCellParams) => (
       <Chip
-        label={getStatusLabel(params.row.is_active)}
-        color={getStatusColor(params.row.is_active)}
+        label={getActiveStatusLabel(params.row.is_active)}
+        color={getActiveStatusColor(params.row.is_active)}
         size="small"
         variant="filled"
       />

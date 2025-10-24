@@ -28,22 +28,12 @@ import {
 } from "@mui/icons-material";
 import { ServiceWithDetails } from "../../../types/services";
 import { useServiceHistory, useProviderServices } from "../hooks";
-import { formatCurrency, formatDate } from "../../../utils";
+import { formatCurrency, formatDate, formatDuration } from "../../../utils";
 
 interface ServiceInfoSectionsProps {
   service: ServiceWithDetails;
   layoutMode: "main" | "sidebar";
 }
-
-const formatDuration = (minutes: number | null): string => {
-  if (!minutes) return "Non spécifié";
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  if (hours === 0) return `${remainingMinutes} min`;
-  if (remainingMinutes === 0) return `${hours}h`;
-  return `${hours}h ${remainingMinutes}min`;
-};
 
 // Composant pour l'onglet détails du service
 const ServiceDetailsTab: React.FC<{ service: ServiceWithDetails }> = ({

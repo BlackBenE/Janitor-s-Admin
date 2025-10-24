@@ -21,7 +21,7 @@ import {
   useUserServiceRequests,
   useUserProviderServiceRequests,
 } from "../../hooks/useUserQueries";
-import { formatCurrency, formatDate } from "../../../../utils";
+import { formatCurrency, formatDate, getStatusColor } from "../../../../utils";
 
 interface ServicesSectionProps {
   userId: string;
@@ -109,21 +109,6 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
       };
     }
   }, [serviceRequests, isProvider]);
-
-  // Fonctions utilitaires
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "completed":
-        return "success";
-      case "pending":
-      case "in_progress":
-        return "warning";
-      case "cancelled":
-        return "error";
-      default:
-        return "default";
-    }
-  };
 
   // États de chargement et d'erreur
   if (loading) {
@@ -257,7 +242,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                   <TableCell>
                     <Chip
                       label={request.status || "Unknown"}
-                      color={getStatusColor(request.status)}
+                      color={getStatusColor(request.status, "service")}
                       size="small"
                     />
                   </TableCell>

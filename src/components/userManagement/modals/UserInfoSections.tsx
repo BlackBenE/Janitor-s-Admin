@@ -1,39 +1,52 @@
 import React from "react";
 import {
+  Box,
   Card,
   CardContent,
   Typography,
-  Box,
+  Avatar,
   Chip,
-  Alert,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
   LinearProgress,
+  Tooltip,
+  Alert,
 } from "@mui/material";
 import {
-  Person as PersonIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
   CalendarToday as CalendarIcon,
-  AccountCircle as AccountIcon,
-  Security as SecurityIcon,
-  Star as VipIcon,
-  Shield as ShieldIcon,
-  Warning as WarningIcon,
+  Star as StarIcon,
   CheckCircle as CheckIcon,
-  Delete as DeleteIcon,
-  Schedule as ScheduleIcon,
+  Warning as WarningIcon,
+  Person as PersonIcon,
   Subscriptions as SubscriptionsIcon,
+  AttachMoney as MoneyIcon,
+  Place as PlaceIcon,
+  Description as DescriptionIcon,
+  Shield as ShieldIcon,
+  Delete as DeleteIcon,
+  AccountCircle as AccountIcon,
+  Star as VipIcon,
+  Security as SecurityIcon,
   Payment as PaymentIcon,
+  Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 import {
-  UserProfileWithAnonymization,
+  UserProfile,
   UserActivityData,
+  UserRole,
+  UserProfileWithAnonymization,
 } from "../../../types/userManagement";
 import {
   AnonymizationLevel,
   DeletionReason,
 } from "../../../types/dataRetention";
 import { useUserSubscriptions } from "../hooks/useUserQueries";
-import { formatCurrency } from "../../../utils";
+import { formatCurrency, formatDate, getStatusColor } from "../../../utils";
 
 interface UserInfoSectionsProps {
   user: UserProfileWithAnonymization;
@@ -318,19 +331,6 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
       (sum, sub) => sum + sub.amount,
       0
     );
-
-    const getStatusColor = (status: string) => {
-      switch (status?.toLowerCase()) {
-        case "active":
-          return "success";
-        case "expired":
-          return "error";
-        case "pending":
-          return "warning";
-        default:
-          return "default";
-      }
-    };
 
     return (
       <Card>

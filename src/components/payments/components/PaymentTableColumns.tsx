@@ -2,7 +2,12 @@ import React from "react";
 import { Box, Chip, Checkbox } from "@mui/material";
 import { GridRenderCellParams, GridColDef } from "@mui/x-data-grid";
 import { PaymentWithDetails } from "../../../types/payments";
-import { formatCurrency, formatDate } from "../../../utils";
+import {
+  formatCurrency,
+  formatDate,
+  getPaymentStatusColor,
+  getPaymentTypeColor,
+} from "../../../utils";
 import { PaymentTableActions } from "./PaymentTableActions";
 
 interface PaymentTableColumnsProps {
@@ -15,69 +20,6 @@ interface PaymentTableColumnsProps {
   onRetry: (paymentId: string) => void;
   highlightId?: string; // Pour l'highlighting depuis le dashboard
 }
-
-const getStatusColor = (
-  status: string
-):
-  | "default"
-  | "primary"
-  | "secondary"
-  | "error"
-  | "info"
-  | "success"
-  | "warning" => {
-  switch (status?.toLowerCase()) {
-    case "paid":
-    case "success":
-    case "succeeded":
-      return "success";
-    case "pending":
-    case "processing":
-      return "warning";
-    case "refunded":
-    case "refund":
-      return "info";
-    case "failed":
-    case "error":
-    case "cancelled":
-      return "error";
-    default:
-      return "default";
-  }
-};
-
-const getPaymentTypeColor = (
-  paymentType: string
-):
-  | "default"
-  | "primary"
-  | "secondary"
-  | "error"
-  | "info"
-  | "success"
-  | "warning" => {
-  switch (paymentType?.toLowerCase()) {
-    case "booking":
-    case "reservation":
-      return "primary";
-    case "service":
-    case "maintenance":
-      return "info";
-    case "subscription":
-    case "abonnement":
-      return "success";
-    case "refund":
-    case "remboursement":
-      return "warning";
-    case "fee":
-    case "frais":
-      return "secondary";
-    case "commission":
-      return "error";
-    default:
-      return "default";
-  }
-};
 
 const getStatusLabel = (status: string): string => {
   switch (status?.toLowerCase()) {
@@ -237,7 +179,7 @@ export const createPaymentTableColumns = ({
       return (
         <Chip
           label={isOverdue ? "En retard" : getStatusLabel(status)}
-          color={isOverdue ? "error" : getStatusColor(status)}
+          color={isOverdue ? "error" : getPaymentStatusColor(status)}
           size="small"
           variant="filled"
         />

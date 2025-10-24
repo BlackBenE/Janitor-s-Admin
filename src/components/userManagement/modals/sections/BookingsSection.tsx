@@ -32,7 +32,7 @@ import {
   useUserStatsIndividual,
   useUserBookings,
 } from "../../hooks/useUserQueries";
-import { formatCurrency, formatDate } from "../../../../utils";
+import { formatCurrency, formatDate, getStatusColor } from "../../../../utils";
 
 interface BookingsSectionProps {
   userId: string;
@@ -150,19 +150,6 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
   console.groupEnd();
 
   // Fonctions utilitaires
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "confirmed":
-        return "success";
-      case "pending":
-        return "warning";
-      case "cancelled":
-        return "error";
-      default:
-        return "default";
-    }
-  };
-
   const getPaymentStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "paid":
@@ -339,7 +326,7 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
                   <TableCell>
                     <Chip
                       label={booking.status || "Unknown"}
-                      color={getStatusColor(booking.status)}
+                      color={getStatusColor(booking.status, "booking")}
                       size="small"
                     />
                   </TableCell>

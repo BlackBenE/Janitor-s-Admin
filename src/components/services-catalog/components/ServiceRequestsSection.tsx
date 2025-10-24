@@ -20,23 +20,7 @@ import {
   useServiceRequestMutations,
   type ServiceRequestFilters,
 } from "../hooks";
-
-const getStatusColor = (status: string | null) => {
-  switch (status?.toLowerCase()) {
-    case "pending":
-      return "warning";
-    case "accepted":
-      return "info";
-    case "rejected":
-      return "error";
-    case "completed":
-      return "success";
-    case "cancelled":
-      return "default";
-    default:
-      return "default";
-  }
-};
+import { getStatusColor } from "../../../utils";
 
 const getStatusLabel = (status: string | null) => {
   switch (status?.toLowerCase()) {
@@ -239,7 +223,7 @@ export const ServiceRequestsSection: React.FC = () => {
                     </Typography>
                     <Chip
                       label={getStatusLabel(request.status)}
-                      color={getStatusColor(request.status)}
+                      color={getStatusColor(request.status, "quote_request")}
                       size="small"
                     />
                   </Box>

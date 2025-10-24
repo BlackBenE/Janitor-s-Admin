@@ -15,25 +15,12 @@ import {
   Star as VipIcon,
 } from "@mui/icons-material";
 import { ServiceWithDetails } from "../../../types/services";
-import { formatCurrency } from "../../../utils";
+import { formatCurrency, getActiveStatusColor, getActiveStatusLabel } from "../../../utils";
 
 interface ServiceDetailsHeaderProps {
   service: ServiceWithDetails;
   onClose: () => void;
 }
-
-const getStatusColor = (
-  isActive: boolean | null
-):
-  | "default"
-  | "primary"
-  | "secondary"
-  | "error"
-  | "info"
-  | "success"
-  | "warning" => {
-  return isActive ? "success" : "error";
-};
 
 const getStatusIcon = (isActive: boolean | null) => {
   return isActive ? (
@@ -43,17 +30,13 @@ const getStatusIcon = (isActive: boolean | null) => {
   );
 };
 
-const getStatusLabel = (isActive: boolean | null): string => {
-  return isActive ? "Actif" : "Inactif";
-};
-
 export const ServiceDetailsHeader: React.FC<ServiceDetailsHeaderProps> = ({
   service,
   onClose,
 }) => {
-  const statusColor = getStatusColor(service.is_active);
+  const statusColor = getActiveStatusColor(service.is_active);
   const statusIcon = getStatusIcon(service.is_active);
-  const statusLabel = getStatusLabel(service.is_active);
+  const statusLabel = getActiveStatusLabel(service.is_active);
 
   return (
     <DialogTitle

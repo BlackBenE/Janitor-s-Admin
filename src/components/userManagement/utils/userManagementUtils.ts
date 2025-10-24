@@ -1,5 +1,10 @@
 import { UserRole } from "../../../types/userManagement";
-import { formatCurrency, formatDate, formatPhoneNumber } from "../../../utils";
+import {
+  formatCurrency,
+  formatDate,
+  formatPhoneNumber,
+  searchInFields,
+} from "../../../utils";
 
 /**
 
@@ -152,6 +157,7 @@ export const isValidName = (name: string): boolean => {
 
 /**
  * Filtre les utilisateurs par terme de recherche (nom, email)
+ * Utilise la fonction générique searchInFields pour la cohérence
  */
 export const filterUsersBySearch = <
   T extends { full_name?: string; email: string }
@@ -159,14 +165,7 @@ export const filterUsersBySearch = <
   users: T[],
   searchTerm: string
 ): T[] => {
-  if (!searchTerm.trim()) return users;
-
-  const term = searchTerm.toLowerCase();
-  return users.filter(
-    (user) =>
-      user.full_name?.toLowerCase().includes(term) ||
-      user.email.toLowerCase().includes(term)
-  );
+  return searchInFields(users, searchTerm, ["full_name", "email"]);
 };
 
 /**

@@ -3,24 +3,11 @@ import { DialogTitle, Box, Typography, Chip } from "@mui/material";
 import { Home as HomeIcon } from "@mui/icons-material";
 
 import { Property } from "../../../types";
+import { getStatusColor } from "../../../utils";
 
 interface PropertyDetailsHeaderProps {
   property: Property;
 }
-
-const getStatusColor = (
-  status: string | null
-): "success" | "error" | "warning" => {
-  switch (status) {
-    case "approved":
-      return "success";
-    case "rejected":
-      return "error";
-    case "pending":
-    default:
-      return "warning";
-  }
-};
 
 export const PropertyDetailsHeader: React.FC<PropertyDetailsHeaderProps> = ({
   property,
@@ -32,7 +19,7 @@ export const PropertyDetailsHeader: React.FC<PropertyDetailsHeaderProps> = ({
         <Typography variant="h6">Property Details</Typography>
         <Chip
           label={property?.validation_status || "Pending"}
-          color={getStatusColor(property?.validation_status)}
+          color={getStatusColor(property?.validation_status, "property")}
           size="small"
         />
       </Box>

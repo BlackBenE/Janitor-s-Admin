@@ -15,6 +15,9 @@ export * from "./dataHelpers";
 // Constantes
 export * from "./constants";
 
+// Statuts et couleurs
+export * from "./statusHelpers";
+
 // Types utilitaires communs
 export interface SelectOption {
   value: string;

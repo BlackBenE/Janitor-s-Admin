@@ -7,7 +7,7 @@ import {
   Chip,
   Tooltip,
 } from "@mui/material";
-import { formatCurrency } from "../../../utils";
+import { formatCurrency, getPaymentStatusColor } from "../../../utils";
 
 // Types
 import {
@@ -24,30 +24,6 @@ interface PaymentDetailsHeaderProps {
   payment: PaymentWithDetails;
   onClose: () => void;
 }
-
-const getStatusColor = (
-  status: string
-):
-  | "default"
-  | "primary"
-  | "secondary"
-  | "error"
-  | "info"
-  | "success"
-  | "warning" => {
-  switch (status?.toLowerCase()) {
-    case "paid":
-      return "success";
-    case "pending":
-      return "warning";
-    case "refunded":
-      return "error";
-    case "failed":
-      return "error";
-    default:
-      return "default";
-  }
-};
 
 const getStatusIcon = (status: string) => {
   switch (status?.toLowerCase()) {
@@ -110,7 +86,7 @@ export const PaymentDetailsHeader: React.FC<PaymentDetailsHeaderProps> = ({
                   ? "Échoué"
                   : payment.status || "Statut inconnu"
               }
-              color={getStatusColor(payment.status || "pending")}
+              color={getPaymentStatusColor(payment.status || "pending")}
               size="small"
               variant="outlined"
             />

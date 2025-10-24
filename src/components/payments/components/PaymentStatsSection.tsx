@@ -3,6 +3,7 @@ import { Alert, Grid } from "@mui/material";
 import InfoCard from "../../InfoCard";
 import DashboardItem from "../../DashboardItem";
 import { PaymentStats } from "../../../types/payments";
+import { formatCurrency } from "../../../utils";
 
 interface PaymentStatsSectionProps {
   stats: PaymentStats;
@@ -90,14 +91,6 @@ export const PaymentStatsSection: React.FC<PaymentStatsSectionProps> = ({
   stats,
   error,
 }) => {
-  // Helper function to format currency
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount);
-  };
-
   return (
     <>
       {/* Cartes de statistiques globales */}

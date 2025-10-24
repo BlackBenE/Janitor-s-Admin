@@ -33,6 +33,7 @@ import {
   DeletionReason,
 } from "../../../types/dataRetention";
 import { useUserSubscriptions } from "../hooks/useUserQueries";
+import { formatCurrency } from "../../../utils";
 
 interface UserInfoSectionsProps {
   user: UserProfileWithAnonymization;
@@ -317,13 +318,6 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
       (sum, sub) => sum + sub.amount,
       0
     );
-
-    const formatCurrency = (amount: number) => {
-      return new Intl.NumberFormat("fr-FR", {
-        style: "currency",
-        currency: "EUR",
-      }).format(amount);
-    };
 
     const getStatusColor = (status: string) => {
       switch (status?.toLowerCase()) {

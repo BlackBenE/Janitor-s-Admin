@@ -16,29 +16,12 @@ import {
   Receipt as ReceiptIcon,
 } from "@mui/icons-material";
 import { PaymentWithDetails } from "../../../types/payments";
+import { formatCurrency, formatDate } from "../../../utils";
 
 interface PaymentInfoSectionsProps {
   payment: PaymentWithDetails;
   layoutMode: "main" | "sidebar";
 }
-
-const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
-};
-
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "N/A";
-  return new Date(dateString).toLocaleDateString("fr-FR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
 
 export const PaymentInfoSections: React.FC<PaymentInfoSectionsProps> = ({
   payment,

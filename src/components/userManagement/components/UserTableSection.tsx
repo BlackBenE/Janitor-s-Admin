@@ -14,11 +14,10 @@ import { UserTableActionsHub } from "./UserTableActionsHub";
 import {
   getRoleColor,
   getRoleLabel,
-  formatDate,
-  formatCurrency,
   calculateLockTimeRemaining,
   getActivityHeaderName,
 } from "../utils/userManagementUtils";
+import { formatDate, formatCurrency } from "../../../utils";
 
 interface UserTableSectionProps {
   // Filters & Tabs

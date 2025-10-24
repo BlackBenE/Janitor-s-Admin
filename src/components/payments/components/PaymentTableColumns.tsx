@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Chip, Checkbox } from "@mui/material";
 import { GridRenderCellParams, GridColDef } from "@mui/x-data-grid";
 import { PaymentWithDetails } from "../../../types/payments";
+import { formatCurrency, formatDate } from "../../../utils";
 import { PaymentTableActions } from "./PaymentTableActions";
 
 interface PaymentTableColumnsProps {
@@ -98,18 +99,6 @@ const getStatusLabel = (status: string): string => {
     default:
       return status || "Inconnu";
   }
-};
-
-const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
-};
-
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "N/A";
-  return new Date(dateString).toLocaleDateString("fr-FR");
 };
 
 // Composant pour la cellule de sélection

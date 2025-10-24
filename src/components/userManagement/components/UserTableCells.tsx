@@ -10,8 +10,6 @@ import {
 import {
   getRoleColor,
   getRoleLabel,
-  formatDate,
-  formatCurrency,
   calculateLockTimeRemaining,
 } from "../utils/userManagementUtils";
 import {
@@ -19,6 +17,7 @@ import {
   formatFinancialAmount,
   getFinancialColor,
 } from "../utils/financialUtils";
+import { formatDate, formatCurrency } from "../../../utils";
 
 /**
  * Cellule de sélection avec checkbox

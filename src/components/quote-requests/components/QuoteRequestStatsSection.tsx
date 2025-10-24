@@ -3,6 +3,7 @@ import { Alert, Grid } from "@mui/material";
 import InfoCard from "../../InfoCard";
 import DashboardItem from "../../DashboardItem";
 import { QuoteRequestStats } from "../../../types/quoteRequests";
+import { formatCurrency } from "../../../utils";
 
 interface QuoteRequestStatsSectionProps {
   stats: QuoteRequestStats;
@@ -111,13 +112,6 @@ const QuoteRequestStatsCards: React.FC<{
 export const QuoteRequestStatsSection: React.FC<
   QuoteRequestStatsSectionProps
 > = ({ stats, error, isLoading = false }) => {
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount);
-  };
-
   if (error) {
     return (
       <Alert severity="error" sx={{ mb: 3 }}>

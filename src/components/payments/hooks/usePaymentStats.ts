@@ -1,12 +1,8 @@
 import { useMemo } from "react";
 import { PaymentWithDetails, PaymentStats } from "../../../types/payments";
 
-const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
-};
+import { supabase } from "../../../lib/supabaseClient";
+import { formatCurrency } from "../../../utils";
 
 /**
  * Hook pour calculer les statistiques des paiements

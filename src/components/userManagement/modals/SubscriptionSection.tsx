@@ -30,6 +30,7 @@ import {
 } from "@mui/icons-material";
 import { useUserSubscriptions } from "../hooks/useUserQueries";
 import { useUserActions } from "../hooks/useUserActions";
+import { formatCurrency, formatDate } from "../../../utils";
 
 interface SubscriptionSectionProps {
   userId: string;
@@ -89,17 +90,6 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
       default:
         return "default";
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR");
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount);
   };
 
   const activeSubscription = subscriptions.find((s) => s.status === "active");

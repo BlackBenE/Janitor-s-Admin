@@ -1,8 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
-
 import AdminLayout from "../AdminLayout";
-
 // Hooks
 import {
   usePayments,
@@ -10,7 +8,6 @@ import {
   usePaymentModals,
   usePaymentPdf,
 } from "./hooks";
-
 // Components
 import {
   PaymentHeader,
@@ -22,9 +19,9 @@ import {
 } from "./components";
 import { LoadingIndicator } from "../shared";
 import { useHighlightFromUrl } from "../../hooks/shared";
-
 // Configuration
 import { paymentTabConfigs } from "../shared";
+import { formatCurrency } from "../../utils";
 
 // Types
 import { PaymentWithDetails, PaymentStatusFilter } from "../../types/payments";
@@ -211,14 +208,6 @@ export const PaymentsPage: React.FC = () => {
     if (newValue !== null) {
       setActiveTab(newValue);
     }
-  };
-
-  // Format currency helper
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount);
   };
 
   // =====================================================

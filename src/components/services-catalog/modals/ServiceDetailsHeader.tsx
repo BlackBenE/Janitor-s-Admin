@@ -15,6 +15,7 @@ import {
   Star as VipIcon,
 } from "@mui/icons-material";
 import { ServiceWithDetails } from "../../../types/services";
+import { formatCurrency } from "../../../utils";
 
 interface ServiceDetailsHeaderProps {
   service: ServiceWithDetails;
@@ -44,13 +45,6 @@ const getStatusIcon = (isActive: boolean | null) => {
 
 const getStatusLabel = (isActive: boolean | null): string => {
   return isActive ? "Actif" : "Inactif";
-};
-
-const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
 };
 
 export const ServiceDetailsHeader: React.FC<ServiceDetailsHeaderProps> = ({

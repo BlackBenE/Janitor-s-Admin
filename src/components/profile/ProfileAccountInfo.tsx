@@ -11,6 +11,7 @@ import {
   Chip,
 } from "@mui/material";
 import { ProfileStats } from "../../types/profile";
+import { formatDate } from "../../utils";
 
 interface ProfileAccountInfoProps {
   userId: string;
@@ -23,15 +24,6 @@ export const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
   stats,
   role,
 }) => {
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "Never";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   const getRoleColor = (role: string): "error" | "primary" | "default" => {
     switch (role) {
       case "admin":

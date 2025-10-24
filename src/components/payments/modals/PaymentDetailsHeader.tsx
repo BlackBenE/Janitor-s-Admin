@@ -7,6 +7,9 @@ import {
   Chip,
   Tooltip,
 } from "@mui/material";
+import { formatCurrency } from "../../../utils";
+
+// Types
 import {
   Close as CloseIcon,
   Payment as PaymentIcon,
@@ -59,13 +62,6 @@ const getStatusIcon = (status: string) => {
     default:
       return null;
   }
-};
-
-const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
 };
 
 export const PaymentDetailsHeader: React.FC<PaymentDetailsHeaderProps> = ({

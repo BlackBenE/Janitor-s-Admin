@@ -1,11 +1,9 @@
 /**
  * Utilitaires pour le modal d'audit
  */
+import { formatDate } from "../../../../utils";
 
-export const formatDate = (timestamp: string | null) => {
-  if (!timestamp) return "N/A";
-  return new Date(timestamp).toLocaleString("fr-FR");
-};
+export { formatDate };
 
 export const getActionColor = (action: string) => {
   const colors: Record<

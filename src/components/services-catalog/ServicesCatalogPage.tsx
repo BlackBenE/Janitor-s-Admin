@@ -19,6 +19,7 @@ import { LoadingIndicator } from "../shared";
 
 // Configuration
 import { serviceTabConfigs } from "../shared";
+import { formatCurrency } from "../../utils";
 
 // Types
 import { ServiceWithDetails, ServiceStatusFilter } from "../../types/services";
@@ -192,14 +193,6 @@ export const ServicesCatalogPage: React.FC = () => {
     if (newValue !== null) {
       setActiveTab(newValue);
     }
-  };
-
-  // Format currency helper
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount);
   };
 
   // =====================================================

@@ -21,6 +21,7 @@ import {
   useUserServiceRequests,
   useUserProviderServiceRequests,
 } from "../../hooks/useUserQueries";
+import { formatCurrency, formatDate } from "../../../../utils";
 
 interface ServicesSectionProps {
   userId: string;
@@ -122,17 +123,6 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
       default:
         return "default";
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR");
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount);
   };
 
   // États de chargement et d'erreur

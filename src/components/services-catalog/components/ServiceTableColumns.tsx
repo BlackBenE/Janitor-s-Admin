@@ -3,6 +3,7 @@ import { Box, Chip, Checkbox } from "@mui/material";
 import { GridRenderCellParams, GridColDef } from "@mui/x-data-grid";
 import { ServiceWithDetails } from "../../../types/services";
 import { ServiceTableActions } from "./ServiceTableActions";
+import { formatCurrency, formatDate } from "../../../utils";
 
 interface ServiceTableColumnsProps {
   selectedServices: string[];
@@ -58,18 +59,6 @@ const getCategoryColor = (
 
 const getStatusLabel = (isActive: boolean | null): string => {
   return isActive ? "Actif" : "Inactif";
-};
-
-const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
-};
-
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "N/A";
-  return new Date(dateString).toLocaleDateString("fr-FR");
 };
 
 // Composant pour la cellule de sélection

@@ -8,6 +8,7 @@ import {
 } from "@mui/icons-material";
 import InfoCard from "../../InfoCard";
 import { UserProfile } from "../../../types/userManagement";
+import { formatCurrency } from "../../../utils";
 
 interface UserActivityData {
   userId: string;
@@ -52,14 +53,6 @@ const UserStatsCards: React.FC<{
 
   const monthlyGrowth = "+12.5%";
   const activeGrowth = "+8.3%";
-
-  // Helper function to format currency
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
 
   return (
     <Grid container spacing={3} sx={{ width: "100%", display: "flex" }}>

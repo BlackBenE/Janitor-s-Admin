@@ -1,9 +1,7 @@
-/**
- * Utilitaires complets pour la gestion des utilisateurs
- * Fonctions réutilisables pour le formatage des données, validations et helpers
- */
-
 import { UserRole } from "../../../types/userManagement";
+import { formatCurrency, formatDate, formatPhoneNumber } from "../../../utils";
+
+/**
 
 // ======================== FORMATAGE DES DONNÉES ========================
 
@@ -53,24 +51,6 @@ export const getRoleLabel = (role: string): string => {
 };
 
 /**
- * Formate une date pour l'affichage dans le tableau
- */
-export const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "Never";
-  return new Date(dateString).toLocaleDateString();
-};
-
-/**
- * Formate un montant en devise pour l'affichage
- */
-export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
-};
-
-/**
  * Formate un nom d'utilisateur pour l'affichage
  */
 export const formatUserName = (
@@ -78,22 +58,6 @@ export const formatUserName = (
   email: string
 ): string => {
   return fullName || email.split("@")[0] || "Unnamed User";
-};
-
-/**
- * Formate un numéro de téléphone pour l'affichage
- */
-export const formatPhoneNumber = (phone: string | null): string => {
-  if (!phone) return "Not provided";
-
-  // Format simple pour les numéros US/internationaux
-  const cleaned = phone.replace(/\D/g, "");
-  if (cleaned.length === 10) {
-    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(
-      6
-    )}`;
-  }
-  return phone;
 };
 
 // ======================== HELPERS MÉTIER ========================

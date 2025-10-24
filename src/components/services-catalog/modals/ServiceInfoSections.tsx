@@ -28,29 +28,12 @@ import {
 } from "@mui/icons-material";
 import { ServiceWithDetails } from "../../../types/services";
 import { useServiceHistory, useProviderServices } from "../hooks";
+import { formatCurrency, formatDate } from "../../../utils";
 
 interface ServiceInfoSectionsProps {
   service: ServiceWithDetails;
   layoutMode: "main" | "sidebar";
 }
-
-const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
-};
-
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "N/A";
-  return new Date(dateString).toLocaleDateString("fr-FR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
 
 const formatDuration = (minutes: number | null): string => {
   if (!minutes) return "Non spécifié";

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatDate, formatCurrency } from "../../utils";
 
 export interface ExportOptions {
   format?: "csv" | "excel";
@@ -18,18 +19,6 @@ export interface ExportColumn {
  */
 export const useExport = () => {
   const [isExporting, setIsExporting] = useState(false);
-
-  const formatDate = (dateString: string | null): string => {
-    if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  const formatCurrency = (amount: number, currency = "EUR"): string => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency,
-    }).format(amount);
-  };
 
   const formatBoolean = (value: boolean): string => {
     return value ? "Oui" : "Non";
@@ -88,7 +77,7 @@ export const useExport = () => {
     date: (key: string, label = "Date"): ExportColumn => ({
       key,
       label,
-      formatter: formatDate,
+      formatter: (value) => formatDate(value),
     }),
     currency: (
       key: string,
@@ -97,7 +86,7 @@ export const useExport = () => {
     ): ExportColumn => ({
       key,
       label,
-      formatter: (value) => formatCurrency(value, currency),
+      formatter: (value) => formatCurrency(value),
     }),
     boolean: (key: string, label: string): ExportColumn => ({
       key,

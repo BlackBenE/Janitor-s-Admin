@@ -9,6 +9,7 @@ import {
 } from "@mui/icons-material";
 import { AnonymizationLevel } from "../../../types/dataRetention";
 import { UserProfile } from "../../../types/userManagement";
+import { formatDate } from "../../../utils";
 
 interface AnonymizationStatusProps {
   user: UserProfile;
@@ -86,17 +87,6 @@ export const AnonymizationStatus: React.FC<AnonymizationStatusProps> = ({
   };
 
   const status = getAnonymizationStatus();
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Non défini";
-    return new Date(dateString).toLocaleString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const getTooltipContent = () => {
     const anonymizedAt = (user as any).anonymized_at;

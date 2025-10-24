@@ -32,6 +32,7 @@ import {
   useUserStatsIndividual,
   useUserBookings,
 } from "../../hooks/useUserQueries";
+import { formatCurrency, formatDate } from "../../../../utils";
 
 interface BookingsSectionProps {
   userId: string;
@@ -173,17 +174,6 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
       default:
         return "default";
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR");
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount);
   };
 
   const getStatusIcon = (status: string) => {

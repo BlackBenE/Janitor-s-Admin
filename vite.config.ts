@@ -14,6 +14,10 @@ export default defineConfig({
       "@contexts": path.resolve(__dirname, "./src/contexts"),
       "@admiral": path.resolve(__dirname, "./src/admiral"),
       "@types": path.resolve(__dirname, "./src/types"),
+      "@hooks": path.resolve(__dirname, "./src/hooks"),
+      "@services": path.resolve(__dirname, "./src/services"),
+      "@utils": path.resolve(__dirname, "./src/utils"),
+      "@providers": path.resolve(__dirname, "./src/providers"),
     },
   },
   server: {

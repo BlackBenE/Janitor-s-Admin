@@ -1,25 +1,25 @@
-import React from "react";
+import React from 'react';
 import {
   Group as GroupIcon,
   HomeWork as PropertyIcon,
   HandymanOutlined as ServiceIcon,
   AdminPanelSettings as AdminIcon,
   DeleteOutlined as DeleteIcon,
-} from "@mui/icons-material";
-import { Database } from "./database.types";
+} from '@mui/icons-material';
+import { Database } from './database.types';
+import { LABELS } from '@/core/config/labels';
 
 // Types helpers pour Supabase
-type Tables<T extends keyof Database["public"]["Tables"]> =
-  Database["public"]["Tables"][T]["Row"];
-type TablesInsert<T extends keyof Database["public"]["Tables"]> =
-  Database["public"]["Tables"][T]["Insert"];
-type TablesUpdate<T extends keyof Database["public"]["Tables"]> =
-  Database["public"]["Tables"][T]["Update"];
+type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
+type TablesInsert<T extends keyof Database['public']['Tables']> =
+  Database['public']['Tables'][T]['Insert'];
+type TablesUpdate<T extends keyof Database['public']['Tables']> =
+  Database['public']['Tables'][T]['Update'];
 
 // =====================================================
 // BASE TYPES FROM DATABASE
 // =====================================================
-export type UserProfile = Database["public"]["Tables"]["profiles"]["Row"];
+export type UserProfile = Database['public']['Tables']['profiles']['Row'];
 // UserSession supprimé - plus d'utilisation de user_sessions
 
 // Type étendu avec les champs d'anonymisation (pour les interfaces)
@@ -32,10 +32,10 @@ export interface UserProfileWithAnonymization extends UserProfile {
 // USER ROLES & CONFIGURATION
 // =====================================================
 export enum UserRole {
-  TRAVELER = "traveler",
-  PROPERTY_OWNER = "property_owner",
-  SERVICE_PROVIDER = "service_provider",
-  ADMIN = "admin",
+  TRAVELER = 'traveler',
+  PROPERTY_OWNER = 'property_owner',
+  SERVICE_PROVIDER = 'service_provider',
+  ADMIN = 'admin',
 }
 
 export interface UserTab {
@@ -49,61 +49,61 @@ export interface UserTab {
 export const USER_TABS: UserTab[] = [
   {
     role: null, // Pour afficher tous les utilisateurs
-    label: "All Users",
+    label: LABELS.users.tabs.all,
     icon: GroupIcon,
-    description: "Vue d'ensemble de tous les utilisateurs",
+    description: LABELS.users.tabs.allDescription,
   },
   {
     role: UserRole.TRAVELER,
-    label: "Travelers",
+    label: LABELS.users.tabs.travelers,
     icon: GroupIcon,
-    description: "Gestion des comptes voyageurs et leurs réservations",
+    description: LABELS.users.tabs.travelersDescription,
   },
   {
     role: UserRole.PROPERTY_OWNER,
-    label: "Property Owners",
+    label: LABELS.users.tabs.propertyOwners,
     icon: PropertyIcon,
-    description: "Gestion des propriétaires et leurs abonnements (100€/an)",
+    description: LABELS.users.tabs.propertyOwnersDescription,
   },
   {
     role: UserRole.SERVICE_PROVIDER,
-    label: "Service Providers",
+    label: LABELS.users.tabs.serviceProviders,
     icon: ServiceIcon,
-    description: "Modération des prestataires de services et vérifications",
+    description: LABELS.users.tabs.serviceProvidersDescription,
   },
   {
     role: UserRole.ADMIN,
-    label: "Admins",
+    label: LABELS.users.tabs.admins,
     icon: AdminIcon,
-    description: "Gestion des comptes administrateurs et permissions",
+    description: LABELS.users.tabs.adminsDescription,
   },
   {
-    role: "deleted" as any, // Type spécial pour les utilisateurs supprimés
-    label: "Deleted Users",
+    role: 'deleted' as any, // Type spécial pour les utilisateurs supprimés
+    label: LABELS.users.tabs.deleted,
     icon: DeleteIcon,
-    description: "Utilisateurs supprimés - Restauration possible",
+    description: LABELS.users.tabs.deletedDescription,
   },
 ];
 
 // =====================================================
 // DATA TYPES FOR BUSINESS ENTITIES
 // =====================================================
-export type Subscription = Tables<"subscriptions">;
-export type SubscriptionInsert = TablesInsert<"subscriptions">;
-export type SubscriptionUpdate = TablesUpdate<"subscriptions">;
+export type Subscription = Tables<'subscriptions'>;
+export type SubscriptionInsert = TablesInsert<'subscriptions'>;
+export type SubscriptionUpdate = TablesUpdate<'subscriptions'>;
 
-export type Booking = Tables<"bookings">;
-export type BookingInsert = TablesInsert<"bookings">;
-export type BookingUpdate = TablesUpdate<"bookings">;
+export type Booking = Tables<'bookings'>;
+export type BookingInsert = TablesInsert<'bookings'>;
+export type BookingUpdate = TablesUpdate<'bookings'>;
 
-export type Service = Tables<"services">;
-export type ServiceInsert = TablesInsert<"services">;
-export type ServiceUpdate = TablesUpdate<"services">;
-export type ServiceRequest = Tables<"service_requests">;
-export type Intervention = Tables<"interventions">;
+export type Service = Tables<'services'>;
+export type ServiceInsert = TablesInsert<'services'>;
+export type ServiceUpdate = TablesUpdate<'services'>;
+export type ServiceRequest = Tables<'service_requests'>;
+export type Intervention = Tables<'interventions'>;
 
-export type Payment = Tables<"payments">;
-export type Review = Tables<"reviews">;
+export type Payment = Tables<'payments'>;
+export type Review = Tables<'reviews'>;
 
 // =====================================================
 // COMPONENT PROPS INTERFACES
@@ -152,7 +152,7 @@ export interface UserTabsProps {
 export interface UserActionsProps {
   selectedUsers: string[];
   onCreateUser: () => void;
-  onBulkAction: (actionType: "delete" | "role" | "vip") => void;
+  onBulkAction: (actionType: 'delete' | 'role' | 'vip') => void;
 }
 
 // =====================================================
@@ -227,7 +227,7 @@ export interface UserFilters {
 export interface NotificationState {
   open: boolean;
   message: string;
-  severity: "success" | "error" | "warning" | "info";
+  severity: 'success' | 'error' | 'warning' | 'info';
 }
 
 export interface LockAccountState {
@@ -273,10 +273,7 @@ export interface UserManagementState {
   notification: NotificationState;
   lockAccount: LockAccountState;
   audit: AuditModalState;
-  showNotification: (
-    message: string,
-    severity: NotificationState["severity"]
-  ) => void;
+  showNotification: (message: string, severity: NotificationState['severity']) => void;
   clearUserSelection: () => void;
 }
 
@@ -287,17 +284,11 @@ export interface UserManagementHook {
   editForm: Partial<UserProfile>;
   filters: UserFilters;
   notification: NotificationState;
-  showNotification: (
-    message: string,
-    severity: NotificationState["severity"]
-  ) => void;
+  showNotification: (message: string, severity: NotificationState['severity']) => void;
   clearUserSelection: () => void;
   toggleUserSelection: (userId: string) => void;
   setUserForEdit: (user: UserProfile) => void;
-  updateEditForm: (
-    field: keyof UserProfile,
-    value: string | boolean | null
-  ) => void;
+  updateEditForm: (field: keyof UserProfile, value: string | boolean | null) => void;
   resetEditForm: () => void;
   updateFilter: (key: keyof UserFilters, value: string) => void;
   filterUsers: (users: UserProfile[]) => UserProfile[];

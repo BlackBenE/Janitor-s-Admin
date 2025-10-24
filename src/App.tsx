@@ -1,12 +1,7 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
   ThemeProvider,
   createTheme,
@@ -16,23 +11,25 @@ import {
   Typography,
   Alert,
   Container,
-} from "@mui/material";
-import { AuthProvider, useAuth } from "./providers/authProvider";
-import { routes } from "./routes/routes";
-import { useAudit } from "./hooks/shared/useAudit";
+} from '@mui/material';
+import { AuthProvider, useAuth } from '@/core/providers/auth.provider';
+import { routes } from './routes/routes';
+import { useAudit } from '@/shared/hooks';
+import { TwoFactorVerifyModal } from '@/features/auth/modals/TwoFactorVerifyModal';
+import { useTwoFactorLogin } from '@/features/auth/hooks/useTwoFactorLogin';
 
 // MUI Theme for admin panel
 const theme = createTheme({
   palette: {
-    mode: "light",
+    mode: 'light',
     primary: {
-      main: "#1976d2",
+      main: '#1976d2',
     },
     secondary: {
-      main: "#dc004e",
+      main: '#dc004e',
     },
     background: {
-      default: "#ffffffff",
+      default: '#ffffffff',
     },
   },
   typography: {
@@ -47,8 +44,8 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000, // 5 minutes - données considérées comme fraîches
       gcTime: 10 * 60 * 1000, // 10 minutes - durée de vie dans le cache
       refetchOnWindowFocus: false, // Pas de refetch automatique sur focus
-      refetchOnMount: "always", // Toujours refetch si les données sont stales
-      refetchOnReconnect: "always", // Refetch si reconnexion réseau
+      refetchOnMount: 'always', // Toujours refetch si les données sont stales
+      refetchOnReconnect: 'always', // Refetch si reconnexion réseau
     },
   },
 });
@@ -57,39 +54,35 @@ const queryClient = new QueryClient({
 const LoadingScreen: React.FC<{ error?: string | null }> = ({ error }) => (
   <Box
     sx={{
-      minHeight: "100vh",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "background.default",
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'background.default',
     }}
   >
     <Container maxWidth="sm">
-      <Box sx={{ textAlign: "center" }}>
+      <Box sx={{ textAlign: 'center' }}>
         {/* Loading spinner */}
-        <CircularProgress
-          size={60}
-          thickness={4}
-          sx={{ mb: 3, color: "primary.main" }}
-        />
+        <CircularProgress size={60} thickness={4} sx={{ mb: 3, color: 'primary.main' }} />
 
         {/* Loading text */}
         <Typography
           variant="h5"
           component="h2"
-          sx={{ mb: 2, fontWeight: 600, color: "text.primary" }}
+          sx={{ mb: 2, fontWeight: 600, color: 'text.primary' }}
         >
           Loading Admin Panel...
         </Typography>
 
-        <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
           Please wait while we initialize your session
         </Typography>
 
         {/* Error message if any */}
         {error && (
-          <Alert severity="error" sx={{ mt: 2, textAlign: "left" }}>
+          <Alert severity="error" sx={{ mt: 2, textAlign: 'left' }}>
             <strong>Authentication Error:</strong> {error}
           </Alert>
         )}
@@ -101,12 +94,13 @@ const LoadingScreen: React.FC<{ error?: string | null }> = ({ error }) => (
 // Separate component to use auth context
 const AppContent: React.FC = () => {
   const { session, isAdmin, loading, error } = useAuth();
+  const twoFactorLogin = useTwoFactorLogin();
 
   // Activer l'audit et le session tracking automatiquement avec le nouveau système
   useAudit(); // Enhanced debugging for development avec le nouveau système d'audit partagé
 
   if (import.meta.env.DEV) {
-    console.log("Auth State Debug:", {
+    console.log('Auth State Debug:', {
       session: !!session,
       sessionUser: session?.user?.email,
       isAdmin: isAdmin(),
@@ -125,7 +119,7 @@ const AppContent: React.FC = () => {
 
   // Log redirect decision
   const isAuthenticated = session && isAdmin();
-  const redirectTo = isAuthenticated ? "/dashboard" : "/auth";
+  const redirectTo = isAuthenticated ? '/dashboard' : '/auth';
 
   // console.log("Redirect Logic:", {
   //   isAuthenticated,
@@ -136,7 +130,7 @@ const AppContent: React.FC = () => {
 
   return (
     <Router>
-      <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
+      <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
         <Routes>
           {routes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />
@@ -145,6 +139,21 @@ const AppContent: React.FC = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Box>
+
+      {/* Modal 2FA globale - s'affiche par-dessus toutes les pages */}
+      <TwoFactorVerifyModal
+        open={twoFactorLogin.showModal}
+        isVerifying={twoFactorLogin.isVerifying}
+        error={twoFactorLogin.error}
+        onVerify={async (code) => {
+          const success = await twoFactorLogin.verifyCode(code);
+          if (success) {
+            console.log('✅ 2FA vérifiée depuis App.tsx');
+            // La redirection se fera automatiquement via le useEffect d'auth
+          }
+        }}
+        onCancel={twoFactorLogin.cancelVerification}
+      />
     </Router>
   );
 };

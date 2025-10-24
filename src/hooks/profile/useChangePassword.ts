@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { ChangePasswordData } from "../../types/profile";
-import { ProfileService } from "../../services/profileService";
-import { useUINotifications } from "../shared";
-import { useAuth } from "../../providers/authProvider";
+import { useState } from 'react';
+import { ChangePasswordData } from '../../types/profile';
+import { ProfileService } from '@/core/services/profile.service';
+import { useUINotifications } from '../shared';
+import { useAuth } from '@/core/providers/auth.provider';
 
 /**
  * Hook pour gérer le changement de mot de passe
@@ -14,7 +14,7 @@ export const useChangePassword = () => {
 
   const changePassword = async (data: ChangePasswordData): Promise<boolean> => {
     if (!user?.email) {
-      showError("User email not found");
+      showError('User email not found');
       return false;
     }
 
@@ -24,7 +24,7 @@ export const useChangePassword = () => {
     }
 
     if (data.newPassword.length < 8) {
-      showError("New password must be at least 8 characters long");
+      showError('New password must be at least 8 characters long');
       return false;
     }
 
@@ -37,7 +37,7 @@ export const useChangePassword = () => {
       );
 
       if (!verifyResult.success) {
-        showError(verifyResult.error || "Current password is incorrect");
+        showError(verifyResult.error || 'Current password is incorrect');
         return false;
       }
 
@@ -48,15 +48,15 @@ export const useChangePassword = () => {
       );
 
       if (!changeResult.success) {
-        showError(changeResult.error || "Failed to change password");
+        showError(changeResult.error || 'Failed to change password');
         return false;
       }
 
-      showSuccess("Password changed successfully!");
+      showSuccess('Password changed successfully!');
       return true;
     } catch (error) {
-      console.error("Change password error:", error);
-      showError("An unexpected error occurred");
+      console.error('Change password error:', error);
+      showError('An unexpected error occurred');
       return false;
     } finally {
       setIsLoading(false);

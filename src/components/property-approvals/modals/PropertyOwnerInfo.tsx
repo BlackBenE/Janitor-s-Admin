@@ -13,6 +13,7 @@ import {
 } from "@mui/icons-material";
 
 import { PropertyWithOwner } from "../../../types";
+import { LABELS } from "../../../constants/labels";
 
 interface PropertyOwnerInfoProps {
   property: PropertyWithOwner;
@@ -28,7 +29,7 @@ export const PropertyOwnerInfo: React.FC<PropertyOwnerInfoProps> = ({
           variant="h6"
           sx={{ display: "flex", alignItems: "center", gap: 1 }}
         >
-          <PersonIcon /> Owner Information
+          <PersonIcon /> {LABELS.propertyApprovals.modals.ownerInfo}
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
@@ -42,18 +43,20 @@ export const PropertyOwnerInfo: React.FC<PropertyOwnerInfoProps> = ({
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Owner Name
+                {LABELS.propertyApprovals.modals.ownerName}
               </Typography>
               <Typography variant="body1" gutterBottom>
-                {property?.profiles?.full_name || "Unknown Owner"}
+                {property?.profiles?.full_name ||
+                  LABELS.propertyApprovals.modals.unknownOwner}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Email
+                {LABELS.common.fields.email}
               </Typography>
               <Typography variant="body1" gutterBottom>
-                {property?.profiles?.email || "No email"}
+                {property?.profiles?.email ||
+                  LABELS.propertyApprovals.modals.noEmail}
               </Typography>
             </Box>
           </Box>
@@ -66,17 +69,17 @@ export const PropertyOwnerInfo: React.FC<PropertyOwnerInfoProps> = ({
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Phone
+                {LABELS.common.fields.phone}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 {property?.profiles?.phone ||
                   property?.owner?.phone ||
-                  "No phone"}
+                  LABELS.propertyApprovals.modals.noEmail}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                User ID
+                {LABELS.propertyApprovals.modals.ownerId}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 {property?.owner_id || "N/A"}

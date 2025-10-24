@@ -19,6 +19,7 @@ import {
   createDateColumn,
 } from "../shared/GenericTableColumns";
 import { PropertyWithOwner } from "../../types";
+import { LABELS } from "../../constants";
 
 // =====================================================
 // TYPES SPÉCIFIQUES AUX PROPRIÉTÉS
@@ -56,7 +57,7 @@ export interface PropertyTableConfig {
 const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
   {
     field: "title",
-    headerName: "Property",
+    headerName: LABELS.propertyApprovals.table.headers.property,
     flex: 1,
     renderCell: (params: GridRenderCellParams) => {
       const imageCount = params.row.images?.length || 0;
@@ -89,8 +90,8 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
               sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
             >
               {imageCount > 0
-                ? `${imageCount} image${imageCount > 1 ? "s" : ""}`
-                : "No images"}
+                ? `${imageCount} ${LABELS.propertyApprovals.table.headers.images.toLowerCase()}`
+                : `0 ${LABELS.propertyApprovals.table.headers.images.toLowerCase()}`}
             </Typography>
           </Box>
         </Box>
@@ -99,7 +100,7 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
   },
   {
     field: "owner_name",
-    headerName: "Owner",
+    headerName: LABELS.propertyApprovals.table.headers.owner,
     renderCell: (params: GridRenderCellParams) => (
       <Box
         sx={{
@@ -115,21 +116,21 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
           fontWeight="medium"
           sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
         >
-          {params.value || "Unknown"}
+          {params.value || LABELS.propertyApprovals.modals.unknownOwner}
         </Typography>
         <Typography
           variant="caption"
           color="text.secondary"
           sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
         >
-          {params.row.owner_email || "No email"}
+          {params.row.owner_email || LABELS.propertyApprovals.modals.noEmail}
         </Typography>
       </Box>
     ),
   },
   {
     field: "location",
-    headerName: "Location",
+    headerName: LABELS.propertyApprovals.table.headers.location,
     width: 200,
     renderCell: (params: GridRenderCellParams) => (
       <Box
@@ -158,7 +159,7 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
             color="text.secondary"
             sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
           >
-            {params.row.address || "No address"}
+            {params.row.address || LABELS.common.messages.noAddress}
           </Typography>
         </Box>
       </Box>
@@ -166,7 +167,7 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
   },
   {
     field: "rent_amount",
-    headerName: "Price",
+    headerName: LABELS.propertyApprovals.table.headers.price,
     width: 120,
     renderCell: (params: GridRenderCellParams) => (
       <Typography variant="body2" fontWeight="medium">
@@ -176,7 +177,7 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
   },
   {
     field: "validation_status",
-    headerName: "Status",
+    headerName: LABELS.propertyApprovals.table.headers.status,
     width: 130,
     renderCell: (params: GridRenderCellParams) => {
       const status = params.value || "pending";
@@ -210,7 +211,7 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
       return <Chip {...chipProps} label={statusText} size="small" />;
     },
   },
-  createDateColumn("created_at", "Submitted"),
+  createDateColumn("created_at", LABELS.common.messages.submitted),
   createActionsColumn(config),
 ];
 

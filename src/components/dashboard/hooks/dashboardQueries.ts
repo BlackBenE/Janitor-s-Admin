@@ -4,12 +4,25 @@ import {
   DashboardStats,
   RecentActivity,
 } from "../../../types/dashboard";
+import { LABELS } from "../../../constants/labels";
 
 // Types for the query results
 export interface ChartData {
   recentActivityData: ChartDataPoint[];
   userGrowthData: ChartDataPoint[];
 }
+
+/**
+ * Helper pour formater les messages avec interpolation
+ */
+const formatActivityMessage = (
+  template: string,
+  vars: Record<string, string | number>
+): string => {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) =>
+    String(vars[key] || "")
+  );
+};
 
 /**
  * Récupère les statistiques du dashboard
@@ -270,9 +283,12 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(recentProperties.data?.map((property) => ({
         id: property.id,
         status: "pending" as const,
-        title: "New Property Submission",
-        description: `Property "${property.title}" in ${property.city} awaiting validation`,
-        actionLabel: "Review Property",
+        title: LABELS.dashboard.activities.types.property.title,
+        description: formatActivityMessage(
+          LABELS.dashboard.activities.types.property.description,
+          { title: property.title, city: property.city }
+        ),
+        actionLabel: LABELS.dashboard.activities.types.property.action,
         timestamp: property.created_at,
         type: "property" as const,
       })) || []),
@@ -281,11 +297,12 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(recentProviders.data?.map((provider) => ({
         id: provider.id,
         status: "pending" as const,
-        title: "Service Provider Registration",
-        description: `${
-          provider.full_name || provider.email
-        } awaiting profile verification`,
-        actionLabel: "Verify Provider",
+        title: LABELS.dashboard.activities.types.provider.title,
+        description: formatActivityMessage(
+          LABELS.dashboard.activities.types.provider.description,
+          { name: provider.full_name || provider.email }
+        ),
+        actionLabel: LABELS.dashboard.activities.types.provider.action,
         timestamp: provider.created_at,
         type: "provider" as const,
       })) || []),
@@ -299,12 +316,15 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
             : ("pending" as const),
         title:
           service.status === "cancelled"
-            ? "Service Cancelled"
-            : "Service Issue",
+            ? LABELS.dashboard.activities.types.serviceCancelled.title
+            : LABELS.dashboard.activities.types.serviceIssue.title,
         description:
           service.cancellation_reason ||
-          "Service request requires admin attention",
-        actionLabel: "Review Service",
+          LABELS.dashboard.activities.types.serviceIssue.description,
+        actionLabel:
+          service.status === "cancelled"
+            ? LABELS.dashboard.activities.types.serviceCancelled.action
+            : LABELS.dashboard.activities.types.serviceIssue.action,
         timestamp: service.updated_at || service.created_at,
         type: "service" as const,
       })) || []),
@@ -313,9 +333,12 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(recentPayments.data?.map((payment: any) => ({
         id: payment.id,
         status: "pending" as const,
-        title: "Payment Verification",
-        description: `Payment of €${payment.amount} requires verification`,
-        actionLabel: "Review Payment",
+        title: LABELS.dashboard.activities.types.payment.title,
+        description: formatActivityMessage(
+          LABELS.dashboard.activities.types.payment.description,
+          { amount: payment.amount }
+        ),
+        actionLabel: LABELS.dashboard.activities.types.payment.action,
         timestamp: payment.created_at,
         type: "payment" as const,
       })) || []),
@@ -324,9 +347,12 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(chatReports.data?.map((report: any) => ({
         id: report.id,
         status: "review_required" as const,
-        title: "Chat Report",
-        description: `User reported for: ${report.reason}`,
-        actionLabel: "Review Report",
+        title: LABELS.dashboard.activities.types.chatReport.title,
+        description: formatActivityMessage(
+          LABELS.dashboard.activities.types.chatReport.description,
+          { reason: report.reason }
+        ),
+        actionLabel: LABELS.dashboard.activities.types.chatReport.action,
         timestamp: report.created_at,
         type: "chat_report" as const,
       })) || []),
@@ -335,9 +361,12 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(failedPayments.data?.map((payment: any) => ({
         id: payment.id,
         status: "failed" as const,
-        title: "Payment Failed",
-        description: `Payment failed: ${payment.failure_reason}`,
-        actionLabel: "Investigate",
+        title: LABELS.dashboard.activities.types.paymentFailed.title,
+        description: formatActivityMessage(
+          LABELS.dashboard.activities.types.paymentFailed.description,
+          { reason: payment.failure_reason }
+        ),
+        actionLabel: LABELS.dashboard.activities.types.paymentFailed.action,
         timestamp: payment.created_at,
         type: "failed_payment" as const,
       })) || []),
@@ -351,9 +380,12 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
         return {
           id: payment.id,
           status: "review_required" as const,
-          title: "Payment Overdue",
-          description: `Payment of €${payment.amount} pending for ${daysSinceCreation} day(s)`,
-          actionLabel: "Review Payment",
+          title: LABELS.dashboard.activities.types.paymentOverdue.title,
+          description: formatActivityMessage(
+            LABELS.dashboard.activities.types.paymentOverdue.description,
+            { amount: payment.amount, days: daysSinceCreation }
+          ),
+          actionLabel: LABELS.dashboard.activities.types.paymentOverdue.action,
           timestamp: payment.created_at,
           type: "overdue_payment" as const,
         };
@@ -363,31 +395,40 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(pendingRefunds.data?.map((payment: any) => ({
         id: payment.id,
         status: "pending" as const,
-        title: "Refund Processing",
-        description: `Refund of €${payment.refund_amount} requires processing`,
-        actionLabel: "Process Refund",
+        title: LABELS.dashboard.activities.types.refund.title,
+        description: formatActivityMessage(
+          LABELS.dashboard.activities.types.refund.description,
+          { amount: payment.refund_amount }
+        ),
+        actionLabel: LABELS.dashboard.activities.types.refund.action,
         timestamp: payment.created_at,
         type: "pending_refund" as const,
       })) || []),
 
       // Utilisateurs en attente de validation (Property Owners, Travelers, etc.)
       ...(pendingUsers.data?.map((user: any) => {
-        const roleDisplay =
+        const roleKey =
           user.role === "property_owner"
-            ? "Property Owner"
+            ? "propertyOwner"
             : user.role === "traveler"
-            ? "Traveler"
+            ? "traveler"
             : user.role === "admin"
-            ? "Admin"
-            : "User";
+            ? "admin"
+            : "user";
+        const roleDisplay =
+          LABELS.dashboard.activities.roles[roleKey] ||
+          LABELS.dashboard.activities.roles.user;
+
         return {
           id: user.id,
           status: "pending" as const,
-          title: `${roleDisplay} Registration`,
-          description: `${
-            user.full_name || user.email
-          } (${roleDisplay}) awaiting account validation`,
-          actionLabel: "Validate Account",
+          title: LABELS.dashboard.activities.types.userRegistration[roleKey],
+          description: formatActivityMessage(
+            LABELS.dashboard.activities.types.userRegistration.description,
+            { name: user.full_name || user.email, role: roleDisplay }
+          ),
+          actionLabel:
+            LABELS.dashboard.activities.types.userRegistration.action,
           timestamp: user.created_at,
           type: "pending_user" as const,
         };
@@ -397,11 +438,15 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(lockedAccounts.data?.map((account: any) => ({
         id: account.id,
         status: "review_required" as const,
-        title: "Account Locked",
-        description: `Account ${account.full_name || account.email} locked: ${
-          account.lock_reason
-        }`,
-        actionLabel: "Review Lock",
+        title: LABELS.dashboard.activities.types.accountLocked.title,
+        description: formatActivityMessage(
+          LABELS.dashboard.activities.types.accountLocked.description,
+          {
+            name: account.full_name || account.email,
+            reason: account.lock_reason,
+          }
+        ),
+        actionLabel: LABELS.dashboard.activities.types.accountLocked.action,
         timestamp: account.updated_at || account.created_at,
         type: "locked_account" as const,
       })) || []),

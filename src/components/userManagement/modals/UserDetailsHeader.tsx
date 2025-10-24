@@ -14,6 +14,7 @@ import {
   Star as VipIcon,
 } from "@mui/icons-material";
 import { UserProfile } from "../../../types/userManagement";
+import { LABELS } from "../../../constants";
 
 interface UserDetailsHeaderProps {
   user: UserProfile;
@@ -42,13 +43,13 @@ export const UserDetailsHeader: React.FC<UserDetailsHeaderProps> = ({
   const getRoleLabel = (role: string) => {
     switch (role) {
       case "admin":
-        return "Administrator";
+        return LABELS.users.roles.admin;
       case "property_owner":
-        return "Property Owner";
+        return LABELS.users.roles.property_owner;
       case "service_provider":
-        return "Service Provider";
+        return LABELS.users.roles.service_provider;
       case "traveler":
-        return "Traveler";
+        return LABELS.users.roles.traveler;
       default:
         return role;
     }
@@ -94,7 +95,7 @@ export const UserDetailsHeader: React.FC<UserDetailsHeaderProps> = ({
         </Avatar>
         <Box sx={{ flex: 1 }}>
           <Typography variant="h5" component="h2" gutterBottom>
-            {user.full_name || "Unnamed User"}
+            {user.full_name || LABELS.users.unnamedUser}
           </Typography>
           <Typography variant="body2" sx={{ opacity: 0.9, mb: 1 }}>
             {user.email}
@@ -107,10 +108,10 @@ export const UserDetailsHeader: React.FC<UserDetailsHeaderProps> = ({
               sx={{ color: "white", fontWeight: 500 }}
             />
             {user.profile_validated && (
-              <Tooltip title="Validated Profile">
+              <Tooltip title={LABELS.users.tooltips.validatedProfile}>
                 <Chip
                   icon={<VerifiedIcon />}
-                  label="Verified"
+                  label={LABELS.users.chips.verified}
                   color="success"
                   size="small"
                   sx={{ color: "white" }}
@@ -118,7 +119,7 @@ export const UserDetailsHeader: React.FC<UserDetailsHeaderProps> = ({
               </Tooltip>
             )}
             {user.vip_subscription && (
-              <Tooltip title="VIP Subscription">
+              <Tooltip title={LABELS.users.tooltips.vipSubscription}>
                 <Chip
                   icon={<VipIcon />}
                   label="VIP"
@@ -129,10 +130,10 @@ export const UserDetailsHeader: React.FC<UserDetailsHeaderProps> = ({
               </Tooltip>
             )}
             {user.account_locked && (
-              <Tooltip title="Account Locked">
+              <Tooltip title={LABELS.users.tooltips.accountLocked}>
                 <Chip
                   icon={<LockIcon />}
-                  label="Locked"
+                  label={LABELS.common.status.locked}
                   color="error"
                   size="small"
                   sx={{ color: "white" }}
@@ -153,13 +154,13 @@ export const UserDetailsHeader: React.FC<UserDetailsHeaderProps> = ({
         }}
       >
         <Typography variant="caption">
-          ID: {user.id.substring(0, 8)}...
+          {LABELS.users.details.userId}: {user.id.substring(0, 8)}...
         </Typography>
         <Typography variant="caption">
-          Joined:{" "}
+          {LABELS.users.details.joined}:{" "}
           {user.created_at
-            ? new Date(user.created_at).toLocaleDateString()
-            : "Unknown"}
+            ? new Date(user.created_at).toLocaleDateString("fr-FR")
+            : LABELS.users.details.unknown}
         </Typography>
       </Box>
     </Box>

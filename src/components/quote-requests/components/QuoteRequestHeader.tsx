@@ -5,6 +5,7 @@ import {
   Refresh as RefreshIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
+import { LABELS } from "../../../constants";
 
 interface QuoteRequestHeaderProps {
   onRefresh: () => void;
@@ -32,30 +33,30 @@ export const QuoteRequestHeader: React.FC<QuoteRequestHeaderProps> = ({
     >
       <Box>
         <Typography variant="h4" component="h1" fontWeight="bold">
-          Demandes de devis
+          {LABELS.quoteRequests.title}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Surveillez et gérez les demandes de devis de service et les
-          interventions en cours. ({totalCount} demandes)
+          {LABELS.quoteRequests.subtitle} ({totalCount}{" "}
+          {LABELS.quoteRequests.messages.requestsCount})
         </Typography>
       </Box>
 
       <Box sx={{ display: "flex", gap: 1 }}>
         {onAddQuoteRequest && (
-          <Tooltip title="Ajouter une demande">
+          <Tooltip title={LABELS.quoteRequests.actions.addRequest}>
             <IconButton onClick={onAddQuoteRequest} disabled={isLoading}>
               <AddIcon />
             </IconButton>
           </Tooltip>
         )}
 
-        <Tooltip title="Actualiser les données">
+        <Tooltip title={LABELS.quoteRequests.actions.refresh}>
           <IconButton onClick={onRefresh} disabled={isLoading}>
             <RefreshIcon />
           </IconButton>
         </Tooltip>
 
-        <Tooltip title="Exporter les demandes sélectionnées">
+        <Tooltip title={LABELS.quoteRequests.actions.export}>
           <IconButton onClick={onExport} disabled={isLoading}>
             <DownloadIcon />
           </IconButton>

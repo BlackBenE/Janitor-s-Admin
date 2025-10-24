@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import ActivityItem from "../../ActivityItem";
 import { RecentActivity } from "../../../types/dashboard";
+import { LABELS } from "../../../constants";
 
 interface DashboardActivitiesSectionProps {
   activities: RecentActivity[];
@@ -28,6 +29,23 @@ const mapStatusToDisplay = (
   }
 };
 
+// Note: Cette fonction retourne toujours des valeurs en anglais car elles sont utilisées
+// comme clés pour récupérer les traductions depuis LABELS.dashboard.activities.status
+const getStatusTranslation = (
+  status: "Pending" | "Review Required" | "Completed"
+): string => {
+  switch (status) {
+    case "Pending":
+      return LABELS.dashboard.activities.status.pending;
+    case "Review Required":
+      return LABELS.dashboard.activities.status.reviewRequired;
+    case "Completed":
+      return LABELS.dashboard.activities.status.completed;
+    default:
+      return status;
+  }
+};
+
 export const DashboardActivitiesSection: React.FC<
   DashboardActivitiesSectionProps
 > = ({ activities }) => {
@@ -46,11 +64,12 @@ export const DashboardActivitiesSection: React.FC<
     >
       <Box sx={{ mb: 2 }}>
         <Typography variant="h6">
-          Recent Activity {activities.length > 0 && `(${activities.length})`}
+          {LABELS.dashboard.activities.title}{" "}
+          {activities.length > 0 && `(${activities.length})`}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Latest actions requiring your attention
-          {activities.length > 5 && " - Scroll to see more"}
+          {LABELS.dashboard.activities.subtitle}
+          {activities.length > 5 && LABELS.dashboard.activities.subtitleScroll}
         </Typography>
       </Box>
       <Box sx={{ position: "relative", flex: 1 }}>
@@ -92,7 +111,7 @@ export const DashboardActivitiesSection: React.FC<
               />
             ))
           ) : (
-            <Typography>No recent activities</Typography>
+            <Typography>{LABELS.dashboard.activities.noActivities}</Typography>
           )}
         </Box>
 

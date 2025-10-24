@@ -18,6 +18,7 @@ import {
   getFinancialColor,
 } from "../utils/financialUtils";
 import { formatDate, formatCurrency } from "../../../utils";
+import { LABELS } from "../../../constants/labels";
 
 /**
  * Cellule de sélection avec checkbox
@@ -106,7 +107,11 @@ export const StatusCell: React.FC<{
 
   return (
     <Chip
-      label={params.row.profile_validated ? "Validated" : "Pending"}
+      label={
+        params.row.profile_validated
+          ? LABELS.common.messages.validated
+          : LABELS.common.status.pending
+      }
       color={params.row.profile_validated ? "success" : "warning"}
       size="small"
     />
@@ -124,7 +129,11 @@ export const ActivityCell: React.FC<{
   const activity = activityData?.[params.row.id];
 
   if (!activity) {
-    return <Box sx={{ color: "text.secondary" }}>Loading...</Box>;
+    return (
+      <Box sx={{ color: "text.secondary" }}>
+        {LABELS.common.messages.loading}
+      </Box>
+    );
   }
 
   if (currentUserRole === UserRole.TRAVELER) {
@@ -185,7 +194,11 @@ export const SpendingCell: React.FC<{
   const activity = activityData?.[params.row.id];
 
   if (!activity) {
-    return <Box sx={{ color: "text.secondary" }}>Loading...</Box>;
+    return (
+      <Box sx={{ color: "text.secondary" }}>
+        {LABELS.common.messages.loading}
+      </Box>
+    );
   }
 
   return (

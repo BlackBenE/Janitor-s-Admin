@@ -19,6 +19,7 @@ import {
   useSearchNavigation,
   SearchResult,
 } from "../services/searchService";
+import { LABELS } from "../constants/labels";
 
 interface SearchBarProps {
   placeholder?: string;
@@ -76,7 +77,7 @@ const StyledInputBase = styled(memo(InputBase))(({ theme }) => ({
 }));
 
 const SearchBar: FC<SearchBarProps> = ({
-  placeholder = "Search…",
+  placeholder = LABELS.searchBar.placeholder,
   debounceMs = 300,
   minWidth = "12ch",
   expandedWidth = "20ch",
@@ -149,7 +150,7 @@ const SearchBar: FC<SearchBarProps> = ({
           onFocus={() => setShowResults(true)}
           placeholder={placeholder}
           inputProps={{
-            "aria-label": "search",
+            "aria-label": LABELS.searchBar.ariaLabel,
             style: {
               minWidth,
             },

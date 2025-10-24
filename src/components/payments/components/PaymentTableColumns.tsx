@@ -9,6 +9,7 @@ import {
   getPaymentTypeColor,
 } from "../../../utils";
 import { PaymentTableActions } from "./PaymentTableActions";
+import { LABELS } from "../../../constants";
 
 interface PaymentTableColumnsProps {
   selectedPayments: string[];
@@ -83,7 +84,7 @@ export const createPaymentTableColumns = ({
   },
   {
     field: "invoice_id",
-    headerName: "Invoice ID",
+    headerName: LABELS.payments.table.headers.reference,
     width: 140,
     renderCell: (params: GridRenderCellParams) => (
       <Box sx={{ fontFamily: "monospace", fontWeight: "medium" }}>
@@ -139,7 +140,7 @@ export const createPaymentTableColumns = ({
   },
   {
     field: "client_name",
-    headerName: "Client",
+    headerName: LABELS.payments.table.headers.user,
     minWidth: 160,
     renderCell: (params: GridRenderCellParams) => {
       const payer = params.row.payer;
@@ -155,7 +156,7 @@ export const createPaymentTableColumns = ({
   },
   {
     field: "amount",
-    headerName: "Montant",
+    headerName: LABELS.payments.table.headers.amount,
     width: 120,
     renderCell: (params: GridRenderCellParams) => (
       <Box sx={{ fontWeight: "medium", textAlign: "right" }}>
@@ -165,7 +166,7 @@ export const createPaymentTableColumns = ({
   },
   {
     field: "status",
-    headerName: "Statut",
+    headerName: LABELS.payments.table.headers.status,
     width: 130,
     renderCell: (params: GridRenderCellParams) => {
       const status = params.row.status;
@@ -178,7 +179,9 @@ export const createPaymentTableColumns = ({
 
       return (
         <Chip
-          label={isOverdue ? "En retard" : getStatusLabel(status)}
+          label={
+            isOverdue ? LABELS.payments.status.overdue : getStatusLabel(status)
+          }
           color={isOverdue ? "error" : getPaymentStatusColor(status)}
           size="small"
           variant="filled"
@@ -188,7 +191,7 @@ export const createPaymentTableColumns = ({
   },
   {
     field: "due_date",
-    headerName: "Échéance",
+    headerName: LABELS.payments.table.headers.date,
     width: 120,
     renderCell: (params: GridRenderCellParams) => {
       const dueDate = params.row.created_at
@@ -212,7 +215,7 @@ export const createPaymentTableColumns = ({
   },
   {
     field: "actions",
-    headerName: "Actions",
+    headerName: LABELS.payments.table.headers.actions,
     width: 200,
     sortable: false,
     filterable: false,

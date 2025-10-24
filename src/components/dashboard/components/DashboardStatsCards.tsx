@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import DashboardItem from "../../DashboardItem";
 import InfoCard from "../../InfoCard";
 import { DashboardStats as DashboardStatsType } from "../../../types/dashboard";
+import { LABELS } from "../../../constants";
 
 interface DashboardStatsCardsProps {
   stats: DashboardStatsType;
@@ -13,24 +14,24 @@ export const DashboardStatsCards: React.FC<DashboardStatsCardsProps> = ({
 }) => {
   const statCards = [
     {
-      title: "Validations de propriété",
+      title: LABELS.dashboard.stats.propertyValidations,
       value: stats.pendingValidations,
-      bottomLeft: "Total en attente",
+      bottomLeft: LABELS.dashboard.stats.pendingTotal,
     },
     {
-      title: "Modération des fournisseurs",
+      title: LABELS.dashboard.stats.providerModeration,
       value: stats.moderationCases,
-      bottomLeft: "À valider",
+      bottomLeft: LABELS.dashboard.stats.toValidate,
     },
     {
-      title: "Utilisateurs actifs",
+      title: LABELS.dashboard.stats.activeUsers,
       value: stats.activeUsers,
-      bottomLeft: "Les 30 derniers jours",
+      bottomLeft: LABELS.dashboard.stats.last30Days,
     },
     {
-      title: "Revenu mensuel",
+      title: LABELS.dashboard.stats.monthlyRevenue,
       value: `${stats.monthlyRevenue}€`,
-      bottomLeft: "Ce mois-ci",
+      bottomLeft: LABELS.dashboard.stats.thisMonth,
     },
   ];
 

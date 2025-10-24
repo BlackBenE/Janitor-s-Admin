@@ -16,6 +16,7 @@ import {
   PropertyWithOwner,
 } from "../../types/propertyApprovals";
 import { Property } from "../../types";
+import { LABELS } from "../../constants/labels";
 
 const PropertyApprovalsPage: React.FC = () => {
   const { user } = useAuth();
@@ -317,7 +318,7 @@ const PropertyApprovalsPage: React.FC = () => {
       owner_email: property.profiles?.email || "No email",
       location:
         `${property.city || ""}, ${property.country || ""}`.trim() || "N/A",
-      address: property.address || "No address",
+      address: property.address || LABELS.common.messages.noAddress,
       rent_amount: property.nightly_rate || null,
       created_at: property.created_at
         ? new Date(property.created_at).toLocaleDateString()

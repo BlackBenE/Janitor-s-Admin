@@ -11,6 +11,7 @@ import {
   Add as AddIcon,
   Download as DownloadIcon,
 } from "@mui/icons-material";
+import { LABELS } from "../../../constants";
 
 interface PropertyHeaderProps {
   propertiesCount: number;
@@ -40,14 +41,16 @@ export const PropertyHeader: React.FC<PropertyHeaderProps> = ({
     >
       <Box>
         <Typography variant="h4" component="h1" gutterBottom>
-          Property Approvals
+          {LABELS.propertyApprovals.title}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Review and moderate property listings submitted by landlords.
+          {LABELS.propertyApprovals.subtitle}
         </Typography>
       </Box>
       <Box sx={{ display: "flex", gap: 1 }}>
-        <Tooltip title={`Export ${propertiesCount} Properties to CSV`}>
+        <Tooltip
+          title={`${LABELS.propertyApprovals.actions.export} (${propertiesCount})`}
+        >
           <IconButton
             size="large"
             onClick={onExportProperties}
@@ -56,7 +59,7 @@ export const PropertyHeader: React.FC<PropertyHeaderProps> = ({
             <DownloadIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Refresh Properties">
+        <Tooltip title={LABELS.common.actions.refresh}>
           <IconButton onClick={onRefresh} disabled={isRefreshing} size="large">
             {isRefreshing ? <CircularProgress size={24} /> : <RefreshIcon />}
           </IconButton>

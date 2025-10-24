@@ -9,6 +9,7 @@ import {
 import InfoCard from "../../InfoCard";
 import { UserProfile } from "../../../types/userManagement";
 import { formatCurrency } from "../../../utils";
+import { LABELS } from "../../../constants/labels";
 
 interface UserActivityData {
   userId: string;
@@ -61,7 +62,7 @@ const UserStatsCards: React.FC<{
         sx={{ display: "flex", flex: 1, minWidth: 0 }}
       >
         <InfoCard
-          title="Total Users"
+          title={LABELS.common.messages.totalUsers}
           value={totalUsers.toString()}
           progressText={monthlyGrowth}
           icon={PeopleIcon}
@@ -73,7 +74,7 @@ const UserStatsCards: React.FC<{
         sx={{ display: "flex", flex: 1, minWidth: 220 }}
       >
         <InfoCard
-          title="Active Users"
+          title={LABELS.common.messages.activeUsers}
           value={activeUsers.toString()}
           progressText={activeGrowth}
           icon={CheckCircleIcon}
@@ -85,7 +86,7 @@ const UserStatsCards: React.FC<{
         sx={{ display: "flex", flex: 1, minWidth: 220 }}
       >
         <InfoCard
-          title="Pending Validations"
+          title={LABELS.common.messages.pendingValidations}
           value={pendingValidations.toString()}
           icon={AccessTimeIcon}
         />
@@ -96,7 +97,7 @@ const UserStatsCards: React.FC<{
         sx={{ display: "flex", flex: 1, minWidth: 220 }}
       >
         <InfoCard
-          title="Total Revenue"
+          title={LABELS.common.messages.totalRevenue}
           value={formatCurrency(totalRevenue)}
           icon={AttachMoneyIcon}
         />
@@ -118,8 +119,10 @@ export const UserStatsSection: React.FC<UserStatsSectionProps> = ({
       {/* Message d'erreur */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          Erreur lors du chargement des utilisateurs :{" "}
-          {error instanceof Error ? error.message : "Unknown error"}
+          {LABELS.common.messages.loadingUsersError}:{" "}
+          {error instanceof Error
+            ? error.message
+            : LABELS.common.messages.unknownError}
         </Alert>
       )}
     </>

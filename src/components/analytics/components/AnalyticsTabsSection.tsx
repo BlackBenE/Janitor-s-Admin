@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Paper, Tabs, Tab } from "@mui/material";
 import { TrendingUp, Assessment, PieChart } from "@mui/icons-material";
 import AnalyticsChart from "../../AnalyticsChart";
+import { LABELS } from "../../../constants/labels";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -50,9 +51,21 @@ export const AnalyticsTabsSection: React.FC<AnalyticsTabsSectionProps> = ({
         variant="scrollable"
         scrollButtons="auto"
       >
-        <Tab icon={<TrendingUp />} label="Tendances" iconPosition="start" />
-        <Tab icon={<Assessment />} label="Performance" iconPosition="start" />
-        <Tab icon={<PieChart />} label="Répartition" iconPosition="start" />
+        <Tab
+          icon={<TrendingUp />}
+          label={LABELS.analytics.tabs.trends}
+          iconPosition="start"
+        />
+        <Tab
+          icon={<Assessment />}
+          label={LABELS.analytics.tabs.performance}
+          iconPosition="start"
+        />
+        <Tab
+          icon={<PieChart />}
+          label={LABELS.analytics.tabs.distribution}
+          iconPosition="start"
+        />
       </Tabs>
 
       <TabPanel value={tabValue} index={0}>
@@ -64,8 +77,8 @@ export const AnalyticsTabsSection: React.FC<AnalyticsTabsSectionProps> = ({
           }}
         >
           <AnalyticsChart
-            title="Croissance des Utilisateurs"
-            subtitle="Évolution des inscriptions et revenus sur la période sélectionnée"
+            title={LABELS.analytics.charts.userGrowth.title}
+            subtitle={LABELS.analytics.charts.userGrowth.subtitle}
             data={chartData.userGrowth || []}
             type="area"
             dataKey="users"
@@ -75,8 +88,8 @@ export const AnalyticsTabsSection: React.FC<AnalyticsTabsSectionProps> = ({
           />
 
           <AnalyticsChart
-            title="Tendance des Réservations"
-            subtitle="Évolution des réservations sur la période sélectionnée"
+            title={LABELS.analytics.charts.bookingTrends.title}
+            subtitle={LABELS.analytics.charts.bookingTrends.subtitle}
             data={chartData.bookingTrends || []}
             type="line"
             dataKey="bookings"
@@ -96,8 +109,8 @@ export const AnalyticsTabsSection: React.FC<AnalyticsTabsSectionProps> = ({
           }}
         >
           <AnalyticsChart
-            title="Top Services"
-            subtitle="Services les plus demandés sur la période sélectionnée"
+            title={LABELS.analytics.charts.topServices.title}
+            subtitle={LABELS.analytics.charts.topServices.subtitle}
             data={chartData.topServices || []}
             type="bar"
             dataKey="bookings"
@@ -107,8 +120,8 @@ export const AnalyticsTabsSection: React.FC<AnalyticsTabsSectionProps> = ({
           />
 
           <AnalyticsChart
-            title="Revenus par Mois"
-            subtitle="Évolution des revenus sur la période sélectionnée"
+            title={LABELS.analytics.charts.monthlyRevenue.title}
+            subtitle={LABELS.analytics.charts.monthlyRevenue.subtitle}
             data={chartData.userGrowth || []}
             type="bar"
             dataKey="revenue"
@@ -128,8 +141,8 @@ export const AnalyticsTabsSection: React.FC<AnalyticsTabsSectionProps> = ({
           }}
         >
           <AnalyticsChart
-            title="Réservations par Statut"
-            subtitle="Répartition des réservations par statut sur la période sélectionnée"
+            title={LABELS.analytics.charts.bookingsByStatus.title}
+            subtitle={LABELS.analytics.charts.bookingsByStatus.subtitle}
             data={chartData.bookingsByStatus || []}
             type="pie"
             dataKey="count"
@@ -139,8 +152,8 @@ export const AnalyticsTabsSection: React.FC<AnalyticsTabsSectionProps> = ({
           />
 
           <AnalyticsChart
-            title="Revenus par Service"
-            subtitle="Contribution des services sur la période sélectionnée"
+            title={LABELS.analytics.charts.revenueByService.title}
+            subtitle={LABELS.analytics.charts.revenueByService.subtitle}
             data={chartData.topServices || []}
             type="pie"
             dataKey="revenue"

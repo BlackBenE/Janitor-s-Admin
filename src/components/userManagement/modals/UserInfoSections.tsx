@@ -47,6 +47,7 @@ import {
 } from "../../../types/dataRetention";
 import { useUserSubscriptions } from "../hooks/useUserQueries";
 import { formatCurrency, formatDate, getStatusColor } from "../../../utils";
+import { LABELS } from "../../../constants/labels";
 
 interface UserInfoSectionsProps {
   user: UserProfileWithAnonymization;
@@ -208,30 +209,30 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
     <Card>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          Basic Information
+          {LABELS.users.modals.basicInfo}
         </Typography>
         <InfoItem
           icon={<PersonIcon color="action" fontSize="small" />}
-          label="Name"
-          value={user.full_name || "Not specified"}
+          label={LABELS.users.modals.name}
+          value={user.full_name || LABELS.users.modals.notSpecified}
         />
         <InfoItem
           icon={<EmailIcon color="action" fontSize="small" />}
-          label="Email"
+          label={LABELS.common.fields.email}
           value={user.email}
         />
         <InfoItem
           icon={<PhoneIcon color="action" fontSize="small" />}
-          label="Phone"
-          value={user.phone || "Not specified"}
+          label={LABELS.common.fields.phone}
+          value={user.phone || LABELS.users.modals.notSpecified}
         />
         <InfoItem
           icon={<CalendarIcon color="action" fontSize="small" />}
-          label="Created"
+          label={LABELS.users.modals.created}
           value={
             user.created_at
               ? new Date(user.created_at).toLocaleDateString()
-              : "Unknown"
+              : LABELS.users.modals.unknown
           }
         />
       </CardContent>
@@ -242,7 +243,7 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
     <Card>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          Account Information
+          {LABELS.users.modals.accountInfo}
         </Typography>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Box>
@@ -252,7 +253,7 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
               display="block"
               gutterBottom
             >
-              Role & Permissions
+              {LABELS.users.stats.rolePermissions}
             </Typography>
             <Chip
               icon={<AccountIcon />}
@@ -269,23 +270,31 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
               display="block"
               gutterBottom
             >
-              Account Status
+              {LABELS.users.stats.accountStatus}
             </Typography>
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
               <Chip
-                label={user.account_locked ? "Locked" : "Active"}
+                label={
+                  user.account_locked
+                    ? LABELS.users.stats.locked
+                    : LABELS.users.stats.active
+                }
                 color={user.account_locked ? "error" : "success"}
                 size="small"
               />
               <Chip
-                label={user.profile_validated ? "Verified" : "Unverified"}
+                label={
+                  user.profile_validated
+                    ? LABELS.users.stats.verified
+                    : LABELS.users.stats.unverified
+                }
                 color={user.profile_validated ? "success" : "warning"}
                 size="small"
               />
               {user.vip_subscription && (
                 <Chip
                   icon={<VipIcon />}
-                  label="VIP Member"
+                  label={LABELS.users.modals.vipMember}
                   color="primary"
                   size="small"
                 />
@@ -305,10 +314,10 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <SecurityIcon color="action" fontSize="small" />
               <Typography variant="body2">
-                Last updated:{" "}
+                {LABELS.common.messages.lastUpdated}:{" "}
                 {user.updated_at
                   ? new Date(user.updated_at).toLocaleDateString()
-                  : "Unknown"}
+                  : LABELS.common.messages.unknown}
               </Typography>
             </Box>
           </Box>
@@ -338,7 +347,7 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
           <Typography variant="h6" gutterBottom>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <SubscriptionsIcon />
-              Subscription Info
+              {LABELS.common.messages.subscriptionInfo}
             </Box>
           </Typography>
 
@@ -354,12 +363,14 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
                   display="block"
                   gutterBottom
                 >
-                  Current Status
+                  {LABELS.common.messages.currentStatus}
                 </Typography>
                 <Chip
                   icon={activeSubscription ? <CheckIcon /> : <WarningIcon />}
                   label={
-                    activeSubscription ? "Active" : "No Active Subscription"
+                    activeSubscription
+                      ? LABELS.common.messages.activeSubscription
+                      : LABELS.common.messages.noActiveSubscription
                   }
                   color={activeSubscription ? "success" : "default"}
                   size="small"
@@ -410,11 +421,13 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
                   display="block"
                   gutterBottom
                 >
-                  Subscriptions Count
+                  {LABELS.common.messages.subscriptionsCount}
                 </Typography>
                 <Typography variant="body2">
-                  {subscriptions.length} subscription
-                  {subscriptions.length !== 1 ? "s" : ""}
+                  {subscriptions.length}{" "}
+                  {subscriptions.length !== 1
+                    ? LABELS.common.messages.subscriptions
+                    : LABELS.common.messages.subscription}
                 </Typography>
               </Box>
 
@@ -427,14 +440,14 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
                     display="block"
                     gutterBottom
                   >
-                    Active Until
+                    {LABELS.common.messages.activeUntil}
                   </Typography>
                   <Typography variant="body2">
                     {activeSubscription.period_end
                       ? new Date(
                           activeSubscription.period_end
                         ).toLocaleDateString("fr-FR")
-                      : "Unknown"}
+                      : LABELS.common.messages.unknown}
                   </Typography>
                 </Box>
               )}

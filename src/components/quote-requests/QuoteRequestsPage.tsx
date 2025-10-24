@@ -4,6 +4,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import AdminLayout from "../AdminLayout";
 import { LoadingIndicator } from "../shared";
 import DataTable from "../Table";
+import { LABELS } from "../../constants";
 
 import { QuoteRequestHeader } from "./components/QuoteRequestHeader";
 import { QuoteRequestStatsSection } from "./components/QuoteRequestStatsSection";
@@ -70,20 +71,20 @@ export const QuoteRequestsPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await deleteQuoteRequest.mutateAsync(id);
-      showNotification("Demande supprimée avec succès");
+      showNotification(LABELS.quoteRequests.messages.deleteSuccess);
       refetch();
     } catch (error) {
-      showNotification("Erreur lors de la suppression", "error");
+      showNotification(LABELS.quoteRequests.messages.deleteError, "error");
     }
   };
 
   const handleApprove = async (id: string) => {
     try {
       await approveQuoteRequest.mutateAsync(id);
-      showNotification("Demande approuvée avec succès");
+      showNotification(LABELS.quoteRequests.messages.approveSuccess);
       refetch();
     } catch (error) {
-      showNotification("Erreur lors de l'approbation", "error");
+      showNotification(LABELS.quoteRequests.messages.approveError, "error");
     }
   };
 
@@ -91,29 +92,35 @@ export const QuoteRequestsPage: React.FC = () => {
     try {
       await rejectQuoteRequest.mutateAsync({
         id,
-        reason: "Rejetée par l'admin",
+        reason: LABELS.quoteRequests.messages.rejectedByAdmin,
       });
-      showNotification("Demande rejetée avec succès");
+      showNotification(LABELS.quoteRequests.messages.rejectSuccess);
       refetch();
     } catch (error) {
-      showNotification("Erreur lors du rejet", "error");
+      showNotification(LABELS.quoteRequests.messages.rejectError, "error");
     }
   };
 
   // Colonnes pour le tableau
   const columns = [
-    { field: "id", headerName: "Request ID" },
-    { field: "requester_id", headerName: "Client ID" },
-    { field: "service_id", headerName: "Service ID" },
-    { field: "status", headerName: "Status" },
+    { field: "id", headerName: LABELS.quoteRequests.table.headers.requestId },
+    {
+      field: "requester_id",
+      headerName: LABELS.quoteRequests.table.headers.clientId,
+    },
+    {
+      field: "service_id",
+      headerName: LABELS.quoteRequests.table.headers.serviceId,
+    },
+    { field: "status", headerName: LABELS.quoteRequests.table.headers.status },
     {
       field: "total_amount",
-      headerName: "Montant",
+      headerName: LABELS.quoteRequests.table.headers.amount,
       render: (value: number) => formatters.currency(value || 0),
     },
     {
       field: "created_at",
-      headerName: "Date création",
+      headerName: LABELS.quoteRequests.table.headers.createdAt,
       render: (value: string) => formatters.date(value),
     },
   ];
@@ -131,7 +138,9 @@ export const QuoteRequestsPage: React.FC = () => {
       <AdminLayout>
         <Box>
           <h2>Erreur</h2>
-          <p>Impossible de charger les demandes de devis: {error.message}</p>
+          <p>
+            {LABELS.quoteRequests.messages.loadError}: {error.message}
+          </p>
         </Box>
       </AdminLayout>
     );
@@ -143,11 +152,17 @@ export const QuoteRequestsPage: React.FC = () => {
       <QuoteRequestHeader
         onRefresh={refetch}
         onExport={async () => {
-          showNotification("Export en cours...", "info");
+          showNotification(
+            LABELS.quoteRequests.messages.exportInProgress,
+            "info"
+          );
           // TODO: Implémenter l'export
         }}
         onAddQuoteRequest={() => {
-          showNotification("Ajout de demande - À implémenter", "info");
+          showNotification(
+            LABELS.quoteRequests.messages.addToImplement,
+            "info"
+          );
           // TODO: Ouvrir modal d'ajout
         }}
         isLoading={isFetching}
@@ -175,26 +190,30 @@ export const QuoteRequestsPage: React.FC = () => {
 
       {/* Data Table Section */}
       <Box sx={{ mt: 2, border: "1px solid #ddd", borderRadius: 4, p: 2 }}>
-        <h3>Gestion des demandes de devis ({quoteRequests.length})</h3>
-        <p>Suivre les demandes de service et les réponses des fournisseurs</p>
+        <h3>
+          {LABELS.quoteRequests.table.title} ({quoteRequests.length})
+        </h3>
+        <p>{LABELS.quoteRequests.table.subtitle}</p>
         <DataTable
           columns={columns}
           data={quoteRequests as any[]}
           renderActions={(quoteRequest: any) => (
             <>
-              <button onClick={() => handleEdit(quoteRequest)}>Edit</button>
+              <button onClick={() => handleEdit(quoteRequest)}>
+                {LABELS.quoteRequests.actions.edit}
+              </button>
               {quoteRequest.status === "pending" && (
                 <>
                   <button onClick={() => handleApprove(quoteRequest.id)}>
-                    Approuver
+                    {LABELS.quoteRequests.actions.approve}
                   </button>
                   <button onClick={() => handleReject(quoteRequest.id)}>
-                    Rejeter
+                    {LABELS.quoteRequests.actions.reject}
                   </button>
                 </>
               )}
               <button onClick={() => handleDelete(quoteRequest.id)}>
-                Delete
+                {LABELS.quoteRequests.actions.delete}
               </button>
             </>
           )}

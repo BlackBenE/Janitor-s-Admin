@@ -15,6 +15,7 @@ import {
   Divider,
 } from "@mui/material";
 import { LockAccountState } from "../../../types/userManagement";
+import { LABELS } from "../../../constants";
 
 interface LockAccountModalProps {
   open: boolean;
@@ -49,7 +50,7 @@ export const LockAccountModal: React.FC<LockAccountModalProps> = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          Verrouiller le compte
+          {LABELS.users.modals.lock.title}
         </Box>
       </DialogTitle>
 
@@ -58,7 +59,7 @@ export const LockAccountModal: React.FC<LockAccountModalProps> = ({
           {userEmail && (
             <>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Utilisateur à verrouiller :
+                {LABELS.users.modals.lock.userToLock}:
               </Typography>
               <Typography variant="body1" sx={{ mb: 2, fontWeight: 500 }}>
                 {userEmail}
@@ -68,10 +69,10 @@ export const LockAccountModal: React.FC<LockAccountModalProps> = ({
           )}
 
           <FormControl fullWidth sx={{ mb: 3 }}>
-            <InputLabel>Durée du verrouillage</InputLabel>
+            <InputLabel>{LABELS.users.modals.lock.duration}</InputLabel>
             <Select
               value={lockAccount.duration}
-              label="Durée du verrouillage"
+              label={LABELS.users.modals.lock.duration}
               onChange={(e) => onUpdateDuration(Number(e.target.value))}
             >
               {durations.map((duration) => (
@@ -84,12 +85,12 @@ export const LockAccountModal: React.FC<LockAccountModalProps> = ({
 
           <TextField
             fullWidth
-            label="Raison du verrouillage"
+            label={LABELS.users.modals.lock.reason}
             multiline
             rows={3}
             value={lockAccount.reason}
             onChange={(e) => onUpdateReason(e.target.value)}
-            placeholder="Décrivez la raison du verrouillage du compte..."
+            placeholder={LABELS.users.modals.lock.reasonPlaceholder}
             required
           />
 
@@ -103,11 +104,10 @@ export const LockAccountModal: React.FC<LockAccountModalProps> = ({
             }}
           >
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              ⚠️ Attention
+              ⚠️ {LABELS.users.modals.lock.warningTitle}
             </Typography>
             <Typography variant="body2">
-              L'utilisateur ne pourra pas se connecter pendant la durée
-              sélectionnée. Cette action sera enregistrée dans l'audit.
+              {LABELS.users.modals.lock.warning}
             </Typography>
           </Box>
         </Box>
@@ -115,7 +115,7 @@ export const LockAccountModal: React.FC<LockAccountModalProps> = ({
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={onClose} color="inherit">
-          Annuler
+          {LABELS.common.actions.cancel}
         </Button>
         <Button
           onClick={() => {
@@ -126,7 +126,7 @@ export const LockAccountModal: React.FC<LockAccountModalProps> = ({
           color="warning"
           disabled={!lockAccount.reason.trim()}
         >
-          Verrouiller le compte
+          {LABELS.users.modals.lock.confirmButton}
         </Button>
       </DialogActions>
     </Dialog>

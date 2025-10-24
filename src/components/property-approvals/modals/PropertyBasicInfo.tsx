@@ -27,6 +27,7 @@ import {
 } from "@mui/icons-material";
 
 import { PropertyWithOwner } from "../../../types";
+import { LABELS } from "../../../constants/labels";
 
 interface PropertyBasicInfoProps {
   property: PropertyWithOwner;
@@ -219,7 +220,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                   Address
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  {property?.address || "No address"}
+                  {property?.address || LABELS.common.messages.noAddress}
                 </Typography>
               </Box>
               <Box sx={{ flex: 1 }}>

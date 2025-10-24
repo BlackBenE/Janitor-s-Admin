@@ -18,6 +18,7 @@ import {
 } from "@mui/icons-material";
 import { GridRenderCellParams } from "@mui/x-data-grid";
 import { PaymentWithDetails } from "../../../types/payments";
+import { LABELS } from "../../../constants/labels";
 
 interface PaymentTableActionsProps {
   params: GridRenderCellParams;
@@ -76,7 +77,7 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
         <ListItemIcon>
           <PdfIcon fontSize="small" />
         </ListItemIcon>
-        <ListItemText primary="Download PDF" />
+        <ListItemText primary={LABELS.common.messages.downloadPdf} />
       </MenuItem>
 
       {/* Marquer comme payé - Uniquement pour les paiements en attente */}
@@ -90,7 +91,7 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
           <ListItemIcon>
             <CheckCircleIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Mark as Paid" />
+          <ListItemText primary={LABELS.common.messages.markAsPaid} />
         </MenuItem>
       )}
 
@@ -105,7 +106,7 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
           <ListItemIcon>
             <RefundIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Refund Payment" />
+          <ListItemText primary={LABELS.common.messages.refundPayment} />
         </MenuItem>
       )}
 
@@ -120,7 +121,7 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
           <ListItemIcon>
             <RetryIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Retry Payment" />
+          <ListItemText primary={LABELS.common.messages.retryPayment} />
         </MenuItem>
       )}
     </Menu>
@@ -128,7 +129,7 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
 
   return (
     <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
-      <Tooltip title="View details">
+      <Tooltip title={LABELS.common.messages.viewDetails}>
         <IconButton
           size="small"
           onClick={() => onViewDetails(payment)}
@@ -138,7 +139,7 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
         </IconButton>
       </Tooltip>
 
-      <Tooltip title="More actions">
+      <Tooltip title={LABELS.common.messages.moreActions}>
         <IconButton
           size="small"
           onClick={handleMenuClick}

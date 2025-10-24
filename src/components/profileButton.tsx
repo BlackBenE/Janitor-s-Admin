@@ -21,6 +21,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { SxProps, Theme } from "@mui/material/styles";
 import { useAuth } from "../providers/authProvider";
+import { LABELS } from "../constants";
 
 interface ProfileButtonProps {
   className?: string;
@@ -39,12 +40,12 @@ const ProfileButton: FC<ProfileButtonProps> = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Get user data from auth context
-  const userName = getUserFullName() || "Admin User";
-  const userEmail = getEmail() || "admin@example.com";
-  const userRole = getUserRole() || "admin";
+  // Récupérer les données utilisateur du contexte d'authentification
+  const userName = getUserFullName() || LABELS.profileMenu.adminUser;
+  const userEmail = getEmail() || LABELS.profileMenu.adminEmail;
+  const userRole = getUserRole() || LABELS.profileMenu.adminRole;
 
-  // Generate avatar initials
+  // Générer les initiales pour l'avatar
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -74,12 +75,12 @@ const ProfileButton: FC<ProfileButtonProps> = ({
     try {
       const { error } = await signOut();
       if (error) {
-        console.error("Logout error:", error);
-        // Still navigate to auth even if there's an error
+        console.error(LABELS.profileMenu.logoutError, error);
+        // Naviguer vers auth même en cas d'erreur
       }
       navigate("/auth", { replace: true });
     } catch (err) {
-      console.error("Logout failed:", err);
+      console.error(LABELS.profileMenu.logoutFailed, err);
       navigate("/auth", { replace: true });
     } finally {
       setIsLoggingOut(false);
@@ -116,7 +117,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({
         {getInitials(userName)}
       </Avatar>
 
-      {/* User Info - Conditional rendering based on compact mode */}
+      {/* Informations utilisateur - Rendu conditionnel selon mode compact */}
       {!compact ? (
         <Box sx={{ ml: 1.5, flexGrow: 1, minWidth: 0 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -135,7 +136,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({
             {isAdmin() && (
               <Chip
                 icon={<AdminIcon />}
-                label="Admin"
+                label={LABELS.profileMenu.adminRole}
                 size="small"
                 color="primary"
                 sx={{ height: 20, fontSize: "0.7rem" }}
@@ -156,7 +157,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({
           </Typography>
         </Box>
       ) : (
-        // Compact mode - show only name on hover via tooltip
+        // Mode compact - montrer seulement le prénom
         <Box sx={{ ml: 1, flexGrow: 1, minWidth: 0 }}>
           <Typography
             variant="body2"
@@ -169,7 +170,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({
               fontSize: "0.8rem",
             }}
           >
-            {userName.split(" ")[0]} {/* Show only first name */}
+            {userName.split(" ")[0]} {/* Montrer seulement le prénom */}
           </Typography>
           {isAdmin() && (
             <Typography
@@ -180,13 +181,13 @@ const ProfileButton: FC<ProfileButtonProps> = ({
                 fontWeight: 500,
               }}
             >
-              Admin
+              {LABELS.profileMenu.adminRole}
             </Typography>
           )}
         </Box>
       )}
 
-      {/* Menu Button */}
+      {/* Bouton menu */}
       <IconButton
         onClick={handleMenuOpen}
         size="small"
@@ -199,13 +200,13 @@ const ProfileButton: FC<ProfileButtonProps> = ({
             color: "primary.main",
           },
         }}
-        aria-label="User menu"
+        aria-label={LABELS.profileMenu.userMenu}
         disabled={isLoggingOut}
       >
         <MoreVertIcon fontSize={compact ? "small" : "medium"} />
       </IconButton>
 
-      {/* Dropdown Menu */}
+      {/* Menu déroulant */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -220,7 +221,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        {/* User Info Header */}
+        {/* En-tête informations utilisateur */}
         <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: "divider" }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
             {userName}
@@ -229,18 +230,18 @@ const ProfileButton: FC<ProfileButtonProps> = ({
             {userEmail}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Role: {userRole}
+            {LABELS.profileMenu.roleLabel}: {userRole}
           </Typography>
         </Box>
 
         <Divider />
 
-        {/* Menu Items */}
+        {/* Items du menu */}
         <MenuItem onClick={handleProfileClick}>
           <ListItemIcon>
             <PersonIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Profile</ListItemText>
+          <ListItemText>{LABELS.profileMenu.profile}</ListItemText>
         </MenuItem>
 
         <Divider />
@@ -260,7 +261,9 @@ const ProfileButton: FC<ProfileButtonProps> = ({
             <LogoutIcon fontSize="small" sx={{ color: "inherit" }} />
           </ListItemIcon>
           <ListItemText>
-            {isLoggingOut ? "Signing out..." : "Sign Out"}
+            {isLoggingOut
+              ? LABELS.profileMenu.signingOut
+              : LABELS.profileMenu.signOut}
           </ListItemText>
         </MenuItem>
       </Menu>

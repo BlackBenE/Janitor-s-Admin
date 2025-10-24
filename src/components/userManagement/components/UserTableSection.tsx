@@ -18,6 +18,7 @@ import {
   getActivityHeaderName,
 } from "../utils/userManagementUtils";
 import { formatDate, formatCurrency } from "../../../utils";
+import { LABELS } from "../../../constants";
 
 interface UserTableSectionProps {
   // Filters & Tabs
@@ -91,7 +92,7 @@ const UserInfoCell: React.FC<{
 }> = ({ params }) => (
   <Box>
     <Box sx={{ fontWeight: "medium" }}>
-      {params.row.full_name || "Unnamed User"}
+      {params.row.full_name || LABELS.users.unnamedUser}
     </Box>
     <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
       {params.row.email}
@@ -120,7 +121,9 @@ const SubscriptionCell: React.FC<{
   params: GridRenderCellParams<UserProfile>;
 }> = ({ params }) => (
   <Chip
-    label={params.row.vip_subscription ? "VIP" : "Standard"}
+    label={
+      params.row.vip_subscription ? "VIP" : LABELS.users.subscription.standard
+    }
     color={params.row.vip_subscription ? "warning" : "default"}
     size="small"
   />
@@ -137,14 +140,14 @@ const StatusCell: React.FC<{
 
     return (
       <Tooltip
-        title={`Déverrouillage: ${
+        title={`${LABELS.users.status.unlockAt}: ${
           params.row.locked_until
             ? new Date(params.row.locked_until).toLocaleString()
-            : "Permanent"
+            : LABELS.users.status.permanent
         }`}
       >
         <Chip
-          label={`Locked (${timeRemaining})`}
+          label={`${LABELS.common.status.locked} (${timeRemaining})`}
           color="error"
           size="small"
           icon={<LockIcon fontSize="small" />}
@@ -155,7 +158,11 @@ const StatusCell: React.FC<{
 
   return (
     <Chip
-      label={params.row.profile_validated ? "Validated" : "Pending"}
+      label={
+        params.row.profile_validated
+          ? LABELS.users.status.validated
+          : LABELS.users.status.pending
+      }
       color={params.row.profile_validated ? "success" : "warning"}
       size="small"
     />
@@ -173,17 +180,23 @@ const ActivityCell: React.FC<{
   const activity = activityData?.[params.row.id];
 
   if (!activity) {
-    return <Box sx={{ color: "text.secondary" }}>Loading...</Box>;
+    return (
+      <Box sx={{ color: "text.secondary" }}>
+        {LABELS.common.messages.loading}
+      </Box>
+    );
   }
 
   if (currentUserRole === UserRole.TRAVELER) {
     return (
       <Box>
         <Box sx={{ fontWeight: "medium", fontSize: "0.875rem" }}>
-          {activity.totalBookings} bookings
+          {activity.totalBookings}{" "}
+          {LABELS.users.activity.bookings.toLowerCase()}
         </Box>
         <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
-          Last: {formatDate(activity.lastBookingDate)}
+          {LABELS.users.activity.lastBooking}:{" "}
+          {formatDate(activity.lastBookingDate)}
         </Box>
       </Box>
     );
@@ -191,10 +204,12 @@ const ActivityCell: React.FC<{
     return (
       <Box>
         <Box sx={{ fontWeight: "medium", fontSize: "0.875rem" }}>
-          {activity.totalProperties || 0} properties
+          {activity.totalProperties || 0}{" "}
+          {LABELS.users.activity.properties.toLowerCase()}
         </Box>
         <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
-          Earnings: {formatCurrency(activity.totalEarned || 0)}
+          {LABELS.users.activity.earnings}:{" "}
+          {formatCurrency(activity.totalEarned || 0)}
         </Box>
       </Box>
     );
@@ -202,10 +217,12 @@ const ActivityCell: React.FC<{
     return (
       <Box>
         <Box sx={{ fontWeight: "medium", fontSize: "0.875rem" }}>
-          {activity.totalServices || 0} services
+          {activity.totalServices || 0}{" "}
+          {LABELS.users.activity.services.toLowerCase()}
         </Box>
         <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
-          {activity.totalInterventions || 0} interventions
+          {activity.totalInterventions || 0}{" "}
+          {LABELS.users.activity.interventions.toLowerCase()}
         </Box>
       </Box>
     );
@@ -214,10 +231,11 @@ const ActivityCell: React.FC<{
   return (
     <Box>
       <Box sx={{ fontWeight: "medium", fontSize: "0.875rem" }}>
-        {activity.totalBookings} bookings
+        {activity.totalBookings} {LABELS.users.activity.bookings.toLowerCase()}
       </Box>
       <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
-        Last: {formatDate(activity.lastBookingDate)}
+        {LABELS.users.activity.lastBooking}:{" "}
+        {formatDate(activity.lastBookingDate)}
       </Box>
     </Box>
   );
@@ -233,7 +251,11 @@ const SpendingCell: React.FC<{
   const activity = activityData?.[params.row.id];
 
   if (!activity) {
-    return <Box sx={{ color: "text.secondary" }}>Loading...</Box>;
+    return (
+      <Box sx={{ color: "text.secondary" }}>
+        {LABELS.common.messages.loading}
+      </Box>
+    );
   }
 
   return (
@@ -296,18 +318,18 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
     },
     {
       field: "full_name",
-      headerName: "User",
+      headerName: LABELS.users.table.headers.name,
       minWidth: 200,
       flex: 1,
       valueGetter: (value: string | null, row: UserProfile) =>
-        `${row.full_name || "Unnamed User"} ${row.email}`,
+        `${row.full_name || LABELS.users.unnamedUser} ${row.email}`,
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
         <UserInfoCell params={params} />
       ),
     },
     {
       field: "role",
-      headerName: "Role",
+      headerName: LABELS.users.table.headers.role,
       valueGetter: (value: string) => value?.replace("_", " ") || "",
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
         <RoleCell params={params} />
@@ -315,18 +337,21 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
     },
     {
       field: "vip_subscription",
-      headerName: "Subscription",
-      valueGetter: (value: boolean) => (value ? "VIP" : "Standard"),
+      headerName: LABELS.users.table.headers.subscription,
+      valueGetter: (value: boolean) =>
+        value ? "VIP" : LABELS.users.subscription.standard,
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
         <SubscriptionCell params={params} />
       ),
     },
     {
       field: "profile_validated",
-      headerName: "Status",
+      headerName: LABELS.users.table.headers.status,
       valueGetter: (value: boolean, row: UserProfile) => {
-        if (row.account_locked) return "Locked";
-        return value ? "Validated" : "Pending";
+        if (row.account_locked) return LABELS.common.status.locked;
+        return value
+          ? LABELS.users.status.validated
+          : LABELS.users.status.pending;
       },
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
         <StatusCell params={params} />
@@ -340,17 +365,29 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
       valueGetter: (value: string | null, row: UserProfile) => {
         const activity = activityData?.[row.id];
         if (currentUserRole === UserRole.TRAVELER) {
-          return activity ? `${activity.totalBookings} bookings` : "0 bookings";
+          return activity
+            ? `${
+                activity.totalBookings
+              } ${LABELS.users.activity.bookings.toLowerCase()}`
+            : `0 ${LABELS.users.activity.bookings.toLowerCase()}`;
         } else if (currentUserRole === UserRole.PROPERTY_OWNER) {
           return activity
-            ? `${activity.totalProperties || 0} properties`
-            : "0 properties";
+            ? `${
+                activity.totalProperties || 0
+              } ${LABELS.users.activity.properties.toLowerCase()}`
+            : `0 ${LABELS.users.activity.properties.toLowerCase()}`;
         } else if (currentUserRole === UserRole.SERVICE_PROVIDER) {
           return activity
-            ? `${activity.totalServices || 0} services`
-            : "0 services";
+            ? `${
+                activity.totalServices || 0
+              } ${LABELS.users.activity.services.toLowerCase()}`
+            : `0 ${LABELS.users.activity.services.toLowerCase()}`;
         }
-        return activity ? `${activity.totalBookings} bookings` : "0 bookings";
+        return activity
+          ? `${
+              activity.totalBookings
+            } ${LABELS.users.activity.bookings.toLowerCase()}`
+          : `0 ${LABELS.users.activity.bookings.toLowerCase()}`;
       },
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
         <ActivityCell
@@ -362,7 +399,7 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
     },
     {
       field: "spending",
-      headerName: "Spending",
+      headerName: LABELS.users.table.headers.spending,
       sortable: false,
       filterable: false,
       valueGetter: (value: string | null, row: UserProfile) => {
@@ -375,7 +412,7 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
     },
     {
       field: "Actions",
-      headerName: "Actions",
+      headerName: LABELS.users.table.headers.actions,
       width: 200,
       sortable: false,
       filterable: false,

@@ -20,6 +20,7 @@ import { ProfileService } from "../../../services/profileService";
 import { useUINotifications } from "../../../hooks/shared";
 import { useAuth } from "../../../providers/authProvider";
 import { useNavigate } from "react-router-dom";
+import { LABELS } from "../../../constants/labels";
 
 interface DeleteAccountModalProps {
   open: boolean;
@@ -86,7 +87,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <WarningIcon color="error" />
           <Typography variant="h6" color="error">
-            Delete Account
+            {LABELS.common.messages.deleteAccount}
           </Typography>
         </Box>
       </DialogTitle>
@@ -95,27 +96,26 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
         <Stack spacing={3} sx={{ mt: 1 }}>
           <Alert severity="error">
             <Typography variant="h6" gutterBottom>
-              This action cannot be undone!
+              {LABELS.common.messages.thisActionCannotBeUndone}
             </Typography>
             <Typography variant="body2">
-              This will permanently delete your account and all associated data.
-              You will not be able to recover your account or any of your data.
+              {LABELS.common.messages.deleteAccountWarning}
             </Typography>
           </Alert>
 
           <Box>
             <Typography variant="body1" gutterBottom>
-              You are about to delete the account: <strong>{userEmail}</strong>
+              {LABELS.common.messages.youAreAboutToDelete}:{" "}
+              <strong>{userEmail}</strong>
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              This will remove all your personal information, settings, and any
-              content associated with your account.
+              {LABELS.common.messages.deleteAccountInfo}
             </Typography>
           </Box>
 
           <Box>
             <Typography variant="body2" gutterBottom>
-              Reason for deletion (optional):
+              {LABELS.common.messages.reasonForDeletion}:
             </Typography>
             <TextField
               fullWidth
@@ -123,25 +123,29 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
               rows={2}
               value={deleteReason}
               onChange={(e) => setDeleteReason(e.target.value)}
-              placeholder="Tell us why you're leaving (optional)"
+              placeholder={LABELS.common.messages.tellUsWhyLeaving}
               disabled={isDeleting}
             />
           </Box>
 
           <Box>
             <Typography variant="body2" gutterBottom>
-              Please type <strong>DELETE</strong> to confirm:
+              {LABELS.common.messages.pleaseType} <strong>DELETE</strong>{" "}
+              {LABELS.common.messages.toConfirm}:
             </Typography>
             <TextField
               fullWidth
               value={confirmationText}
               onChange={(e) => setConfirmationText(e.target.value)}
-              placeholder="Type DELETE to confirm"
+              placeholder={LABELS.common.messages.typeDeleteToConfirm}
               disabled={isDeleting}
               error={confirmationText.length > 0 && !isConfirmed}
               helperText={
                 confirmationText.length > 0 && !isConfirmed
-                  ? `Please type "${expectedText}" exactly`
+                  ? LABELS.common.messages.pleaseTypeExactly.replace(
+                      "{{text}}",
+                      expectedText
+                    )
                   : ""
               }
             />
@@ -151,7 +155,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
 
       <DialogActions>
         <Button onClick={handleClose} variant="outlined" disabled={isDeleting}>
-          Cancel
+          {LABELS.common.actions.cancel}
         </Button>
         <Button
           onClick={handleSubmit}
@@ -162,7 +166,9 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
             isDeleting ? <CircularProgress size={16} /> : <DeleteIcon />
           }
         >
-          {isDeleting ? "Deleting..." : "Delete Account"}
+          {isDeleting
+            ? LABELS.common.messages.deleting
+            : LABELS.common.messages.deleteAccount}
         </Button>
       </DialogActions>
     </Dialog>

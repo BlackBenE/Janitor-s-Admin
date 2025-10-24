@@ -7,6 +7,7 @@ import {
   DeleteOutlined as DeleteIcon,
 } from "@mui/icons-material";
 import { Database } from "./database.types";
+import { LABELS } from "../constants";
 
 // Types helpers pour Supabase
 type Tables<T extends keyof Database["public"]["Tables"]> =
@@ -49,39 +50,39 @@ export interface UserTab {
 export const USER_TABS: UserTab[] = [
   {
     role: null, // Pour afficher tous les utilisateurs
-    label: "All Users",
+    label: LABELS.users.tabs.all,
     icon: GroupIcon,
-    description: "Vue d'ensemble de tous les utilisateurs",
+    description: LABELS.users.tabs.allDescription,
   },
   {
     role: UserRole.TRAVELER,
-    label: "Travelers",
+    label: LABELS.users.tabs.travelers,
     icon: GroupIcon,
-    description: "Gestion des comptes voyageurs et leurs réservations",
+    description: LABELS.users.tabs.travelersDescription,
   },
   {
     role: UserRole.PROPERTY_OWNER,
-    label: "Property Owners",
+    label: LABELS.users.tabs.propertyOwners,
     icon: PropertyIcon,
-    description: "Gestion des propriétaires et leurs abonnements (100€/an)",
+    description: LABELS.users.tabs.propertyOwnersDescription,
   },
   {
     role: UserRole.SERVICE_PROVIDER,
-    label: "Service Providers",
+    label: LABELS.users.tabs.serviceProviders,
     icon: ServiceIcon,
-    description: "Modération des prestataires de services et vérifications",
+    description: LABELS.users.tabs.serviceProvidersDescription,
   },
   {
     role: UserRole.ADMIN,
-    label: "Admins",
+    label: LABELS.users.tabs.admins,
     icon: AdminIcon,
-    description: "Gestion des comptes administrateurs et permissions",
+    description: LABELS.users.tabs.adminsDescription,
   },
   {
     role: "deleted" as any, // Type spécial pour les utilisateurs supprimés
-    label: "Deleted Users",
+    label: LABELS.users.tabs.deleted,
     icon: DeleteIcon,
-    description: "Utilisateurs supprimés - Restauration possible",
+    description: LABELS.users.tabs.deletedDescription,
   },
 ];
 

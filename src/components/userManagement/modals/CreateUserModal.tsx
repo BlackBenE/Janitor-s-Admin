@@ -16,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { UserProfile } from "../../../types/userManagement";
+import { LABELS } from "../../../constants/labels";
 
 interface CreateUserModalProps {
   open: boolean;
@@ -37,20 +38,20 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
 }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create New User</DialogTitle>
+      <DialogTitle>{LABELS.common.messages.createNewUser}</DialogTitle>
       <DialogContent>
         <Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             fullWidth
-            label="Full Name"
+            label={LABELS.common.messages.fullName}
             value={editForm.full_name || ""}
             onChange={(e) => onInputChange("full_name", e.target.value)}
-            placeholder="Enter user's full name"
+            placeholder={LABELS.common.messages.enterFullName}
           />
 
           <TextField
             fullWidth
-            label="Email"
+            label={LABELS.common.fields.email}
             value={editForm.email || ""}
             onChange={(e) => onInputChange("email", e.target.value)}
             type="email"
@@ -60,23 +61,29 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
           <TextField
             fullWidth
-            label="Phone"
+            label={LABELS.common.fields.phone}
             value={editForm.phone || ""}
             onChange={(e) => onInputChange("phone", e.target.value)}
             placeholder="+1234567890"
           />
 
           <FormControl fullWidth required>
-            <InputLabel>Role</InputLabel>
+            <InputLabel>{LABELS.common.fields.role}</InputLabel>
             <Select
               value={editForm.role || ""}
-              label="Role"
+              label={LABELS.common.fields.role}
               onChange={(e) => onInputChange("role", e.target.value)}
             >
-              <MenuItem value="traveler">Traveler</MenuItem>
-              <MenuItem value="property_owner">Property Owner</MenuItem>
-              <MenuItem value="service_provider">Service Provider</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="traveler">
+                {LABELS.users.roles.traveler}
+              </MenuItem>
+              <MenuItem value="property_owner">
+                {LABELS.users.roles.property_owner}
+              </MenuItem>
+              <MenuItem value="service_provider">
+                {LABELS.users.roles.service_provider}
+              </MenuItem>
+              <MenuItem value="admin">{LABELS.users.roles.admin}</MenuItem>
             </Select>
           </FormControl>
 
@@ -89,7 +96,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 }
               />
             }
-            label="Profile Validated"
+            label={LABELS.common.messages.profileValidated}
           />
 
           <FormControlLabel
@@ -101,26 +108,24 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 }
               />
             }
-            label="VIP Subscription"
+            label={LABELS.common.messages.vipSubscription}
           />
 
           <Box sx={{ mt: 2, p: 2, bgcolor: "info.50", borderRadius: 1 }}>
             <Typography variant="body2" color="info.main">
-              💡 A temporary password will be generated and sent to the
-              user&apos;s email address. The user will be prompted to change it
-              on first login.
+              {LABELS.common.messages.temporaryPasswordInfo}
             </Typography>
           </Box>
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>{LABELS.common.actions.cancel}</Button>
         <Button
           onClick={onCreate}
           variant="contained"
           disabled={!editForm.email || !editForm.role}
         >
-          Create User
+          {LABELS.common.messages.createUser}
         </Button>
       </DialogActions>
     </Dialog>

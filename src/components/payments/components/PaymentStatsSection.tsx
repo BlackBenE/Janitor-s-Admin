@@ -4,6 +4,7 @@ import InfoCard from "../../InfoCard";
 import DashboardItem from "../../DashboardItem";
 import { PaymentStats } from "../../../types/payments";
 import { formatCurrency } from "../../../utils";
+import { LABELS } from "../../../constants/labels";
 
 interface PaymentStatsSectionProps {
   stats: PaymentStats;
@@ -100,7 +101,9 @@ export const PaymentStatsSection: React.FC<PaymentStatsSectionProps> = ({
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           Erreur lors du chargement des paiements :{" "}
-          {error instanceof Error ? error.message : "Unknown error"}
+          {error instanceof Error
+            ? error.message
+            : LABELS.common.messages.unknownError}
         </Alert>
       )}
     </>

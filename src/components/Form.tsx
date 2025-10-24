@@ -7,6 +7,7 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
+import { LABELS, formatMessage } from "../constants";
 
 export type FormField = {
   name: string;
@@ -39,7 +40,7 @@ export const Form: React.FC<FormProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
+    // Effacer l'erreur quand l'utilisateur commence à taper
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -52,18 +53,24 @@ export const Form: React.FC<FormProps> = ({
       const value = formData[field.name] || "";
 
       if (field.required && !value) {
-        newErrors[field.name] = `${field.label} is required`;
+        newErrors[field.name] = formatMessage(LABELS.validation.required, {
+          field: field.label,
+        });
       } else if (field.type === "email" && value) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) {
-          newErrors[field.name] = "Please enter a valid email address";
+          newErrors[field.name] = LABELS.validation.emailInvalid;
         }
       } else if (field.minLength && value.length < field.minLength) {
-        newErrors[
-          field.name
-        ] = `Minimum ${field.minLength} characters required`;
+        newErrors[field.name] = formatMessage(
+          LABELS.validation.minCharsRequired,
+          { min: field.minLength }
+        );
       } else if (field.maxLength && value.length > field.maxLength) {
-        newErrors[field.name] = `Maximum ${field.maxLength} characters allowed`;
+        newErrors[field.name] = formatMessage(
+          LABELS.validation.maxCharsAllowed,
+          { max: field.maxLength }
+        );
       }
     });
 
@@ -77,10 +84,10 @@ export const Form: React.FC<FormProps> = ({
     if (validateForm()) {
       try {
         await onSubmit(formData);
-        // Reset form after successful submission
+        // Réinitialiser le formulaire après succès
         setFormData({});
       } catch (error) {
-        console.error("Form submission error:", error);
+        console.error(LABELS.forms.submissionError, error);
       }
     }
   };

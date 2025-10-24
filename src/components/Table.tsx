@@ -14,18 +14,19 @@ import Tooltip from "@mui/material/Tooltip";
 import Badge from "@mui/material/Badge";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
+import { LABELS } from "../constants/labels";
 
 function MyCustomToolbar() {
   return (
     <React.Fragment>
       <Toolbar>
-        <Tooltip title="Columns">
+        <Tooltip title={LABELS.table.toolbar.columns}>
           <ColumnsPanelTrigger render={<ToolbarButton />}>
             <ViewColumnIcon fontSize="small" />
           </ColumnsPanelTrigger>
         </Tooltip>
 
-        <Tooltip title="Filters">
+        <Tooltip title={LABELS.table.toolbar.filters}>
           <FilterPanelTrigger
             render={(triggerProps, state) => (
               <ToolbarButton {...triggerProps} color="default">
@@ -66,7 +67,7 @@ function DataTable<T extends Record<string, unknown>>({
       ? [
           {
             field: "actions",
-            headerName: "Actions",
+            headerName: LABELS.table.actions,
             sortable: false,
             filterable: false,
             renderCell: (params: GridRenderCellParams<T>) =>

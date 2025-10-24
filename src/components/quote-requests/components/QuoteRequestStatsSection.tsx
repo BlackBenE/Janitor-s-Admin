@@ -4,6 +4,7 @@ import InfoCard from "../../InfoCard";
 import DashboardItem from "../../DashboardItem";
 import { QuoteRequestStats } from "../../../types/quoteRequests";
 import { formatCurrency } from "../../../utils";
+import { LABELS } from "../../../constants";
 
 interface QuoteRequestStatsSectionProps {
   stats: QuoteRequestStats;
@@ -36,9 +37,9 @@ const QuoteRequestStatsCards: React.FC<{
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <DashboardItem>
           <InfoCard
-            title="Total des demandes"
+            title={LABELS.quoteRequests.stats.totalRequests}
             value={totalRequests}
-            progressText={`${pendingRequests} en attente`}
+            progressText={`${pendingRequests} ${LABELS.quoteRequests.stats.pendingCount}`}
             showTrending={false}
             progressTextColor="text.secondary"
           />
@@ -48,9 +49,9 @@ const QuoteRequestStatsCards: React.FC<{
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <DashboardItem>
           <InfoCard
-            title="Devis en attente"
+            title={LABELS.quoteRequests.stats.pendingRequests}
             value={pendingRequests}
-            progressText={`${pendingPercentage}% du total`}
+            progressText={`${pendingPercentage}% ${LABELS.quoteRequests.stats.ofTotal}`}
             showTrending={false}
             progressTextColor="warning.main"
           />
@@ -60,9 +61,9 @@ const QuoteRequestStatsCards: React.FC<{
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <DashboardItem>
           <InfoCard
-            title="Emplois actifs"
+            title={LABELS.quoteRequests.stats.inProgressJobs}
             value={inProgressRequests}
-            progressText="En cours"
+            progressText={LABELS.quoteRequests.stats.inProgress}
             showTrending={false}
             progressTextColor="info.main"
           />
@@ -72,9 +73,9 @@ const QuoteRequestStatsCards: React.FC<{
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <DashboardItem>
           <InfoCard
-            title="Taux d'achèvement"
+            title={LABELS.quoteRequests.stats.completionRate}
             value={completedRequests}
-            progressText={`${completedPercentage}% terminés`}
+            progressText={`${completedPercentage}% ${LABELS.quoteRequests.stats.completed}`}
             showTrending={false}
             progressTextColor="success.main"
           />
@@ -85,9 +86,9 @@ const QuoteRequestStatsCards: React.FC<{
       <Grid size={{ xs: 12, sm: 6, md: 6 }}>
         <DashboardItem>
           <InfoCard
-            title="Revenus totaux"
+            title={LABELS.quoteRequests.stats.totalRevenue}
             value={formatCurrency(totalRevenue)}
-            progressText="Demandes terminées"
+            progressText={LABELS.quoteRequests.stats.completedRequests}
             showTrending={false}
             progressTextColor="success.main"
           />
@@ -97,9 +98,9 @@ const QuoteRequestStatsCards: React.FC<{
       <Grid size={{ xs: 12, sm: 6, md: 6 }}>
         <DashboardItem>
           <InfoCard
-            title="Montant moyen"
+            title={LABELS.quoteRequests.stats.averageAmount}
             value={formatCurrency(averageAmount)}
-            progressText="Par demande"
+            progressText={LABELS.quoteRequests.stats.perRequest}
             showTrending={false}
             progressTextColor="text.secondary"
           />
@@ -115,7 +116,7 @@ export const QuoteRequestStatsSection: React.FC<
   if (error) {
     return (
       <Alert severity="error" sx={{ mb: 3 }}>
-        Erreur lors du chargement des statistiques: {error.message}
+        {LABELS.quoteRequests.messages.statsLoadError}: {error.message}
       </Alert>
     );
   }
@@ -131,7 +132,7 @@ export const QuoteRequestStatsSection: React.FC<
           <Grid key={index} size={{ xs: 12, sm: 6, md: 3 }}>
             <DashboardItem>
               <InfoCard
-                title="Chargement..."
+                title={LABELS.quoteRequests.stats.loading}
                 value="--"
                 progressText="--"
                 showTrending={false}

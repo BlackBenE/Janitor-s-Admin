@@ -16,6 +16,7 @@ import {
   Chip,
 } from "@mui/material";
 import { Security as SecurityIcon } from "@mui/icons-material";
+import { LABELS } from "../../../constants";
 
 interface TwoFactorModalProps {
   open: boolean;
@@ -29,7 +30,11 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
   const [activeStep, setActiveStep] = useState(0);
   const [verificationCode, setVerificationCode] = useState("");
 
-  const steps = ["Setup Instructions", "Scan QR Code", "Verify Setup"];
+  const steps = [
+    LABELS.auth.twoFactor.steps.setup,
+    LABELS.auth.twoFactor.steps.verify,
+    LABELS.auth.twoFactor.steps.complete,
+  ];
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
@@ -153,7 +158,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
       <DialogTitle>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <SecurityIcon color="primary" />
-          <Typography variant="h6">Enable Two-Factor Authentication</Typography>
+          <Typography variant="h6">{LABELS.auth.twoFactor.title}</Typography>
         </Box>
       </DialogTitle>
 
@@ -173,11 +178,11 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
 
       <DialogActions>
         <Button onClick={handleClose} variant="outlined">
-          Cancel
+          {LABELS.auth.twoFactor.cancel}
         </Button>
         {activeStep > 0 && (
           <Button onClick={handleBack} variant="outlined">
-            Back
+            {LABELS.auth.twoFactor.back}
           </Button>
         )}
         <Button
@@ -185,7 +190,9 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
           variant="contained"
           disabled={activeStep === 2 && verificationCode.length !== 6}
         >
-          {activeStep === steps.length - 1 ? "Enable 2FA" : "Next"}
+          {activeStep === steps.length - 1
+            ? LABELS.auth.twoFactor.complete
+            : LABELS.auth.twoFactor.next}
         </Button>
       </DialogActions>
     </Dialog>

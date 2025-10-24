@@ -5,6 +5,7 @@ import {
   formatPhoneNumber,
   searchInFields,
 } from "../../../utils";
+import { LABELS } from "../../../constants";
 
 /**
 
@@ -43,13 +44,13 @@ export const getRoleColor = (
 export const getRoleLabel = (role: string): string => {
   switch (role.toLowerCase()) {
     case "admin":
-      return "Admin";
+      return LABELS.users.roles.admin;
     case "property_owner":
-      return "Property Owner";
+      return LABELS.users.roles.property_owner;
     case "service_provider":
-      return "Service Provider";
+      return LABELS.users.roles.service_provider;
     case "traveler":
-      return "Traveler";
+      return LABELS.users.roles.traveler;
     default:
       return role.replace("_", " ");
   }
@@ -62,7 +63,7 @@ export const formatUserName = (
   fullName: string | null,
   email: string
 ): string => {
-  return fullName || email.split("@")[0] || "Unnamed User";
+  return fullName || email.split("@")[0] || LABELS.users.unnamedUser;
 };
 
 // ======================== HELPERS MÉTIER ========================
@@ -73,10 +74,13 @@ export const formatUserName = (
 export const getActivityHeaderName = (
   currentUserRole: UserRole | null
 ): string => {
-  if (currentUserRole === UserRole.TRAVELER) return "Bookings";
-  if (currentUserRole === UserRole.PROPERTY_OWNER) return "Properties";
-  if (currentUserRole === UserRole.SERVICE_PROVIDER) return "Services";
-  return "Activity";
+  if (currentUserRole === UserRole.TRAVELER)
+    return LABELS.users.activity.bookings;
+  if (currentUserRole === UserRole.PROPERTY_OWNER)
+    return LABELS.users.activity.properties;
+  if (currentUserRole === UserRole.SERVICE_PROVIDER)
+    return LABELS.users.activity.services;
+  return LABELS.users.table.headers.activity;
 };
 
 /**
@@ -85,14 +89,14 @@ export const getActivityHeaderName = (
 export const calculateLockTimeRemaining = (
   lockedUntil: string | null
 ): string => {
-  if (!lockedUntil) return "Permanent";
+  if (!lockedUntil) return LABELS.users.status.permanent;
 
   const now = new Date();
   const unlockDate = new Date(lockedUntil);
   const diffMs = unlockDate.getTime() - now.getTime();
 
   if (diffMs <= 0) {
-    return "Expired";
+    return LABELS.users.status.expired;
   }
 
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -227,18 +231,34 @@ export const getAccountStatus = (user: {
   color: "success" | "error" | "warning" | "default";
 } => {
   if (user.deleted_at) {
-    return { status: "deleted", label: "Deleted", color: "default" };
+    return {
+      status: "deleted",
+      label: LABELS.users.status.deleted,
+      color: "default",
+    };
   }
 
   if (user.account_locked) {
-    return { status: "locked", label: "Locked", color: "error" };
+    return {
+      status: "locked",
+      label: LABELS.users.status.locked,
+      color: "error",
+    };
   }
 
   if (!user.profile_validated) {
-    return { status: "unverified", label: "Unverified", color: "warning" };
+    return {
+      status: "unverified",
+      label: LABELS.users.status.unverified,
+      color: "warning",
+    };
   }
 
-  return { status: "active", label: "Active", color: "success" };
+  return {
+    status: "active",
+    label: LABELS.users.status.active,
+    color: "success",
+  };
 };
 
 /**
@@ -256,19 +276,27 @@ export const getUserBadges = (user: {
   const badges = [];
 
   if (user.vip_subscription) {
-    badges.push({ label: "VIP", color: "primary" as const, icon: "star" });
+    badges.push({
+      label: LABELS.users.chips.vip,
+      color: "primary" as const,
+      icon: "star",
+    });
   }
 
   if (user.profile_validated) {
     badges.push({
-      label: "Verified",
+      label: LABELS.users.chips.verified,
       color: "success" as const,
       icon: "check",
     });
   }
 
   if (user.account_locked) {
-    badges.push({ label: "Locked", color: "error" as const, icon: "lock" });
+    badges.push({
+      label: LABELS.users.chips.locked,
+      color: "error" as const,
+      icon: "lock",
+    });
   }
 
   return badges;

@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/material";
 import BarCharts from "../../BarCharts";
 import DashboardItem from "../../DashboardItem";
 import { ChartDataPoint } from "../../../types/dashboard";
+import { LABELS } from "../../../constants";
 
 interface DashboardChartsSectionProps {
   recentActivityData: ChartDataPoint[];
@@ -22,16 +23,16 @@ export const DashboardChartsSection: React.FC<DashboardChartsSectionProps> = ({
 }) => {
   const charts: ChartConfig[] = [
     {
-      title: "Monthly Revenue",
-      subtitle: "Revenue trends over the last 6 months",
+      title: LABELS.dashboard.charts.monthlyRevenue,
+      subtitle: LABELS.dashboard.charts.revenueSubtitle,
       data: recentActivityData,
-      label: "Revenue (€)",
+      label: LABELS.dashboard.charts.revenueLabel,
     },
     {
-      title: "User Growth",
-      subtitle: "Active user growth over time",
+      title: LABELS.dashboard.charts.userGrowth,
+      subtitle: LABELS.dashboard.charts.userGrowthSubtitle,
       data: userGrowthData,
-      label: "Active Users",
+      label: LABELS.dashboard.charts.activeUsersLabel,
     },
   ];
 

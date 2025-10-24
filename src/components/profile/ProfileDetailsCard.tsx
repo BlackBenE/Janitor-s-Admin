@@ -20,6 +20,7 @@ import {
   Cancel as CancelIcon,
 } from "@mui/icons-material";
 import { ProfileFormData } from "../../types/profile";
+import { LABELS } from "../../constants/labels";
 
 interface ProfileDetailsCardProps {
   formData: ProfileFormData;
@@ -55,7 +56,7 @@ export const ProfileDetailsCard: React.FC<ProfileDetailsCardProps> = ({
   return (
     <Card sx={{ mb: 3 }}>
       <CardHeader
-        title="Profile Details"
+        title={LABELS.common.messages.profileDetails}
         action={
           !isEditMode ? (
             <Button
@@ -64,7 +65,7 @@ export const ProfileDetailsCard: React.FC<ProfileDetailsCardProps> = ({
               onClick={onToggleEdit}
               disabled={isLoading}
             >
-              Edit Profile
+              {LABELS.common.messages.editProfile}
             </Button>
           ) : (
             <Stack direction="row" spacing={1}>
@@ -76,7 +77,7 @@ export const ProfileDetailsCard: React.FC<ProfileDetailsCardProps> = ({
                 onClick={handleSave}
                 disabled={isLoading || !isFormValid || !hasChanges}
               >
-                Save
+                {LABELS.common.actions.save}
               </Button>
               <Button
                 variant="outlined"
@@ -84,7 +85,7 @@ export const ProfileDetailsCard: React.FC<ProfileDetailsCardProps> = ({
                 onClick={onCancel}
                 disabled={isLoading}
               >
-                Cancel
+                {LABELS.common.actions.cancel}
               </Button>
             </Stack>
           )
@@ -95,19 +96,21 @@ export const ProfileDetailsCard: React.FC<ProfileDetailsCardProps> = ({
           <Stack spacing={3}>
             <TextField
               fullWidth
-              label="Full Name"
+              label={LABELS.common.messages.fullName}
               value={formData.full_name}
               onChange={(e) => onInputChange("full_name", e.target.value)}
               disabled={isLoading}
               required
               error={!formData.full_name.trim()}
               helperText={
-                !formData.full_name.trim() ? "Full name is required" : ""
+                !formData.full_name.trim()
+                  ? LABELS.common.messages.fullNameRequired
+                  : ""
               }
             />
             <TextField
               fullWidth
-              label="Phone"
+              label={LABELS.common.fields.phone}
               value={formData.phone}
               onChange={(e) => onInputChange("phone", e.target.value)}
               disabled={isLoading}
@@ -119,23 +122,10 @@ export const ProfileDetailsCard: React.FC<ProfileDetailsCardProps> = ({
           <List>
             <ListItem disablePadding>
               <ListItemText
-                primary="Full Name"
-                secondary={formData.full_name || "Not provided"}
-              />
-            </ListItem>
-
-            <Divider sx={{ my: 1 }} />
-
-            <ListItem disablePadding>
-              <ListItemText primary="Email" secondary={userEmail} />
-            </ListItem>
-
-            <Divider sx={{ my: 1 }} />
-
-            <ListItem disablePadding>
-              <ListItemText
-                primary="Phone"
-                secondary={formData.phone || "Not provided"}
+                primary={LABELS.common.messages.fullName}
+                secondary={
+                  formData.full_name || LABELS.common.messages.notProvided
+                }
               />
             </ListItem>
 
@@ -143,7 +133,25 @@ export const ProfileDetailsCard: React.FC<ProfileDetailsCardProps> = ({
 
             <ListItem disablePadding>
               <ListItemText
-                primary="Role"
+                primary={LABELS.common.fields.email}
+                secondary={userEmail}
+              />
+            </ListItem>
+
+            <Divider sx={{ my: 1 }} />
+
+            <ListItem disablePadding>
+              <ListItemText
+                primary={LABELS.common.fields.phone}
+                secondary={formData.phone || LABELS.common.messages.notProvided}
+              />
+            </ListItem>
+
+            <Divider sx={{ my: 1 }} />
+
+            <ListItem disablePadding>
+              <ListItemText
+                primary={LABELS.common.fields.role}
                 secondary={userRole.charAt(0).toUpperCase() + userRole.slice(1)}
               />
             </ListItem>
@@ -153,7 +161,7 @@ export const ProfileDetailsCard: React.FC<ProfileDetailsCardProps> = ({
         {hasChanges && isEditMode && (
           <Box sx={{ mt: 2, p: 2, bgcolor: "warning.light", borderRadius: 1 }}>
             <Typography variant="body2" color="warning.contrastText">
-              You have unsaved changes. Don&apos;t forget to save your profile.
+              {LABELS.common.messages.unsavedChanges}
             </Typography>
           </Box>
         )}

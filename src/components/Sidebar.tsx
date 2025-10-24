@@ -10,6 +10,7 @@ import { Link, useLocation } from "react-router-dom";
 import { routes } from "../routes/routes";
 import { alpha, useTheme } from "@mui/material/styles";
 import { SvgIconComponent } from "@mui/icons-material";
+import { LABELS } from "../constants";
 
 interface Route {
   path: string;
@@ -56,7 +57,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
               mt: 1,
             }}
           >
-            Admin Dashboard
+            {LABELS.navigation.adminDashboard}
           </Box>
         </Box>
         <Divider sx={{ mb: 2 }} />
@@ -70,11 +71,26 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
             )
             .map((route: Route) => {
               const isSelected = location.pathname === route.path;
+
+              // Mapping des routes vers les labels
+              const routeLabelMap: Record<string, string> = {
+                "/": LABELS.navigation.dashboard,
+                "/user-management": LABELS.navigation.userManagement,
+                "/payments": LABELS.navigation.payments,
+                "/analytics": LABELS.navigation.analytics,
+                "/services": LABELS.navigation.services,
+                "/property-approvals": LABELS.navigation.propertyApprovals,
+                "/quote-requests": LABELS.navigation.quoteRequests,
+                "/services-catalog": LABELS.navigation.servicesCatalog,
+              };
+
               const formattedLabel =
+                routeLabelMap[route.path] ||
                 route.path
                   .replace("/", "")
                   .replace(/-/g, " ")
-                  .replace(/\b\w/g, (l) => l.toUpperCase()) || "Dashboard";
+                  .replace(/\b\w/g, (l) => l.toUpperCase()) ||
+                LABELS.navigation.dashboard;
 
               return (
                 <ListItem

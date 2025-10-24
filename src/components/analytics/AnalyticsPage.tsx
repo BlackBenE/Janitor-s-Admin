@@ -11,6 +11,7 @@ import {
   AnalyticsTabsSection,
 } from "./components";
 import { useAnalytics } from "./hooks";
+import { LABELS } from "../../constants/labels";
 
 /**
  * Page Analytics - Refactorisée en sections modulaires
@@ -59,10 +60,10 @@ export const AnalyticsPage: React.FC = () => {
       <AdminLayout>
         <Box sx={{ p: 3 }}>
           <Typography color="error">
-            Erreur lors du chargement des analytics: {error}
+            {LABELS.analytics.messages.loadingError}: {error}
           </Typography>
           <Button onClick={refreshData} sx={{ mt: 2 }}>
-            Réessayer
+            {LABELS.analytics.messages.retry}
           </Button>
         </Box>
       </AdminLayout>

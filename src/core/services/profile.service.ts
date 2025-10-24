@@ -1,4 +1,5 @@
 import { supabase } from '@/core/config/supabase';
+import { dataProvider } from '@/core/api/data.provider';
 
 export class ProfileService {
   /**
@@ -59,23 +60,21 @@ export class ProfileService {
 
       console.log('📝 Updating profile with data:', updateData);
 
-      const { data: result, error } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('id', userId)
-        .select(); // Ajout de .select() pour voir le résultat
+      // Utiliser le dataProvider qui gère mieux les erreurs et utilise supabaseAdmin
+      console.log('⏳ Calling dataProvider.update...');
+      const response = await dataProvider.update('profiles', userId, updateData);
 
-      console.log('✅ Supabase update result:', { result, error });
+      console.log('✅ DataProvider response:', response);
 
-      if (error) {
-        console.error('❌ Update profile error:', error);
+      if (!response.success || response.error) {
+        console.error('❌ Update profile error:', response.error);
         return {
           success: false,
-          error: error.message || 'Erreur lors de la mise à jour du profil',
+          error: response.error?.message || 'Erreur lors de la mise à jour du profil',
         };
       }
 
-      console.log('✅ Profile updated successfully:', result);
+      console.log('✅ Profile updated successfully:', response.data);
       return { success: true };
     } catch (error) {
       console.error('❌ Update profile error:', error);

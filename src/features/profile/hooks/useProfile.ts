@@ -3,6 +3,7 @@ import { ProfileFormData, ProfileState, ProfileStats } from '@/types/profile';
 import { useAuth } from '@/core/providers/auth.provider';
 import { ProfileService } from '@/core/services/profile.service';
 import { useUINotifications } from '@/shared/hooks';
+import { supabase } from '@/core/config/supabase';
 
 /**
  * Hook principal pour la gestion de l'état de la page Profile
@@ -89,13 +90,48 @@ export const useProfile = () => {
       showSuccess('Profile updated successfully!');
       setState((prev) => ({ ...prev, isEditMode: false }));
 
-      console.log('🔄 Refetching user profile...');
-      // Recharger le profil depuis la base de données
-      await refetchUserProfile();
+      console.log('🔄 Refetching user profile from database...');
+      
+      // Refetch direct depuis Supabase pour être sûr d'avoir les données fraîches
+      const { data: freshProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      console.log('📥 Fresh profile data from DB:', freshProfile);
+      
+      if (!fetchError && freshProfile) {
+        // Mettre à jour le formData avec les données fraîches
+        setState((prev) => ({
+          ...prev,
+          formData: {
+            full_name: freshProfile.full_name || '',
+            phone: freshProfile.phone || '',
+          },
+        }));
+        
+        // Appeler aussi le refetch du provider pour synchroniser l'état global
+        await refetchUserProfile();
+      } else {
+        console.error('❌ Error fetching fresh profile:', fetchError);
+        // Fallback sur le refetch du provider
+        await refetchUserProfile();
+        
+        // Forcer une mise à jour du formData
+        setState((prev) => ({
+          ...prev,
+          formData: {
+            full_name: getUserFullName() || '',
+            phone: getUserPhone() || '',
+          },
+        }));
+      }
 
       console.log('✅ Profile update completed. New data:', {
         fullName: getUserFullName(),
         phone: getUserPhone(),
+        formDataFullName: state.formData.full_name,
       });
 
       return true;

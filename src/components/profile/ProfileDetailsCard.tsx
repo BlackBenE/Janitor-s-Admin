@@ -115,7 +115,7 @@ export const ProfileDetailsCard: React.FC<ProfileDetailsCardProps> = ({
               onChange={(e) => onInputChange("phone", e.target.value)}
               disabled={isLoading}
               type="tel"
-              placeholder="+1 (555) 123-4567"
+              placeholder={LABELS.profile.placeholders.phone}
             />
           </Stack>
         ) : (

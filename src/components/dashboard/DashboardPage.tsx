@@ -1,5 +1,6 @@
 import React from "react";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import AdminLayout from "../AdminLayout";
 import { useDashboard } from "./hooks/useDashboard";
 import {
@@ -12,6 +13,7 @@ import {
   DashboardActivitiesSkeleton,
 } from "./components";
 import { LoadingIndicator } from "../shared";
+import { LABELS } from "../../constants/labels";
 
 function DashboardPage() {
   const {
@@ -33,8 +35,10 @@ function DashboardPage() {
     return (
       <AdminLayout>
         <Box p={3}>
-          <h2>Error</h2>
-          <p>{error}</p>
+          <Typography variant="h2" color="error">
+            {LABELS.common.messages.error}
+          </Typography>
+          <Typography>{error}</Typography>
         </Box>
       </AdminLayout>
     );

@@ -3,26 +3,14 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import MailIcon from "@mui/icons-material/Mail";
 import Box from "@mui/material/Box";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import IconButtonWithBadge from "./IconButtonWithBadge";
-import { useNotifications } from "../hooks/shared/useNotifications";
 import CommunicationDrawer from "./CommunicationDrawer";
-import NotificationDrawer from "./NotificationDrawer";
 import SearchBar from "./SearchBar";
 import CacheStatusIndicator from "./shared/CacheStatusIndicator";
 
 function CustomAppBar(): React.JSX.Element {
-  const [notificationDrawerOpen, setNotificationDrawerOpen] =
-    React.useState(false);
   const [communicationDrawerOpen, setCommunicationDrawerOpen] =
     React.useState(false);
-
-  const { useNotificationStats } = useNotifications();
-  const { data: stats } = useNotificationStats();
-
-  const handleNotificationClick = () => {
-    setNotificationDrawerOpen(true);
-  };
 
   const handleCommunicationClick = () => {
     setCommunicationDrawerOpen(true);
@@ -52,21 +40,11 @@ function CustomAppBar(): React.JSX.Element {
               color="error"
               onClick={handleCommunicationClick}
             />
-            <IconButtonWithBadge
-              icon={NotificationsIcon}
-              badgeContent={stats?.unread || 0}
-              color="secondary"
-              onClick={handleNotificationClick}
-            />
           </Toolbar>
         </AppBar>
       </Box>
 
-      {/* Drawers */}
-      <NotificationDrawer
-        open={notificationDrawerOpen}
-        onClose={() => setNotificationDrawerOpen(false)}
-      />
+      {/* Communication Drawer */}
       <CommunicationDrawer
         open={communicationDrawerOpen}
         onClose={() => setCommunicationDrawerOpen(false)}

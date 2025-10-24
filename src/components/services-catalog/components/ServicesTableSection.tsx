@@ -3,6 +3,7 @@ import { Box, Typography, Snackbar, Alert } from "@mui/material";
 import { ServiceFiltersSection } from "./ServiceFiltersSection";
 import DataTable from "../../Table";
 import { ServiceWithDetails } from "../../../types/services";
+import { LABELS } from "../../../constants/labels";
 
 interface ServicesTableSectionProps {
   services: ServiceWithDetails[];
@@ -68,7 +69,11 @@ export const ServicesTableSection: React.FC<ServicesTableSectionProps> = ({
       <DataTable columns={columns} data={transformedData} />
 
       {/* Loading indicator */}
-      {isLoading && <Box sx={{ textAlign: "center", py: 2 }}>Loading...</Box>}
+      {isLoading && (
+        <Box sx={{ textAlign: "center", py: 2 }}>
+          {LABELS.common.messages.loading}
+        </Box>
+      )}
 
       {/* Empty state */}
       {transformedData.length === 0 && !isLoading && (

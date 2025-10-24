@@ -37,7 +37,6 @@ import {
   Person,
   Email,
   Sms,
-  Notifications,
   ExpandMore,
   Preview,
   Save,
@@ -45,7 +44,7 @@ import {
   FileCopy,
   Campaign,
 } from "@mui/icons-material";
-import { useNotifications } from "../hooks/shared/useNotifications";
+import { LABELS } from "../constants/labels";
 
 interface CommunicationDrawerProps {
   open: boolean;
@@ -57,7 +56,7 @@ interface Template {
   name: string;
   subject: string;
   content: string;
-  type: "email" | "notification" | "sms";
+  type: "email" | "sms";
   variables: string[];
   created_at: string;
 }
@@ -75,18 +74,13 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
   onClose,
 }) => {
   const [selectedTab, setSelectedTab] = useState(0);
-  const [messageType, setMessageType] = useState<
-    "email" | "notification" | "sms"
-  >("notification");
+  const [messageType, setMessageType] = useState<"email" | "sms">("email");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [sending, setSending] = useState(false);
-
-  const { useBroadcastNotification } = useNotifications();
-  const broadcastMutation = useBroadcastNotification();
 
   // Mock data pour les destinataires
   const mockRecipients: Recipient[] = React.useMemo(
@@ -138,7 +132,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
       subject: "Action requise: Validation de profil",
       content:
         "Votre profil prestataire nécessite une validation. Merci de compléter les informations manquantes.",
-      type: "notification",
+      type: "email",
       variables: [],
       created_at: new Date().toISOString(),
     },
@@ -202,17 +196,8 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
 
     setSending(true);
     try {
-      if (messageType === "notification") {
-        await broadcastMutation.mutateAsync({
-          userIds: selectedRecipients,
-          title: subject || "Nouvelle notification",
-          message: content,
-          type: "info",
-        });
-      } else {
-        // Pour email et SMS, on simulerait l'envoi ici
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
+      // Simuler l'envoi d'email ou SMS
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Reset du formulaire
       setSubject("");
@@ -314,8 +299,11 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
               onChange={(_, value) => setSelectedTab(value)}
               variant="fullWidth"
             >
-              <Tab icon={<Edit />} label="Composer" />
-              <Tab icon={<FileCopy />} label="Templates" />
+              <Tab icon={<Edit />} label={LABELS.communication.tabs.compose} />
+              <Tab
+                icon={<FileCopy />}
+                label={LABELS.communication.tabs.templates}
+              />
             </Tabs>
           </Box>
 
@@ -330,18 +318,9 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                     value={messageType}
                     label="Type de message"
                     onChange={(e) =>
-                      setMessageType(
-                        e.target.value as "email" | "notification" | "sms"
-                      )
+                      setMessageType(e.target.value as "email" | "sms")
                     }
                   >
-                    <MenuItem value="notification">
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Notifications fontSize="small" /> Notification
-                      </Box>
-                    </MenuItem>
                     <MenuItem value="email">
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -360,23 +339,14 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                 </FormControl>
 
                 {/* Sujet/Titre */}
-                {(messageType === "email" ||
-                  messageType === "notification") && (
+                {messageType === "email" && (
                   <TextField
-                    label={
-                      messageType === "email"
-                        ? "Sujet"
-                        : "Titre de la notification"
-                    }
+                    label="Sujet"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     fullWidth
                     size="small"
-                    placeholder={
-                      messageType === "email"
-                        ? "Entrez le sujet de votre email"
-                        : "Titre de votre notification"
-                    }
+                    placeholder="Entrez le sujet de votre email"
                   />
                 )}
 

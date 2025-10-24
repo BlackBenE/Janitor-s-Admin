@@ -19,6 +19,7 @@ import {
   Shield as ShieldIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
+import { LABELS } from "../../constants/labels";
 
 interface SecuritySettingsCardProps {
   onChangePassword: () => void;
@@ -36,15 +37,15 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
   return (
     <Card>
       <CardHeader
-        title="Security Settings"
+        title={LABELS.profile.security.title}
         avatar={<ShieldIcon color="primary" />}
       />
       <CardContent>
         <List>
           <ListItem>
             <ListItemText
-              primary="Password"
-              secondary="Change your account password"
+              primary={LABELS.profile.security.password.title}
+              secondary={LABELS.profile.security.password.description}
             />
             <ListItemSecondaryAction>
               <Button
@@ -53,7 +54,7 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
                 onClick={onChangePassword}
                 size="small"
               >
-                Change Password
+                {LABELS.profile.security.password.changeButton}
               </Button>
             </ListItemSecondaryAction>
           </ListItem>
@@ -65,17 +66,21 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
               primary={
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Typography variant="body1">
-                    Two-Factor Authentication
+                    {LABELS.profile.security.twoFactor.title}
                   </Typography>
                   <Chip
-                    label={twoFactorEnabled ? "Enabled" : "Disabled"}
+                    label={
+                      twoFactorEnabled
+                        ? LABELS.profile.security.twoFactor.enabled
+                        : LABELS.profile.security.twoFactor.disabled
+                    }
                     color={twoFactorEnabled ? "success" : "warning"}
                     size="small"
                     variant="outlined"
                   />
                 </Box>
               }
-              secondary="Add an extra layer of security to your account"
+              secondary={LABELS.profile.security.twoFactor.description}
             />
             <ListItemSecondaryAction>
               <Button
@@ -85,7 +90,9 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
                 size="small"
                 color={twoFactorEnabled ? "error" : "primary"}
               >
-                {twoFactorEnabled ? "Disable" : "Enable"} 2FA
+                {twoFactorEnabled
+                  ? LABELS.profile.security.twoFactor.disableButton
+                  : LABELS.profile.security.twoFactor.enableButton}
               </Button>
             </ListItemSecondaryAction>
           </ListItem>
@@ -94,12 +101,14 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
 
           <ListItem>
             <ListItemText
-              primary="Account Security"
+              primary={LABELS.profile.security.accountSecurity.title}
               secondary={
                 <Typography variant="body2" color="text.secondary">
-                  Last password change: Never
+                  {LABELS.profile.security.password.lastChange}:{" "}
+                  {LABELS.profile.security.password.never}
                   <br />
-                  Account created: {new Date().toLocaleDateString()}
+                  {LABELS.profile.security.accountSecurity.accountCreated}:{" "}
+                  {new Date().toLocaleDateString("fr-FR")}
                 </Typography>
               }
             />
@@ -111,7 +120,7 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
 
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" color="error" gutterBottom>
-            Danger Zone
+            {LABELS.profile.security.dangerZone.title}
           </Typography>
           <Box
             sx={{
@@ -135,11 +144,10 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
                   color="error.contrastText"
                   fontWeight="bold"
                 >
-                  Delete Account
+                  {LABELS.profile.security.dangerZone.deleteAccount}
                 </Typography>
                 <Typography variant="body2" color="error.contrastText">
-                  Permanently delete your account and all associated data. This
-                  action cannot be undone.
+                  {LABELS.profile.security.dangerZone.deleteDescription}
                 </Typography>
               </Box>
               <Button
@@ -149,7 +157,7 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
                 onClick={onDeleteAccount}
                 size="small"
               >
-                Delete Account
+                {LABELS.profile.security.dangerZone.deleteButton}
               </Button>
             </Box>
           </Box>
@@ -157,8 +165,7 @@ export const SecuritySettingsCard: React.FC<SecuritySettingsCardProps> = ({
 
         <Box sx={{ mt: 3, p: 2, bgcolor: "info.light", borderRadius: 1 }}>
           <Typography variant="body2" color="info.contrastText">
-            💡 We recommend enabling two-factor authentication and updating your
-            password regularly.
+            {LABELS.profile.security.recommendation}
           </Typography>
         </Box>
       </CardContent>

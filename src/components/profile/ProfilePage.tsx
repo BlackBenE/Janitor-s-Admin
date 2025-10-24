@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Container, Alert, Snackbar } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { LABELS } from "../../constants/labels";
 
 // Composants spécialisés
 import { ProfileHeader } from "./ProfileHeader";
@@ -46,7 +47,7 @@ export const ProfilePage: React.FC = () => {
           alignItems="center"
           minHeight="400px"
         >
-          <Typography>Loading...</Typography>
+          <Typography>{LABELS.common.messages.loading}</Typography>
         </Box>
       </Container>
     );

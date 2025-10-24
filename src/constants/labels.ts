@@ -700,6 +700,7 @@ export const LABELS = {
       exportInProgress: "Export en cours...",
       reviewSubtitle:
         "Réviser et modérer les annonces immobilières soumises par les propriétaires.",
+      loadError: "Erreur lors du chargement des propriétés",
     },
   },
 
@@ -807,7 +808,6 @@ export const LABELS = {
       personal: "Informations personnelles",
       security: "Sécurité",
       preferences: "Préférences",
-      notifications: "Notifications",
     },
 
     settings: {
@@ -817,9 +817,42 @@ export const LABELS = {
     },
 
     security: {
+      title: "Paramètres de sécurité",
+      password: {
+        title: "Mot de passe",
+        description: "Changer le mot de passe de votre compte",
+        changeButton: "Changer le mot de passe",
+        lastChange: "Dernier changement de mot de passe",
+        never: "Jamais",
+      },
+      twoFactor: {
+        title: "Authentification à deux facteurs",
+        description: "Ajouter une couche de sécurité supplémentaire",
+        enabled: "Activée",
+        disabled: "Désactivée",
+        enableButton: "Activer 2FA",
+        disableButton: "Désactiver 2FA",
+      },
+      accountSecurity: {
+        title: "Sécurité du compte",
+        accountCreated: "Compte créé le",
+      },
+      dangerZone: {
+        title: "Zone dangereuse",
+        deleteAccount: "Supprimer le compte",
+        deleteDescription:
+          "Supprimer définitivement votre compte et toutes les données associées. Cette action ne peut pas être annulée.",
+        deleteButton: "Supprimer le compte",
+      },
+      recommendation:
+        "💡 Nous recommandons d'activer l'authentification à deux facteurs et de mettre à jour votre mot de passe régulièrement.",
       changePassword: "Changer le mot de passe",
-      twoFactor: "Authentification à deux facteurs",
+      twoFactorAuth: "Authentification à deux facteurs",
       sessions: "Sessions actives",
+    },
+
+    placeholders: {
+      phone: "+33 6 12 34 56 78",
     },
   },
 
@@ -895,47 +928,12 @@ export const LABELS = {
     ariaLabel: "fermer",
   },
 
-  // ======================== NOTIFICATIONS ========================
-  notifications: {
-    title: "Notifications",
-    tabs: {
-      all: "Toutes",
-      unread: "Non lues",
-      read: "Lues",
-    },
-    actions: {
-      markAsRead: "Marquer comme lu",
-      markAllAsRead: "Tout marquer comme lu",
-      deleteSelected: "Supprimer sélectionnées",
-      selectAll: "Tout sélectionner",
-      clearSelection: "Effacer sélection",
-      refresh: "Actualiser",
-      openInNewTab: "Ouvrir dans un nouvel onglet",
-    },
-    types: {
-      success: "Succès",
-      warning: "Avertissement",
-      error: "Erreur",
-      info: "Information",
-    },
-    emptyStates: {
-      all: "Aucune notification",
-      unread: "Aucune notification non lue",
-      read: "Aucune notification lue",
-      search: "Aucun résultat de recherche",
-    },
-    messages: {
-      marked: "{{count}} notification(s) marquée(s) comme lue(s)",
-      deleted: "{{count}} notification(s) supprimée(s)",
-      error: "Erreur lors du traitement des notifications",
-    },
-  },
-
   // ======================== COMMUNICATION ========================
   communication: {
     title: "Communication",
     tabs: {
       compose: "Composer",
+      templates: "Modèles",
       inbox: "Boîte de réception",
       sent: "Envoyés",
     },

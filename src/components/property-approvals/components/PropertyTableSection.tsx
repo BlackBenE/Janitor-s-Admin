@@ -16,6 +16,7 @@ import {
   PropertyStatus,
   Property,
 } from "../../../types/propertyApprovals";
+import { LABELS } from "../../../constants/labels";
 
 // Skeleton loading component for property table
 const PropertyTableSkeleton: React.FC = () => (
@@ -153,7 +154,9 @@ export const PropertyTableSection: React.FC<PropertyTableSectionProps> = ({
         <PropertyTableSkeleton />
       ) : error ? (
         <Box sx={{ p: 3, textAlign: "center" }}>
-          <Typography color="error">Error loading properties</Typography>
+          <Typography color="error">
+            {LABELS.propertyApprovals.messages.loadError}
+          </Typography>
         </Box>
       ) : (
         <DataTable columns={columns} data={transformedData} />

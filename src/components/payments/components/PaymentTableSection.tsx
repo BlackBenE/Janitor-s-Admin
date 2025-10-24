@@ -3,6 +3,7 @@ import { Box, Typography, Snackbar, Alert } from "@mui/material";
 import { PaymentFiltersSection } from "./PaymentFiltersSection";
 import DataTable from "../../Table";
 import { PaymentWithDetails } from "../../../types/payments";
+import { LABELS } from "../../../constants/labels";
 
 interface PaymentTableSectionProps {
   payments: PaymentWithDetails[];
@@ -82,8 +83,14 @@ export const PaymentTableSection: React.FC<PaymentTableSectionProps> = ({
         <DataTable columns={columns} data={transformedData} />
       </Box>
 
-      {/* Loading indicator */}
-      {isLoading && <Box sx={{ textAlign: "center", py: 2 }}>Loading...</Box>}
+      {/* Loading State */}
+      {isLoading && (
+        <Box sx={{ textAlign: "center", py: 2 }}>
+          {LABELS.common.messages.loading}
+        </Box>
+      )}
+
+      {/* Table */}
 
       {/* Empty state */}
       {transformedData.length === 0 && !isLoading && (

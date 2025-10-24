@@ -56,31 +56,37 @@ import { UserList } from '../../../components/users/UserList';
 ### Placement des nouveaux fichiers
 
 **Composant partagé** (utilisé par plusieurs domaines) :
+
 ```
 → src/shared/components/
 ```
 
 **Composant spécifique** (un seul domaine) :
+
 ```
 → src/features/{domain}/components/
 ```
 
 **Hook partagé** :
+
 ```
 → src/shared/hooks/
 ```
 
 **Hook métier** :
+
 ```
 → src/features/{domain}/hooks/
 ```
 
 **Utilitaire partagé** :
+
 ```
 → src/shared/utils/
 ```
 
 **Service infrastructure** :
+
 ```
 → src/core/services/
 ```
@@ -105,13 +111,13 @@ Cette structure est le **target**. On y migre progressivement selon la règle :
 
 ```typescript
 // Avant (structure actuelle)
-src/components/userManagement/UserList.tsx
-src/components/userManagement/hooks/useUsers.ts
+src / components / userManagement / UserList.tsx;
+src / components / userManagement / hooks / useUsers.ts;
 
 // Après (structure cible)
-src/features/users/components/UserList.tsx
-src/features/users/hooks/useUsers.ts
-src/features/users/index.ts  // Public API
+src / features / users / components / UserList.tsx;
+src / features / users / hooks / useUsers.ts;
+src / features / users / index.ts; // Public API
 ```
 
 ---
@@ -148,22 +154,27 @@ import { UserList, useUsers, User } from '@/features/users';
 ## 🚀 Avantages de cette architecture
 
 ### 1. **Scalabilité**
+
 - Ajout de features sans toucher aux autres
 - Croissance horizontale du projet
 
 ### 2. **Maintenance**
+
 - Code regroupé par domaine métier
 - Facile de trouver et modifier
 
 ### 3. **Réutilisabilité**
+
 - `shared/` contient le code réutilisable
 - Évite la duplication
 
 ### 4. **Testabilité**
+
 - Tests proches du code
 - Isolation des domaines
 
 ### 5. **Collaboration**
+
 - Équipe peut travailler sur différentes features
 - Moins de conflits Git
 
@@ -183,16 +194,19 @@ import { UserList, useUsers, User } from '@/features/users';
 ### Quand ajouter un nouveau fichier
 
 **Question** : Est-ce utilisé par plusieurs features ?
+
 - ✅ **Oui** → `src/shared/`
 - ❌ **Non** → `src/features/{domain}/`
 
 **Question** : Est-ce de l'infrastructure (API, config, cache) ?
+
 - ✅ **Oui** → `src/core/`
 - ❌ **Non** → Voir ci-dessus
 
 ### Refactoring progressif
 
 Quand tu modifies un fichier existant :
+
 1. Déplace-le vers la bonne structure
 2. Mets à jour les imports
 3. Commit avec message clair

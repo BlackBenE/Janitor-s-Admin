@@ -8,6 +8,7 @@
 ## 📋 Description
 
 Cette feature gère tout ce qui concerne les utilisateurs :
+
 - Liste et recherche d'utilisateurs
 - Détails et édition de profils
 - Actions de modération (lock, unlock, delete)
@@ -45,6 +46,7 @@ src/features/users/
 ### Fichiers actuels à migrer
 
 Les fichiers actuels se trouvent dans :
+
 ```
 src/components/userManagement/
 ├── components/
@@ -56,10 +58,12 @@ src/components/userManagement/
 ### Plan de migration
 
 **Phase 1** : Structure (✅ Fait)
+
 - [x] Créer dossiers `components/`, `hooks/`, `api/`, `types/`
 - [x] Créer `index.ts` et `README.md`
 
 **Phase 2** : Migration progressive (⏳ À faire)
+
 - [ ] Migrer les types → `types/user.types.ts`
 - [ ] Migrer les hooks → `hooks/`
 - [ ] Migrer les composants → `components/`
@@ -67,6 +71,7 @@ src/components/userManagement/
 - [ ] Migrer les utils → vers `shared/utils/` si réutilisables
 
 **Phase 3** : Cleanup (⏳ À faire)
+
 - [ ] Supprimer l'ancien dossier `userManagement/`
 - [ ] Mettre à jour tous les imports
 - [ ] Tester que tout fonctionne
@@ -110,11 +115,13 @@ src/features/users/
 ## 📚 Dépendances
 
 ### Dépendances internes
+
 - `@/shared/components` - Composants réutilisables (Table, Modal, etc.)
 - `@/shared/hooks` - Hooks réutilisables (useDataTable, useFilters)
 - `@/core/api` - Client Supabase
 
 ### Dépendances externes
+
 - `@tanstack/react-query` - Gestion cache et mutations
 - `react-hook-form` - Gestion des formulaires
 - `@mui/material` - Composants UI

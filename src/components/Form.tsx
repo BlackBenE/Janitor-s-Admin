@@ -7,7 +7,7 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
-import { LABELS, formatMessage } from "../constants";
+import { LABELS, formatMessage } from "@/core/config/labels";
 
 export type FormField = {
   name: string;

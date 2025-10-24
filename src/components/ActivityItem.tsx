@@ -7,7 +7,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import { orange, blue, green } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
-import { LABELS } from "../constants/labels";
+import { LABELS } from "@/core/config/labels";
 
 // Mettez à jour les couleurs pour correspondre au fond de la pastille
 type Status = "Pending" | "Review Required" | "Completed";

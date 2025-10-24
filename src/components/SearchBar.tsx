@@ -18,7 +18,7 @@ import {
   searchEntities,
   useSearchNavigation,
   SearchResult,
-} from "../services/searchService";
+} from "@/core/services/search.service";
 import { LABELS } from "../constants/labels";
 
 interface SearchBarProps {

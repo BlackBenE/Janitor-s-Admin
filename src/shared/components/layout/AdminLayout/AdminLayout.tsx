@@ -1,8 +1,8 @@
-import { ReactNode } from "react";
-import Box from "@mui/material/Box";
-import Sidebar from "@/shared/components/layout/Sidebar";
-import CustomAppBar from "@/shared/components/layout/CustomAppBar";
-import Divider from "@mui/material/Divider";
+import { ReactNode } from 'react';
+import Box from '@mui/material/Box';
+import Sidebar from '@/shared/components/layout/Sidebar';
+import CustomAppBar from '@/shared/components/layout/CustomAppBar';
+import Divider from '@mui/material/Divider';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -10,16 +10,16 @@ interface AdminLayoutProps {
 
 function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
+    <Box sx={{ display: 'flex', height: '100vh' }}>
       <Sidebar />
       <Box
         component="main"
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          height: "100vh",
-          overflow: "hidden",
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          height: '100vh',
+          overflow: 'hidden',
         }}
       >
         <Box sx={{ flexShrink: 0 }}>
@@ -29,7 +29,7 @@ function AdminLayout({ children }: AdminLayoutProps) {
         <Box
           sx={{
             flex: 1,
-            overflow: "auto",
+            overflow: 'auto',
             px: { xs: 2, md: 6, lg: 10 },
             py: 2,
           }}

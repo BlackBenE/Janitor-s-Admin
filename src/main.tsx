@@ -9,7 +9,7 @@ import "@fontsource/roboto/700.css";
 
 // Import du service de test GDPR pour développement
 if (import.meta.env.DEV) {
-  import("./services/gdprTestService");
+  import("@/core/services/gdpr.service");
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

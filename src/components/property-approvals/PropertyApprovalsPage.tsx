@@ -1,7 +1,7 @@
 import React from "react";
 import AdminLayout from "../AdminLayout";
 import { useProperties } from "./hooks/useProperties";
-import { useAuth } from "../../providers/authProvider";
+import { useAuth } from "@/core/providers/auth.provider";
 import { usePropertyManagementEnhanced } from "./hooks/usePropertyManagementEnhanced";
 import { createGenericTableColumns } from "../shared/GenericTableColumns";
 import {

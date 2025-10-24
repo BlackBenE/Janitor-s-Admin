@@ -1,4 +1,4 @@
-import { supabase } from "@/core/config/supabase";
+import { supabase } from '@/core/config/supabase';
 
 /**
  * Service utilitaire pour tester et visualiser le système GDPR
@@ -9,14 +9,14 @@ export class GDPRTestService {
    */
   static async previewPendingPurges() {
     try {
-      const { data, error } = await supabase.rpc("preview_pending_purges");
+      const { data, error } = await supabase.rpc('preview_pending_purges');
 
       if (error) {
         console.error("Erreur lors de l'aperçu des purges:", error);
         return null;
       }
 
-      console.log("📋 Aperçu des purges à venir:");
+      console.log('📋 Aperçu des purges à venir:');
       console.table(data);
 
       return data;
@@ -31,22 +31,19 @@ export class GDPRTestService {
    */
   static async getGDPRStatistics() {
     try {
-      const { data, error } = await supabase
-        .from("gdpr_statistics_simple")
-        .select("*")
-        .single();
+      const { data, error } = await supabase.from('gdpr_statistics_simple').select('*').single();
 
       if (error) {
-        console.error("Erreur lors de la récupération des stats:", error);
+        console.error('Erreur lors de la récupération des stats:', error);
         return null;
       }
 
-      console.log("📊 Statistiques GDPR actuelles:");
+      console.log('📊 Statistiques GDPR actuelles:');
       console.table(data);
 
       return data;
     } catch (error) {
-      console.error("Erreur lors des statistiques:", error);
+      console.error('Erreur lors des statistiques:', error);
       return null;
     }
   }
@@ -56,19 +53,19 @@ export class GDPRTestService {
    */
   static async testPurgeFunction() {
     try {
-      console.log("🧪 Test de la fonction execute_gdpr_purges...");
+      console.log('🧪 Test de la fonction execute_gdpr_purges...');
 
-      const { data, error } = await supabase.rpc("execute_gdpr_purges");
+      const { data, error } = await supabase.rpc('execute_gdpr_purges');
 
       if (error) {
-        console.error("❌ Erreur lors du test de purge:", error);
+        console.error('❌ Erreur lors du test de purge:', error);
         return false;
       }
 
       console.log(`✅ Test réussi! ${data} purges exécutées`);
       return true;
     } catch (error) {
-      console.error("❌ Erreur lors du test:", error);
+      console.error('❌ Erreur lors du test:', error);
       return false;
     }
   }
@@ -78,36 +75,32 @@ export class GDPRTestService {
    */
   static async simulateUserDeletion(userId: string) {
     try {
-      console.log(
-        `🎭 Simulation de suppression pour l'utilisateur ${userId}...`
-      );
+      console.log(`🎭 Simulation de suppression pour l'utilisateur ${userId}...`);
 
       // 1. Soft delete
       const { error: deleteError } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({
           deleted_at: new Date().toISOString(),
-          deletion_reason: "test_simulation",
-          anonymization_level: "partial",
+          deletion_reason: 'test_simulation',
+          anonymization_level: 'partial',
           anonymized_at: new Date().toISOString(),
           // Programmer la purge dans 30 jours pour test
-          scheduled_purge_at: new Date(
-            Date.now() + 30 * 24 * 60 * 60 * 1000
-          ).toISOString(),
+          scheduled_purge_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         })
-        .eq("id", userId);
+        .eq('id', userId);
 
       if (deleteError) {
-        console.error("❌ Erreur lors de la simulation:", deleteError);
+        console.error('❌ Erreur lors de la simulation:', deleteError);
         return false;
       }
 
       console.log(`✅ Simulation réussie pour ${userId}`);
-      console.log("📅 Purge programmée dans 30 jours");
+      console.log('📅 Purge programmée dans 30 jours');
 
       return true;
     } catch (error) {
-      console.error("❌ Erreur lors de la simulation:", error);
+      console.error('❌ Erreur lors de la simulation:', error);
       return false;
     }
   }
@@ -137,8 +130,6 @@ gdprTest.preview()
   },
 };
 
-console.log(
-  "🧪 Service de test GDPR chargé. Tapez 'gdprTest.help()' pour voir les commandes"
-);
+console.log("🧪 Service de test GDPR chargé. Tapez 'gdprTest.help()' pour voir les commandes");
 
 export default GDPRTestService;

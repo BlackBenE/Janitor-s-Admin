@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Drawer,
   Box,
@@ -29,7 +29,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Alert,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Close,
   Send,
@@ -43,8 +43,8 @@ import {
   Edit,
   FileCopy,
   Campaign,
-} from "@mui/icons-material";
-import { LABELS } from "@/core/config/labels";
+} from '@mui/icons-material';
+import { LABELS } from '@/core/config/labels';
 
 interface CommunicationDrawerProps {
   open: boolean;
@@ -56,7 +56,7 @@ interface Template {
   name: string;
   subject: string;
   content: string;
-  type: "email" | "sms";
+  type: 'email' | 'sms';
   variables: string[];
   created_at: string;
 }
@@ -65,18 +65,15 @@ interface Recipient {
   id: string;
   name: string;
   email: string;
-  type: "user" | "provider" | "admin";
+  type: 'user' | 'provider' | 'admin';
   avatar?: string;
 }
 
-const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
-  open,
-  onClose,
-}) => {
+const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({ open, onClose }) => {
   const [selectedTab, setSelectedTab] = useState(0);
-  const [messageType, setMessageType] = useState<"email" | "sms">("email");
-  const [subject, setSubject] = useState("");
-  const [content, setContent] = useState("");
+  const [messageType, setMessageType] = useState<'email' | 'sms'>('email');
+  const [subject, setSubject] = useState('');
+  const [content, setContent] = useState('');
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -85,30 +82,30 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
   // Mock data pour les destinataires
   const mockRecipients: Recipient[] = React.useMemo(
     () => [
-      { id: "1", name: "Jean Dupont", email: "jean@example.com", type: "user" },
+      { id: '1', name: 'Jean Dupont', email: 'jean@example.com', type: 'user' },
       {
-        id: "2",
-        name: "Marie Martin",
-        email: "marie@example.com",
-        type: "user",
+        id: '2',
+        name: 'Marie Martin',
+        email: 'marie@example.com',
+        type: 'user',
       },
       {
-        id: "3",
-        name: "Service Nettoyage Pro",
-        email: "contact@nettoyage.com",
-        type: "provider",
+        id: '3',
+        name: 'Service Nettoyage Pro',
+        email: 'contact@nettoyage.com',
+        type: 'provider',
       },
       {
-        id: "4",
-        name: "Pierre Admin",
-        email: "pierre@admin.com",
-        type: "admin",
+        id: '4',
+        name: 'Pierre Admin',
+        email: 'pierre@admin.com',
+        type: 'admin',
       },
       {
-        id: "5",
-        name: "Sophie Voyageuse",
-        email: "sophie@example.com",
-        type: "user",
+        id: '5',
+        name: 'Sophie Voyageuse',
+        email: 'sophie@example.com',
+        type: 'user',
       },
     ],
     []
@@ -117,33 +114,33 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
   // Mock templates
   const mockTemplates: Template[] = [
     {
-      id: "1",
-      name: "Bienvenue nouveau utilisateur",
-      subject: "Bienvenue sur notre plateforme !",
+      id: '1',
+      name: 'Bienvenue nouveau utilisateur',
+      subject: 'Bienvenue sur notre plateforme !',
       content:
         "Bonjour {{name}},\n\nNous sommes ravis de vous accueillir sur notre plateforme. Votre compte a été créé avec succès.\n\nCordialement,\nL'équipe",
-      type: "email",
-      variables: ["name"],
+      type: 'email',
+      variables: ['name'],
       created_at: new Date().toISOString(),
     },
     {
-      id: "2",
-      name: "Rappel validation prestataire",
-      subject: "Action requise: Validation de profil",
+      id: '2',
+      name: 'Rappel validation prestataire',
+      subject: 'Action requise: Validation de profil',
       content:
-        "Votre profil prestataire nécessite une validation. Merci de compléter les informations manquantes.",
-      type: "email",
+        'Votre profil prestataire nécessite une validation. Merci de compléter les informations manquantes.',
+      type: 'email',
       variables: [],
       created_at: new Date().toISOString(),
     },
     {
-      id: "3",
-      name: "Confirmation réservation",
-      subject: "Votre réservation est confirmée",
+      id: '3',
+      name: 'Confirmation réservation',
+      subject: 'Votre réservation est confirmée',
       content:
-        "Bonjour {{name}},\n\nVotre réservation du {{date}} est confirmée.\nRéférence: {{booking_id}}\n\nMerci de votre confiance.",
-      type: "email",
-      variables: ["name", "date", "booking_id"],
+        'Bonjour {{name}},\n\nVotre réservation du {{date}} est confirmée.\nRéférence: {{booking_id}}\n\nMerci de votre confiance.',
+      type: 'email',
+      variables: ['name', 'date', 'booking_id'],
       created_at: new Date().toISOString(),
     },
   ];
@@ -157,9 +154,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
 
   const handleRecipientToggle = (recipientId: string) => {
     setSelectedRecipients((prev) =>
-      prev.includes(recipientId)
-        ? prev.filter((id) => id !== recipientId)
-        : [...prev, recipientId]
+      prev.includes(recipientId) ? prev.filter((id) => id !== recipientId) : [...prev, recipientId]
     );
   };
 
@@ -172,12 +167,10 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
   // };
 
   const handleFilterByType = (type: string) => {
-    if (type === "all") {
+    if (type === 'all') {
       setSelectedRecipients(recipients.map((r) => r.id));
     } else {
-      const filteredIds = recipients
-        .filter((r) => r.type === type)
-        .map((r) => r.id);
+      const filteredIds = recipients.filter((r) => r.type === type).map((r) => r.id);
       setSelectedRecipients(filteredIds);
     }
   };
@@ -200,8 +193,8 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Reset du formulaire
-      setSubject("");
-      setContent("");
+      setSubject('');
+      setContent('');
       setSelectedRecipients([]);
 
       // Fermer le drawer après succès
@@ -228,11 +221,11 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
 
   const getRecipientIcon = (type: string) => {
     switch (type) {
-      case "user":
+      case 'user':
         return <Person color="primary" />;
-      case "provider":
+      case 'provider':
         return <Group color="secondary" />;
-      case "admin":
+      case 'admin':
         return <Person color="error" />;
       default:
         return <Person />;
@@ -248,9 +241,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
     value: number;
     index: number;
   }) => (
-    <div hidden={value !== index}>
-      {value === index && <Box sx={{ p: 2 }}>{children}</Box>}
-    </div>
+    <div hidden={value !== index}>{value === index && <Box sx={{ p: 2 }}>{children}</Box>}</div>
   );
 
   return (
@@ -260,25 +251,25 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
         open={open}
         onClose={handleClose}
         sx={{
-          "& .MuiDrawer-paper": {
-            width: { xs: "100vw", sm: 500 },
-            maxWidth: "100vw",
+          '& .MuiDrawer-paper': {
+            width: { xs: '100vw', sm: 500 },
+            maxWidth: '100vw',
           },
         }}
       >
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           {/* En-tête */}
           <Box
             sx={{
               p: 2,
               borderBottom: 1,
-              borderColor: "divider",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
+              borderColor: 'divider',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Campaign color="primary" />
               <Box>
                 <Typography variant="h6">Centre de Communication</Typography>
@@ -293,22 +284,19 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
           </Box>
 
           {/* Onglets */}
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs
               value={selectedTab}
               onChange={(_, value) => setSelectedTab(value)}
               variant="fullWidth"
             >
               <Tab icon={<Edit />} label={LABELS.communication.tabs.compose} />
-              <Tab
-                icon={<FileCopy />}
-                label={LABELS.communication.tabs.templates}
-              />
+              <Tab icon={<FileCopy />} label={LABELS.communication.tabs.templates} />
             </Tabs>
           </Box>
 
           {/* Contenu */}
-          <Box sx={{ flexGrow: 1, overflow: "auto" }}>
+          <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
             <TabPanel value={selectedTab} index={0}>
               <Stack spacing={2}>
                 {/* Type de message */}
@@ -317,21 +305,15 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                   <Select
                     value={messageType}
                     label="Type de message"
-                    onChange={(e) =>
-                      setMessageType(e.target.value as "email" | "sms")
-                    }
+                    onChange={(e) => setMessageType(e.target.value as 'email' | 'sms')}
                   >
                     <MenuItem value="email">
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Email fontSize="small" /> Email
                       </Box>
                     </MenuItem>
                     <MenuItem value="sms">
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Sms fontSize="small" /> SMS
                       </Box>
                     </MenuItem>
@@ -339,7 +321,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                 </FormControl>
 
                 {/* Sujet/Titre */}
-                {messageType === "email" && (
+                {messageType === 'email' && (
                   <TextField
                     label="Sujet"
                     value={subject}
@@ -352,58 +334,41 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
 
                 {/* Contenu */}
                 <TextField
-                  label={messageType === "sms" ? "Message SMS" : "Contenu"}
+                  label={messageType === 'sms' ? 'Message SMS' : 'Contenu'}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   multiline
-                  rows={messageType === "sms" ? 3 : 5}
+                  rows={messageType === 'sms' ? 3 : 5}
                   fullWidth
                   size="small"
                   placeholder={
-                    messageType === "sms"
-                      ? "Rédigez votre message SMS (max 160 caractères)"
-                      : "Rédigez votre message..."
+                    messageType === 'sms'
+                      ? 'Rédigez votre message SMS (max 160 caractères)'
+                      : 'Rédigez votre message...'
                   }
                   helperText={
-                    messageType === "sms"
+                    messageType === 'sms'
                       ? `${content.length}/160 caractères`
-                      : "Utilisez {{variable}} pour insérer des variables"
+                      : 'Utilisez {{variable}} pour insérer des variables'
                   }
                 />
 
                 {/* Variables disponibles */}
-                {messageType !== "sms" && (
-                  <Paper sx={{ p: 1.5, bgcolor: "grey.50" }}>
-                    <Typography
-                      variant="caption"
-                      gutterBottom
-                      display="block"
-                      fontWeight="bold"
-                    >
+                {messageType !== 'sms' && (
+                  <Paper sx={{ p: 1.5, bgcolor: 'grey.50' }}>
+                    <Typography variant="caption" gutterBottom display="block" fontWeight="bold">
                       Variables disponibles :
                     </Typography>
-                    <Stack
-                      direction="row"
-                      spacing={0.5}
-                      flexWrap="wrap"
-                      useFlexGap
-                    >
-                      {[
-                        "{{name}}",
-                        "{{email}}",
-                        "{{date}}",
-                        "{{booking_id}}",
-                      ].map((variable) => (
+                    <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                      {['{{name}}', '{{email}}', '{{date}}', '{{booking_id}}'].map((variable) => (
                         <Chip
                           key={variable}
                           label={variable}
                           size="small"
-                          onClick={() =>
-                            setContent((prev) => prev + " " + variable)
-                          }
+                          onClick={() => setContent((prev) => prev + ' ' + variable)}
                           sx={{
-                            cursor: "pointer",
-                            fontSize: "0.7rem",
+                            cursor: 'pointer',
+                            fontSize: '0.7rem',
                             height: 20,
                           }}
                         />
@@ -415,8 +380,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                 {/* Destinataires */}
                 <Box>
                   <Typography variant="subtitle2" gutterBottom>
-                    Destinataires ({selectedRecipients.length}/
-                    {recipients.length})
+                    Destinataires ({selectedRecipients.length}/{recipients.length})
                   </Typography>
 
                   {/* Filtres rapides */}
@@ -424,25 +388,23 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                     <Button
                       size="small"
                       variant={
-                        selectedRecipients.length === recipients.length
-                          ? "contained"
-                          : "outlined"
+                        selectedRecipients.length === recipients.length ? 'contained' : 'outlined'
                       }
-                      onClick={() => handleFilterByType("all")}
+                      onClick={() => handleFilterByType('all')}
                     >
                       Tous
                     </Button>
                     <Button
                       size="small"
                       variant="outlined"
-                      onClick={() => handleFilterByType("user")}
+                      onClick={() => handleFilterByType('user')}
                     >
                       Users
                     </Button>
                     <Button
                       size="small"
                       variant="outlined"
-                      onClick={() => handleFilterByType("provider")}
+                      onClick={() => handleFilterByType('provider')}
                     >
                       Prestataires
                     </Button>
@@ -452,9 +414,9 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                   <Paper
                     sx={{
                       maxHeight: 200,
-                      overflow: "auto",
+                      overflow: 'auto',
                       border: 1,
-                      borderColor: "divider",
+                      borderColor: 'divider',
                     }}
                   >
                     <List dense>
@@ -463,28 +425,17 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                           <ListItemIcon sx={{ minWidth: 32 }}>
                             <Checkbox
                               size="small"
-                              checked={selectedRecipients.includes(
-                                recipient.id
-                              )}
-                              onChange={() =>
-                                handleRecipientToggle(recipient.id)
-                              }
+                              checked={selectedRecipients.includes(recipient.id)}
+                              onChange={() => handleRecipientToggle(recipient.id)}
                             />
                           </ListItemIcon>
                           <ListItemIcon sx={{ minWidth: 24 }}>
                             {getRecipientIcon(recipient.type)}
                           </ListItemIcon>
                           <ListItemText
-                            primary={
-                              <Typography variant="body2">
-                                {recipient.name}
-                              </Typography>
-                            }
+                            primary={<Typography variant="body2">{recipient.name}</Typography>}
                             secondary={
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
+                              <Typography variant="caption" color="text.secondary">
                                 {recipient.email}
                               </Typography>
                             }
@@ -496,16 +447,12 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                 </Box>
 
                 {/* Résumé */}
-                <Alert severity="info" sx={{ fontSize: "0.8rem" }}>
+                <Alert severity="info" sx={{ fontSize: '0.8rem' }}>
                   <Typography variant="body2">
-                    📊 <strong>Résumé:</strong> {messageType} pour{" "}
-                    {selectedRecipients.length} destinataire(s)
-                    {messageType === "sms" && (
-                      <span>
-                        {" "}
-                        • Coût estimé:{" "}
-                        {(selectedRecipients.length * 0.05).toFixed(2)}€
-                      </span>
+                    📊 <strong>Résumé:</strong> {messageType} pour {selectedRecipients.length}{' '}
+                    destinataire(s)
+                    {messageType === 'sms' && (
+                      <span> • Coût estimé: {(selectedRecipients.length * 0.05).toFixed(2)}€</span>
                     )}
                   </Typography>
                 </Alert>
@@ -519,16 +466,13 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                 </Typography>
                 {mockTemplates.map((template) => (
                   <Accordion key={template.id}>
-                    <AccordionSummary
-                      expandIcon={<ExpandMore />}
-                      sx={{ py: 0.5 }}
-                    >
+                    <AccordionSummary expandIcon={<ExpandMore />} sx={{ py: 0.5 }}>
                       <Box
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
+                          display: 'flex',
+                          alignItems: 'center',
                           gap: 1,
-                          width: "100%",
+                          width: '100%',
                         }}
                       >
                         <Box sx={{ flexGrow: 1 }}>
@@ -536,8 +480,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                             {template.name}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {template.type} • {template.variables.length}{" "}
-                            variables
+                            {template.type} • {template.variables.length} variables
                           </Typography>
                         </Box>
                         <Chip label={template.type} size="small" />
@@ -547,11 +490,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                       <Box sx={{ mb: 1 }}>
                         {template.subject && (
                           <>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                              display="block"
-                            >
+                            <Typography variant="caption" color="text.secondary" display="block">
                               Sujet:
                             </Typography>
                             <Typography
@@ -559,9 +498,9 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                               sx={{
                                 mb: 1,
                                 p: 0.5,
-                                bgcolor: "grey.100",
+                                bgcolor: 'grey.100',
                                 borderRadius: 0.5,
-                                fontSize: "0.8rem",
+                                fontSize: '0.8rem',
                               }}
                             >
                               {template.subject}
@@ -569,11 +508,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                           </>
                         )}
 
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          display="block"
-                        >
+                        <Typography variant="caption" color="text.secondary" display="block">
                           Contenu:
                         </Typography>
                         <Typography
@@ -581,10 +516,10 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                           sx={{
                             mb: 1,
                             p: 0.5,
-                            bgcolor: "grey.100",
+                            bgcolor: 'grey.100',
                             borderRadius: 0.5,
-                            whiteSpace: "pre-wrap",
-                            fontSize: "0.8rem",
+                            whiteSpace: 'pre-wrap',
+                            fontSize: '0.8rem',
                           }}
                         >
                           {template.content}
@@ -592,11 +527,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
 
                         {template.variables.length > 0 && (
                           <>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                              display="block"
-                            >
+                            <Typography variant="caption" color="text.secondary" display="block">
                               Variables:
                             </Typography>
                             <Stack direction="row" spacing={0.5} sx={{ mb: 1 }}>
@@ -605,7 +536,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                                   key={variable}
                                   label={`{{${variable}}}`}
                                   size="small"
-                                  sx={{ fontSize: "0.7rem", height: 20 }}
+                                  sx={{ fontSize: '0.7rem', height: 20 }}
                                 />
                               ))}
                             </Stack>
@@ -630,20 +561,16 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
           </Box>
 
           {/* Actions */}
-          <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+          <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
             <Stack spacing={1}>
               <Button
                 variant="contained"
                 onClick={handleSendMessage}
-                disabled={
-                  !content.trim() || selectedRecipients.length === 0 || sending
-                }
+                disabled={!content.trim() || selectedRecipients.length === 0 || sending}
                 startIcon={sending ? <CircularProgress size={16} /> : <Send />}
                 fullWidth
               >
-                {sending
-                  ? "Envoi..."
-                  : `Envoyer (${selectedRecipients.length})`}
+                {sending ? 'Envoi...' : `Envoyer (${selectedRecipients.length})`}
               </Button>
 
               <Stack direction="row" spacing={1}>
@@ -658,12 +585,7 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
                   Aperçu
                 </Button>
 
-                <Button
-                  variant="outlined"
-                  startIcon={<Save />}
-                  size="small"
-                  fullWidth
-                >
+                <Button variant="outlined" startIcon={<Save />} size="small" fullWidth>
                   Sauvegarder
                 </Button>
               </Stack>
@@ -673,21 +595,16 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
       </Drawer>
 
       {/* Dialog d'aperçu */}
-      <Dialog
-        open={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
+      <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Aperçu du message</DialogTitle>
         <DialogContent>
-          <Paper sx={{ p: 2, mb: 2, bgcolor: "grey.50" }}>
+          <Paper sx={{ p: 2, mb: 2, bgcolor: 'grey.50' }}>
             <Typography variant="subtitle2" gutterBottom>
               Type: {messageType}
             </Typography>
             {subject && (
               <Typography variant="subtitle2" gutterBottom>
-                {messageType === "email" ? "Sujet" : "Titre"}: {subject}
+                {messageType === 'email' ? 'Sujet' : 'Titre'}: {subject}
               </Typography>
             )}
             <Typography variant="subtitle2" gutterBottom>
@@ -695,8 +612,8 @@ const CommunicationDrawer: React.FC<CommunicationDrawerProps> = ({
             </Typography>
           </Paper>
 
-          <Paper sx={{ p: 2, border: 1, borderColor: "divider" }}>
-            <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
+          <Paper sx={{ p: 2, border: 1, borderColor: 'divider' }}>
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
               {content}
             </Typography>
           </Paper>

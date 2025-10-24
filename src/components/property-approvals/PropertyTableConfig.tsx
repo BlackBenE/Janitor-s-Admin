@@ -19,7 +19,7 @@ import {
   createDateColumn,
 } from "../shared/GenericTableColumns";
 import { PropertyWithOwner } from "../../types";
-import { LABELS } from "../../constants";
+import { LABELS } from "@/core/config/labels";
 import { getStatusLabel, getStatusColor } from "../../utils/statusHelpers";
 
 // =====================================================

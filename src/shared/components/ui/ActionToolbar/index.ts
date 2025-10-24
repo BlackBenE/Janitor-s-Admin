@@ -1,3 +1,2 @@
-export { ActionToolbar, ActionToolbar as default } from './ActionToolbar';
+export { default as ActionToolbar } from './ActionToolbar';
 export type { BulkAction } from './ActionToolbar';
-

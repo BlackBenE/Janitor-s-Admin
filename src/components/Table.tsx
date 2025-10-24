@@ -14,7 +14,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Badge from "@mui/material/Badge";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
-import { LABELS } from "../constants/labels";
+import { LABELS } from "@/core/config/labels";
 
 function MyCustomToolbar() {
   return (

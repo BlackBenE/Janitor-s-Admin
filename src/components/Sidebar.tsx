@@ -10,7 +10,7 @@ import { Link, useLocation } from "react-router-dom";
 import { routes } from "../routes/routes";
 import { alpha, useTheme } from "@mui/material/styles";
 import { SvgIconComponent } from "@mui/icons-material";
-import { LABELS } from "../constants";
+import { LABELS } from "@/core/config/labels";
 
 interface Route {
   path: string;

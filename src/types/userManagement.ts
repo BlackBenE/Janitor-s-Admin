@@ -7,7 +7,7 @@ import {
   DeleteOutlined as DeleteIcon,
 } from "@mui/icons-material";
 import { Database } from "./database.types";
-import { LABELS } from "../constants";
+import { LABELS } from "@/core/config/labels";
 
 // Types helpers pour Supabase
 type Tables<T extends keyof Database["public"]["Tables"]> =

@@ -1,11 +1,11 @@
-import { supabase } from "@/core/config/supabase";
+import { supabase } from '@/core/config/supabase';
 import {
   AnonymizationLevel,
   AnonymizationResult,
   AnonymizationStrategy,
   DEFAULT_ANONYMIZATION_STRATEGY,
   DeletionReason,
-} from "@/types/dataRetention";
+} from '@/types/dataRetention';
 
 /**
  * Service d'anonymisation des données utilisateur
@@ -69,7 +69,7 @@ export class AnonymizationService {
         anonymization_level: level,
         anonymized_fields: [],
         success: false,
-        error: error instanceof Error ? error.message : "Erreur inconnue",
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
       };
     }
   }
@@ -81,31 +81,27 @@ export class AnonymizationService {
     const anonymizedData: Record<string, any> = {};
 
     // Génération d'un ID anonyme permanent pour traçabilité
-    const anonymousId = `anon_${Date.now()}_${Math.random()
-      .toString(36)
-      .substr(2, 9)}`;
+    const anonymousId = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Anonymisation des champs personnels
     this.strategy.personal_data.fields.forEach((field) => {
       switch (field) {
-        case "email":
+        case 'email':
           anonymizedData[field] = `${anonymousId}@anonymized.local`;
           break;
-        case "first_name":
+        case 'first_name':
           anonymizedData[field] = `Utilisateur`;
           break;
-        case "last_name":
+        case 'last_name':
           anonymizedData[field] = `Anonymisé ${anonymousId.slice(-6)}`;
           break;
-        case "full_name":
-          anonymizedData[field] = `Utilisateur Anonymisé ${anonymousId.slice(
-            -6
-          )}`;
+        case 'full_name':
+          anonymizedData[field] = `Utilisateur Anonymisé ${anonymousId.slice(-6)}`;
           break;
-        case "phone":
+        case 'phone':
           anonymizedData[field] = null;
           break;
-        case "avatar_url":
+        case 'avatar_url':
           anonymizedData[field] = null;
           break;
         default:
@@ -118,15 +114,10 @@ export class AnonymizationService {
     anonymizedData.anonymized_at = new Date().toISOString();
 
     // Mise à jour en base
-    const { error } = await supabase
-      .from("profiles")
-      .update(anonymizedData)
-      .eq("id", userId);
+    const { error } = await supabase.from('profiles').update(anonymizedData).eq('id', userId);
 
     if (error) {
-      throw new Error(
-        `Erreur lors de l'anonymisation des données personnelles: ${error.message}`
-      );
+      throw new Error(`Erreur lors de l'anonymisation des données personnelles: ${error.message}`);
     }
   }
 
@@ -136,26 +127,26 @@ export class AnonymizationService {
   private async anonymizeBusinessDataReferences(userId: string): Promise<void> {
     // Récupération de l'ID anonyme
     const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("anonymous_id")
-      .eq("id", userId)
+      .from('profiles')
+      .select('anonymous_id')
+      .eq('id', userId)
       .single();
 
     if (profileError || !profile?.anonymous_id) {
-      throw new Error("ID anonyme non trouvé");
+      throw new Error('ID anonyme non trouvé');
     }
 
     const anonymousId = profile.anonymous_id;
 
     // Anonymisation dans les différentes tables
     const tablesToAnonymize = [
-      "bookings",
-      "service_requests",
-      "reviews",
-      "payments",
-      "subscriptions",
-      "properties",
-      "notifications",
+      'bookings',
+      'service_requests',
+      'reviews',
+      'payments',
+      'subscriptions',
+      'properties',
+      'notifications',
     ];
 
     for (const table of tablesToAnonymize) {
@@ -167,7 +158,7 @@ export class AnonymizationService {
             anonymous_user_id: anonymousId,
             user_anonymized_at: new Date().toISOString(),
           })
-          .eq("user_id", userId);
+          .eq('user_id', userId);
       } catch (error) {
         console.warn(`Impossible d'anonymiser la table ${table}:`, error);
         // Continue avec les autres tables
@@ -181,16 +172,16 @@ export class AnonymizationService {
   private async anonymizeAllBusinessData(userId: string): Promise<void> {
     // Suppression ou anonymisation complète des données métier
     const tablesToPurge = [
-      "bookings",
-      "service_requests",
-      "reviews",
-      "properties",
-      "notifications",
+      'bookings',
+      'service_requests',
+      'reviews',
+      'properties',
+      'notifications',
     ];
 
     for (const table of tablesToPurge) {
       try {
-        await supabase.from(table).delete().eq("user_id", userId);
+        await supabase.from(table).delete().eq('user_id', userId);
       } catch (error) {
         console.warn(`Impossible de purger la table ${table}:`, error);
       }
@@ -235,27 +226,20 @@ export class AnonymizationService {
    * Note: La purge sera automatique via execute_gdpr_purges() après 3 ans
    * Basée sur deleted_at + anonymization_level
    */
-  private async schedulePurge(
-    userId: string,
-    purgeDate: string
-  ): Promise<void> {
+  private async schedulePurge(userId: string, purgeDate: string): Promise<void> {
     // La purge est maintenant automatique via la fonction SQL execute_gdpr_purges()
     // Elle se déclenche quand deleted_at < NOW() - 3 years ET anonymization_level IS NOT NULL
-    console.log(
-      `Purge automatique programmée pour ${userId} dans 3 ans à partir de deleted_at`
-    );
+    console.log(`Purge automatique programmée pour ${userId} dans 3 ans à partir de deleted_at`);
   }
 
   /**
    * Restaure un utilisateur en nettoyant tous les champs d'anonymisation
    */
-  async restoreUser(
-    userId: string
-  ): Promise<{ success: boolean; error?: string }> {
+  async restoreUser(userId: string): Promise<{ success: boolean; error?: string }> {
     try {
       // Nettoyer tous les champs d'anonymisation et de suppression
       const { error: updateError } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({
           deleted_at: null,
           deletion_reason: null,
@@ -263,7 +247,7 @@ export class AnonymizationService {
           anonymized_at: null,
           anonymous_id: null,
         })
-        .eq("id", userId);
+        .eq('id', userId);
 
       if (updateError) {
         return {
@@ -274,15 +258,13 @@ export class AnonymizationService {
 
       // La purge automatique est annulée en remettant deleted_at à null
       // execute_gdpr_purges() ne touchera plus cet utilisateur
-      console.log(
-        "Purge automatique annulée via restauration de l'utilisateur"
-      );
+      console.log("Purge automatique annulée via restauration de l'utilisateur");
 
       return { success: true };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erreur inconnue",
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
       };
     }
   }
@@ -295,17 +277,15 @@ export class AnonymizationService {
     level: AnonymizationLevel
   ): Promise<void> {
     const { error } = await supabase
-      .from("profiles")
+      .from('profiles')
       .update({
         anonymization_level: level,
         last_anonymized_at: new Date().toISOString(),
       })
-      .eq("id", userId);
+      .eq('id', userId);
 
     if (error) {
-      throw new Error(
-        `Erreur lors de la mise à jour du statut: ${error.message}`
-      );
+      throw new Error(`Erreur lors de la mise à jour du statut: ${error.message}`);
     }
   }
 }

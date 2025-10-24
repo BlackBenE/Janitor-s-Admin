@@ -44,7 +44,7 @@ import {
   FileCopy,
   Campaign,
 } from "@mui/icons-material";
-import { LABELS } from "../constants/labels";
+import { LABELS } from "@/core/config/labels";
 
 interface CommunicationDrawerProps {
   open: boolean;

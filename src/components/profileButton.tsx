@@ -20,8 +20,8 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { SxProps, Theme } from "@mui/material/styles";
-import { useAuth } from "../providers/authProvider";
-import { LABELS } from "../constants";
+import { useAuth } from "@/core/providers/auth.provider";
+import { LABELS } from "@/core/config/labels";
 
 interface ProfileButtonProps {
   className?: string;

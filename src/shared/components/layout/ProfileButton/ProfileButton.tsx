@@ -1,5 +1,5 @@
-import React from "react";
-import { FC, useState } from "react";
+import React from 'react';
+import { FC, useState } from 'react';
 import {
   Box,
   Avatar,
@@ -11,17 +11,17 @@ import {
   ListItemText,
   Divider,
   Chip,
-} from "@mui/material";
+} from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
   Person as PersonIcon,
   Logout as LogoutIcon,
   AdminPanelSettings as AdminIcon,
-} from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import { SxProps, Theme } from "@mui/material/styles";
-import { useAuth } from "@/core/providers/auth.provider";
-import { LABELS } from "@/core/config/labels";
+} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { SxProps, Theme } from '@mui/material/styles';
+import { useAuth } from '@/core/providers/auth.provider';
+import { LABELS } from '@/core/config/labels';
 
 interface ProfileButtonProps {
   className?: string;
@@ -29,14 +29,9 @@ interface ProfileButtonProps {
   compact?: boolean;
 }
 
-const ProfileButton: FC<ProfileButtonProps> = ({
-  className,
-  sx,
-  compact = false,
-}) => {
+const ProfileButton: FC<ProfileButtonProps> = ({ className, sx, compact = false }) => {
   const navigate = useNavigate();
-  const { getUserFullName, getEmail, getUserRole, signOut, isAdmin } =
-    useAuth();
+  const { getUserFullName, getEmail, getUserRole, signOut, isAdmin } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -48,9 +43,9 @@ const ProfileButton: FC<ProfileButtonProps> = ({
   // Générer les initiales pour l'avatar
   const getInitials = (name: string) => {
     return name
-      .split(" ")
+      .split(' ')
       .map((n) => n[0])
-      .join("")
+      .join('')
       .toUpperCase()
       .slice(0, 2);
   };
@@ -65,7 +60,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({
 
   const handleProfileClick = () => {
     handleMenuClose();
-    navigate("/profile");
+    navigate('/profile');
   };
 
   const handleLogout = async () => {
@@ -78,10 +73,10 @@ const ProfileButton: FC<ProfileButtonProps> = ({
         console.error(LABELS.profileMenu.logoutError, error);
         // Naviguer vers auth même en cas d'erreur
       }
-      navigate("/auth", { replace: true });
+      navigate('/auth', { replace: true });
     } catch (err) {
       console.error(LABELS.profileMenu.logoutFailed, err);
-      navigate("/auth", { replace: true });
+      navigate('/auth', { replace: true });
     } finally {
       setIsLoggingOut(false);
     }
@@ -90,15 +85,15 @@ const ProfileButton: FC<ProfileButtonProps> = ({
   return (
     <Box
       sx={{
-        display: "flex",
-        alignItems: "center",
+        display: 'flex',
+        alignItems: 'center',
         p: compact ? 0.5 : 1,
         borderRadius: 2,
-        transition: "background-color 0.2s",
-        width: "100%",
-        maxWidth: compact ? 200 : "none",
-        "&:hover": {
-          backgroundColor: "action.hover",
+        transition: 'background-color 0.2s',
+        width: '100%',
+        maxWidth: compact ? 200 : 'none',
+        '&:hover': {
+          backgroundColor: 'action.hover',
         },
         ...sx,
       }}
@@ -109,8 +104,8 @@ const ProfileButton: FC<ProfileButtonProps> = ({
         sx={{
           width: compact ? 36 : 44,
           height: compact ? 36 : 44,
-          bgcolor: "primary.main",
-          fontSize: compact ? "0.875rem" : "1rem",
+          bgcolor: 'primary.main',
+          fontSize: compact ? '0.875rem' : '1rem',
           fontWeight: 600,
         }}
       >
@@ -120,15 +115,15 @@ const ProfileButton: FC<ProfileButtonProps> = ({
       {/* Informations utilisateur - Rendu conditionnel selon mode compact */}
       {!compact ? (
         <Box sx={{ ml: 1.5, flexGrow: 1, minWidth: 0 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography
               variant="body2"
               sx={{
                 fontWeight: 600,
-                color: "text.primary",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
+                color: 'text.primary',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
               }}
             >
               {userName}
@@ -139,18 +134,18 @@ const ProfileButton: FC<ProfileButtonProps> = ({
                 label={LABELS.profileMenu.adminRole}
                 size="small"
                 color="primary"
-                sx={{ height: 20, fontSize: "0.7rem" }}
+                sx={{ height: 20, fontSize: '0.7rem' }}
               />
             )}
           </Box>
           <Typography
             variant="caption"
             sx={{
-              color: "text.secondary",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              display: "block",
+              color: 'text.secondary',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              display: 'block',
             }}
           >
             {userEmail}
@@ -163,21 +158,21 @@ const ProfileButton: FC<ProfileButtonProps> = ({
             variant="body2"
             sx={{
               fontWeight: 600,
-              color: "text.primary",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              fontSize: "0.8rem",
+              color: 'text.primary',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: '0.8rem',
             }}
           >
-            {userName.split(" ")[0]} {/* Montrer seulement le prénom */}
+            {userName.split(' ')[0]} {/* Montrer seulement le prénom */}
           </Typography>
           {isAdmin() && (
             <Typography
               variant="caption"
               sx={{
-                color: "primary.main",
-                fontSize: "0.7rem",
+                color: 'primary.main',
+                fontSize: '0.7rem',
                 fontWeight: 500,
               }}
             >
@@ -193,17 +188,17 @@ const ProfileButton: FC<ProfileButtonProps> = ({
         size="small"
         sx={{
           ml: compact ? 0.5 : 1,
-          color: "text.secondary",
+          color: 'text.secondary',
           width: compact ? 28 : 32,
           height: compact ? 28 : 32,
-          "&:hover": {
-            color: "primary.main",
+          '&:hover': {
+            color: 'primary.main',
           },
         }}
         aria-label={LABELS.profileMenu.userMenu}
         disabled={isLoggingOut}
       >
-        <MoreVertIcon fontSize={compact ? "small" : "medium"} />
+        <MoreVertIcon fontSize={compact ? 'small' : 'medium'} />
       </IconButton>
 
       {/* Menu déroulant */}
@@ -218,11 +213,11 @@ const ProfileButton: FC<ProfileButtonProps> = ({
             boxShadow: 3,
           },
         }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         {/* En-tête informations utilisateur */}
-        <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: "divider" }}>
+        <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
             {userName}
           </Typography>
@@ -250,20 +245,18 @@ const ProfileButton: FC<ProfileButtonProps> = ({
           onClick={handleLogout}
           disabled={isLoggingOut}
           sx={{
-            color: "error.main",
-            "&:hover": {
-              backgroundColor: "error.light",
-              color: "error.contrastText",
+            color: 'error.main',
+            '&:hover': {
+              backgroundColor: 'error.light',
+              color: 'error.contrastText',
             },
           }}
         >
           <ListItemIcon>
-            <LogoutIcon fontSize="small" sx={{ color: "inherit" }} />
+            <LogoutIcon fontSize="small" sx={{ color: 'inherit' }} />
           </ListItemIcon>
           <ListItemText>
-            {isLoggingOut
-              ? LABELS.profileMenu.signingOut
-              : LABELS.profileMenu.signOut}
+            {isLoggingOut ? LABELS.profileMenu.signingOut : LABELS.profileMenu.signOut}
           </ListItemText>
         </MenuItem>
       </Menu>

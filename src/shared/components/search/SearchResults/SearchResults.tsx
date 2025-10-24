@@ -1,20 +1,12 @@
-import React from "react";
-import {
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Typography,
-  Paper,
-  Box,
-} from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
-import HomeWorkIcon from "@mui/icons-material/HomeWork";
-import HandymanIcon from "@mui/icons-material/Handyman";
-import ReceiptIcon from "@mui/icons-material/Receipt";
-import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
-import BusinessIcon from "@mui/icons-material/Business";
-import { SearchResult } from "@/core/services/search.service";
+import React from 'react';
+import { List, ListItem, ListItemText, ListItemIcon, Typography, Paper, Box } from '@mui/material';
+import PersonIcon from '@mui/icons-material/Person';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
+import HandymanIcon from '@mui/icons-material/Handyman';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import BusinessIcon from '@mui/icons-material/Business';
+import { SearchResult } from '@/core/services/search.service';
 
 interface SearchResultsProps {
   results: SearchResult[];
@@ -22,42 +14,38 @@ interface SearchResultsProps {
   visible: boolean;
 }
 
-const getIconForType = (type: SearchResult["type"]) => {
+const getIconForType = (type: SearchResult['type']) => {
   switch (type) {
-    case "user":
+    case 'user':
       return <PersonIcon />;
-    case "property":
+    case 'property':
       return <HomeWorkIcon />;
-    case "service":
+    case 'service':
       return <HandymanIcon />;
-    case "invoice":
+    case 'invoice':
       return <ReceiptIcon />;
-    case "quote":
+    case 'quote':
       return <RequestQuoteIcon />;
-    case "provider":
+    case 'provider':
       return <BusinessIcon />;
     default:
       return null;
   }
 };
 
-const SearchResults: React.FC<SearchResultsProps> = ({
-  results,
-  onResultClick,
-  visible,
-}) => {
+const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick, visible }) => {
   if (!visible || results.length === 0) return null;
 
   return (
     <Paper
       sx={{
-        position: "absolute",
-        top: "100%",
+        position: 'absolute',
+        top: '100%',
         left: 0,
         right: 0,
         mt: 1,
-        maxHeight: "400px",
-        overflow: "auto",
+        maxHeight: '400px',
+        overflow: 'auto',
         zIndex: 1300,
         boxShadow: 3,
       }}
@@ -74,9 +62,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({
               onClick={() => onResultClick(result)}
               component="div"
               sx={{
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: "action.hover",
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
                 },
               }}
             >
@@ -95,7 +83,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     <Typography
                       variant="caption"
                       color="text.secondary"
-                      sx={{ textTransform: "capitalize" }}
+                      sx={{ textTransform: 'capitalize' }}
                     >
                       {result.type}
                     </Typography>

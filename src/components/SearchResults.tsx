@@ -14,7 +14,7 @@ import HandymanIcon from "@mui/icons-material/Handyman";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 import BusinessIcon from "@mui/icons-material/Business";
-import { SearchResult } from "../services/searchService";
+import { SearchResult } from "@/core/services/search.service";
 
 interface SearchResultsProps {
   results: SearchResult[];

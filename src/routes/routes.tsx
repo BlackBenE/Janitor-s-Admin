@@ -9,7 +9,7 @@ import QuoteRequestsPage from "../components/quote-requests/QuoteRequestsPage";
 import ServicesCatalogPage from "../components/services-catalog/ServicesCatalogPage";
 import { UserManagementPage } from "../components/userManagement";
 import AnalyticsPage from "../components/analytics/AnalyticsPage";
-import ProtectedRoute from "../components/ProtectedRoute";
+import { ProtectedRoute } from "@/shared/components/routing";
 import { ResetPasswordPage } from "../components/auth/ResetPasswordPage";
 import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";

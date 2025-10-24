@@ -4,7 +4,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import AdminLayout from "../AdminLayout";
 import { LoadingIndicator } from "../shared";
 import DataTable from "../Table";
-import { LABELS } from "../../constants";
+import { LABELS } from "@/core/config/labels";
 
 import { QuoteRequestHeader } from "./components/QuoteRequestHeader";
 import { QuoteRequestStatsSection } from "./components/QuoteRequestStatsSection";

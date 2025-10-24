@@ -1,5 +1,5 @@
 import { FilterConfig } from "../shared/GenericFilters";
-import { LABELS } from "../../constants";
+import { LABELS } from "@/core/config/labels";
 
 export const userFilterConfigs: FilterConfig[] = [
   {

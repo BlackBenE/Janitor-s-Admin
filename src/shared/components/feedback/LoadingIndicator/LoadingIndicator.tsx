@@ -1,6 +1,6 @@
-import React from "react";
-import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
-import { Refresh as RefreshIcon } from "@mui/icons-material";
+import React from 'react';
+import { Box, Typography, IconButton, CircularProgress } from '@mui/material';
+import { Refresh as RefreshIcon } from '@mui/icons-material';
 
 interface LoadingIndicatorProps {
   error?: Error | null;
@@ -18,9 +18,9 @@ interface LoadingIndicatorProps {
 export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
   error,
   onRefresh,
-  loadingText = "Chargement...",
-  errorTitle = "Erreur lors du chargement",
-  minHeight = "400px",
+  loadingText = 'Chargement...',
+  errorTitle = 'Erreur lors du chargement',
+  minHeight = '400px',
   withLayout = false,
 }) => {
   const content = error ? (
@@ -45,12 +45,7 @@ export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
       )}
     </Box>
   ) : (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight={minHeight}
-    >
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight={minHeight}>
       <CircularProgress />
       {loadingText && (
         <Typography variant="body2" sx={{ ml: 2 }}>
@@ -62,7 +57,7 @@ export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
 
   if (withLayout) {
     // Import dynamique pour éviter les dépendances circulaires
-    const AdminLayout = React.lazy(() => import("@/shared/components/layout/AdminLayout"));
+    const AdminLayout = React.lazy(() => import('@/shared/components/layout/AdminLayout'));
     return (
       <React.Suspense fallback={content}>
         <AdminLayout>{content}</AdminLayout>

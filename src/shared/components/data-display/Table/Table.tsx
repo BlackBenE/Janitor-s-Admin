@@ -1,5 +1,5 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
+import * as React from 'react';
+import Box from '@mui/material/Box';
 import {
   DataGrid,
   ToolbarButton,
@@ -8,13 +8,13 @@ import {
   Toolbar,
   GridRenderCellParams,
   GridColDef,
-} from "@mui/x-data-grid";
+} from '@mui/x-data-grid';
 
-import Tooltip from "@mui/material/Tooltip";
-import Badge from "@mui/material/Badge";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import ViewColumnIcon from "@mui/icons-material/ViewColumn";
-import { LABELS } from "@/core/config/labels";
+import Tooltip from '@mui/material/Tooltip';
+import Badge from '@mui/material/Badge';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import ViewColumnIcon from '@mui/icons-material/ViewColumn';
+import { LABELS } from '@/core/config/labels';
 
 function MyCustomToolbar() {
   return (
@@ -30,11 +30,7 @@ function MyCustomToolbar() {
           <FilterPanelTrigger
             render={(triggerProps, state) => (
               <ToolbarButton {...triggerProps} color="default">
-                <Badge
-                  badgeContent={state.filterCount}
-                  color="primary"
-                  variant="dot"
-                >
+                <Badge badgeContent={state.filterCount} color="primary" variant="dot">
                   <FilterListIcon fontSize="small" />
                 </Badge>
               </ToolbarButton>
@@ -66,12 +62,11 @@ function DataTable<T extends Record<string, unknown>>({
     ...(renderActions
       ? [
           {
-            field: "actions",
+            field: 'actions',
             headerName: LABELS.table.actions,
             sortable: false,
             filterable: false,
-            renderCell: (params: GridRenderCellParams<T>) =>
-              renderActions(params.row),
+            renderCell: (params: GridRenderCellParams<T>) => renderActions(params.row),
             width: 120,
             flex: 0,
           },
@@ -83,11 +78,9 @@ function DataTable<T extends Record<string, unknown>>({
   const gridRows = data.map((row, idx) => ({ id: idx, ...row }));
 
   return (
-    <Box
-      sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%" }}
-    >
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
       <Box id="filter-panel" />
-      <Box sx={{ height: 400, width: "100%" }}>
+      <Box sx={{ height: 400, width: '100%' }}>
         <DataGrid
           rows={gridRows}
           columns={gridColumns}

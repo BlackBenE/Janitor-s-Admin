@@ -7,7 +7,7 @@ import {
   SignUpFormData,
   ForgotPasswordFormData,
 } from "../../../types/auth";
-import { useAuth as useAuthProvider } from "../../../providers/authProvider";
+import { useAuth as useAuthProvider } from "@/core/providers/auth.provider";
 
 /**
  * Hook principal pour la gestion de l'état de la page Auth

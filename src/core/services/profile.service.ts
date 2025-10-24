@@ -1,4 +1,4 @@
-import { supabase } from "@/core/config/supabase";
+import { supabase } from '@/core/config/supabase';
 
 export class ProfileService {
   /**
@@ -15,16 +15,16 @@ export class ProfileService {
       });
 
       if (error) {
-        console.error("Change password error:", error);
+        console.error('Change password error:', error);
         return {
           success: false,
-          error: error.message || "Erreur lors du changement de mot de passe",
+          error: error.message || 'Erreur lors du changement de mot de passe',
         };
       }
 
       return { success: true };
     } catch (error) {
-      console.error("Change password error:", error);
+      console.error('Change password error:', error);
       return {
         success: false,
         error: "Une erreur inattendue s'est produite",
@@ -45,7 +45,7 @@ export class ProfileService {
     }
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      console.log("🔄 ProfileService.updateProfile called with:", {
+      console.log('🔄 ProfileService.updateProfile called with:', {
         userId,
         data,
       });
@@ -57,28 +57,28 @@ export class ProfileService {
         updated_at: new Date().toISOString(),
       };
 
-      console.log("📝 Updating profile with data:", updateData);
+      console.log('📝 Updating profile with data:', updateData);
 
       const { data: result, error } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update(updateData)
-        .eq("id", userId)
+        .eq('id', userId)
         .select(); // Ajout de .select() pour voir le résultat
 
-      console.log("✅ Supabase update result:", { result, error });
+      console.log('✅ Supabase update result:', { result, error });
 
       if (error) {
-        console.error("❌ Update profile error:", error);
+        console.error('❌ Update profile error:', error);
         return {
           success: false,
-          error: error.message || "Erreur lors de la mise à jour du profil",
+          error: error.message || 'Erreur lors de la mise à jour du profil',
         };
       }
 
-      console.log("✅ Profile updated successfully:", result);
+      console.log('✅ Profile updated successfully:', result);
       return { success: true };
     } catch (error) {
-      console.error("❌ Update profile error:", error);
+      console.error('❌ Update profile error:', error);
       return {
         success: false,
         error: "Une erreur inattendue s'est produite",
@@ -96,19 +96,19 @@ export class ProfileService {
     try {
       // Marquer comme supprimé au lieu de supprimer définitivement
       const { error } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({
           deleted_at: new Date().toISOString(),
-          deletion_reason: reason || "User requested deletion",
+          deletion_reason: reason || 'User requested deletion',
           updated_at: new Date().toISOString(),
         })
-        .eq("id", userId);
+        .eq('id', userId);
 
       if (error) {
-        console.error("Delete account error:", error);
+        console.error('Delete account error:', error);
         return {
           success: false,
-          error: error.message || "Erreur lors de la suppression du compte",
+          error: error.message || 'Erreur lors de la suppression du compte',
         };
       }
 
@@ -117,7 +117,7 @@ export class ProfileService {
 
       return { success: true };
     } catch (error) {
-      console.error("Delete account error:", error);
+      console.error('Delete account error:', error);
       return {
         success: false,
         error: "Une erreur inattendue s'est produite",
@@ -142,16 +142,16 @@ export class ProfileService {
       if (error) {
         return {
           success: false,
-          error: "Mot de passe actuel incorrect",
+          error: 'Mot de passe actuel incorrect',
         };
       }
 
       return { success: true };
     } catch (error) {
-      console.error("Verify password error:", error);
+      console.error('Verify password error:', error);
       return {
         success: false,
-        error: "Erreur lors de la vérification du mot de passe",
+        error: 'Erreur lors de la vérification du mot de passe',
       };
     }
   }
@@ -159,16 +159,14 @@ export class ProfileService {
   /**
    * Met à jour l'email de l'utilisateur
    */
-  static async updateEmail(
-    newEmail: string
-  ): Promise<{ success: boolean; error?: string }> {
+  static async updateEmail(newEmail: string): Promise<{ success: boolean; error?: string }> {
     try {
       const { error } = await supabase.auth.updateUser({
         email: newEmail,
       });
 
       if (error) {
-        console.error("Update email error:", error);
+        console.error('Update email error:', error);
         return {
           success: false,
           error: error.message || "Erreur lors de la mise à jour de l'email",
@@ -177,7 +175,7 @@ export class ProfileService {
 
       return { success: true };
     } catch (error) {
-      console.error("Update email error:", error);
+      console.error('Update email error:', error);
       return {
         success: false,
         error: "Une erreur inattendue s'est produite",
@@ -197,7 +195,7 @@ export class ProfileService {
       });
 
       if (error) {
-        console.error("Send password reset error:", error);
+        console.error('Send password reset error:', error);
         return {
           success: false,
           error: error.message || "Erreur lors de l'envoi de l'email",
@@ -206,7 +204,7 @@ export class ProfileService {
 
       return { success: true };
     } catch (error) {
-      console.error("Send password reset error:", error);
+      console.error('Send password reset error:', error);
       return {
         success: false,
         error: "Une erreur inattendue s'est produite",

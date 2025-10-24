@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ChangePasswordData } from "../../types/profile";
 import { ProfileService } from "../../services/profileService";
 import { useUINotifications } from "../shared";
-import { useAuth } from "../../providers/authProvider";
+import { useAuth } from "@/core/providers/auth.provider";
 
 /**
  * Hook pour gérer le changement de mot de passe

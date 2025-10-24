@@ -6,7 +6,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { SxProps, Theme } from "@mui/material/styles";
 
 import { SystemStyleObject } from "@mui/system";
-import { LABELS } from "../constants/labels";
+import { LABELS } from "@/core/config/labels";
 
 interface DataModalProps {
   open: boolean;

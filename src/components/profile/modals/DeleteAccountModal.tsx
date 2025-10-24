@@ -18,7 +18,7 @@ import {
 } from "@mui/icons-material";
 import { ProfileService } from "../../../services/profileService";
 import { useUINotifications } from "../../../hooks/shared";
-import { useAuth } from "../../../providers/authProvider";
+import { useAuth } from "@/core/providers/auth.provider";
 import { useNavigate } from "react-router-dom";
 import { LABELS } from "../../../constants/labels";
 

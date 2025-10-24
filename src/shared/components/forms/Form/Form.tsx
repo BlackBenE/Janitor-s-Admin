@@ -1,13 +1,6 @@
-import React from "react";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Paper,
-  CircularProgress,
-} from "@mui/material";
-import { LABELS } from "@/core/config/labels";
+import React from 'react';
+import { Box, TextField, Button, Typography, Paper, CircularProgress } from '@mui/material';
+import { LABELS } from '@/core/config/labels';
 
 // Simple message formatter
 const formatMessage = (message: string, params?: Record<string, any>): string => {
@@ -21,7 +14,7 @@ const formatMessage = (message: string, params?: Record<string, any>): string =>
 export type FormField = {
   name: string;
   label: string;
-  type: "text" | "email" | "password" | "textarea" | "number" | "tel";
+  type: 'text' | 'email' | 'password' | 'textarea' | 'number' | 'tel';
   required?: boolean;
   placeholder?: string;
   minLength?: number;
@@ -51,7 +44,7 @@ export const Form: React.FC<FormProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
     // Effacer l'erreur quand l'utilisateur commence à taper
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -59,27 +52,25 @@ export const Form: React.FC<FormProps> = ({
     const newErrors: Record<string, string> = {};
 
     fields.forEach((field) => {
-      const value = formData[field.name] || "";
+      const value = formData[field.name] || '';
 
       if (field.required && !value) {
         newErrors[field.name] = formatMessage(LABELS.validation.required, {
           field: field.label,
         });
-      } else if (field.type === "email" && value) {
+      } else if (field.type === 'email' && value) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) {
           newErrors[field.name] = LABELS.validation.emailInvalid;
         }
       } else if (field.minLength && value.length < field.minLength) {
-        newErrors[field.name] = formatMessage(
-          LABELS.validation.minCharsRequired,
-          { min: field.minLength }
-        );
+        newErrors[field.name] = formatMessage(LABELS.validation.minCharsRequired, {
+          min: field.minLength,
+        });
       } else if (field.maxLength && value.length > field.maxLength) {
-        newErrors[field.name] = formatMessage(
-          LABELS.validation.maxCharsAllowed,
-          { max: field.maxLength }
-        );
+        newErrors[field.name] = formatMessage(LABELS.validation.maxCharsAllowed, {
+          max: field.maxLength,
+        });
       }
     });
 
@@ -102,7 +93,7 @@ export const Form: React.FC<FormProps> = ({
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 4, maxWidth: 500, mx: "auto", mt: 4 }}>
+    <Paper elevation={3} sx={{ p: 4, maxWidth: 500, mx: 'auto', mt: 4 }}>
       <Typography variant="h5" component="h2" gutterBottom align="center">
         {title}
       </Typography>
@@ -118,12 +109,12 @@ export const Form: React.FC<FormProps> = ({
             type={field.type}
             required={field.required}
             placeholder={field.placeholder}
-            value={formData[field.name] || ""}
+            value={formData[field.name] || ''}
             onChange={handleChange}
             error={!!errors[field.name]}
             helperText={errors[field.name]}
-            multiline={field.type === "textarea"}
-            rows={field.type === "textarea" ? 4 : 1}
+            multiline={field.type === 'textarea'}
+            rows={field.type === 'textarea' ? 4 : 1}
             inputProps={{
               minLength: field.minLength,
               maxLength: field.maxLength,
@@ -139,11 +130,7 @@ export const Form: React.FC<FormProps> = ({
           sx={{ mt: 3 }}
           disabled={isLoading}
         >
-          {isLoading ? (
-            <CircularProgress size={24} color="inherit" />
-          ) : (
-            submitButtonText
-          )}
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : submitButtonText}
         </Button>
       </Box>
     </Paper>

@@ -16,7 +16,7 @@ import { UserRole, UserProfile, USER_TABS } from "../../types/userManagement";
 
 // 🎯 MIGRATION: Hook unifié - SEUL hook utilisé
 import { useUsers } from "./hooks/useUsers";
-import { useAuth } from "../../providers/authProvider";
+import { useAuth } from "@/core/providers/auth.provider";
 
 export const UserManagementPage: React.FC = () => {
   // 🎯 MIGRATION: SEUL hook unifié utilisé - activeTab vient du hook

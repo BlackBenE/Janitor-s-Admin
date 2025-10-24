@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { Box, CircularProgress, Typography, Alert } from "@mui/material";
-import { useAuth } from "@/core/providers/auth.provider";
+import { ReactNode } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { Box, CircularProgress, Typography, Alert } from '@mui/material';
+import { useAuth } from '@/core/providers/auth.provider';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({
   children,
   requireAdmin = true,
-  fallbackPath = "/auth",
+  fallbackPath = '/auth',
 }: ProtectedRouteProps) => {
   const { session, isAdmin, loading, error } = useAuth();
   const location = useLocation();
@@ -22,13 +22,13 @@ const ProtectedRoute = ({
     return (
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
           gap: 2,
-          backgroundColor: "background.default",
+          backgroundColor: 'background.default',
         }}
       >
         <CircularProgress size={40} thickness={4} />
@@ -46,9 +46,7 @@ const ProtectedRoute = ({
 
   // Check if user has session
   if (!session) {
-    return (
-      <Navigate to={fallbackPath} state={{ from: location.pathname }} replace />
-    );
+    return <Navigate to={fallbackPath} state={{ from: location.pathname }} replace />;
   }
 
   // Check admin requirement
@@ -56,11 +54,11 @@ const ProtectedRoute = ({
     return (
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
           gap: 2,
           px: 3,
         }}
@@ -70,8 +68,8 @@ const ProtectedRoute = ({
             Access Denied
           </Typography>
           <Typography variant="body2">
-            You don&apos;t have admin privileges to access this page. Please
-            contact your administrator if you believe this is an error.
+            You don&apos;t have admin privileges to access this page. Please contact your
+            administrator if you believe this is an error.
           </Typography>
         </Alert>
         <Navigate to="/auth" replace />

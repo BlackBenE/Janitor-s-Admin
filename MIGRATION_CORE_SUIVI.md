@@ -34,17 +34,20 @@ src/
 **Status** : ✅ TERMINÉE
 
 #### 1.1 Migrer authProvider.tsx
+
 - [x] Copier `src/providers/authProvider.tsx` → `src/core/providers/auth.provider.tsx`
 - [x] Vérifier les imports dans le nouveau fichier
 - [x] Tester la compilation
 
 #### 1.2 Migrer dataProvider.ts
+
 - [x] Copier `src/providers/dataProvider.ts` → `src/core/api/data.provider.ts`
 - [x] Vérifier les imports dans le nouveau fichier
 - [x] Corriger l'import Database vers `@/core/types/database.types`
 - [x] Tester la compilation
 
 #### 1.3 Créer index.ts
+
 - [x] Créer `src/core/providers/index.ts` avec exports
 - [x] Créer `src/core/api/index.ts` avec exports
 
@@ -55,11 +58,13 @@ src/
 **Status** : ✅ TERMINÉE
 
 #### 2.1 Migrer supabaseClient
+
 - [x] Copier `src/lib/supabaseClient.ts` → `src/core/config/supabase.ts`
 - [x] Mettre à jour les imports
 - [x] Tester la compilation
 
 #### 2.2 Migrer constants
+
 - [x] Copier `src/constants/index.ts` → `src/core/config/constants.ts`
 - [x] Copier `src/constants/labels.ts` → `src/core/config/labels.ts`
 - [x] Créer `src/core/config/index.ts` avec exports
@@ -72,6 +77,7 @@ src/
 **Status** : ✅ TERMINÉE
 
 #### 3.1 Migrer les services
+
 - [x] Copier `src/services/profileService.ts` → `src/core/services/profile.service.ts`
 - [x] Copier `src/services/avatarService.ts` → `src/core/services/avatar.service.ts`
 - [x] Copier `src/services/anonymizationService.ts` → `src/core/services/anonymization.service.ts`
@@ -80,6 +86,7 @@ src/
 - [x] Mettre à jour tous les imports vers `@/core/config/supabase`
 
 #### 3.2 Créer index.ts
+
 - [x] Créer `src/core/services/index.ts` avec exports
 - [x] Tester la compilation
 
@@ -90,6 +97,7 @@ src/
 **Status** : ✅ TERMINÉE
 
 #### 4.1 Migrer les types core
+
 - [x] Copier `src/types/database.types.ts` → `src/core/types/database.types.ts`
 - [x] Copier `src/types/supabase.ts` → `src/core/types/supabase.types.ts`
 - [x] Créer `src/core/types/index.ts` avec exports
@@ -103,17 +111,20 @@ src/
 **Status** : ⏸️ EN ATTENTE (Phase suivante)
 
 #### 5.1 Identifier les fichiers utilisant les anciens chemins
+
 - [ ] Rechercher les imports de `providers/`
 - [ ] Rechercher les imports de `lib/supabaseClient`
 - [ ] Rechercher les imports de `services/`
 - [ ] Rechercher les imports de `constants/`
 
 #### 5.2 Mettre à jour les imports critiques
+
 - [ ] Mettre à jour `src/main.tsx`
 - [ ] Mettre à jour `src/App.tsx`
 - [ ] Mettre à jour les fichiers qui utilisent le plus ces imports
 
 **Note** : On ne va pas tout mettre à jour d'un coup ! On va :
+
 1. Garder les anciens fichiers
 2. Créer des fichiers de transition (re-export)
 3. Migrer progressivement les imports
@@ -125,11 +136,13 @@ src/
 **Status** : ✅ TERMINÉE
 
 #### 6.1 Vérifications
+
 - [x] Commande : `npm run build`
 - [x] Vérification : Build réussit sans erreur ✅
 - [x] Tous les fichiers core compilent correctement
 
 #### 6.2 Tests manuels
+
 - [ ] Tester la connexion (authProvider)
 - [ ] Tester une requête de données
 - [ ] Vérifier qu'aucune erreur console
@@ -143,6 +156,7 @@ src/
 **Status** : ✅ TERMINÉE
 
 #### 7.1 Git
+
 - [x] Commande : `git status`
 - [x] Commande : `git add src/core/`
 - [x] Commande : `git commit -m "feat(core): migrate infrastructure to core layer"`
@@ -156,6 +170,7 @@ src/
 **Migration CORE terminée avec succès !**
 
 **Vérifications finales** :
+
 - [x] ✅ Dossier `src/core/providers/` contient auth.provider.tsx + index.ts
 - [x] ✅ Dossier `src/core/config/` contient supabase + constants + labels + index.ts
 - [x] ✅ Dossier `src/core/services/` contient 5 services + index.ts
@@ -190,6 +205,7 @@ export * from '@/core/providers/auth.provider';
 ```
 
 Cela permet de :
+
 - ✅ Ne pas casser l'application
 - ✅ Migrer progressivement
 - ✅ Garder l'historique Git
@@ -208,16 +224,19 @@ Cela permet de :
 **17 fichiers migrés** vers `src/core/` :
 
 #### Providers (2 fichiers)
+
 - ✅ `auth.provider.tsx` - Authentication provider avec gestion session
 - ✅ `data.provider.ts` - Data access layer avec Supabase
 
 #### Configuration (4 fichiers)
+
 - ✅ `supabase.ts` - Client Supabase + Admin
 - ✅ `constants.ts` - Constantes globales
 - ✅ `labels.ts` - Labels et traductions
 - ✅ `index.ts` - Exports
 
 #### Services (6 fichiers)
+
 - ✅ `profile.service.ts` - Gestion profils utilisateurs
 - ✅ `avatar.service.ts` - Upload et gestion avatars
 - ✅ `anonymization.service.ts` - Anonymisation RGPD
@@ -226,11 +245,13 @@ Cela permet de :
 - ✅ `index.ts` - Exports
 
 #### Types (3 fichiers)
+
 - ✅ `database.types.ts` - Types générés depuis Supabase
 - ✅ `supabase.types.ts` - Types Supabase helpers
 - ✅ `index.ts` - Exports
 
 #### API (2 fichiers)
+
 - ✅ `data.provider.ts` - CRUD operations
 - ✅ `index.ts` - Exports
 
@@ -251,16 +272,19 @@ Cela permet de :
 ### 🎯 Prochaines étapes
 
 **Option 1 : Mise à jour des imports** (~30 min)
+
 - Mettre à jour `main.tsx` et `App.tsx`
 - Créer des fichiers de transition
 - Supprimer progressivement les anciens fichiers
 
 **Option 2 : Migration SHARED** (~1h)
+
 - Migrer composants partagés
 - Migrer hooks partagés
 - Migrer utils partagés
 
 **Option 3 : Continuer progressivement**
+
 - Utiliser la nouvelle structure pour nouveau code
 - Migrer l'ancien code opportunément
 

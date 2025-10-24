@@ -4,7 +4,7 @@ import {
   ProfileState,
   ProfileStats,
 } from "../../types/profile";
-import { useAuth } from "../../providers/authProvider";
+import { useAuth } from "@/core/providers/auth.provider";
 import { ProfileService } from "../../services/profileService";
 import { useUINotifications } from "../shared";
 

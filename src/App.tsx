@@ -17,9 +17,9 @@ import {
   Alert,
   Container,
 } from "@mui/material";
-import { AuthProvider, useAuth } from "./providers/authProvider";
+import { AuthProvider, useAuth } from "@/core/providers/auth.provider";
 import { routes } from "./routes/routes";
-import { useAudit } from "./hooks/shared/useAudit";
+import { useAudit } from "@/shared/hooks";
 
 // MUI Theme for admin panel
 const theme = createTheme({

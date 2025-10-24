@@ -19,7 +19,7 @@ import {
 } from "@mui/icons-material";
 import { AvatarUploadData } from "../../../types/profile";
 import { AvatarService } from "../../../services/avatarService";
-import { useAuth } from "../../../providers/authProvider";
+import { useAuth } from "@/core/providers/auth.provider";
 import { useUINotifications } from "../../../hooks/shared";
 
 interface AvatarUploadModalProps {

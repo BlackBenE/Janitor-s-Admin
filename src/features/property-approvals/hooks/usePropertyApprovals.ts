@@ -1,17 +1,17 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { dataProvider } from "../../../providers/dataProvider";
-import { supabase } from "@/core/config/supabase";
-import { usePropertyAdminActions } from "./usePropertyAdminActions";
-import { usePropertyCrudMutations } from "./usePropertyMutations";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { dataProvider } from '../../../providers/dataProvider';
+import { supabase } from '@/core/config/supabase';
+import { usePropertyAdminActions } from './usePropertyAdminActions';
+import { usePropertyCrudMutations } from './usePropertyMutations';
 import {
   useProperty,
   usePendingProperties,
   usePropertyStats,
   PROPERTIES_QUERY_KEYS,
-} from "./usePropertyQueries";
-import { Database } from "@/types";
+} from './usePropertyQueries';
+import { Database } from '@/types';
 
-type Property = Database["public"]["Tables"]["properties"]["Row"];
+type Property = Database['public']['Tables']['properties']['Row'];
 
 // Enhanced property type with owner info for admin views
 export type PropertyWithOwner = Property & {
@@ -29,11 +29,11 @@ export type PropertyWithOwner = Property & {
 };
 
 // Property status types for admin management
-export type PropertyStatus = "pending" | "approved" | "rejected";
+export type PropertyStatus = 'pending' | 'approved' | 'rejected';
 
 /**
  * 🎯 Hook Principal - usePropertyApprovals (ORCHESTRATEUR)
- * 
+ *
  * Combine :
  * - usePropertyQueries (queries)
  * - usePropertyMutations (CRUD mutations)
@@ -66,7 +66,7 @@ export const usePropertyApprovals = (options?: {
     queryFn: async () => {
       if (options?.includeOwnerInfo) {
         // Use direct Supabase query with JOIN for owner info
-        let query = supabase.from("properties").select(`
+        let query = supabase.from('properties').select(`
             *,
             profiles:owner_id (
               id,
@@ -99,7 +99,7 @@ export const usePropertyApprovals = (options?: {
       } else {
         // Fallback to dataProvider for simple queries
         const response = await dataProvider.getList(
-          "properties",
+          'properties',
           {
             limit: options?.limit,
             orderBy: options?.orderBy,
@@ -156,7 +156,7 @@ export const usePropertyApprovals = (options?: {
     invalidateProperties: (forceRefetch = false) =>
       queryClient.invalidateQueries({
         queryKey: PROPERTIES_QUERY_KEYS.lists(),
-        refetchType: forceRefetch ? "active" : "none",
+        refetchType: forceRefetch ? 'active' : 'none',
       }),
 
     refreshProperties: () => refetch(),

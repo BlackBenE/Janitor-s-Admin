@@ -6,12 +6,12 @@ import { useAnalyticsData } from './analyticsDataGenerator';
 
 /**
  * 🎯 Hook Principal - useAnalytics (ORCHESTRATEUR)
- * 
+ *
  * ⚠️ TODO: Séparer en modules pour suivre le pattern
  * - useAnalyticsQueries.ts → queries (useAnalyticsData, etc.)
  * - useAnalyticsManagement.ts → UI state (tabs, dates, filters)
  * - useAnalytics.ts → orchestrateur
- * 
+ *
  * Pour l'instant, tout est dans ce fichier (fonctionne mais moins scalable)
  */
 export const useAnalytics = () => {

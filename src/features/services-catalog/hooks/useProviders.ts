@@ -62,7 +62,6 @@ export const useProviders = (options?: {
   return useQuery({
     queryKey: PROVIDERS_QUERY_KEYS.list(options?.filters || {}),
     queryFn: async (): Promise<ProviderWithMetrics[]> => {
-
       // Récupérer les prestataires avec leurs services
       let providersQuery = supabase
         .from('profiles')
@@ -249,7 +248,6 @@ export const useProvider = (id: string) => {
   return useQuery({
     queryKey: PROVIDERS_QUERY_KEYS.detail(id),
     queryFn: async (): Promise<ProviderWithMetrics | null> => {
-
       // Requête directe pour un seul provider
       const { data: providerData, error } = await supabase
         .from('profiles')

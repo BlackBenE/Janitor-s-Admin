@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,17 +13,17 @@ import {
   Tooltip,
   CircularProgress,
   Alert,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Close as CloseIcon,
   Person as PersonIcon,
   AdminPanelSettings as AdminIcon,
   Refresh as RefreshIcon,
-} from "@mui/icons-material";
-import { AuditModalState } from "@/types/userManagement";
-import { useUserAuditLog } from "../hooks/useUserQueries";
-import { TabPanel } from "./sections/AuditTabPanel";
-import { AdminActionsTable, UserActionsTable } from "./sections/AuditTables";
+} from '@mui/icons-material';
+import { AuditModalState } from '@/types/userManagement';
+import { useUserAuditLog } from '../hooks/useUserQueries';
+import { TabPanel } from './sections/AuditTabPanel';
+import { AdminActionsTable, UserActionsTable } from './sections/AuditTables';
 
 interface AuditModalProps {
   open: boolean;
@@ -59,14 +59,14 @@ export const AuditModal: React.FC<AuditModalProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Typography variant="h6">Audit & Historique</Typography>
           {userEmail && (
             <Typography variant="body2" color="text.secondary">
               • {userEmail}
             </Typography>
           )}
-          <Box sx={{ ml: "auto" }}>
+          <Box sx={{ ml: 'auto' }}>
             <Tooltip title="Actualiser">
               <IconButton onClick={handleRefetch} size="small">
                 <RefreshIcon />
@@ -81,31 +81,20 @@ export const AuditModal: React.FC<AuditModalProps> = ({
 
       <DialogContent>
         {isLoadingData && (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />
           </Box>
         )}
 
         {combinedError && (
-          <Alert severity="error">
-            Erreur lors du chargement: {String(combinedError)}
-          </Alert>
+          <Alert severity="error">Erreur lors du chargement: {String(combinedError)}</Alert>
         )}
 
         {!isLoadingData && !combinedError && (
           <>
-            <Tabs
-              value={audit.tabValue}
-              onChange={(_, newValue) => onUpdateTab(newValue)}
-            >
-              <Tab
-                icon={<AdminIcon />}
-                label={`Actions Admin (${auditLogs.length})`}
-              />
-              <Tab
-                icon={<PersonIcon />}
-                label={`Actions User (${userActions.length})`}
-              />
+            <Tabs value={audit.tabValue} onChange={(_, newValue) => onUpdateTab(newValue)}>
+              <Tab icon={<AdminIcon />} label={`Actions Admin (${auditLogs.length})`} />
+              <Tab icon={<PersonIcon />} label={`Actions User (${userActions.length})`} />
             </Tabs>
 
             <TabPanel value={audit.tabValue} index={0}>

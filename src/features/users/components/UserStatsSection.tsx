@@ -36,15 +36,15 @@ const UserStatsCards: React.FC<{
   // UserManagement doit montrer la même métrique stable : tous utilisateurs non-supprimés,
   // peu importe l'onglet actif (Tous/Voyageurs/Propriétaires/etc).
   // Note: filteredUsers contient déjà tous les utilisateurs (allUsers) dans le contexte parent
-  const allNonDeletedUsers = filteredUsers.filter(u => !u.deleted_at);
+  const allNonDeletedUsers = filteredUsers.filter((u) => !u.deleted_at);
   const totalUsers = allNonDeletedUsers.length;
-  
+
   // Utiliser les fonctions standardisées pour calculer les métriques
   const activeUsers = allNonDeletedUsers.filter(isActiveUser).length;
   const pendingValidations = allNonDeletedUsers.filter(isPendingUser).length;
 
   // 🎯 NOUVEAU: Compter les utilisateurs VIP (métrique stable, plus pertinente que "Revenu total")
-  const vipUsers = allNonDeletedUsers.filter(u => u.vip_subscription).length;
+  const vipUsers = allNonDeletedUsers.filter((u) => u.vip_subscription).length;
 
   const monthlyGrowth = '+12.5%';
   const activeGrowth = '+8.3%';

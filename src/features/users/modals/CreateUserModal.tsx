@@ -16,8 +16,8 @@ import {
   Typography,
 } from '@mui/material';
 import { UserProfile } from '@/types/userManagement';
-import { COMMON_LABELS } from "@/shared/constants";
-import { USERS_LABELS } from "../constants";
+import { COMMON_LABELS } from '@/shared/constants';
+import { USERS_LABELS } from '../constants';
 
 interface CreateUserModalProps {
   open: boolean;

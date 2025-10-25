@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Button, Divider } from "@mui/material";
+import React from 'react';
+import { Box, Button, Divider } from '@mui/material';
 import {
   Edit as EditIcon,
   Block as BlockIcon,
@@ -7,11 +7,8 @@ import {
   LockReset as LockResetIcon,
   Shield as ShieldIcon,
   Restore as RestoreIcon,
-} from "@mui/icons-material";
-import {
-  UserProfile,
-  UserProfileWithAnonymization,
-} from "@/types/userManagement";
+} from '@mui/icons-material';
+import { UserProfile, UserProfileWithAnonymization } from '@/types/userManagement';
 
 interface UserActionsProps {
   user: UserProfileWithAnonymization;
@@ -46,21 +43,21 @@ export const UserActions: React.FC<UserActionsProps> = ({
     return (
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
           gap: 1,
           p: 2,
           borderTop: 1,
-          borderColor: "divider",
-          bgcolor: "grey.50",
+          borderColor: 'divider',
+          bgcolor: 'grey.50',
         }}
       >
         <Button onClick={onCancelEdit} disabled={isLoading}>
           Annuler
         </Button>
         <Button onClick={onSaveEdit} variant="contained" disabled={isLoading}>
-          {isLoading ? "Enregistrement..." : "Enregistrer"}
+          {isLoading ? 'Enregistrement...' : 'Enregistrer'}
         </Button>
       </Box>
     );
@@ -69,14 +66,14 @@ export const UserActions: React.FC<UserActionsProps> = ({
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "flex-end",
-        alignItems: "center",
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
         gap: 1,
         p: 2,
         borderTop: 1,
-        borderColor: "divider",
-        bgcolor: "grey.50",
+        borderColor: 'divider',
+        bgcolor: 'grey.50',
       }}
     >
       <Button onClick={onClose}>Fermer</Button>
@@ -129,7 +126,7 @@ export const UserActions: React.FC<UserActionsProps> = ({
               variant="outlined"
               size="small"
             >
-              {user.account_locked ? "Débloquer" : "Bloquer"}
+              {user.account_locked ? 'Débloquer' : 'Bloquer'}
             </Button>
           )}
 

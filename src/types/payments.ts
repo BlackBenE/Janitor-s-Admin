@@ -1,9 +1,9 @@
-import { Database } from "./database.types";
+import { Database } from './database.types';
 
 // Base Payment type from database
-export type Payment = Database["public"]["Tables"]["payments"]["Row"];
-export type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
-export type PaymentUpdate = Database["public"]["Tables"]["payments"]["Update"];
+export type Payment = Database['public']['Tables']['payments']['Row'];
+export type PaymentInsert = Database['public']['Tables']['payments']['Insert'];
+export type PaymentUpdate = Database['public']['Tables']['payments']['Update'];
 
 // Profile type extracted for relations
 export interface PaymentProfile {
@@ -67,15 +67,10 @@ export interface PaymentWithDetails extends Payment {
 }
 
 // Payment status type based on database values
-export type PaymentStatus =
-  | "pending"
-  | "paid"
-  | "refunded"
-  | "failed"
-  | "succeeded";
+export type PaymentStatus = 'pending' | 'paid' | 'refunded' | 'failed' | 'succeeded';
 
 // Status for tabs (including "all" for filtering)
-export type PaymentStatusFilter = "all" | PaymentStatus;
+export type PaymentStatusFilter = 'all' | PaymentStatus;
 
 export interface PaymentFilters {
   search: string;
@@ -100,7 +95,7 @@ export interface PaymentStats {
 export interface PaymentNotificationState {
   open: boolean;
   message: string;
-  severity: "success" | "error" | "warning" | "info";
+  severity: 'success' | 'error' | 'warning' | 'info';
 }
 
 // Tab configuration for payment statuses
@@ -112,10 +107,10 @@ export interface PaymentTab {
 
 // Action interfaces
 export interface PaymentActionConfig {
-  type: "mark-paid" | "refund" | "resend" | "view" | "edit";
+  type: 'mark-paid' | 'refund' | 'resend' | 'view' | 'edit';
   label: string;
   icon: string;
-  color?: "primary" | "success" | "warning" | "error";
+  color?: 'primary' | 'success' | 'warning' | 'error';
   requiresConfirmation?: boolean;
   confirmationMessage?: string;
   permission?: string;

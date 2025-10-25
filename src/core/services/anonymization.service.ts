@@ -279,10 +279,10 @@ export class AnonymizationService {
     let deletionReasonText: string;
     switch (reason) {
       case DeletionReason.GDPR_COMPLIANCE:
-        deletionReasonText = 'Suppression RGPD - Droit à l\'effacement';
+        deletionReasonText = "Suppression RGPD - Droit à l'effacement";
         break;
       case DeletionReason.USER_REQUEST:
-        deletionReasonText = 'Demande de l\'utilisateur';
+        deletionReasonText = "Demande de l'utilisateur";
         break;
       case DeletionReason.ADMIN_ACTION:
         deletionReasonText = 'Action administrative';

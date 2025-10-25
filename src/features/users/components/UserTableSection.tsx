@@ -107,11 +107,7 @@ const UserInfoCell: React.FC<{
       justifyContent: 'center',
     }}
   >
-    <Typography
-      variant="body2"
-      fontWeight="medium"
-      sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
-    >
+    <Typography variant="body2" fontWeight="medium" sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}>
       {params.row.full_name || USERS_LABELS.unnamedUser}
     </Typography>
     <Typography

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -8,8 +8,8 @@ import {
   Box,
   Typography,
   Alert,
-} from "@mui/material";
-import { LockReset as LockResetIcon } from "@mui/icons-material";
+} from '@mui/material';
+import { LockReset as LockResetIcon } from '@mui/icons-material';
 
 interface PasswordResetModalProps {
   open: boolean;
@@ -29,15 +29,15 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
   onConfirm,
 }) => {
   const getDestinationInfo = () => {
-    if (userRole?.toLowerCase() === "admin") {
-      return "Le lien redirigera vers le back-office administrateur.";
+    if (userRole?.toLowerCase() === 'admin') {
+      return 'Le lien redirigera vers le back-office administrateur.';
     } else {
       return "Le lien redirigera vers l'application client.";
     }
   };
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <LockResetIcon />
         Réinitialiser le mot de passe
       </DialogTitle>
@@ -54,10 +54,10 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
           <Typography
             variant="body2"
             sx={{
-              fontWeight: "bold",
+              fontWeight: 'bold',
               mb: 2,
               p: 2,
-              bgcolor: "grey.100",
+              bgcolor: 'grey.100',
               borderRadius: 1,
             }}
           >
@@ -65,19 +65,15 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
           </Typography>
 
           <Typography variant="body2" color="text.secondary">
-            L'utilisateur recevra un email avec les instructions pour réinitialiser
-            son mot de passe. Cette action sera enregistrée dans l'historique d'audit.
+            L'utilisateur recevra un email avec les instructions pour réinitialiser son mot de
+            passe. Cette action sera enregistrée dans l'historique d'audit.
           </Typography>
 
           <Alert severity="info" sx={{ mt: 2, mb: 1 }}>
             <strong>Destination :</strong> {getDestinationInfo()}
           </Alert>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ mt: 1, fontSize: "0.75rem" }}
-          >
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontSize: '0.75rem' }}>
             <strong>Note :</strong> Si l'email n'arrive pas, vérifiez :
             <br />• Le dossier spam/indésirables
             <br />• La configuration du serveur email

@@ -109,17 +109,17 @@ export const createPaymentTableColumns = ({
       }
 
       const payee = params.row.payee;
-      
+
       // Cas 1: Utilisateur supprimé
       if (payee?.deleted_at) {
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                fontStyle: 'italic', 
+            <Typography
+              variant="body2"
+              sx={{
+                fontStyle: 'italic',
                 color: 'text.disabled',
-                lineHeight: 1.2 
+                lineHeight: 1.2,
               }}
             >
               [Prestataire supprimé]
@@ -175,17 +175,17 @@ export const createPaymentTableColumns = ({
     minWidth: 160,
     renderCell: (params: GridRenderCellParams) => {
       const payer = params.row.payer;
-      
+
       // Cas 1: Utilisateur supprimé
       if (payer?.deleted_at) {
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                fontStyle: 'italic', 
+            <Typography
+              variant="body2"
+              sx={{
+                fontStyle: 'italic',
                 color: 'text.disabled',
-                lineHeight: 1.2 
+                lineHeight: 1.2,
               }}
             >
               [Utilisateur supprimé]

@@ -1,11 +1,5 @@
-import React from "react";
-import {
-  DialogActions,
-  Button,
-  Box,
-  Tooltip,
-  CircularProgress,
-} from "@mui/material";
+import React from 'react';
+import { DialogActions, Button, Box, Tooltip, CircularProgress } from '@mui/material';
 import {
   Edit as EditIcon,
   Save as SaveIcon,
@@ -14,8 +8,8 @@ import {
   Replay as RefundIcon,
   PictureAsPdf as PdfIcon,
   Close as CloseIcon,
-} from "@mui/icons-material";
-import { PaymentWithDetails } from "../../../types/payments";
+} from '@mui/icons-material';
+import { PaymentWithDetails } from '../../../types/payments';
 
 interface PaymentActionsProps {
   payment: PaymentWithDetails;
@@ -44,7 +38,7 @@ export const PaymentActions: React.FC<PaymentActionsProps> = ({
 }) => {
   if (isEditMode) {
     return (
-      <DialogActions sx={{ p: 3, gap: 1, justifyContent: "flex-end" }}>
+      <DialogActions sx={{ p: 3, gap: 1, justifyContent: 'flex-end' }}>
         <Button
           onClick={onCancelEdit}
           startIcon={<CancelIcon />}
@@ -60,16 +54,16 @@ export const PaymentActions: React.FC<PaymentActionsProps> = ({
           startIcon={isLoading ? <CircularProgress size={16} /> : <SaveIcon />}
           disabled={isLoading}
         >
-          {isLoading ? "Sauvegarde..." : "Sauvegarder"}
+          {isLoading ? 'Sauvegarde...' : 'Sauvegarder'}
         </Button>
       </DialogActions>
     );
   }
 
   return (
-    <DialogActions sx={{ p: 3, gap: 1, flexWrap: "wrap", justifyContent: "flex-end" }}>
+    <DialogActions sx={{ p: 3, gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
       {/* Marquer comme payé - uniquement pour les paiements en attente */}
-      {payment.status === "pending" && onMarkPaid && (
+      {payment.status === 'pending' && onMarkPaid && (
         <Tooltip title="Marquer comme payé">
           <Button
             onClick={() => onMarkPaid(payment.id)}
@@ -84,7 +78,7 @@ export const PaymentActions: React.FC<PaymentActionsProps> = ({
       )}
 
       {/* Rembourser - uniquement pour les paiements payés */}
-      {payment.status === "paid" && onRefund && (
+      {payment.status === 'paid' && onRefund && (
         <Tooltip title="Rembourser le paiement">
           <Button
             onClick={() => onRefund(payment.id)}
@@ -115,23 +109,13 @@ export const PaymentActions: React.FC<PaymentActionsProps> = ({
 
       {/* Éditer */}
       <Tooltip title="Éditer le paiement">
-        <Button
-          onClick={onEditPayment}
-          variant="outlined"
-          startIcon={<EditIcon />}
-          size="small"
-        >
+        <Button onClick={onEditPayment} variant="outlined" startIcon={<EditIcon />} size="small">
           Éditer
         </Button>
       </Tooltip>
 
       {/* Fermer */}
-      <Button
-        onClick={onClose}
-        variant="outlined"
-        startIcon={<CloseIcon />}
-        color="inherit"
-      >
+      <Button onClick={onClose} variant="outlined" startIcon={<CloseIcon />} color="inherit">
         Fermer
       </Button>
     </DialogActions>

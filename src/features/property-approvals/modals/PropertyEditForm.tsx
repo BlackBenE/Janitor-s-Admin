@@ -29,8 +29,8 @@ import {
 } from '@mui/icons-material';
 
 import { Property } from '@/types';
-import { COMMON_LABELS } from "@/shared/constants";
-import { PROPERTY_APPROVALS_LABELS } from "../constants";
+import { COMMON_LABELS } from '@/shared/constants';
+import { PROPERTY_APPROVALS_LABELS } from '../constants';
 import { PropertyImageService } from '@/core/services/property-image.service';
 
 interface PropertyEditFormProps {
@@ -102,7 +102,7 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
 
     try {
       const file = files[0];
-      
+
       // Validation du fichier
       const validation = PropertyImageService.validateFile(file);
       if (!validation.isValid) {
@@ -112,7 +112,7 @@ export const PropertyEditForm: React.FC<PropertyEditFormProps> = ({
 
       // Upload vers Supabase Storage
       const result = await PropertyImageService.uploadPropertyImage(property.id, file);
-      
+
       if (!result.success || !result.url) {
         setUploadError(result.error || "Erreur lors de l'upload");
         return;

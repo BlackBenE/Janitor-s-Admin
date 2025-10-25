@@ -1,5 +1,5 @@
-import React from "react";
-import { Button, Box } from "@mui/material";
+import React from 'react';
+import { Button, Box } from '@mui/material';
 import {
   Edit as EditIcon,
   Save as SaveIcon,
@@ -7,8 +7,8 @@ import {
   CheckCircle as ApproveIcon,
   Cancel as RejectIcon,
   Delete as DeleteIcon,
-} from "@mui/icons-material";
-import { ServiceWithDetails } from "@/types/services";
+} from '@mui/icons-material';
+import { ServiceWithDetails } from '@/types/services';
 
 interface ServiceActionsProps {
   service: ServiceWithDetails;
@@ -40,14 +40,14 @@ export const ServiceActions: React.FC<ServiceActionsProps> = ({
     return (
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
           gap: 1,
           p: 2,
           borderTop: 1,
-          borderColor: "divider",
-          bgcolor: "grey.50",
+          borderColor: 'divider',
+          bgcolor: 'grey.50',
         }}
       >
         <Button
@@ -74,14 +74,14 @@ export const ServiceActions: React.FC<ServiceActionsProps> = ({
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "flex-end",
-        alignItems: "center",
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
         gap: 1,
         p: 2,
         borderTop: 1,
-        borderColor: "divider",
-        bgcolor: "grey.50",
+        borderColor: 'divider',
+        bgcolor: 'grey.50',
       }}
     >
       {/* Supprimer (action dangereuse - en premier) */}

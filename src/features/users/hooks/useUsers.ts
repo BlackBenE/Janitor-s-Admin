@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useState, useCallback, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Hooks migration - Utilisons les hooks consolidés
 import {
@@ -7,36 +7,32 @@ import {
   useUserStats,
   useUserSearch,
   USER_QUERY_KEYS,
-} from "./useUserQueries";
-import { useUserActivity } from "./useUserQueries";
-import { useUserActions } from "./useUserActions"; // 🎯 FUSION 1: Hook unifié d'actions
-import { useSecurityActions } from "./useSecurityActions";
-import { useUserInterface } from "./useUserInterface"; // 🎯 FUSION 2: Hook unifié d'interface
-import { useExport } from "@/shared/hooks/useExport";
+} from './useUserQueries';
+import { useUserActivity } from './useUserQueries';
+import { useUserActions } from './useUserActions'; // 🎯 FUSION 1: Hook unifié d'actions
+import { useSecurityActions } from './useSecurityActions';
+import { useUserInterface } from './useUserInterface'; // 🎯 FUSION 2: Hook unifié d'interface
+import { useExport } from '@/shared/hooks/useExport';
 
 // Types
-import type {
-  UserProfile,
-  UserFilters,
-  NotificationState,
-} from "@/types/userManagement";
-import { USER_TABS } from "@/types/userManagement";
-import type { UserRole } from "@/types/supabase";
+import type { UserProfile, UserFilters, NotificationState } from '@/types/userManagement';
+import { USER_TABS } from '@/types/userManagement';
+import type { UserRole } from '@/types/supabase';
 
 // ========================================
 // ÉTAT UI INITIAL
 // ========================================
 const initialFilters: UserFilters = {
-  role: "",
-  status: "",
-  subscription: "",
-  search: "",
+  role: '',
+  status: '',
+  subscription: '',
+  search: '',
 };
 
 const initialNotification: NotificationState = {
   open: false,
-  message: "",
-  severity: "success",
+  message: '',
+  severity: 'success',
 };
 
 // ========================================
@@ -74,11 +70,7 @@ export const useUsers = (options: UseUsersOptions = {}) => {
       includeStats: options.includeStats ?? false,
       defaultFilters: options.defaultFilters || {},
     }),
-    [
-      options.enabled,
-      options.includeStats,
-      JSON.stringify(options.defaultFilters || {}),
-    ]
+    [options.enabled, options.includeStats, JSON.stringify(options.defaultFilters || {})]
   );
 
   // ========================================
@@ -91,25 +83,22 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     ...initialFilters,
     ...stableOptions.defaultFilters,
   }));
-  const [notification, setNotification] =
-    useState<NotificationState>(initialNotification);
+  const [notification, setNotification] = useState<NotificationState>(initialNotification);
 
   // État de la page (tabs, etc.)
   const [activeTab, setActiveTab] = useState(0);
 
   // Calculé à partir de activeTab - plus besoin de state séparé
   const currentTabRole = USER_TABS[activeTab]?.role || null;
-  const isDeletedTab = (currentTabRole as any) === "deleted";
-  const isAdminTab = currentTabRole === "admin";
+  const isDeletedTab = (currentTabRole as any) === 'deleted';
+  const isAdminTab = currentTabRole === 'admin';
 
   // ========================================
   // ACTIONS UI - SÉLECTION
   // ========================================
   const toggleUserSelection = useCallback((userId: string) => {
     setSelectedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
     );
   }, []);
 
@@ -139,10 +128,7 @@ export const useUsers = (options: UseUsersOptions = {}) => {
   // ACTIONS UI - NOTIFICATIONS
   // ========================================
   const showNotification = useCallback(
-    (
-      message: string,
-      severity: "success" | "error" | "warning" | "info" = "success"
-    ) => {
+    (message: string, severity: 'success' | 'error' | 'warning' | 'info' = 'success') => {
       setNotification({ open: true, message, severity });
     },
     []
@@ -170,23 +156,23 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     const dbFilter: Partial<UserProfile> = {};
 
     // Convertir le role si spécifié
-    if (filters.role && filters.role !== "") {
+    if (filters.role && filters.role !== '') {
       dbFilter.role = filters.role;
     }
 
     // Convertir le status
-    if (filters.status === "validated") {
+    if (filters.status === 'validated') {
       dbFilter.profile_validated = true;
-    } else if (filters.status === "pending") {
+    } else if (filters.status === 'pending') {
       dbFilter.profile_validated = false;
-    } else if (filters.status === "locked") {
+    } else if (filters.status === 'locked') {
       dbFilter.account_locked = true;
     }
 
     // Convertir le subscription
-    if (filters.subscription === "vip") {
+    if (filters.subscription === 'vip') {
       dbFilter.vip_subscription = true;
-    } else if (filters.subscription === "standard") {
+    } else if (filters.subscription === 'standard') {
       dbFilter.vip_subscription = false;
     }
 
@@ -217,16 +203,13 @@ export const useUsers = (options: UseUsersOptions = {}) => {
   // 4. Utilisateurs admin (ex-useAdminUsersNew)
   const adminUsersQuery = useUsersQuery({
     limit: 1000,
-    filters: { role: "admin" },
+    filters: { role: 'admin' },
     enabled: stableOptions.enabled,
   });
 
   // 5. Recherche textuelle
-  const searchQuery = useUserSearch(filters.search || "", {
-    enabled:
-      stableOptions.enabled &&
-      !!filters.search &&
-      filters.search.trim().length > 0,
+  const searchQuery = useUserSearch(filters.search || '', {
+    enabled: stableOptions.enabled && !!filters.search && filters.search.trim().length > 0,
   });
 
   // 6. Stats globales
@@ -250,17 +233,11 @@ export const useUsers = (options: UseUsersOptions = {}) => {
       users = users.filter((user) => user.role === currentTabRole);
     } else if (!isDeletedTab && !currentTabRole) {
       // Onglet "All Users" - exclure les admins par défaut
-      users = users.filter((user) => user.role !== "admin");
+      users = users.filter((user) => user.role !== 'admin');
     }
 
     return users;
-  }, [
-    activeUsersQuery.data,
-    currentTabRole,
-    isDeletedTab,
-    searchQuery.data,
-    filters.search,
-  ]);
+  }, [activeUsersQuery.data, currentTabRole, isDeletedTab, searchQuery.data, filters.search]);
 
   const deletedUsers = useMemo(() => {
     let users = deletedUsersQuery.data || [];
@@ -290,7 +267,7 @@ export const useUsers = (options: UseUsersOptions = {}) => {
 
     // Si on a une recherche, utiliser les résultats de recherche
     if (filters.search && filters.search.trim().length > 0) {
-      users = (searchQuery.data || []).filter((user) => user.role === "admin");
+      users = (searchQuery.data || []).filter((user) => user.role === 'admin');
     }
 
     return users;
@@ -346,10 +323,10 @@ export const useUsers = (options: UseUsersOptions = {}) => {
         });
       }
 
-      showNotification("Utilisateurs validés en masse", "success");
+      showNotification('Utilisateurs validés en masse', 'success');
       clearUserSelection();
     } catch (error) {
-      showNotification("Erreur lors de la validation en masse", "error");
+      showNotification('Erreur lors de la validation en masse', 'error');
     }
   }, [
     currentDisplayUsers,
@@ -378,10 +355,10 @@ export const useUsers = (options: UseUsersOptions = {}) => {
         });
       }
 
-      showNotification("Statut VIP ajouté en masse", "success");
+      showNotification('Statut VIP ajouté en masse', 'success');
       clearUserSelection();
     } catch (error) {
-      showNotification("Erreur lors de l'ajout VIP en masse", "error");
+      showNotification("Erreur lors de l'ajout VIP en masse", 'error');
     }
   }, [
     currentDisplayUsers,
@@ -410,10 +387,10 @@ export const useUsers = (options: UseUsersOptions = {}) => {
         });
       }
 
-      showNotification("Statut VIP retiré en masse", "success");
+      showNotification('Statut VIP retiré en masse', 'success');
       clearUserSelection();
     } catch (error) {
-      showNotification("Erreur lors du retrait VIP en masse", "error");
+      showNotification('Erreur lors du retrait VIP en masse', 'error');
     }
   }, [
     currentDisplayUsers,
@@ -429,10 +406,12 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     const selectedUsersList = currentDisplayUsers.filter((u: UserProfile) =>
       selectedUsers.includes(u.id)
     );
-    
-    const hasAdmins = selectedUsersList.some(u => u.role === 'admin');
+
+    const hasAdmins = selectedUsersList.some((u) => u.role === 'admin');
     if (hasAdmins) {
-      alert("🔒 Sécurité: La suppression de comptes administrateurs est interdite via cette interface.");
+      alert(
+        '🔒 Sécurité: La suppression de comptes administrateurs est interdite via cette interface.'
+      );
       return;
     }
 
@@ -442,15 +421,11 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     if (!confirmed) return;
 
     try {
-      await Promise.all(
-        selectedUsers.map((userId) =>
-          userActions.deleteUser.mutateAsync(userId)
-        )
-      );
-      showNotification("Utilisateurs supprimés avec succès", "success");
+      await Promise.all(selectedUsers.map((userId) => userActions.deleteUser.mutateAsync(userId)));
+      showNotification('Utilisateurs supprimés avec succès', 'success');
       clearUserSelection();
     } catch (error) {
-      showNotification("Erreur lors de la suppression en masse", "error");
+      showNotification('Erreur lors de la suppression en masse', 'error');
     }
   }, [
     currentDisplayUsers,
@@ -478,10 +453,10 @@ export const useUsers = (options: UseUsersOptions = {}) => {
         });
       }
 
-      showNotification("Utilisateurs suspendus en masse", "success");
+      showNotification('Utilisateurs suspendus en masse', 'success');
       clearUserSelection();
     } catch (error) {
-      showNotification("Erreur lors de la suspension en masse", "error");
+      showNotification('Erreur lors de la suspension en masse', 'error');
     }
   }, [
     currentDisplayUsers,
@@ -505,10 +480,10 @@ export const useUsers = (options: UseUsersOptions = {}) => {
         });
       }
 
-      showNotification("Utilisateurs réactivés en masse", "success");
+      showNotification('Utilisateurs réactivés en masse', 'success');
       clearUserSelection();
     } catch (error) {
-      showNotification("Erreur lors de la réactivation en masse", "error");
+      showNotification('Erreur lors de la réactivation en masse', 'error');
     }
   }, [
     currentDisplayUsers,
@@ -537,10 +512,10 @@ export const useUsers = (options: UseUsersOptions = {}) => {
         });
       }
 
-      showNotification("Utilisateurs mis en attente en masse", "success");
+      showNotification('Utilisateurs mis en attente en masse', 'success');
       clearUserSelection();
     } catch (error) {
-      showNotification("Erreur lors de la mise en attente en masse", "error");
+      showNotification('Erreur lors de la mise en attente en masse', 'error');
     }
   }, [
     currentDisplayUsers,
@@ -554,7 +529,7 @@ export const useUsers = (options: UseUsersOptions = {}) => {
   const handleBulkChangeRole = useCallback(async () => {
     // 🔒 SÉCURITÉ: Pas de promotion vers admin via l'interface
     const roleOptions =
-      "Options de rôles:\n1 - traveler (Voyageur)\n2 - property_owner (Propriétaire)\n3 - service_provider (Prestataire)";
+      'Options de rôles:\n1 - traveler (Voyageur)\n2 - property_owner (Propriétaire)\n3 - service_provider (Prestataire)';
     const roleChoice = window.prompt(
       `👤 Changer le rôle de ${selectedUsers.length} utilisateur(s)\n\n${roleOptions}\n\nEntrez le numéro (1, 2, ou 3):`
     );
@@ -563,17 +538,17 @@ export const useUsers = (options: UseUsersOptions = {}) => {
 
     let newRole: string;
     switch (roleChoice.trim()) {
-      case "1":
-        newRole = "traveler";
+      case '1':
+        newRole = 'traveler';
         break;
-      case "2":
-        newRole = "property_owner";
+      case '2':
+        newRole = 'property_owner';
         break;
-      case "3":
-        newRole = "service_provider";
+      case '3':
+        newRole = 'service_provider';
         break;
       default:
-        alert("❌ Choix invalide. Opération annulée.");
+        alert('❌ Choix invalide. Opération annulée.');
         return;
     }
 
@@ -581,8 +556,8 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     const selectedUsersList = currentDisplayUsers.filter((u: UserProfile) =>
       selectedUsers.includes(u.id)
     );
-    
-    const hasAdmins = selectedUsersList.some(u => u.role === 'admin');
+
+    const hasAdmins = selectedUsersList.some((u) => u.role === 'admin');
     if (hasAdmins) {
       alert("🔒 Sécurité: Impossible de modifier le rôle d'un administrateur via cette interface.");
       return;
@@ -600,13 +575,10 @@ export const useUsers = (options: UseUsersOptions = {}) => {
           updates: { role: newRole as any },
         });
       }
-      showNotification(
-        `Rôles changés vers "${newRole}" avec succès`,
-        "success"
-      );
+      showNotification(`Rôles changés vers "${newRole}" avec succès`, 'success');
       clearUserSelection();
     } catch (error) {
-      showNotification("Erreur lors du changement de rôle en masse", "error");
+      showNotification('Erreur lors du changement de rôle en masse', 'error');
     }
   }, [
     currentDisplayUsers,
@@ -638,20 +610,20 @@ export const useUsers = (options: UseUsersOptions = {}) => {
   const isLoading = isDeletedTab
     ? deletedUsersQuery.isLoading
     : isAdminTab
-    ? adminUsersQuery.isLoading
-    : activeUsersQuery.isLoading;
+      ? adminUsersQuery.isLoading
+      : activeUsersQuery.isLoading;
 
   const isFetching = isDeletedTab
     ? deletedUsersQuery.isFetching
     : isAdminTab
-    ? adminUsersQuery.isFetching
-    : activeUsersQuery.isFetching;
+      ? adminUsersQuery.isFetching
+      : activeUsersQuery.isFetching;
 
   const error = isDeletedTab
     ? deletedUsersQuery.error
     : isAdminTab
-    ? adminUsersQuery.error
-    : activeUsersQuery.error;
+      ? adminUsersQuery.error
+      : activeUsersQuery.error;
 
   // ========================================
   // ACTIONS DE RAFRAICHISSEMENT
@@ -664,13 +636,7 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     if (isDeletedTab) return deletedUsersQuery.refetch();
     if (isAdminTab) return adminUsersQuery.refetch();
     return activeUsersQuery.refetch();
-  }, [
-    isDeletedTab,
-    isAdminTab,
-    activeUsersQuery,
-    deletedUsersQuery,
-    adminUsersQuery,
-  ]);
+  }, [isDeletedTab, isAdminTab, activeUsersQuery, deletedUsersQuery, adminUsersQuery]);
 
   // ========================================
   // INTERFACE DE RETOUR UNIFIÉE
@@ -689,8 +655,7 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     // 📊 DONNÉES BRUTES (pour stats - non filtrées par onglet)
     // ========================================
     rawActiveUsers: activeUsersQuery.data || [], // Tous les utilisateurs actifs (avec admins)
-    rawDeletedUsers:
-      deletedUsersQuery.data?.filter((u) => u.deleted_at !== null) || [],
+    rawDeletedUsers: deletedUsersQuery.data?.filter((u) => u.deleted_at !== null) || [],
     rawAllUsers: allUsersQuery.data || [],
     rawAdminUsers: adminUsersQuery.data || [],
 
@@ -698,7 +663,7 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     // 📊 DONNÉES POUR STATS (comme avant - actifs SANS admins)
     // ========================================
     statsUsers: (activeUsersQuery.data || []).filter(
-      (u) => u.deleted_at === null && u.role !== "admin"
+      (u) => u.deleted_at === null && u.role !== 'admin'
     ),
 
     // États de chargement

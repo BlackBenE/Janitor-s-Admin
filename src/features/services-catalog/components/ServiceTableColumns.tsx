@@ -1,15 +1,15 @@
-import React from "react";
-import { Box, Chip, Checkbox } from "@mui/material";
-import { GridRenderCellParams, GridColDef } from "@mui/x-data-grid";
-import { ServiceWithDetails } from "@/types/services";
-import { ServiceTableActions } from "./ServiceTableActions";
+import React from 'react';
+import { Box, Chip, Checkbox } from '@mui/material';
+import { GridRenderCellParams, GridColDef } from '@mui/x-data-grid';
+import { ServiceWithDetails } from '@/types/services';
+import { ServiceTableActions } from './ServiceTableActions';
 import {
   formatCurrency,
   formatDate,
   getActiveStatusColor,
   getActiveStatusLabel,
   getCategoryColor,
-} from "@/shared/utils";
+} from '@/shared/utils';
 
 interface ServiceTableColumnsProps {
   selectedServices: string[];
@@ -43,8 +43,8 @@ export const createServiceTableColumns = ({
   onDeleteService,
 }: ServiceTableColumnsProps): GridColDef[] => [
   {
-    field: "select",
-    headerName: "",
+    field: 'select',
+    headerName: '',
     width: 50,
     sortable: false,
     filterable: false,
@@ -57,23 +57,25 @@ export const createServiceTableColumns = ({
     ),
   },
   {
-    field: "name",
-    headerName: "Nom du service",
-    width: 250,
+    field: 'name',
+    headerName: 'Nom du service',
+    flex: 2, // Prend 2x plus d'espace que les autres colonnes flex
+    minWidth: 200,
     renderCell: (params: GridRenderCellParams) => (
       <Box>
-        <Box sx={{ fontWeight: "medium" }}>{params.row.name}</Box>
-        <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+        <Box sx={{ fontWeight: 'medium' }}>{params.row.name}</Box>
+        <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
           {params.row.description?.substring(0, 50)}
-          {params.row.description?.length > 50 ? "..." : ""}
+          {params.row.description?.length > 50 ? '...' : ''}
         </Box>
       </Box>
     ),
   },
   {
-    field: "category",
-    headerName: "Catégorie",
-    width: 130,
+    field: 'category',
+    headerName: 'Catégorie',
+    flex: 1,
+    minWidth: 120,
     renderCell: (params: GridRenderCellParams) => (
       <Chip
         label={params.row.category}
@@ -84,41 +86,40 @@ export const createServiceTableColumns = ({
     ),
   },
   {
-    field: "base_price",
-    headerName: "Prix",
-    width: 120,
+    field: 'base_price',
+    headerName: 'Prix',
+    flex: 0.8,
+    minWidth: 100,
     renderCell: (params: GridRenderCellParams) => (
-      <Box sx={{ fontWeight: "medium" }}>
-        {formatCurrency(params.row.base_price)}
-      </Box>
+      <Box sx={{ fontWeight: 'medium' }}>{formatCurrency(params.row.base_price)}</Box>
     ),
   },
   {
-    field: "provider",
-    headerName: "Prestataire",
-    width: 200,
+    field: 'provider',
+    headerName: 'Prestataire',
+    flex: 1.5,
+    minWidth: 150,
     renderCell: (params: GridRenderCellParams) => {
       const provider = params.row.provider;
       if (!provider) return <Box>N/A</Box>;
 
       return (
         <Box>
-          <Box sx={{ fontWeight: "medium" }}>
+          <Box sx={{ fontWeight: 'medium' }}>
             {provider.first_name && provider.last_name
               ? `${provider.first_name} ${provider.last_name}`
-              : provider.full_name || "N/A"}
+              : provider.full_name || 'N/A'}
           </Box>
-          <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
-            {provider.email}
-          </Box>
+          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{provider.email}</Box>
         </Box>
       );
     },
   },
   {
-    field: "is_active",
-    headerName: "Statut",
-    width: 100,
+    field: 'is_active',
+    headerName: 'Statut',
+    flex: 0.8,
+    minWidth: 100,
     renderCell: (params: GridRenderCellParams) => (
       <Chip
         label={getActiveStatusLabel(params.row.is_active)}
@@ -129,8 +130,8 @@ export const createServiceTableColumns = ({
     ),
   },
   {
-    field: "is_vip_only",
-    headerName: "VIP",
+    field: 'is_vip_only',
+    headerName: 'VIP',
     width: 80,
     renderCell: (params: GridRenderCellParams) =>
       params.row.is_vip_only ? (
@@ -138,17 +139,16 @@ export const createServiceTableColumns = ({
       ) : null,
   },
   {
-    field: "created_at",
-    headerName: "Date de création",
-    width: 130,
-    renderCell: (params: GridRenderCellParams) => (
-      <Box>{formatDate(params.row.created_at)}</Box>
-    ),
+    field: 'created_at',
+    headerName: 'Date de création',
+    flex: 1,
+    minWidth: 120,
+    renderCell: (params: GridRenderCellParams) => <Box>{formatDate(params.row.created_at)}</Box>,
   },
   {
-    field: "actions",
-    headerName: "Actions",
-    width: 200,
+    field: 'actions',
+    headerName: 'Actions',
+    width: 150,
     sortable: false,
     filterable: false,
     renderCell: (params: GridRenderCellParams) => (

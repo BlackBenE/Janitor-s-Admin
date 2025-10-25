@@ -125,7 +125,7 @@ export const AuditModal: React.FC<AuditModalProps> = ({
         )}
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ p: 3, justifyContent: 'flex-end' }}>
         <Button onClick={onClose} variant="outlined">
           Fermer
         </Button>

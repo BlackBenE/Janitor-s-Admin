@@ -91,7 +91,7 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
         <ListItemIcon>
           <HistoryIcon fontSize="small" />
         </ListItemIcon>
-        <ListItemText primary="View Audit History" />
+        <ListItemText primary="Voir l'historique d'audit" />
       </MenuItem>
 
       {/* Toggle VIP - Disponible pour Property Owners et Tenants */}
@@ -113,7 +113,7 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
             )}
           </ListItemIcon>
           <ListItemText
-            primary={params.row.vip_subscription ? "Remove VIP" : "Make VIP"}
+            primary={params.row.vip_subscription ? "Retirer le VIP" : "Rendre VIP"}
           />
         </MenuItem>
       )}
@@ -137,8 +137,8 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
           <ListItemText
             primary={
               params.row.profile_validated
-                ? "Reject Provider"
-                : "Approve Provider"
+                ? "Rejeter le prestataire"
+                : "Approuver le prestataire"
             }
           />
         </MenuItem>
@@ -153,7 +153,7 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
         <ListItemIcon>
           <LockResetIcon fontSize="small" />
         </ListItemIcon>
-        <ListItemText primary="Reset password" />
+        <ListItemText primary="Réinitialiser le mot de passe" />
       </MenuItem>
 
       <MenuItem
@@ -173,7 +173,7 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
         </ListItemIcon>
         <ListItemText
           primary={
-            params.row.account_locked ? "Unlock account" : "Lock account"
+            params.row.account_locked ? "Débloquer le compte" : "Bloquer le compte"
           }
         />
       </MenuItem>
@@ -182,7 +182,7 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
 
   return (
     <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
-      <Tooltip title="See details">
+      <Tooltip title="Voir les détails">
         <IconButton
           size="small"
           onClick={() => onShowUser(params.row)}
@@ -193,7 +193,7 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
       </Tooltip>
 
       {params.row?.account_locked && (
-        <Tooltip title="Account locked">
+        <Tooltip title="Compte bloqué">
           <Box
             sx={{ color: "error.main", display: "flex", alignItems: "center" }}
           >
@@ -202,7 +202,7 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
         </Tooltip>
       )}
 
-      <Tooltip title="More actions">
+      <Tooltip title="Plus d'actions">
         <IconButton
           size="small"
           onClick={handleMenuClick}

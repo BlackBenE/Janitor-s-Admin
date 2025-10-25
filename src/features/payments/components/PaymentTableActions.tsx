@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Box,
   IconButton,
@@ -7,7 +7,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-} from "@mui/material";
+} from '@mui/material';
 import {
   RemoveRedEyeOutlined as ViewIcon,
   PictureAsPdf as PdfIcon,
@@ -15,10 +15,10 @@ import {
   Replay as RefundIcon,
   Refresh as RetryIcon,
   MoreVert as MoreVertIcon,
-} from "@mui/icons-material";
-import { GridRenderCellParams } from "@mui/x-data-grid";
-import { PaymentWithDetails } from "../../../types/payments";
-import { LABELS } from "../../../constants/labels";
+} from '@mui/icons-material';
+import { GridRenderCellParams } from '@mui/x-data-grid';
+import { PaymentWithDetails } from '../../../types/payments';
+import { PAYMENTS_LABELS } from '../constants';
 
 interface PaymentTableActionsProps {
   params: GridRenderCellParams;
@@ -48,21 +48,20 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
   };
 
   const payment = params.row as PaymentWithDetails;
-  const invoiceId =
-    payment.stripe_payment_intent_id || `INV-${payment.id.slice(-8)}`;
+  const invoiceId = payment.stripe_payment_intent_id || `INV-${payment.id.slice(-8)}`;
 
   const ActionsMenu = () => (
     <Menu
       anchorEl={anchorEl}
       open={Boolean(anchorEl)}
       onClose={handleMenuClose}
-      transformOrigin={{ horizontal: "right", vertical: "top" }}
-      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       slotProps={{
         paper: {
           sx: {
             maxHeight: 400,
-            width: "220px",
+            width: '220px',
           },
         },
       }}
@@ -77,11 +76,11 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
         <ListItemIcon>
           <PdfIcon fontSize="small" />
         </ListItemIcon>
-        <ListItemText primary={LABELS.common.messages.downloadPdf} />
+        <ListItemText primary={PAYMENTS_LABELS.actions.downloadPdf} />
       </MenuItem>
 
       {/* Marquer comme payé - Uniquement pour les paiements en attente */}
-      {payment.status === "pending" && (
+      {payment.status === 'pending' && (
         <MenuItem
           onClick={() => {
             onMarkPaid(payment.id);
@@ -91,12 +90,12 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
           <ListItemIcon>
             <CheckCircleIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary={LABELS.common.messages.markAsPaid} />
+          <ListItemText primary={PAYMENTS_LABELS.actions.markAsPaid} />
         </MenuItem>
       )}
 
       {/* Rembourser - Uniquement pour les paiements payés */}
-      {payment.status === "paid" && (
+      {payment.status === 'paid' && (
         <MenuItem
           onClick={() => {
             onRefund(payment.id);
@@ -106,12 +105,12 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
           <ListItemIcon>
             <RefundIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary={LABELS.common.messages.refundPayment} />
+          <ListItemText primary={PAYMENTS_LABELS.actions.refundPayment} />
         </MenuItem>
       )}
 
       {/* Relancer - Uniquement pour les paiements échoués */}
-      {payment.status === "failed" && (
+      {payment.status === 'failed' && (
         <MenuItem
           onClick={() => {
             onRetry(payment.id);
@@ -121,29 +120,29 @@ export const PaymentTableActions: React.FC<PaymentTableActionsProps> = ({
           <ListItemIcon>
             <RetryIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary={LABELS.common.messages.retryPayment} />
+          <ListItemText primary={PAYMENTS_LABELS.actions.retryPayment} />
         </MenuItem>
       )}
     </Menu>
   );
 
   return (
-    <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
-      <Tooltip title={LABELS.common.messages.viewDetails}>
+    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+      <Tooltip title={PAYMENTS_LABELS.actions.viewDetails}>
         <IconButton
           size="small"
           onClick={() => onViewDetails(payment)}
-          sx={{ color: "text.secondary", "&:hover": { color: "primary.main" } }}
+          sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}
         >
           <ViewIcon fontSize="small" />
         </IconButton>
       </Tooltip>
 
-      <Tooltip title={LABELS.common.messages.moreActions}>
+      <Tooltip title={PAYMENTS_LABELS.actions.moreActions}>
         <IconButton
           size="small"
           onClick={handleMenuClick}
-          sx={{ color: "text.secondary", "&:hover": { color: "primary.main" } }}
+          sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}
         >
           <MoreVertIcon fontSize="small" />
         </IconButton>

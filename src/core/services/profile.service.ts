@@ -46,7 +46,6 @@ export class ProfileService {
     }
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      console.log('🔄 ProfileService.updateProfile called with:', {
         userId,
         data,
       });
@@ -58,13 +57,10 @@ export class ProfileService {
         updated_at: new Date().toISOString(),
       };
 
-      console.log('📝 Updating profile with data:', updateData);
 
       // Utiliser le dataProvider qui gère mieux les erreurs et utilise supabaseAdmin
-      console.log('⏳ Calling dataProvider.update...');
       const response = await dataProvider.update('profiles', userId, updateData);
 
-      console.log('✅ DataProvider response:', response);
 
       if (!response.success || response.error) {
         console.error('❌ Update profile error:', response.error);
@@ -74,7 +70,6 @@ export class ProfileService {
         };
       }
 
-      console.log('✅ Profile updated successfully:', response.data);
       return { success: true };
     } catch (error) {
       console.error('❌ Update profile error:', error);

@@ -26,18 +26,18 @@ export const useAnalyticsCalculations = () => {
   const calculateUserMetrics = useCallback((input: AnalyticsCalculationsInput) => {
     const { profiles, dateRange } = input;
 
+    // NOTE: Les admins sont déjà exclus dans analyticsQueries.ts (optimisation)
+
     // Utilisateurs créés dans la période actuelle (nouveaux utilisateurs)
-    // EXCLUT les admins pour cohérence avec les autres métriques
     const newUsers = profiles.filter((p) => {
-      if (!p.created_at || p.role === 'admin') return false;
+      if (!p.created_at) return false;
       const createdAt = new Date(p.created_at);
       return createdAt >= dateRange.from && createdAt <= dateRange.to;
     }).length;
 
     // Total des utilisateurs créés jusqu'à la fin de la période sélectionnée
-    // EXCLUT les admins (comptés séparément)
     const totalUsers = profiles.filter((p) => {
-      if (!p.created_at || p.role === 'admin') return false;
+      if (!p.created_at) return false;
       const createdAt = new Date(p.created_at);
       return createdAt <= dateRange.to;
     }).length;
@@ -56,7 +56,7 @@ export const useAnalyticsCalculations = () => {
     const previousPeriodEnd = dateRange.from;
 
     const previousPeriodUsers = profiles.filter((p) => {
-      if (!p.created_at || p.role === 'admin') return false; // Exclure les admins
+      if (!p.created_at) return false;
       const createdAt = new Date(p.created_at);
       return createdAt >= previousPeriodStart && createdAt < previousPeriodEnd;
     }).length;
@@ -87,14 +87,15 @@ export const useAnalyticsCalculations = () => {
       const { previousPeriodStart, previousPeriodEnd } = userMetrics;
 
       // Calculer les métriques revenus pour la période actuelle
+      // NOTE: Accepter 'succeeded' ET 'paid' (considérés équivalents)
       const currentPeriodPayments = payments.filter((p) => {
-        if (p.status !== 'paid' || !p.created_at) return false;
+        if (!['succeeded', 'paid'].includes(p.status || '') || !p.created_at) return false;
         const paymentDate = new Date(p.created_at);
         return paymentDate >= dateRange.from && paymentDate <= dateRange.to;
       });
 
       // Calcul du revenu total avec les règles de commission
-      // 20% pour bookings, 100% pour subscriptions
+      // 20% pour bookings, 100% pour subscriptions et services
       const totalRevenue = currentPeriodPayments.reduce((sum, p) => {
         const paymentType = (p.payment_type as any) || 'other';
         return sum + calculateRevenue(p.amount, paymentType);
@@ -105,7 +106,7 @@ export const useAnalyticsCalculations = () => {
       const currentYear = new Date().getFullYear();
       const monthlyRevenue = payments
         .filter((p) => {
-          if (p.status !== 'paid' || !p.created_at) return false;
+          if (!['succeeded', 'paid'].includes(p.status || '') || !p.created_at) return false;
           const paymentDate = new Date(p.created_at);
           return (
             paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear
@@ -121,7 +122,7 @@ export const useAnalyticsCalculations = () => {
 
       // Calculer la croissance des revenus (période précédente vs actuelle)
       const previousPeriodPayments = payments.filter((p) => {
-        if (p.status !== 'paid' || !p.created_at) return false;
+        if (!['succeeded', 'paid'].includes(p.status || '') || !p.created_at) return false;
         const paymentDate = new Date(p.created_at);
         return paymentDate >= previousPeriodStart && paymentDate < previousPeriodEnd;
       });

@@ -1,2 +1,2 @@
 // Shared constants exports
-// Export your shared constants here
+export * from './common.labels';

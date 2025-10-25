@@ -1,5 +1,5 @@
 // Types pour la page Analytics
-import { FilterState } from "../hooks/shared";
+import { FilterState } from '@/shared/hooks';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface AnalyticsFilters extends FilterState {
@@ -12,9 +12,9 @@ export interface DateRange {
   to: Date;
 }
 
-export type ReportType = "overview" | "users" | "revenue" | "activity";
-export type ExportFormat = "csv" | "pdf" | "excel";
-export type ChartType = "area" | "line" | "bar" | "pie";
+export type ReportType = 'overview' | 'users' | 'revenue' | 'activity';
+export type ExportFormat = 'csv' | 'pdf' | 'excel';
+export type ChartType = 'area' | 'line' | 'bar' | 'pie';
 
 // État de la page Analytics
 export interface AnalyticsState {

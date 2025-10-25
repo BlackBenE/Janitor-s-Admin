@@ -317,7 +317,7 @@ export const SmartDeleteModal: React.FC<SmartDeleteModalProps> = ({
         )}
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ p: 3, justifyContent: 'flex-end' }}>
         <Button onClick={handleClose} disabled={isDeleting}>
           Annuler
         </Button>

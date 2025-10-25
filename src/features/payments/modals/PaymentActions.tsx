@@ -44,7 +44,7 @@ export const PaymentActions: React.FC<PaymentActionsProps> = ({
 }) => {
   if (isEditMode) {
     return (
-      <DialogActions sx={{ p: 3, gap: 1 }}>
+      <DialogActions sx={{ p: 3, gap: 1, justifyContent: "flex-end" }}>
         <Button
           onClick={onCancelEdit}
           startIcon={<CancelIcon />}
@@ -67,69 +67,63 @@ export const PaymentActions: React.FC<PaymentActionsProps> = ({
   }
 
   return (
-    <DialogActions sx={{ p: 3, gap: 1, flexWrap: "wrap" }}>
-      {/* Actions principales */}
-      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        {/* Marquer comme payé - uniquement pour les paiements en attente */}
-        {payment.status === "pending" && onMarkPaid && (
-          <Tooltip title="Marquer comme payé">
-            <Button
-              onClick={() => onMarkPaid(payment.id)}
-              variant="contained"
-              color="success"
-              startIcon={<CheckCircleIcon />}
-              size="small"
-            >
-              Marquer payé
-            </Button>
-          </Tooltip>
-        )}
-
-        {/* Rembourser - uniquement pour les paiements payés */}
-        {payment.status === "paid" && onRefund && (
-          <Tooltip title="Rembourser le paiement">
-            <Button
-              onClick={() => onRefund(payment.id)}
-              variant="outlined"
-              color="error"
-              startIcon={<RefundIcon />}
-              size="small"
-            >
-              Rembourser
-            </Button>
-          </Tooltip>
-        )}
-
-        {/* Télécharger PDF */}
-        {onDownloadPdf && (
-          <Tooltip title="Télécharger la facture en PDF">
-            <Button
-              onClick={() => onDownloadPdf(payment.id)}
-              variant="outlined"
-              color="secondary"
-              startIcon={<PdfIcon />}
-              size="small"
-            >
-              PDF
-            </Button>
-          </Tooltip>
-        )}
-
-        {/* Éditer */}
-        <Tooltip title="Éditer le paiement">
+    <DialogActions sx={{ p: 3, gap: 1, flexWrap: "wrap", justifyContent: "flex-end" }}>
+      {/* Marquer comme payé - uniquement pour les paiements en attente */}
+      {payment.status === "pending" && onMarkPaid && (
+        <Tooltip title="Marquer comme payé">
           <Button
-            onClick={onEditPayment}
-            variant="outlined"
-            startIcon={<EditIcon />}
+            onClick={() => onMarkPaid(payment.id)}
+            variant="contained"
+            color="success"
+            startIcon={<CheckCircleIcon />}
             size="small"
           >
-            Éditer
+            Marquer payé
           </Button>
         </Tooltip>
-      </Box>
+      )}
 
-      {/* Spacer pour pousser le bouton fermer à droite */}
-      <Box sx={{ flexGrow: 1 }} />
+      {/* Rembourser - uniquement pour les paiements payés */}
+      {payment.status === "paid" && onRefund && (
+        <Tooltip title="Rembourser le paiement">
+          <Button
+            onClick={() => onRefund(payment.id)}
+            variant="outlined"
+            color="error"
+            startIcon={<RefundIcon />}
+            size="small"
+          >
+            Rembourser
+          </Button>
+        </Tooltip>
+      )}
+
+      {/* Télécharger PDF */}
+      {onDownloadPdf && (
+        <Tooltip title="Télécharger la facture en PDF">
+          <Button
+            onClick={() => onDownloadPdf(payment.id)}
+            variant="outlined"
+            color="secondary"
+            startIcon={<PdfIcon />}
+            size="small"
+          >
+            PDF
+          </Button>
+        </Tooltip>
+      )}
+
+      {/* Éditer */}
+      <Tooltip title="Éditer le paiement">
+        <Button
+          onClick={onEditPayment}
+          variant="outlined"
+          startIcon={<EditIcon />}
+          size="small"
+        >
+          Éditer
+        </Button>
+      </Tooltip>
 
       {/* Fermer */}
       <Button

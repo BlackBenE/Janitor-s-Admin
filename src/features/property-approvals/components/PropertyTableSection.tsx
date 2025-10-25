@@ -1,48 +1,28 @@
 import React from 'react';
+import { Snackbar, Alert } from '@mui/material';
 import {
-  Box,
-  Typography,
-  CircularProgress,
-  Snackbar,
-  Alert,
-  Skeleton,
-  Card,
-  CardContent,
-} from '@mui/material';
-import { Table as DataTable } from '@/shared/components/data-display';
-import { PropertyFiltersSection } from './PropertyFiltersSection';
+  DataTableContainer,
+  DataTableSearch,
+  DataTableTabs,
+  DataTableView,
+  DataTableTab,
+  DataTableFilter,
+} from '@/shared/components';
 import { PropertyFilters, PropertyStatus, Property } from '@/types/propertyApprovals';
-import { LABELS } from '@/core/config/labels';
-
-// Skeleton loading component for property table
-const PropertyTableSkeleton: React.FC = () => (
-  <Box sx={{ p: 2 }}>
-    {Array.from({ length: 6 }).map((_, index) => (
-      <Card key={index} sx={{ mb: 2 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Skeleton variant="rectangular" width={60} height={60} />
-            <Box sx={{ flex: 1 }}>
-              <Skeleton variant="text" width="40%" height={24} />
-              <Skeleton variant="text" width="60%" height={20} />
-              <Skeleton variant="text" width="30%" height={20} />
-            </Box>
-            <Box>
-              <Skeleton variant="rectangular" width={80} height={32} />
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-    ))}
-  </Box>
-);
+import { PROPERTY_TABS } from '@/types/propertyApprovals';
+import { COMMON_LABELS } from '@/shared/constants';
+import { PROPERTY_APPROVALS_LABELS } from '../constants';
+import {
+  Check as CheckIcon,
+  Close as CloseIcon,
+  AccessTime as AccessTimeIcon,
+} from '@mui/icons-material';
 
 interface PropertyTableSectionProps {
   // Data
   properties: Property[];
   filteredProperties: Property[];
-  transformedData: any[]; // Garde any car c'est le format transformé pour DataTable
-  columns: any[]; // Garde any car c'est le format de colonnes MUI
+  columns: any[]; // Format de colonnes MUI DataGrid
 
   // State
   activeTab: number;
@@ -56,12 +36,12 @@ interface PropertyTableSectionProps {
   // Tabs
   onTabChange: (event: React.MouseEvent<HTMLElement>, newValue: number | null) => void;
 
-  // Actions
+  // Selection & Actions
   selectedProperties: string[];
+  onClearSelection: () => void;
   onApproveSelected: () => void;
   onRejectSelected: () => void;
   onSetPendingSelected: () => void;
-  onClearSelection: () => void;
   isApprovePending?: boolean;
   isRejectPending?: boolean;
   isPendingPending?: boolean;
@@ -79,7 +59,6 @@ export const PropertyTableSection: React.FC<PropertyTableSectionProps> = ({
   // Data
   properties,
   filteredProperties,
-  transformedData,
   columns,
 
   // State
@@ -96,10 +75,10 @@ export const PropertyTableSection: React.FC<PropertyTableSectionProps> = ({
 
   // Actions
   selectedProperties,
+  onClearSelection,
   onApproveSelected,
   onRejectSelected,
   onSetPendingSelected,
-  onClearSelection,
   isApprovePending = false,
   isRejectPending = false,
   isPendingPending = false,
@@ -108,81 +87,117 @@ export const PropertyTableSection: React.FC<PropertyTableSectionProps> = ({
   notification,
   onHideNotification,
 }) => {
+  // Configuration des onglets
+  const tabs: DataTableTab[] = PROPERTY_TABS.map((tab) => {
+    const statusMap: Record<PropertyStatus, string | null> = {
+      [PropertyStatus.ALL]: null,
+      [PropertyStatus.PENDING]: 'pending',
+      [PropertyStatus.APPROVED]: 'approved',
+      [PropertyStatus.REJECTED]: 'rejected',
+    };
+
+    const validationStatus = statusMap[tab.status];
+
+    return {
+      key: tab.status.toString(),
+      label: tab.label,
+      icon: React.createElement(tab.icon),
+      filterFn:
+        validationStatus === null
+          ? () => true
+          : (property: Property) => property.validation_status === validationStatus,
+      badge: (data: Property[]) => {
+        if (validationStatus === null) return data.length;
+        return data.filter((p) => p.validation_status === validationStatus).length;
+      },
+      badgeColor:
+        tab.status === PropertyStatus.APPROVED
+          ? 'success'
+          : tab.status === PropertyStatus.REJECTED
+            ? 'error'
+            : tab.status === PropertyStatus.PENDING
+              ? 'warning'
+              : 'primary',
+    };
+  });
+
+  // Configuration des bulk actions
+  const bulkActions = [
+    {
+      key: 'approve',
+      label: PROPERTY_APPROVALS_LABELS.bulk.actions.approveAll,
+      icon: <CheckIcon />,
+      onClick: () => onApproveSelected(),
+      color: 'success' as const,
+      variant: 'contained' as const,
+      disabled: isApprovePending,
+    },
+    {
+      key: 'setPending',
+      label: PROPERTY_APPROVALS_LABELS.bulk.actions.setPending,
+      icon: <AccessTimeIcon />,
+      onClick: () => onSetPendingSelected(),
+      color: 'warning' as const,
+      variant: 'contained' as const,
+      disabled: isPendingPending,
+    },
+    {
+      key: 'reject',
+      label: PROPERTY_APPROVALS_LABELS.bulk.actions.rejectAll,
+      icon: <CloseIcon />,
+      onClick: () => onRejectSelected(),
+      color: 'error' as const,
+      variant: 'contained' as const,
+      disabled: isRejectPending,
+    },
+  ];
+
   return (
-    <Box
-      sx={{
-        mt: 2,
-        border: '1px solid #ddd',
-        borderRadius: 4,
-        p: 2,
-      }}
-    >
-      {/* Section Title */}
-      <h3>{LABELS.propertyApprovals.table.title}</h3>
-      <p>{LABELS.propertyApprovals.table.subtitle}</p>
+    <>
+      <DataTableContainer
+        title={PROPERTY_APPROVALS_LABELS.table.title}
+        description={PROPERTY_APPROVALS_LABELS.table.subtitle}
+      >
+        {/* 🔍 Barre de recherche + filtres avancés */}
+        <DataTableSearch
+          searchValue={filters.search || ''}
+          onSearchChange={(value) => onUpdateFilter('search', value)}
+          searchPlaceholder={PROPERTY_APPROVALS_LABELS.search.placeholder}
+          onFilterChange={(key, value) => onUpdateFilter(key as keyof PropertyFilters, value)}
+          showAdvancedFilters={true}
+        />
 
-      {/* Filtres, onglets et actions combinés */}
-      <PropertyFiltersSection
-        // Filters
-        filters={filters}
-        onUpdateFilter={onUpdateFilter}
-        simplified={true}
-        // Tabs
-        activeTab={activeTab}
-        properties={properties}
-        onTabChange={onTabChange}
-        // Actions
-        selectedProperties={selectedProperties}
-        onApproveSelected={onApproveSelected}
-        onRejectSelected={onRejectSelected}
-        onSetPendingSelected={onSetPendingSelected}
-        onClearSelection={onClearSelection}
-        isApprovePending={isApprovePending}
-        isRejectPending={isRejectPending}
-        isPendingPending={isPendingPending}
-      />
+        {/* 📑 Onglets de statut */}
+        <DataTableTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={onTabChange}
+          data={properties}
+        />
 
-      {/* Table Content */}
-      {isLoading ? (
-        <PropertyTableSkeleton />
-      ) : error ? (
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          <Typography color="error">{LABELS.propertyApprovals.messages.loadError}</Typography>
-        </Box>
-      ) : (
-        <DataTable columns={columns} data={transformedData} />
-      )}
+        {/* 📊 Tableau avec bulk actions */}
+        <DataTableView
+          columns={columns}
+          data={filteredProperties}
+          loading={isLoading}
+          emptyStateMessage={
+            filters.search || Object.values(filters).some((f) => f)
+              ? PROPERTY_APPROVALS_LABELS.emptyState.noMatch
+              : PROPERTY_APPROVALS_LABELS.emptyState.noProperties
+          }
+          height={500}
+          selectionModel={selectedProperties}
+          onClearSelection={onClearSelection}
+          bulkActions={bulkActions}
+        />
+      </DataTableContainer>
 
-      {/* Empty state */}
-      {transformedData.length === 0 && !isLoading && !error && (
-        <Box
-          sx={{
-            textAlign: 'center',
-            py: 4,
-            color: 'text.secondary',
-            backgroundColor: 'grey.50',
-            borderRadius: 2,
-            border: '1px dashed',
-            borderColor: 'grey.300',
-          }}
-        >
-          <Typography variant="h6" color="text.secondary">
-            {LABELS.propertyApprovals.emptyState.title}
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            {filters.search || Object.values(filters).some((f) => f)
-              ? LABELS.propertyApprovals.emptyState.noMatch
-              : LABELS.propertyApprovals.emptyState.noProperties}
-          </Typography>
-        </Box>
-      )}
-
-      {/* Notification Snackbar */}
+      {/* 🔔 Notification Snackbar */}
       <Snackbar open={notification.open} autoHideDuration={6000} onClose={onHideNotification}>
         <Alert onClose={onHideNotification} severity={notification.severity} sx={{ width: '100%' }}>
           {notification.message}
         </Alert>
       </Snackbar>
-    </Box>
+    </>
   );
 };

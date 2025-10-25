@@ -14,19 +14,19 @@ import Tooltip from '@mui/material/Tooltip';
 import Badge from '@mui/material/Badge';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
-import { LABELS } from '@/core/config/labels';
+import { COMMON_LABELS } from '@/shared/constants';
 
 function MyCustomToolbar() {
   return (
     <React.Fragment>
       <Toolbar>
-        <Tooltip title={LABELS.table.toolbar.columns}>
+        <Tooltip title={COMMON_LABELS.table.toolbar.columns}>
           <ColumnsPanelTrigger render={<ToolbarButton />}>
             <ViewColumnIcon fontSize="small" />
           </ColumnsPanelTrigger>
         </Tooltip>
 
-        <Tooltip title={LABELS.table.toolbar.filters}>
+        <Tooltip title={COMMON_LABELS.table.toolbar.filters}>
           <FilterPanelTrigger
             render={(triggerProps, state) => (
               <ToolbarButton {...triggerProps} color="default">
@@ -63,7 +63,7 @@ function DataTable<T extends Record<string, unknown>>({
       ? [
           {
             field: 'actions',
-            headerName: LABELS.table.actions,
+            headerName: COMMON_LABELS.table.actions,
             sortable: false,
             filterable: false,
             renderCell: (params: GridRenderCellParams<T>) => renderActions(params.row),
@@ -75,12 +75,15 @@ function DataTable<T extends Record<string, unknown>>({
   ];
 
   // Add id to each row (required by DataGrid)
-  const gridRows = data.map((row, idx) => ({ id: idx, ...row }));
+  const gridRows = data.map((row, idx) => ({
+    id: (row as any).id || idx, // Utiliser l'ID de la row si disponible, sinon l'index
+    ...row,
+  }));
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', height: '100%' }}>
       <Box id="filter-panel" />
-      <Box sx={{ height: 400, width: '100%' }}>
+      <Box sx={{ height: '100%', width: '100%', minHeight: 400 }}>
         <DataGrid
           rows={gridRows}
           columns={gridColumns}

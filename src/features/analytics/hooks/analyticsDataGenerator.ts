@@ -1,23 +1,32 @@
-import { useCallback } from "react";
-import { AnalyticsData, DateRange } from "../../../types/analytics";
-import { useAnalyticsQueries } from "./analyticsQueries";
-import { useAnalyticsCalculations } from "./analyticsCalculations";
-import { useAnalyticsCharts } from "./analyticsCharts";
+import { useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { AnalyticsData, DateRange } from '../../../types/analytics';
+import { useAnalyticsQueries } from './analyticsQueries';
+import { useAnalyticsCalculations } from './analyticsCalculations';
+import { useAnalyticsCharts } from './analyticsCharts';
+import {
+  PROFILES_QUERY_KEYS,
+  BOOKINGS_QUERY_KEYS,
+  PAYMENTS_QUERY_KEYS,
+  SERVICES_QUERY_KEYS,
+  SERVICE_REQUESTS_QUERY_KEYS,
+} from '@/shared/hooks/data';
 
 /**
  * Hook principal pour récupérer et générer les données analytics depuis Supabase
+ *
+ * ✅ REFACTORÉ : Utilise les hooks partagés pour bénéficier du cache global
  */
 export const useAnalyticsData = (dateRange: DateRange) => {
-  // Récupérer les données depuis Supabase
+  const queryClient = useQueryClient();
+
+  // Récupérer les données depuis les hooks partagés (cache global)
   const { profiles, bookings, payments, services, serviceRequests, isLoading } =
     useAnalyticsQueries(dateRange);
 
   // Hooks pour les calculs
-  const {
-    calculateUserMetrics,
-    calculateRevenueMetrics,
-    calculateActivityMetrics,
-  } = useAnalyticsCalculations();
+  const { calculateUserMetrics, calculateRevenueMetrics, calculateActivityMetrics } =
+    useAnalyticsCalculations();
   const {
     generateUserGrowthData,
     generateBookingTrends,
@@ -27,13 +36,7 @@ export const useAnalyticsData = (dateRange: DateRange) => {
 
   // Générer les données analytiques
   const generateAnalyticsData = useCallback((): AnalyticsData => {
-    if (
-      !profiles?.length ||
-      !bookings ||
-      !payments ||
-      !services ||
-      !serviceRequests
-    ) {
+    if (!profiles?.length || !bookings || !payments || !services || !serviceRequests) {
       return {
         userMetrics: {
           totalUsers: 0,
@@ -114,7 +117,12 @@ export const useAnalyticsData = (dateRange: DateRange) => {
     data: generateAnalyticsData(),
     isLoading,
     refetch: () => {
-      // Invalider toutes les queries analytics si nécessaire
+      // Invalider toutes les queries des hooks partagés
+      queryClient.invalidateQueries({ queryKey: PROFILES_QUERY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: BOOKINGS_QUERY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: PAYMENTS_QUERY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: SERVICES_QUERY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: SERVICE_REQUESTS_QUERY_KEYS.all });
     },
   };
 };

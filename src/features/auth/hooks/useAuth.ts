@@ -1,36 +1,24 @@
 import { useState } from 'react';
-import {
-  AuthState,
-  AuthView,
-  AuthMessage,
-  SignInFormData,
-  SignUpFormData,
-  ForgotPasswordFormData,
-} from '../../../types/auth';
+import { AuthMessage, SignInFormData } from '../../../types/auth';
 import { useAuth as useAuthProvider } from '@/core/providers/auth.provider';
 import { useTwoFactorLogin } from './useTwoFactorLogin';
 
+interface SimpleAuthState {
+  isSubmitting: boolean;
+  message: AuthMessage | null;
+}
+
 /**
- * Hook principal pour la gestion de l'état de la page Auth
+ * Hook pour la gestion de l'authentification (connexion uniquement)
  */
 export const useAuth = () => {
   const authProvider = useAuthProvider();
   const twoFactorLogin = useTwoFactorLogin();
 
-  const [state, setState] = useState<AuthState>({
-    currentView: 'signin',
+  const [state, setState] = useState<SimpleAuthState>({
     isSubmitting: false,
     message: null,
   });
-
-  // Changer de vue (signin, signup, forgot-password)
-  const setCurrentView = (view: AuthView) => {
-    setState((prev) => ({
-      ...prev,
-      currentView: view,
-      message: null, // Clear message when switching views
-    }));
-  };
 
   // Définir un message de notification
   const setMessage = (message: AuthMessage | null) => {
@@ -76,89 +64,15 @@ export const useAuth = () => {
     }
   };
 
-  // Gérer l'inscription
-  const handleSignUp = async (data: SignUpFormData) => {
-    try {
-      setMessage(null);
-      setIsSubmitting(true);
-
-      if (data.password !== data.confirmPassword) {
-        setMessage({ type: 'error', text: "Passwords don't match" });
-        return false;
-      }
-
-      const result = await authProvider.signUp(
-        data.email,
-        data.password,
-        data.fullName,
-        data.phone
-      );
-
-      if (result.error) {
-        setMessage({
-          type: 'error',
-          text: result.error.message,
-        });
-        return false;
-      } else {
-        setMessage({
-          type: 'success',
-          text: 'Admin account created successfully. Please sign in.',
-        });
-        setCurrentView('signin');
-        return true;
-      }
-    } catch (error: unknown) {
-      setMessage({
-        type: 'error',
-        text: (error as Error).message || 'Sign up failed',
-      });
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Gérer la réinitialisation de mot de passe
-  const handleForgotPassword = async (data: ForgotPasswordFormData) => {
-    try {
-      setMessage(null);
-      setIsSubmitting(true);
-
-      const result = await authProvider.resetPassword(data.email);
-
-      if (result.error) {
-        setMessage({
-          type: 'error',
-          text: result.error.message,
-        });
-        return false;
-      } else {
-        setMessage({
-          type: 'success',
-          text: 'Password reset email sent. Check your inbox.',
-        });
-        return true;
-      }
-    } catch (error: unknown) {
-      setMessage({
-        type: 'error',
-        text: (error as Error).message || 'Password reset failed',
-      });
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   // Effacer le message
   const clearMessage = () => {
-    setMessage(null);
+    setState((prev) => ({ ...prev, message: null }));
   };
 
   return {
-    // État
-    ...state,
+    // État local
+    isSubmitting: state.isSubmitting,
+    message: state.message,
 
     // Provider data
     session: authProvider.session,
@@ -170,12 +84,9 @@ export const useAuth = () => {
     twoFactorLogin,
 
     // Actions
-    setCurrentView,
     setMessage,
     clearMessage,
     handleSignIn,
-    handleSignUp,
-    handleForgotPassword,
   };
 };
 

@@ -8,13 +8,7 @@ const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY as str
 
 // Debug environment variables in development
 if (import.meta.env.DEV) {
-  console.log('Supabase Config:', {
-    url: supabaseUrl ? '✅ Set' : '❌ Missing',
-    key: supabaseAnonKey ? '✅ Set' : '❌ Missing',
-    serviceKey: supabaseServiceKey ? '⚠️ Present (IGNORED)' : '✅ Not set',
-    urlValue: supabaseUrl,
-    keyPreview: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'undefined',
-  });
+
 }
 
 if (!supabaseUrl || !supabaseAnonKey) {

@@ -17,7 +17,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Security as SecurityIcon, CheckCircle as CheckCircleIcon } from '@mui/icons-material';
-import { LABELS } from '../../../constants';
+import { AUTH_LABELS } from '@/features/auth/constants';
 import { useTwoFactor } from '../hooks/useTwoFactor';
 
 interface TwoFactorModalProps {
@@ -38,9 +38,9 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
   const twoFactor = useTwoFactor();
 
   const steps = [
-    LABELS.auth.twoFactor.steps.setup,
-    LABELS.auth.twoFactor.steps.verify,
-    LABELS.auth.twoFactor.steps.complete,
+    AUTH_LABELS.twoFactor.steps.setup,
+    AUTH_LABELS.twoFactor.steps.verify,
+    AUTH_LABELS.twoFactor.steps.complete,
   ];
 
   // Démarrer l'enrollment quand on passe à l'étape 1
@@ -224,7 +224,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
           <Typography variant="h6">
             {isEnabled
               ? "Désactiver l'authentification à deux facteurs"
-              : LABELS.auth.twoFactor.title}
+              : AUTH_LABELS.twoFactor.title}
           </Typography>
         </Box>
       </DialogTitle>
@@ -247,7 +247,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
 
       <DialogActions>
         <Button onClick={handleClose} variant="outlined">
-          {LABELS.auth.twoFactor.cancel}
+          {AUTH_LABELS.twoFactor.cancel}
         </Button>
 
         {isEnabled ? (
@@ -263,7 +263,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
           <>
             {activeStep > 0 && (
               <Button onClick={handleBack} variant="outlined">
-                {LABELS.auth.twoFactor.back}
+                {AUTH_LABELS.twoFactor.back}
               </Button>
             )}
             <Button
@@ -276,8 +276,8 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
               }
             >
               {activeStep === steps.length - 1
-                ? LABELS.auth.twoFactor.complete
-                : LABELS.auth.twoFactor.next}
+                ? AUTH_LABELS.twoFactor.complete
+                : AUTH_LABELS.twoFactor.next}
             </Button>
           </>
         )}

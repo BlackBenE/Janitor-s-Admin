@@ -279,7 +279,7 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
         )}
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ p: 3, justifyContent: 'flex-end' }}>
         <Button onClick={handleClose} disabled={isRestoring}>
           Annuler
         </Button>

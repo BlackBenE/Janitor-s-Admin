@@ -1,5 +1,5 @@
 // Types pour la page Profile
-import { FilterState } from "../hooks/shared";
+import { FilterState } from '@/shared/hooks';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ProfileFilters extends FilterState {

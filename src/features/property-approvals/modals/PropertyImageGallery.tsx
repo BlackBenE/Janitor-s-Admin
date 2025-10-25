@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -8,25 +8,24 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Image as ImageIcon,
   ZoomIn as ZoomInIcon,
   ExpandMore as ExpandMoreIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
-import { Property } from "@/types";
-import { ImageViewerModal } from "../components/ImageViewerModal";
-import { hasExpiredTokens, refreshImageUrls } from "../utils/imageUtils";
-import { LABELS } from "@/core/config/labels";
+import { Property } from '@/types';
+import { ImageViewerModal } from '../components/ImageViewerModal';
+import { hasExpiredTokens, refreshImageUrls } from '../utils/imageUtils';
+import { COMMON_LABELS } from "@/shared/constants";
+import { PROPERTY_APPROVALS_LABELS } from "../constants";
 
 interface PropertyImageGalleryProps {
   property: Property;
 }
 
-export const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
-  property,
-}) => {
+export const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({ property }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [refreshedImages, setRefreshedImages] = useState<string[]>([]);
@@ -45,7 +44,7 @@ export const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
       const newUrls = await refreshImageUrls(originalImages);
       setRefreshedImages(newUrls);
     } catch (error) {
-      console.error("Error refreshing images:", error);
+      console.error('Error refreshing images:', error);
       // Silently fail - no UI feedback
     }
   };
@@ -72,10 +71,10 @@ export const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
 
   if (!images || images.length === 0) {
     return (
-      <Card sx={{ p: 3, textAlign: "center" }}>
-        <ImageIcon sx={{ fontSize: 48, color: "text.secondary", mb: 2 }} />
+      <Card sx={{ p: 3, textAlign: 'center' }}>
+        <ImageIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
         <Typography variant="body1" color="text.secondary">
-          {LABELS.propertyApprovals.messages.noImagesAvailable}
+          {PROPERTY_APPROVALS_LABELS.messages.noImagesAvailable}
         </Typography>
       </Card>
     );
@@ -86,18 +85,18 @@ export const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h6">
-            {LABELS.propertyApprovals.table.headers.images} ({images.length})
+            {PROPERTY_APPROVALS_LABELS.table.headers.images} ({images.length})
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Box
             sx={{
-              display: "grid",
+              display: 'grid',
               gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(2, 1fr)",
-                md: "repeat(3, 1fr)",
-                lg: "repeat(4, 1fr)",
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+                lg: 'repeat(4, 1fr)',
               },
               gap: 2,
             }}
@@ -106,11 +105,11 @@ export const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
               <Card
                 key={`${imageUrl}-${index}`}
                 sx={{
-                  position: "relative",
-                  cursor: "pointer",
-                  transition: "transform 0.2s",
-                  "&:hover": {
-                    transform: "scale(1.05)",
+                  position: 'relative',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
                   },
                 }}
                 onClick={() => openImageViewer(index)}
@@ -121,23 +120,23 @@ export const PropertyImageGallery: React.FC<PropertyImageGalleryProps> = ({
                   alt={`Image ${index + 1}`}
                   sx={{
                     height: 200,
-                    objectFit: "cover",
+                    objectFit: 'cover',
                   }}
                   onError={(e) => {
                     // Fallback en cas d'erreur de chargement
                     const target = e.target as HTMLImageElement;
-                    target.style.display = "none";
+                    target.style.display = 'none';
                   }}
                 />
                 <IconButton
                   sx={{
-                    position: "absolute",
+                    position: 'absolute',
                     top: 8,
                     right: 8,
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: "rgba(0, 0, 0, 0.7)",
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
                     },
                   }}
                   size="small"

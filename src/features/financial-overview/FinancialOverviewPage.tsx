@@ -1,14 +1,16 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
-import { AdminLayout } from '@/shared/components/layout';
+import { Box, Typography, IconButton, Tooltip } from '@mui/material';
+import { AdminLayout, PageHeader } from '@/shared/components/layout';
 import { LoadingIndicator } from '@/shared/components/feedback';
+import { ExportMenu } from '@/shared/components/ui';
+import { Refresh as RefreshIcon } from '@mui/icons-material';
 import { useFinancialOverview } from './hooks';
+import { FINANCIAL_LABELS } from './constants';
 import {
-  FinancialHeader,
   FinancialStatsCards,
   FinancialChartsSection,
-  FinancialTransactionsTable,
-  FinancialOwnersReport,
+  FinancialTransactionsTableSection,
+  FinancialOwnersReportSection,
 } from './components';
 
 /**
@@ -52,7 +54,24 @@ export const FinancialOverviewPage: React.FC = () => {
   return (
     <AdminLayout>
       {/* En-tête avec titre et boutons d'actions */}
-      <FinancialHeader onRefresh={refetch} onExport={exportData} />
+      <PageHeader
+        title={FINANCIAL_LABELS.title}
+        description={FINANCIAL_LABELS.subtitle}
+        actions={
+          <>
+            <Tooltip title={FINANCIAL_LABELS.actions.refresh}>
+              <IconButton size="large" onClick={refetch}>
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+            <ExportMenu
+              onExport={exportData}
+              formats={['csv', 'pdf']}
+              tooltipTitle={FINANCIAL_LABELS.actions.export}
+            />
+          </>
+        }
+      />
 
       {/* Cartes d'indicateurs clés */}
       <FinancialStatsCards overview={overview} isLoading={isLoading} />
@@ -65,10 +84,10 @@ export const FinancialOverviewPage: React.FC = () => {
       />
 
       {/* Tableau des transactions financières */}
-      <FinancialTransactionsTable transactions={transactions} loading={isLoading} />
+      <FinancialTransactionsTableSection transactions={transactions} loading={isLoading} />
 
       {/* Rapport consolidé par propriétaire */}
-      <FinancialOwnersReport ownersReport={ownersReport} loading={isLoading} />
+      <FinancialOwnersReportSection ownersReport={ownersReport} loading={isLoading} />
     </AdminLayout>
   );
 };

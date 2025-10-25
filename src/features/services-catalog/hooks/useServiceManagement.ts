@@ -1,25 +1,21 @@
-import { useState } from "react";
-import {
-  ServiceWithDetails,
-  ServiceFilters,
-  ServiceNotificationState,
-} from "@/types/services";
-import { useExport } from "../../../hooks/shared/useExport";
+import { useState } from 'react';
+import { ServiceWithDetails, ServiceFilters, ServiceNotificationState } from '@/types/services';
+import { useExport } from '@/shared/hooks';
 
 const initialFilters: ServiceFilters = {
-  search: "",
-  status: "",
-  category: "",
-  priceFrom: "",
-  priceTo: "",
-  provider: "",
+  search: '',
+  status: '',
+  category: '',
+  priceFrom: '',
+  priceTo: '',
+  provider: '',
   isVipOnly: false,
 };
 
 const initialNotification: ServiceNotificationState = {
   open: false,
-  message: "",
-  severity: "success",
+  message: '',
+  severity: 'success',
 };
 
 /**
@@ -30,15 +26,13 @@ export const useServiceManagement = () => {
   const { exportToCSV, commonColumns, formatters } = useExport();
 
   // États principaux
-  const [selectedService, setSelectedService] =
-    useState<ServiceWithDetails | null>(null);
+  const [selectedService, setSelectedService] = useState<ServiceWithDetails | null>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [editForm, setEditForm] = useState<Partial<ServiceWithDetails>>({});
 
   // États de l'interface
   const [filters, setFilters] = useState<ServiceFilters>(initialFilters);
-  const [notification, setNotification] =
-    useState<ServiceNotificationState>(initialNotification);
+  const [notification, setNotification] = useState<ServiceNotificationState>(initialNotification);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -49,9 +43,7 @@ export const useServiceManagement = () => {
 
   const toggleServiceSelection = (serviceId: string) => {
     setSelectedServices((prev) =>
-      prev.includes(serviceId)
-        ? prev.filter((id) => id !== serviceId)
-        : [...prev, serviceId]
+      prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId]
     );
   };
 
@@ -90,34 +82,23 @@ export const useServiceManagement = () => {
       const matchesSearch =
         !filters.search ||
         service.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        service.description
-          ?.toLowerCase()
-          .includes(filters.search.toLowerCase()) ||
-        service.provider?.email
-          ?.toLowerCase()
-          .includes(filters.search.toLowerCase()) ||
-        service.provider?.first_name
-          ?.toLowerCase()
-          .includes(filters.search.toLowerCase()) ||
-        service.provider?.last_name
-          ?.toLowerCase()
-          .includes(filters.search.toLowerCase());
+        service.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        service.provider?.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        service.provider?.first_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        service.provider?.last_name?.toLowerCase().includes(filters.search.toLowerCase());
 
       const matchesStatus =
         !filters.status ||
-        (filters.status === "active" && service.is_active) ||
-        (filters.status === "inactive" && !service.is_active);
+        (filters.status === 'active' && service.is_active) ||
+        (filters.status === 'inactive' && !service.is_active);
 
-      const matchesCategory =
-        !filters.category || service.category === filters.category;
+      const matchesCategory = !filters.category || service.category === filters.category;
 
       const matchesPrice =
-        (!filters.priceFrom ||
-          service.base_price >= parseFloat(filters.priceFrom)) &&
+        (!filters.priceFrom || service.base_price >= parseFloat(filters.priceFrom)) &&
         (!filters.priceTo || service.base_price <= parseFloat(filters.priceTo));
 
-      const matchesProvider =
-        !filters.provider || service.provider_id === filters.provider;
+      const matchesProvider = !filters.provider || service.provider_id === filters.provider;
 
       const matchesVipFilter = !filters.isVipOnly || service.is_vip_only;
 
@@ -174,7 +155,7 @@ export const useServiceManagement = () => {
 
   const showNotification = (
     message: string,
-    severity: "success" | "error" | "warning" | "info" = "success"
+    severity: 'success' | 'error' | 'warning' | 'info' = 'success'
   ) => {
     setNotification({ open: true, message, severity });
   };
@@ -208,7 +189,7 @@ export const useServiceManagement = () => {
     );
 
     if (selectedServiceDetails.length === 0) {
-      showNotification("Aucun service sélectionné à exporter", "warning");
+      showNotification('Aucun service sélectionné à exporter', 'warning');
       return;
     }
 
@@ -216,39 +197,32 @@ export const useServiceManagement = () => {
     const transformedData = selectedServiceDetails.map((service) => ({
       ...service,
       provider_name: service.provider
-        ? `${service.provider.first_name || ""} ${
-            service.provider.last_name || ""
-          }`.trim()
-        : "N/A",
-      provider_email: service.provider?.email || "N/A",
+        ? `${service.provider.first_name || ''} ${service.provider.last_name || ''}`.trim()
+        : 'N/A',
+      provider_email: service.provider?.email || 'N/A',
     }));
 
     const columns = [
-      { key: "id", label: "ID" },
-      { key: "name", label: "Nom" },
-      { key: "category", label: "Catégorie" },
-      commonColumns.currency("base_price", "Prix"),
-      { key: "is_active", label: "Actif" },
-      { key: "provider_name", label: "Prestataire" },
-      { key: "provider_email", label: "Email prestataire" },
-      commonColumns.date("created_at", "Date de création"),
+      { key: 'id', label: 'ID' },
+      { key: 'name', label: 'Nom' },
+      { key: 'category', label: 'Catégorie' },
+      commonColumns.currency('base_price', 'Prix'),
+      { key: 'is_active', label: 'Actif' },
+      { key: 'provider_name', label: 'Prestataire' },
+      { key: 'provider_email', label: 'Email prestataire' },
+      commonColumns.date('created_at', 'Date de création'),
     ];
 
     exportToCSV(transformedData, columns, {
-      filename: `services_selection_${
-        new Date().toISOString().split("T")[0]
-      }.csv`,
+      filename: `services_selection_${new Date().toISOString().split('T')[0]}.csv`,
     });
 
-    showNotification(
-      `${selectedServiceDetails.length} services exportés`,
-      "success"
-    );
+    showNotification(`${selectedServiceDetails.length} services exportés`, 'success');
   };
 
   const exportAllToCSV = (allServices: ServiceWithDetails[]) => {
     if (!allServices || allServices.length === 0) {
-      showNotification("Aucun service à exporter", "warning");
+      showNotification('Aucun service à exporter', 'warning');
       return;
     }
 
@@ -256,43 +230,36 @@ export const useServiceManagement = () => {
     const transformedData = allServices.map((service) => ({
       ...service,
       provider_name: service.provider
-        ? `${service.provider.first_name || ""} ${
-            service.provider.last_name || ""
-          }`.trim()
-        : "N/A",
-      provider_email: service.provider?.email || "N/A",
+        ? `${service.provider.first_name || ''} ${service.provider.last_name || ''}`.trim()
+        : 'N/A',
+      provider_email: service.provider?.email || 'N/A',
     }));
 
     const columns = [
-      { key: "id", label: "ID" },
-      { key: "name", label: "Nom" },
-      { key: "category", label: "Catégorie" },
-      commonColumns.currency("base_price", "Prix"),
-      { key: "is_active", label: "Actif" },
-      { key: "provider_name", label: "Prestataire" },
-      { key: "provider_email", label: "Email prestataire" },
-      commonColumns.date("created_at", "Date de création"),
+      { key: 'id', label: 'ID' },
+      { key: 'name', label: 'Nom' },
+      { key: 'category', label: 'Catégorie' },
+      commonColumns.currency('base_price', 'Prix'),
+      { key: 'is_active', label: 'Actif' },
+      { key: 'provider_name', label: 'Prestataire' },
+      { key: 'provider_email', label: 'Email prestataire' },
+      commonColumns.date('created_at', 'Date de création'),
     ];
 
     exportToCSV(transformedData, columns, {
-      filename: `tous_services_${new Date().toISOString().split("T")[0]}.csv`,
+      filename: `tous_services_${new Date().toISOString().split('T')[0]}.csv`,
     });
 
-    showNotification(`${allServices.length} services exportés`, "success");
+    showNotification(`${allServices.length} services exportés`, 'success');
   };
 
   const approveSelectedServices = () => {
-    console.log("Approve selected services:", selectedServices);
-    showNotification(
-      `${selectedServices.length} services approuvés`,
-      "success"
-    );
+    showNotification(`${selectedServices.length} services approuvés`, 'success');
     clearSelection();
   };
 
   const rejectSelectedServices = () => {
-    console.log("Reject selected services:", selectedServices);
-    showNotification(`${selectedServices.length} services rejetés`, "success");
+    showNotification(`${selectedServices.length} services rejetés`, 'success');
     clearSelection();
   };
 
@@ -302,14 +269,11 @@ export const useServiceManagement = () => {
   ) => {
     try {
       await bulkActivateServices(selectedServices);
-      showNotification(
-        `${selectedServices.length} services activés avec succès`,
-        "success"
-      );
+      showNotification(`${selectedServices.length} services activés avec succès`, 'success');
       clearSelection();
     } catch (error) {
-      console.error("Error activating services:", error);
-      showNotification("Erreur lors de l'activation des services", "error");
+      console.error('Error activating services:', error);
+      showNotification("Erreur lors de l'activation des services", 'error');
     }
   };
 
@@ -318,14 +282,11 @@ export const useServiceManagement = () => {
   ) => {
     try {
       await bulkDeactivateServices(selectedServices);
-      showNotification(
-        `${selectedServices.length} services désactivés avec succès`,
-        "success"
-      );
+      showNotification(`${selectedServices.length} services désactivés avec succès`, 'success');
       clearSelection();
     } catch (error) {
-      console.error("Error deactivating services:", error);
-      showNotification("Erreur lors de la désactivation des services", "error");
+      console.error('Error deactivating services:', error);
+      showNotification('Erreur lors de la désactivation des services', 'error');
     }
   };
 
@@ -334,14 +295,11 @@ export const useServiceManagement = () => {
   ) => {
     try {
       await deleteManyServices(selectedServices);
-      showNotification(
-        `${selectedServices.length} services supprimés avec succès`,
-        "success"
-      );
+      showNotification(`${selectedServices.length} services supprimés avec succès`, 'success');
       clearSelection();
     } catch (error) {
-      console.error("Error deleting services:", error);
-      showNotification("Erreur lors de la suppression des services", "error");
+      console.error('Error deleting services:', error);
+      showNotification('Erreur lors de la suppression des services', 'error');
     }
   };
 

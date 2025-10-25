@@ -26,7 +26,6 @@ export const useServices = (options?: {
   return useQuery({
     queryKey: SERVICE_QUERY_KEYS.list(options?.filters || {}),
     queryFn: async (): Promise<ServiceWithDetails[]> => {
-      console.log("🔍 Fetching services list...");
 
       let query = supabase.from("services").select(`
           *,
@@ -86,7 +85,6 @@ export const useServices = (options?: {
         })
       );
 
-      console.log(`✅ Services loaded: ${services.length} items`);
       return services;
     },
     enabled: options?.enabled !== false,
@@ -103,7 +101,6 @@ export const useService = (serviceId?: string) => {
     queryFn: async (): Promise<ServiceWithDetails | null> => {
       if (!serviceId) return null;
 
-      console.log("🔍 Fetching service details:", serviceId);
 
       const { data, error } = await supabase
         .from("services")
@@ -141,7 +138,6 @@ export const useService = (serviceId?: string) => {
         active_providers: 1,
       };
 
-      console.log("✅ Service loaded:", service.name);
       return service;
     },
     enabled: !!serviceId,
@@ -155,7 +151,6 @@ export const useServiceStats = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: SERVICE_QUERY_KEYS.stats(),
     queryFn: async (): Promise<ServiceStats> => {
-      console.log("📊 Fetching service statistics...");
 
       // Récupérer tous les services pour calculer les stats
       const { data: services, error } = await supabase
@@ -209,7 +204,6 @@ export const useServiceStats = (options?: { enabled?: boolean }) => {
         totalRevenue,
       };
 
-      console.log("📊 Service stats calculated:", stats);
       return stats;
     },
     enabled: options?.enabled !== false,

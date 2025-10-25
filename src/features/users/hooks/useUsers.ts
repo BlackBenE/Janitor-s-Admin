@@ -298,9 +298,11 @@ export const useUsers = (options: UseUsersOptions = {}) => {
 
   // Calculer les utilisateurs actuellement affichés pour les activités
   const currentDisplayUsers = useMemo(() => {
-    // Par défaut, on prend les utilisateurs actifs
+    // Retourner les utilisateurs selon l'onglet actif
+    if (isDeletedTab) return deletedUsers;
+    if (isAdminTab) return adminUsers;
     return activeUsers;
-  }, [activeUsers]);
+  }, [activeUsers, deletedUsers, adminUsers, isDeletedTab, isAdminTab]);
 
   const userIds = useMemo(
     () => currentDisplayUsers.map((user: UserProfile) => user.id),
@@ -423,6 +425,17 @@ export const useUsers = (options: UseUsersOptions = {}) => {
 
   // 🔴 ACTIONS CRITIQUES avec confirmations renforcées
   const handleBulkDelete = useCallback(async () => {
+    // 🔒 SÉCURITÉ: Vérifier qu'aucun admin n'est dans la sélection
+    const selectedUsersList = currentDisplayUsers.filter((u: UserProfile) =>
+      selectedUsers.includes(u.id)
+    );
+    
+    const hasAdmins = selectedUsersList.some(u => u.role === 'admin');
+    if (hasAdmins) {
+      alert("🔒 Sécurité: La suppression de comptes administrateurs est interdite via cette interface.");
+      return;
+    }
+
     const confirmed = window.confirm(
       `⚠️ ATTENTION: Supprimer définitivement ${selectedUsers.length} utilisateur(s) ?\n\nCette action est irréversible et supprimera toutes les données associées.`
     );
@@ -440,6 +453,7 @@ export const useUsers = (options: UseUsersOptions = {}) => {
       showNotification("Erreur lors de la suppression en masse", "error");
     }
   }, [
+    currentDisplayUsers,
     selectedUsers,
     userActions.deleteUser,
     showNotification,
@@ -538,8 +552,9 @@ export const useUsers = (options: UseUsersOptions = {}) => {
 
   // 🔴 ACTION CRITIQUE - Changement de rôle avec sélection
   const handleBulkChangeRole = useCallback(async () => {
+    // 🔒 SÉCURITÉ: Pas de promotion vers admin via l'interface
     const roleOptions =
-      "Options de rôles:\n1 - user (Utilisateur)\n2 - provider (Prestataire)\n3 - admin (Administrateur)";
+      "Options de rôles:\n1 - traveler (Voyageur)\n2 - property_owner (Propriétaire)\n3 - service_provider (Prestataire)";
     const roleChoice = window.prompt(
       `👤 Changer le rôle de ${selectedUsers.length} utilisateur(s)\n\n${roleOptions}\n\nEntrez le numéro (1, 2, ou 3):`
     );
@@ -549,17 +564,28 @@ export const useUsers = (options: UseUsersOptions = {}) => {
     let newRole: string;
     switch (roleChoice.trim()) {
       case "1":
-        newRole = "user";
+        newRole = "traveler";
         break;
       case "2":
-        newRole = "provider";
+        newRole = "property_owner";
         break;
       case "3":
-        newRole = "admin";
+        newRole = "service_provider";
         break;
       default:
         alert("❌ Choix invalide. Opération annulée.");
         return;
+    }
+
+    // 🔒 SÉCURITÉ: Vérifier qu'aucun utilisateur sélectionné n'est admin
+    const selectedUsersList = currentDisplayUsers.filter((u: UserProfile) =>
+      selectedUsers.includes(u.id)
+    );
+    
+    const hasAdmins = selectedUsersList.some(u => u.role === 'admin');
+    if (hasAdmins) {
+      alert("🔒 Sécurité: Impossible de modifier le rôle d'un administrateur via cette interface.");
+      return;
     }
 
     const confirmed = window.confirm(
@@ -583,6 +609,7 @@ export const useUsers = (options: UseUsersOptions = {}) => {
       showNotification("Erreur lors du changement de rôle en masse", "error");
     }
   }, [
+    currentDisplayUsers,
     selectedUsers,
     userActions.updateUser,
     showNotification,

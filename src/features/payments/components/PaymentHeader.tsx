@@ -1,9 +1,7 @@
-import React from "react";
-import { Box, Typography, IconButton, Tooltip } from "@mui/material";
-import {
-  Download as DownloadIcon,
-  Refresh as RefreshIcon,
-} from "@mui/icons-material";
+import React from 'react';
+import { IconButton, Tooltip } from '@mui/material';
+import { Download as DownloadIcon, Refresh as RefreshIcon } from '@mui/icons-material';
+import { PageHeader } from '@/shared/components/layout';
 
 interface PaymentHeaderProps {
   onRefresh: () => void;
@@ -16,32 +14,27 @@ export const PaymentHeader: React.FC<PaymentHeaderProps> = ({
   onExport,
   isLoading = false,
 }) => {
+  const actions = (
+    <>
+      <Tooltip title="Actualiser les données">
+        <IconButton onClick={onRefresh} disabled={isLoading}>
+          <RefreshIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Exporter les paiements sélectionnés">
+        <IconButton onClick={onExport} disabled={isLoading}>
+          <DownloadIcon />
+        </IconButton>
+      </Tooltip>
+    </>
+  );
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        mb: 3,
-      }}
-    >
-      <Typography variant="h4" component="h1" fontWeight="bold">
-        Gestion des Paiements
-      </Typography>
-
-      <Box sx={{ display: "flex", gap: 1 }}>
-        <Tooltip title="Actualiser les données">
-          <IconButton onClick={onRefresh} disabled={isLoading}>
-            <RefreshIcon />
-          </IconButton>
-        </Tooltip>
-
-        <Tooltip title="Exporter les paiements sélectionnés">
-          <IconButton onClick={onExport} disabled={isLoading}>
-            <DownloadIcon />
-          </IconButton>
-        </Tooltip>
-      </Box>
-    </Box>
+    <PageHeader
+      title="Gestion des Paiements"
+      description="Suivez et gérez tous les paiements de la plateforme"
+      actions={actions}
+    />
   );
 };

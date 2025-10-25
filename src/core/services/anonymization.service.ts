@@ -58,7 +58,7 @@ export class AnonymizationService {
       // après 3 ans basé sur deleted_at + anonymization_level
 
       // Étape 4 : Mise à jour du statut d'anonymisation
-      await this.updateAnonymizationStatus(userId, level);
+      await this.updateAnonymizationStatus(userId, level, reason);
 
       result.success = true;
       return result;
@@ -229,7 +229,6 @@ export class AnonymizationService {
   private async schedulePurge(userId: string, purgeDate: string): Promise<void> {
     // La purge est maintenant automatique via la fonction SQL execute_gdpr_purges()
     // Elle se déclenche quand deleted_at < NOW() - 3 years ET anonymization_level IS NOT NULL
-    console.log(`Purge automatique programmée pour ${userId} dans 3 ans à partir de deleted_at`);
   }
 
   /**
@@ -258,7 +257,6 @@ export class AnonymizationService {
 
       // La purge automatique est annulée en remettant deleted_at à null
       // execute_gdpr_purges() ne touchera plus cet utilisateur
-      console.log("Purge automatique annulée via restauration de l'utilisateur");
 
       return { success: true };
     } catch (error) {
@@ -274,11 +272,36 @@ export class AnonymizationService {
    */
   private async updateAnonymizationStatus(
     userId: string,
-    level: AnonymizationLevel
+    level: AnonymizationLevel,
+    reason: DeletionReason
   ): Promise<void> {
+    // Mapper la raison de suppression à un texte lisible
+    let deletionReasonText: string;
+    switch (reason) {
+      case DeletionReason.GDPR_COMPLIANCE:
+        deletionReasonText = 'Suppression RGPD - Droit à l\'effacement';
+        break;
+      case DeletionReason.USER_REQUEST:
+        deletionReasonText = 'Demande de l\'utilisateur';
+        break;
+      case DeletionReason.ADMIN_ACTION:
+        deletionReasonText = 'Action administrative';
+        break;
+      case DeletionReason.POLICY_VIOLATION:
+        deletionReasonText = 'Violation des règles';
+        break;
+      case DeletionReason.ACCOUNT_CLOSURE:
+        deletionReasonText = 'Fermeture de compte';
+        break;
+      default:
+        deletionReasonText = 'Suppression utilisateur';
+    }
+
     const { error } = await supabase
       .from('profiles')
       .update({
+        deleted_at: new Date().toISOString(), // 🎯 Marquer comme supprimé
+        deletion_reason: deletionReasonText, // 🎯 Raison lisible
         anonymization_level: level,
         last_anonymized_at: new Date().toISOString(),
       })

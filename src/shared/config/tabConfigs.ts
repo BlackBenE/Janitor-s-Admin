@@ -13,6 +13,11 @@ import {
   CheckCircle as ActiveIcon,
   Block as InactiveIcon,
   Archive as ArchivedIcon,
+  TrendingUp as RevenueIcon,
+  TrendingDown as ExpenseIcon,
+  Percent as CommissionIcon,
+  CardMembership as SubscriptionIcon,
+  Error as FailedIcon,
 } from '@mui/icons-material';
 
 // Configuration des tabs pour les utilisateurs
@@ -135,12 +140,65 @@ export const serviceTabConfigs: TabConfig<ServiceStatusFilter>[] = [
     color: 'warning' as const,
     description: 'Services en attente de validation',
   },
+];
+
+// Configuration des tabs pour les transactions financières
+export const transactionTabConfigs: TabConfig<string>[] = [
   {
-    key: 'archived',
-    label: 'Archivés',
-    icon: ArchivedIcon,
+    key: 'all',
+    label: 'Toutes',
+    icon: AllIcon,
+    color: 'default' as const,
+    description: 'Toutes les transactions',
+  },
+  {
+    key: 'revenue',
+    label: 'Revenus',
+    icon: RevenueIcon,
+    color: 'success' as const,
+    description: 'Transactions de revenus',
+  },
+  {
+    key: 'expense',
+    label: 'Dépenses',
+    icon: ExpenseIcon,
     color: 'error' as const,
-    description: 'Services archivés',
+    description: 'Transactions de dépenses',
+  },
+  {
+    key: 'commission',
+    label: 'Commissions',
+    icon: CommissionIcon,
+    color: 'info' as const,
+    description: 'Commissions PJ',
+  },
+  {
+    key: 'subscription',
+    label: 'Abonnements',
+    icon: SubscriptionIcon,
+    color: 'primary' as const,
+    description: "Paiements d'abonnements",
+  },
+  {
+    key: 'completed',
+    label: 'Complétées',
+    icon: PaidIcon,
+    color: 'success' as const,
+    description: 'Transactions complétées',
+  },
+  {
+    key: 'pending',
+    label: 'En attente',
+    icon: PendingIcon,
+    color: 'warning' as const,
+    description: 'Transactions en attente',
+  },
+  {
+    key: 'failed',
+    label: 'Échouées',
+    icon: FailedIcon,
+    color: 'error' as const,
+    description: 'Transactions échouées',
   },
 ];
 

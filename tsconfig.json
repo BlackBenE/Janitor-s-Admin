@@ -26,6 +26,5 @@
       "@providers/*": ["./src/providers/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["src/**/_obsolete/**", "src/**/_backup_*/**"]
+  "include": ["src"]
 }

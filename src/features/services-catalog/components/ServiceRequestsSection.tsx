@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Box,
   Card,
@@ -13,14 +13,14 @@ import {
   Button,
   Alert,
   CircularProgress,
-} from "@mui/material";
+} from '@mui/material';
 import {
-  useServiceRequests,
+  useServiceRequestsFeature,
   useServiceRequestStats,
   useServiceRequestMutations,
   type ServiceRequestFilters,
-} from "../hooks";
-import { getStatusColor, getStatusLabel } from "@/shared/utils";
+} from '../hooks';
+import { getStatusColor, getStatusLabel } from '@/shared/utils';
 
 export const ServiceRequestsSection: React.FC = () => {
   const [filters, setFilters] = useState<ServiceRequestFilters>({});
@@ -31,7 +31,7 @@ export const ServiceRequestsSection: React.FC = () => {
     isLoading,
     error,
     refetch,
-  } = useServiceRequests({ filters });
+  } = useServiceRequestsFeature({ filters });
 
   const { data: stats, isLoading: statsLoading } = useServiceRequestStats();
 
@@ -46,7 +46,7 @@ export const ServiceRequestsSection: React.FC = () => {
   const handleStatusFilter = (status: string) => {
     setFilters((prev) => ({
       ...prev,
-      status: status === "all" ? undefined : status,
+      status: status === 'all' ? undefined : status,
     }));
   };
 
@@ -60,18 +60,16 @@ export const ServiceRequestsSection: React.FC = () => {
   const handleAcceptRequest = async (id: string) => {
     try {
       await acceptServiceRequest.mutateAsync({ id });
-      console.log("✅ Demande acceptée");
     } catch (error) {
-      console.error("❌ Erreur:", error);
+      console.error('❌ Erreur:', error);
     }
   };
 
   const handleRejectRequest = async (id: string) => {
     try {
       await rejectServiceRequest.mutateAsync(id);
-      console.log("❌ Demande rejetée");
     } catch (error) {
-      console.error("❌ Erreur:", error);
+      console.error('❌ Erreur:', error);
     }
   };
 
@@ -91,9 +89,9 @@ export const ServiceRequestsSection: React.FC = () => {
 
       {/* Statistiques */}
       {stats && !statsLoading && (
-        <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
           <Card variant="outlined" sx={{ flex: 1, minWidth: 120 }}>
-            <CardContent sx={{ textAlign: "center", py: 1.5 }}>
+            <CardContent sx={{ textAlign: 'center', py: 1.5 }}>
               <Typography variant="h5" color="primary">
                 {stats.total}
               </Typography>
@@ -101,7 +99,7 @@ export const ServiceRequestsSection: React.FC = () => {
             </CardContent>
           </Card>
           <Card variant="outlined" sx={{ flex: 1, minWidth: 120 }}>
-            <CardContent sx={{ textAlign: "center", py: 1.5 }}>
+            <CardContent sx={{ textAlign: 'center', py: 1.5 }}>
               <Typography variant="h5" color="warning.main">
                 {stats.pending}
               </Typography>
@@ -109,7 +107,7 @@ export const ServiceRequestsSection: React.FC = () => {
             </CardContent>
           </Card>
           <Card variant="outlined" sx={{ flex: 1, minWidth: 120 }}>
-            <CardContent sx={{ textAlign: "center", py: 1.5 }}>
+            <CardContent sx={{ textAlign: 'center', py: 1.5 }}>
               <Typography variant="h5" color="success.main">
                 {stats.completed}
               </Typography>
@@ -117,7 +115,7 @@ export const ServiceRequestsSection: React.FC = () => {
             </CardContent>
           </Card>
           <Card variant="outlined" sx={{ flex: 1, minWidth: 120 }}>
-            <CardContent sx={{ textAlign: "center", py: 1.5 }}>
+            <CardContent sx={{ textAlign: 'center', py: 1.5 }}>
               <Typography variant="h5" color="info.main">
                 {Math.round(stats.averageAmount)}€
               </Typography>
@@ -128,11 +126,11 @@ export const ServiceRequestsSection: React.FC = () => {
       )}
 
       {/* Filtres */}
-      <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
         <FormControl size="small" sx={{ minWidth: 120 }}>
           <InputLabel>Statut</InputLabel>
           <Select
-            value={filters.status || "all"}
+            value={filters.status || 'all'}
             onChange={(e) => handleStatusFilter(e.target.value)}
             label="Statut"
           >
@@ -148,7 +146,7 @@ export const ServiceRequestsSection: React.FC = () => {
         <TextField
           size="small"
           placeholder="Rechercher..."
-          value={filters.search || ""}
+          value={filters.search || ''}
           onChange={(e) => handleSearchChange(e.target.value)}
           sx={{ minWidth: 200 }}
         />
@@ -160,7 +158,7 @@ export const ServiceRequestsSection: React.FC = () => {
 
       {/* Liste des demandes avec scroll */}
       {isLoading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
           <CircularProgress />
         </Box>
       ) : error ? (
@@ -168,24 +166,22 @@ export const ServiceRequestsSection: React.FC = () => {
           Erreur lors du chargement des demandes: {String(error)}
         </Alert>
       ) : serviceRequests.length === 0 ? (
-        <Alert severity="info">
-          Aucune demande de service trouvée avec les filtres actuels.
-        </Alert>
+        <Alert severity="info">Aucune demande de service trouvée avec les filtres actuels.</Alert>
       ) : (
         <Box
           sx={{
             height: 600,
-            overflow: "auto",
+            overflow: 'auto',
             pr: 1,
           }}
         >
           <Box
             sx={{
-              display: "grid",
+              display: 'grid',
               gridTemplateColumns: {
-                xs: "1fr",
-                md: "1fr 1fr",
-                lg: "1fr 1fr 1fr",
+                xs: '1fr',
+                md: '1fr 1fr',
+                lg: '1fr 1fr 1fr',
               },
               gap: 2,
             }}
@@ -195,74 +191,52 @@ export const ServiceRequestsSection: React.FC = () => {
                 <CardContent>
                   <Box
                     sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
                       mb: 2,
                     }}
                   >
                     <Typography variant="subtitle1" fontWeight="medium">
-                      {request.service?.name || "Service inconnu"}
+                      {request.service?.name || 'Service inconnu'}
                     </Typography>
                     <Chip
-                      label={getStatusLabel(request.status, "quote_request")}
-                      color={getStatusColor(request.status, "quote_request")}
+                      label={getStatusLabel(request.status, 'quote_request')}
+                      color={getStatusColor(request.status, 'quote_request')}
                       size="small"
                     />
                   </Box>
 
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    gutterBottom
-                  >
-                    <strong>Client:</strong>{" "}
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <strong>Client:</strong>{' '}
                     {request.requester?.full_name || request.requester?.email}
                   </Typography>
 
                   {request.provider && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      <strong>Prestataire:</strong>{" "}
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      <strong>Prestataire:</strong>{' '}
                       {request.provider.full_name || request.provider.email}
                     </Typography>
                   )}
 
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    gutterBottom
-                  >
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
                     <strong>Montant:</strong> {request.total_amount}€
                   </Typography>
 
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    gutterBottom
-                  >
-                    <strong>Date demandée:</strong>{" "}
-                    {new Date(request.requested_date).toLocaleDateString(
-                      "fr-FR"
-                    )}
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <strong>Date demandée:</strong>{' '}
+                    {new Date(request.requested_date).toLocaleDateString('fr-FR')}
                   </Typography>
 
                   {request.notes && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mt: 1 }}
-                    >
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                       <strong>Notes:</strong> {request.notes}
                     </Typography>
                   )}
 
                   {/* Actions rapides */}
-                  {request.status === "pending" && (
-                    <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+                  {request.status === 'pending' && (
+                    <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
                       <Button
                         size="small"
                         variant="contained"
@@ -291,18 +265,18 @@ export const ServiceRequestsSection: React.FC = () => {
           {/* Indicateur du nombre total */}
           <Box
             sx={{
-              textAlign: "center",
+              textAlign: 'center',
               mt: 2,
               mb: 2,
-              position: "sticky",
+              position: 'sticky',
               bottom: 0,
-              bgcolor: "background.default",
+              bgcolor: 'background.default',
               py: 1,
             }}
           >
             <Typography variant="body2" color="text.secondary">
               {serviceRequests.length} demande
-              {serviceRequests.length > 1 ? "s" : ""} au total
+              {serviceRequests.length > 1 ? 's' : ''} au total
             </Typography>
           </Box>
         </Box>

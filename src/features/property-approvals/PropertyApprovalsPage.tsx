@@ -1,14 +1,15 @@
 import React from 'react';
 import { AdminLayout } from '@/shared/components/layout';
-import { useProperties } from './hooks/useProperties';
+import { usePropertyApprovals } from './hooks/usePropertyApprovals';
 import { useAuth } from '@/core/providers/auth.provider';
-import { usePropertyManagementEnhanced } from './hooks/usePropertyManagementEnhanced';
+import { usePropertyManagement } from './hooks/usePropertyManagement';
 import { createGenericTableColumns } from '@/shared/components/data-display';
 import { PropertyHeader, PropertyTableSection, createPropertyTableConfig } from './components';
 import { PropertyDetailsModal } from './modals/PropertyDetailsModal';
 import { PROPERTY_TABS, PropertyStatus, PropertyWithOwner } from '@/types/propertyApprovals';
 import { Property } from '@/types';
-import { LABELS } from '@/core/config/labels';
+import { COMMON_LABELS } from '@/shared/constants';
+import { PROPERTY_APPROVALS_LABELS } from './constants';
 
 const PropertyApprovalsPage: React.FC = () => {
   const { user } = useAuth();
@@ -18,7 +19,7 @@ const PropertyApprovalsPage: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = React.useState<PropertyStatus>(PropertyStatus.ALL);
 
   // Hook de gestion amélioré
-  const propertyManagement = usePropertyManagementEnhanced();
+  const propertyManagement = usePropertyManagement();
 
   // Hook pour récupérer toutes les propriétés
   const {
@@ -32,7 +33,7 @@ const PropertyApprovalsPage: React.FC = () => {
     setPendingProperty,
     updateProperty,
     deleteProperty,
-  } = useProperties({
+  } = usePropertyApprovals({
     filters: {}, // Pas de filtre pour avoir toutes les propriétés
     includeOwnerInfo: true,
     orderBy: 'created_at',
@@ -260,7 +261,7 @@ const PropertyApprovalsPage: React.FC = () => {
       owner_name: property.profiles?.full_name || 'Unknown Owner',
       owner_email: property.profiles?.email || 'No email',
       location: `${property.city || ''}, ${property.country || ''}`.trim() || 'N/A',
-      address: property.address || LABELS.common.messages.noAddress,
+      address: property.address || COMMON_LABELS.messages.noAddress,
       rent_amount: property.nightly_rate || null,
       created_at: property.created_at ? new Date(property.created_at).toLocaleDateString() : 'N/A',
       ...property,
@@ -309,7 +310,6 @@ const PropertyApprovalsPage: React.FC = () => {
         // Data
         properties={allProperties || []}
         filteredProperties={filteredProperties}
-        transformedData={transformedData}
         columns={columns}
         // State
         activeTab={activeTab}
@@ -320,12 +320,12 @@ const PropertyApprovalsPage: React.FC = () => {
         onUpdateFilter={propertyManagement.updateFilter}
         // Tabs
         onTabChange={handleTabChange}
-        // Actions
+        // Selection & Actions
         selectedProperties={propertyManagement.selectedProperties}
+        onClearSelection={propertyManagement.clearPropertySelection}
         onApproveSelected={handleApproveSelected}
         onRejectSelected={handleRejectSelected}
         onSetPendingSelected={handleSetPendingSelected}
-        onClearSelection={propertyManagement.clearPropertySelection}
         isApprovePending={approveProperty.isPending}
         isRejectPending={rejectProperty.isPending}
         isPendingPending={setPendingProperty.isPending}

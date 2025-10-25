@@ -13,6 +13,9 @@ export interface PaymentProfile {
   email: string;
   full_name: string | null;
   phone: string | null;
+  deleted_at: string | null;
+  account_locked: boolean;
+  avatar_url: string | null;
 }
 
 // Property type for booking relations

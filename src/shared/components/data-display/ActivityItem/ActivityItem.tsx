@@ -7,7 +7,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import { orange, blue, green } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
-import { LABELS } from '@/core/config/labels';
+import { COMMON_LABELS } from '@/shared/constants';
 
 // Mettez à jour les couleurs pour correspondre au fond de la pastille
 type Status = 'Pending' | 'Review Required' | 'Completed';
@@ -26,9 +26,9 @@ const statusIcons: Record<Status, React.ReactNode> = {
 
 // Traduction des statuts
 const statusTranslations: Record<Status, string> = {
-  Pending: LABELS.dashboard.activities.status.pending,
-  'Review Required': LABELS.dashboard.activities.status.reviewRequired,
-  Completed: LABELS.dashboard.activities.status.completed,
+  Pending: COMMON_LABELS.activities.status.pending,
+  'Review Required': COMMON_LABELS.activities.status.reviewRequired,
+  Completed: COMMON_LABELS.activities.status.completed,
 };
 
 interface ActivityItemProps {

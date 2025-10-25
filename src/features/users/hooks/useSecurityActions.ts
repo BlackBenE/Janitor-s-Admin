@@ -52,19 +52,25 @@ export const useSecurityActions = () => {
       // Pas de vérification via auth admin côté client
 
       if (import.meta.env.DEV) {
-        console.log(`Tentative d'envoi d'email de réinitialisation à: ${userProfile.email}`);
       }
 
       // Fonction pour déterminer l'URL de redirection selon le rôle
       const getRedirectUrl = (userRole: string): string => {
-        // Toujours utiliser l'URL du back-office Vercel
-        return 'https://janitor-s-admin.vercel.app/reset-password';
+        const normalizedRole = userRole.toLowerCase();
+
+        // Les admins vont sur le back-office
+        if (normalizedRole === 'admin') {
+          return 'https://janitor-s-admin.vercel.app/reset-password';
+        }
+
+        // Les voyageurs (travelers) et fournisseurs (providers) vont sur l'app client
+        const CLIENT_APP_URL = import.meta.env.VITE_CLIENT_APP_URL || 'https://janitors.vercel.app';
+        return `${CLIENT_APP_URL}/reset-password`;
       };
 
       const redirectUrl = getRedirectUrl(userProfile.role);
 
       if (import.meta.env.DEV) {
-        console.log(`URL de redirection pour ${userProfile.role}:`, redirectUrl);
       }
 
       // Méthode 1: Utiliser resetPasswordForEmail (recommandé)
@@ -81,7 +87,6 @@ export const useSecurityActions = () => {
       }
 
       if (import.meta.env.DEV) {
-        console.log('Email de réinitialisation envoyé avec succès');
       }
 
       // Log l'action dans l'audit
@@ -148,7 +153,6 @@ export const useSecurityActions = () => {
           console.error('Session invalidation failed:', sessionError);
         } else if (sessionData?.success) {
           sessionInvalidated = true;
-          console.log('Sessions invalidated successfully');
         }
       } catch (sessionErr) {
         console.error('Session invalidation error:', sessionErr);

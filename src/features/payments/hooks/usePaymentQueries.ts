@@ -39,14 +39,18 @@ export const usePayment = (paymentId?: string, options?: { enabled?: boolean }) 
             first_name,
             last_name,
             email,
-            avatar_url
+            avatar_url,
+            deleted_at,
+            account_locked
           ),
           payee:profiles!payments_payee_id_fkey (
             id,
             first_name,
             last_name,
             email,
-            avatar_url
+            avatar_url,
+            deleted_at,
+            account_locked
           ),
           booking:bookings (
             id,
@@ -105,7 +109,6 @@ export const usePayments = (options?: {
   return useQuery({
     queryKey: PAYMENT_QUERY_KEYS.list(options?.filters),
     queryFn: async () => {
-      console.log('🔍 Fetching payments data from Supabase with relations...');
 
       let query = supabase.from('payments').select(`
           *,
@@ -114,14 +117,18 @@ export const usePayments = (options?: {
             first_name,
             last_name,
             email,
-            avatar_url
+            avatar_url,
+            deleted_at,
+            account_locked
           ),
           payee:profiles!payments_payee_id_fkey (
             id,
             first_name,
             last_name,
             email,
-            avatar_url
+            avatar_url,
+            deleted_at,
+            account_locked
           ),
           booking:bookings (
             id,
@@ -180,9 +187,7 @@ export const usePayments = (options?: {
         throw new Error(`Erreur lors de la récupération des paiements: ${error.message}`);
       }
 
-      console.log('🎯 Real payments loaded:', data?.length || 0);
       if (data && data.length > 0) {
-        console.log('📊 Sample payment data:', data[0]);
       }
 
       return (data || []) as PaymentWithDetails[];
@@ -202,7 +207,6 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: PAYMENT_QUERY_KEYS.stats(),
     queryFn: async () => {
-      console.log('📊 Fetching payment statistics...');
 
       // Récupérer les statistiques avec payment_type pour le calcul des revenus
       const { data: payments, error } = await supabase
@@ -214,7 +218,6 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
       }
 
       const paymentsArray = payments || [];
-      console.log('📊 Raw payments data:', paymentsArray);
 
       // Calculer les stats avec la bonne logique
       const totalPayments = paymentsArray.length;
@@ -245,11 +248,9 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
           );
         });
 
-      console.log('📊 Paiements payés ce mois:', paidThisMonth);
 
       const monthlyRevenue = paidThisMonth.reduce((sum, p) => {
         const amount = p.amount || 0;
-        console.log(`💰 Calcul revenue pour paiement:`, {
           id: p.id,
           type: p.payment_type,
           amount: amount,
@@ -261,11 +262,9 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
         const paymentType = p.payment_type || 'other';
         const revenue = calculateRevenue(amount, paymentType as any);
 
-        console.log(`📈 ${p.payment_type} revenue: ${revenue}€`);
         return sum + revenue;
       }, 0);
 
-      console.log(`📊 Revenue mensuel total: ${monthlyRevenue}€`);
 
       // Montant moyen
       const totalAmount = paymentsArray.reduce((sum, p) => sum + (p.amount || 0), 0);
@@ -282,8 +281,6 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
         totalAmount,
       };
 
-      console.log('📊 Calculated stats:', stats);
-      console.log('📊 Paid this month details:', paidThisMonth);
 
       return stats;
     },

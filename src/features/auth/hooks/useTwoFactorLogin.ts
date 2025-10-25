@@ -55,11 +55,9 @@ export const useTwoFactorLogin = (): UseTwoFactorLoginReturn => {
 
       // 3. Si pas de 2FA activée, connexion réussie
       if (!verifiedFactors || verifiedFactors.length === 0) {
-        console.log('✅ Pas de 2FA activée, connexion directe');
         return true;
       }
 
-      console.log('🔐 2FA activée, création du challenge...');
 
       // 4. Si 2FA activée, créer un challenge
       const factor = verifiedFactors[0];
@@ -80,7 +78,6 @@ export const useTwoFactorLogin = (): UseTwoFactorLoginReturn => {
       setShowModal(true);
       setError(null);
 
-      console.log('🔐 Modal 2FA affichée, en attente du code...');
 
       // Retourner false pour indiquer qu'on attend la vérification 2FA
       return false;
@@ -121,7 +118,6 @@ export const useTwoFactorLogin = (): UseTwoFactorLoginReturn => {
       }
 
       // Vérification réussie! La session est maintenant AAL2
-      console.log('✅ 2FA vérifiée, session AAL2 créée');
 
       setShowModal(false);
       setFactorId(null);

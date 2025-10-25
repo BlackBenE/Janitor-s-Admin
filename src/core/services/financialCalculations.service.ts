@@ -30,6 +30,9 @@ export const calculateRevenue = (amount: number, paymentType: PaymentType): numb
       return amount;
 
     case 'service':
+      // 100% du montant pour les services (pas de commission)
+      return amount;
+
     case 'other':
     default:
       // Par défaut, commission de 20%

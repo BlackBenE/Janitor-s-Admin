@@ -1,17 +1,13 @@
-import React from "react";
-import {
-  Box,
-  Typography,
-  IconButton,
-  Tooltip,
-  CircularProgress,
-} from "@mui/material";
+import React from 'react';
+import { IconButton, Tooltip, CircularProgress } from '@mui/material';
 import {
   Refresh as RefreshIcon,
   Add as AddIcon,
   Download as DownloadIcon,
-} from "@mui/icons-material";
-import { LABELS } from "@/core/config";
+} from '@mui/icons-material';
+import { PageHeader } from '@/shared/components';
+import { COMMON_LABELS } from '@/shared/constants';
+import { PROPERTY_APPROVALS_LABELS } from '../constants';
 
 interface PropertyHeaderProps {
   propertiesCount: number;
@@ -31,40 +27,23 @@ export const PropertyHeader: React.FC<PropertyHeaderProps> = ({
   isExportDisabled = false,
 }) => {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        mb: 3,
-      }}
-    >
-      <Box>
-        <Typography variant="h4" component="h1" gutterBottom>
-          {LABELS.propertyApprovals.title}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {LABELS.propertyApprovals.subtitle}
-        </Typography>
-      </Box>
-      <Box sx={{ display: "flex", gap: 1 }}>
-        <Tooltip
-          title={`${LABELS.propertyApprovals.actions.export} (${propertiesCount})`}
-        >
-          <IconButton
-            size="large"
-            onClick={onExportProperties}
-            disabled={isExportDisabled}
-          >
-            <DownloadIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={LABELS.common.actions.refresh}>
-          <IconButton onClick={onRefresh} disabled={isRefreshing} size="large">
-            {isRefreshing ? <CircularProgress size={24} /> : <RefreshIcon />}
-          </IconButton>
-        </Tooltip>
-      </Box>
-    </Box>
+    <PageHeader
+      title={PROPERTY_APPROVALS_LABELS.title}
+      description={PROPERTY_APPROVALS_LABELS.subtitle}
+      actions={
+        <>
+          <Tooltip title={`${PROPERTY_APPROVALS_LABELS.actions.export} (${propertiesCount})`}>
+            <IconButton size="large" onClick={onExportProperties} disabled={isExportDisabled}>
+              <DownloadIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={COMMON_LABELS.actions.refresh}>
+            <IconButton onClick={onRefresh} disabled={isRefreshing} size="large">
+              {isRefreshing ? <CircularProgress size={24} /> : <RefreshIcon />}
+            </IconButton>
+          </Tooltip>
+        </>
+      }
+    />
   );
 };

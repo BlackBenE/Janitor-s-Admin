@@ -9,3 +9,4 @@ export * from './AnalyticsChart';
 export * from './BarCharts';
 export * from './StatsCardGrid';
 export * from './GenericTableColumns';
+export * from './ChartGridSection';

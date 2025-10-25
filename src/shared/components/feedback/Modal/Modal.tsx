@@ -6,7 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { SxProps, Theme } from '@mui/material/styles';
 
 import { SystemStyleObject } from '@mui/system';
-import { LABELS } from '@/core/config/labels';
+import { COMMON_LABELS } from '@/shared/constants';
 
 interface DataModalProps {
   open: boolean;
@@ -54,7 +54,7 @@ function DataModal({
       <Box sx={combinedStyle}>
         {showCloseButton && (
           <IconButton
-            aria-label={LABELS.modal.ariaLabel}
+            aria-label={COMMON_LABELS.modal.ariaLabel}
             onClick={onClose}
             sx={{
               position: 'absolute',

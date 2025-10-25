@@ -1,29 +1,29 @@
 // Export all service hooks
-export { useServices, useService, useServiceStats } from "./useServices";
+// Hook principal de la feature (orchestrateur)
+export { useServiceCatalog, useService, useServiceStats } from './useServiceCatalog';
+
+// Hooks de queries
 export {
   useServices as useServicesQuery,
   useService as useServiceQuery,
   useServiceStats as useServiceStatsQuery,
   SERVICE_QUERY_KEYS,
-} from "./useServiceQueries";
-export { useServiceManagement } from "./useServiceManagement";
+} from './useServiceQueries';
+
+export { useServiceManagement } from './useServiceManagement';
 
 // Export provider hooks
-export {
-  useProviders,
-  useProvider,
-  PROVIDERS_QUERY_KEYS,
-} from "./useProviders";
+export { useProviders, useProvider, PROVIDERS_QUERY_KEYS } from './useProviders';
 
 // Export provider stats hooks
-export { useProviderStats, useProviderServices } from "./useProviderStats";
+export { useProviderStats, useProviderServices } from './useProviderStats';
 
 // Export service history hooks
-export { useServiceHistory } from "./useServiceHistory";
+export { useServiceHistory } from './useServiceHistory';
 
 // Export service requests hooks
 export {
-  useServiceRequests,
+  useServiceRequestsFeature,
   useServiceRequest,
   useServiceRequestStats,
   useServiceRequestsByService,
@@ -31,11 +31,11 @@ export {
   useServiceRequestsByRequester,
   useServiceRequestMutations,
   SERVICE_REQUESTS_QUERY_KEYS,
-} from "./useServiceRequests";
+} from './useServiceRequestsFeature';
 
 // Export types
 export type {
   ServiceRequestWithDetails,
   ServiceRequestFilters,
   ServiceRequestStats,
-} from "./useServiceRequests";
+} from './useServiceRequestsFeature';

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Box,
   Card,
@@ -14,7 +14,7 @@ import {
   LinearProgress,
   Tooltip,
   Alert,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Email as EmailIcon,
   Phone as PhoneIcon,
@@ -34,24 +34,22 @@ import {
   Security as SecurityIcon,
   Payment as PaymentIcon,
   Schedule as ScheduleIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 import {
   UserProfile,
   UserActivityData,
   UserRole,
   UserProfileWithAnonymization,
-} from "@/types/userManagement";
-import {
-  AnonymizationLevel,
-  DeletionReason,
-} from "@/types/dataRetention";
-import { useUserSubscriptions } from "../hooks/useUserQueries";
-import { formatCurrency, formatDate, getStatusColor } from "@/utils";
-import { LABELS } from "@/core/config/labels";
+} from '@/types/userManagement';
+import { AnonymizationLevel, DeletionReason } from '@/types/dataRetention';
+import { useUserSubscriptions } from '../hooks/useUserQueries';
+import { formatCurrency, formatDate, getStatusColor } from '@/utils';
+import { COMMON_LABELS } from "@/shared/constants";
+import { USERS_LABELS } from "../constants";
 
 interface UserInfoSectionsProps {
   user: UserProfileWithAnonymization;
-  layoutMode?: "main" | "sidebar" | "full";
+  layoutMode?: 'main' | 'sidebar' | 'full';
   activityData?: Record<string, UserActivityData>;
 }
 
@@ -63,7 +61,7 @@ interface InfoItemProps {
 }
 
 const InfoItem: React.FC<InfoItemProps> = ({ icon, label, value }) => (
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
     {icon}
     <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>
       {label}:
@@ -74,35 +72,35 @@ const InfoItem: React.FC<InfoItemProps> = ({ icon, label, value }) => (
 
 export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
   user,
-  layoutMode = "full",
+  layoutMode = 'full',
   activityData,
 }) => {
   // Fonctions utilitaires pour les rôles
   const getRoleColor = (role: string) => {
     switch (role) {
-      case "admin":
-        return "error";
-      case "property_owner":
-        return "primary";
-      case "service_provider":
-        return "secondary";
-      case "traveler":
-        return "info";
+      case 'admin':
+        return 'error';
+      case 'property_owner':
+        return 'primary';
+      case 'service_provider':
+        return 'secondary';
+      case 'traveler':
+        return 'info';
       default:
-        return "default";
+        return 'default';
     }
   };
 
   const getRoleLabel = (role: string) => {
     switch (role) {
-      case "admin":
-        return "Administrator";
-      case "property_owner":
-        return "Property Owner";
-      case "service_provider":
-        return "Service Provider";
-      case "traveler":
-        return "Traveler";
+      case 'admin':
+        return 'Administrator';
+      case 'property_owner':
+        return 'Property Owner';
+      case 'service_provider':
+        return 'Service Provider';
+      case 'traveler':
+        return 'Traveler';
       default:
         return role;
     }
@@ -112,15 +110,15 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
   const getAnonymizationColor = (level: string | null | undefined) => {
     switch (level) {
       case AnonymizationLevel.NONE:
-        return "success";
+        return 'success';
       case AnonymizationLevel.PARTIAL:
-        return "warning";
+        return 'warning';
       case AnonymizationLevel.FULL:
-        return "error";
+        return 'error';
       case AnonymizationLevel.PURGED:
-        return "default";
+        return 'default';
       default:
-        return "default";
+        return 'default';
     }
   };
 
@@ -142,13 +140,13 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
   const getAnonymizationDescription = (level: string | null | undefined) => {
     switch (level) {
       case AnonymizationLevel.NONE:
-        return "Aucune anonymisation appliquée";
+        return 'Aucune anonymisation appliquée';
       case AnonymizationLevel.PARTIAL:
-        return "Données personnelles anonymisées, données métier préservées";
+        return 'Données personnelles anonymisées, données métier préservées';
       case AnonymizationLevel.FULL:
-        return "Anonymisation complète, seuls les identifiants techniques restent";
+        return 'Anonymisation complète, seuls les identifiants techniques restent';
       case AnonymizationLevel.PURGED:
-        return "Données purgées définitivement";
+        return 'Données purgées définitivement';
       default:
         return "Niveau d'anonymisation inconnu";
     }
@@ -157,21 +155,21 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
   const getDeletionReasonLabel = (reason: string | null) => {
     switch (reason) {
       case DeletionReason.GDPR_COMPLIANCE:
-      case "gdpr_compliance":
-        return "Suppression RGPD";
+      case 'gdpr_compliance':
+        return 'Suppression RGPD';
       case DeletionReason.USER_REQUEST:
-      case "user_request":
-        return "Demande utilisateur";
+      case 'user_request':
+        return 'Demande utilisateur';
       case DeletionReason.ADMIN_ACTION:
-      case "admin_action":
-        return "Suppression administrative";
+      case 'admin_action':
+        return 'Suppression administrative';
       case DeletionReason.POLICY_VIOLATION:
-      case "policy_violation":
-        return "Suppression disciplinaire";
+      case 'policy_violation':
+        return 'Suppression disciplinaire';
       case "Supprimé par l'administrateur":
-        return "Suppression administrative";
+        return 'Suppression administrative';
       default:
-        return reason || "Raison non spécifiée";
+        return reason || 'Raison non spécifiée';
     }
   };
 
@@ -186,10 +184,7 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
 
     const totalDuration = endDate.getTime() - startDate.getTime();
     const elapsed = now.getTime() - startDate.getTime();
-    const progress = Math.min(
-      Math.max((elapsed / totalDuration) * 100, 0),
-      100
-    );
+    const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
 
     return {
       progress,
@@ -209,30 +204,30 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
     <Card>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          {LABELS.users.modals.basicInfo}
+          {USERS_LABELS.modals.basicInfo}
         </Typography>
         <InfoItem
           icon={<PersonIcon color="action" fontSize="small" />}
-          label={LABELS.users.modals.name}
-          value={user.full_name || LABELS.users.modals.notSpecified}
+          label={USERS_LABELS.modals.name}
+          value={user.full_name || USERS_LABELS.modals.notSpecified}
         />
         <InfoItem
           icon={<EmailIcon color="action" fontSize="small" />}
-          label={LABELS.common.fields.email}
+          label={COMMON_LABELS.fields.email}
           value={user.email}
         />
         <InfoItem
           icon={<PhoneIcon color="action" fontSize="small" />}
-          label={LABELS.common.fields.phone}
-          value={user.phone || LABELS.users.modals.notSpecified}
+          label={COMMON_LABELS.fields.phone}
+          value={user.phone || USERS_LABELS.modals.notSpecified}
         />
         <InfoItem
           icon={<CalendarIcon color="action" fontSize="small" />}
-          label={LABELS.users.modals.created}
+          label={USERS_LABELS.modals.created}
           value={
             user.created_at
               ? new Date(user.created_at).toLocaleDateString()
-              : LABELS.users.modals.unknown
+              : USERS_LABELS.modals.unknown
           }
         />
       </CardContent>
@@ -243,17 +238,12 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
     <Card>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          {LABELS.users.modals.accountInfo}
+          {USERS_LABELS.modals.accountInfo}
         </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Box>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-              gutterBottom
-            >
-              {LABELS.users.stats.rolePermissions}
+            <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+              {USERS_LABELS.stats.rolePermissions}
             </Typography>
             <Chip
               icon={<AccountIcon />}
@@ -264,37 +254,28 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
           </Box>
 
           <Box>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-              gutterBottom
-            >
-              {LABELS.users.stats.accountStatus}
+            <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+              {USERS_LABELS.stats.accountStatus}
             </Typography>
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               <Chip
-                label={
-                  user.account_locked
-                    ? LABELS.users.stats.locked
-                    : LABELS.users.stats.active
-                }
-                color={user.account_locked ? "error" : "success"}
+                label={user.account_locked ? USERS_LABELS.stats.locked : USERS_LABELS.stats.active}
+                color={user.account_locked ? 'error' : 'success'}
                 size="small"
               />
               <Chip
                 label={
                   user.profile_validated
-                    ? LABELS.users.stats.verified
-                    : LABELS.users.stats.unverified
+                    ? USERS_LABELS.stats.verified
+                    : USERS_LABELS.stats.unverified
                 }
-                color={user.profile_validated ? "success" : "warning"}
+                color={user.profile_validated ? 'success' : 'warning'}
                 size="small"
               />
               {user.vip_subscription && (
                 <Chip
                   icon={<VipIcon />}
-                  label={LABELS.users.modals.vipMember}
+                  label={USERS_LABELS.modals.vipMember}
                   color="primary"
                   size="small"
                 />
@@ -303,21 +284,16 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
           </Box>
 
           <Box>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-              gutterBottom
-            >
+            <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
               Security Information
             </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <SecurityIcon color="action" fontSize="small" />
               <Typography variant="body2">
-                {LABELS.common.messages.lastUpdated}:{" "}
+                {USERS_LABELS.messages.lastUpdated}:{' '}
                 {user.updated_at
                   ? new Date(user.updated_at).toLocaleDateString()
-                  : LABELS.common.messages.unknown}
+                  : COMMON_LABELS.messages.unknown}
               </Typography>
             </Box>
           </Box>
@@ -328,66 +304,55 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
 
   // Section Abonnements compacte pour la sidebar
   const SubscriptionInfoSection = () => {
-    const { data: subscriptions = [], isLoading: loadingSubscriptions } =
-      useUserSubscriptions(user.id, { enabled: !!user.id });
+    const { data: subscriptions = [], isLoading: loadingSubscriptions } = useUserSubscriptions(
+      user.id,
+      { enabled: !!user.id }
+    );
 
-    const activeSubscription = subscriptions.find((s) => s.status === "active");
+    const activeSubscription = subscriptions.find((s) => s.status === 'active');
 
     // Utiliser activityData pour le total global des dépenses au lieu de seulement les abonnements
     const userActivity = activityData?.[user.id];
     const totalSpent = userActivity?.totalSpent || 0;
-    const subscriptionSpent = subscriptions.reduce(
-      (sum, sub) => sum + sub.amount,
-      0
-    );
+    const subscriptionSpent = subscriptions.reduce((sum, sub) => sum + sub.amount, 0);
 
     return (
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <SubscriptionsIcon />
-              {LABELS.common.messages.subscriptionInfo}
+              {USERS_LABELS.messages.subscriptionInfo}
             </Box>
           </Typography>
 
           {loadingSubscriptions ? (
             <LinearProgress sx={{ mb: 2 }} />
           ) : (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {/* Statut d'abonnement */}
               <Box>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  display="block"
-                  gutterBottom
-                >
-                  {LABELS.common.messages.currentStatus}
+                <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                  {USERS_LABELS.messages.currentStatus}
                 </Typography>
                 <Chip
                   icon={activeSubscription ? <CheckIcon /> : <WarningIcon />}
                   label={
                     activeSubscription
-                      ? LABELS.common.messages.activeSubscription
-                      : LABELS.common.messages.noActiveSubscription
+                      ? USERS_LABELS.messages.activeSubscription
+                      : USERS_LABELS.messages.noActiveSubscription
                   }
-                  color={activeSubscription ? "success" : "default"}
+                  color={activeSubscription ? 'success' : 'default'}
                   size="small"
                 />
               </Box>
 
               {/* Total dépensé global */}
               <Box>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  display="block"
-                  gutterBottom
-                >
+                <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
                   Total dépensé
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <PaymentIcon color="action" fontSize="small" />
                   <Typography variant="body2" fontWeight="medium">
                     {formatCurrency(totalSpent)}
@@ -397,15 +362,10 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
 
               {/* Total abonnements */}
               <Box>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  display="block"
-                  gutterBottom
-                >
+                <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
                   Abonnements
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <SubscriptionsIcon color="action" fontSize="small" />
                   <Typography variant="body2" fontWeight="medium">
                     {formatCurrency(subscriptionSpent)}
@@ -415,39 +375,27 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
 
               {/* Nombre d'abonnements */}
               <Box>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  display="block"
-                  gutterBottom
-                >
-                  {LABELS.common.messages.subscriptionsCount}
+                <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                  {USERS_LABELS.messages.subscriptionsCount}
                 </Typography>
                 <Typography variant="body2">
-                  {subscriptions.length}{" "}
+                  {subscriptions.length}{' '}
                   {subscriptions.length !== 1
-                    ? LABELS.common.messages.subscriptions
-                    : LABELS.common.messages.subscription}
+                    ? USERS_LABELS.messages.subscriptions
+                    : USERS_LABELS.messages.subscription}
                 </Typography>
               </Box>
 
               {/* Détails abonnement actif */}
               {activeSubscription && (
                 <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    display="block"
-                    gutterBottom
-                  >
-                    {LABELS.common.messages.activeUntil}
+                  <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                    {USERS_LABELS.messages.activeUntil}
                   </Typography>
                   <Typography variant="body2">
                     {activeSubscription.period_end
-                      ? new Date(
-                          activeSubscription.period_end
-                        ).toLocaleDateString("fr-FR")
-                      : LABELS.common.messages.unknown}
+                      ? new Date(activeSubscription.period_end).toLocaleDateString('fr-FR')
+                      : COMMON_LABELS.messages.unknown}
                   </Typography>
                 </Box>
               )}
@@ -460,26 +408,21 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
 
   const AnonymizationSection = () =>
     isDeleted ? (
-      <Card sx={{ border: 1, borderColor: "warning.main" }}>
+      <Card sx={{ border: 1, borderColor: 'warning.main' }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
             Data Protection & Privacy
           </Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {/* Niveau d'anonymisation */}
             <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                display="block"
-                gutterBottom
-              >
+              <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
                 Anonymization Level
               </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 {getAnonymizationIcon(user.anonymization_level)}
                 <Chip
-                  label={user.anonymization_level || "Non spécifié"}
+                  label={user.anonymization_level || 'Non spécifié'}
                   color={getAnonymizationColor(user.anonymization_level)}
                   size="small"
                 />
@@ -492,15 +435,10 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
             {/* Raison de la suppression */}
             {user.deletion_reason && (
               <Box>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  display="block"
-                  gutterBottom
-                >
+                <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
                   Deletion Reason
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <WarningIcon color="warning" fontSize="small" />
                   <Typography variant="body2" color="text.secondary">
                     {getDeletionReasonLabel(user.deletion_reason)}
@@ -510,7 +448,7 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
             )}
 
             {/* Dates importantes */}
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               {user.deleted_at && (
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                   Supprimé le: {new Date(user.deleted_at).toLocaleDateString()}
@@ -518,74 +456,69 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
               )}
               {user.anonymized_at && (
                 <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Anonymisé le:{" "}
-                  {new Date(user.anonymized_at).toLocaleDateString()}
+                  Anonymisé le: {new Date(user.anonymized_at).toLocaleDateString()}
                 </Typography>
               )}
             </Box>
 
             {/* Progression de la rétention des données */}
-            {retentionInfo &&
-              user.anonymization_level !== AnonymizationLevel.PURGED && (
-                <Box sx={{ mb: 2 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      mb: 1,
-                    }}
-                  >
-                    <ScheduleIcon fontSize="small" color="action" />
-                    <Typography variant="body2" color="text.secondary">
-                      Rétention des données
-                    </Typography>
-                  </Box>
-                  <LinearProgress
-                    variant="determinate"
-                    value={retentionInfo.progress}
-                    sx={{ mb: 1 }}
-                    color={
-                      retentionInfo.isExpired
-                        ? "error"
-                        : retentionInfo.progress > 80
-                        ? "warning"
-                        : "primary"
-                    }
-                  />
-                  <Typography variant="caption" color="text.secondary">
-                    {retentionInfo.isExpired
-                      ? "Période de rétention expirée - Purge programmée"
-                      : `${retentionInfo.daysRemaining} jours restants`}
+            {retentionInfo && user.anonymization_level !== AnonymizationLevel.PURGED && (
+              <Box sx={{ mb: 2 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    mb: 1,
+                  }}
+                >
+                  <ScheduleIcon fontSize="small" color="action" />
+                  <Typography variant="body2" color="text.secondary">
+                    Rétention des données
                   </Typography>
                 </Box>
-              )}
+                <LinearProgress
+                  variant="determinate"
+                  value={retentionInfo.progress}
+                  sx={{ mb: 1 }}
+                  color={
+                    retentionInfo.isExpired
+                      ? 'error'
+                      : retentionInfo.progress > 80
+                        ? 'warning'
+                        : 'primary'
+                  }
+                />
+                <Typography variant="caption" color="text.secondary">
+                  {retentionInfo.isExpired
+                    ? 'Période de rétention expirée - Purge programmée'
+                    : `${retentionInfo.daysRemaining} jours restants`}
+                </Typography>
+              </Box>
+            )}
 
             {/* Alertes spécifiques */}
             {user.anonymization_level === AnonymizationLevel.PURGED && (
               <Alert severity="error" sx={{ mt: 1 }}>
                 <Typography variant="body2">
-                  Toutes les données de cet utilisateur ont été définitivement
-                  supprimées.
+                  Toutes les données de cet utilisateur ont été définitivement supprimées.
                 </Typography>
               </Alert>
             )}
 
-            {retentionInfo?.isExpired &&
-              user.anonymization_level !== AnonymizationLevel.PURGED && (
-                <Alert severity="warning" sx={{ mt: 1 }}>
-                  <Typography variant="body2">
-                    La période de rétention légale est expirée. La purge
-                    définitive est programmée.
-                  </Typography>
-                </Alert>
-              )}
+            {retentionInfo?.isExpired && user.anonymization_level !== AnonymizationLevel.PURGED && (
+              <Alert severity="warning" sx={{ mt: 1 }}>
+                <Typography variant="body2">
+                  La période de rétention légale est expirée. La purge définitive est programmée.
+                </Typography>
+              </Alert>
+            )}
 
             {user.anonymization_level === AnonymizationLevel.FULL && (
               <Alert severity="info" sx={{ mt: 1 }}>
                 <Typography variant="body2">
-                  Cet utilisateur a été complètement anonymisé. Seules les
-                  données techniques sont conservées.
+                  Cet utilisateur a été complètement anonymisé. Seules les données techniques sont
+                  conservées.
                 </Typography>
               </Alert>
             )}
@@ -595,9 +528,9 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
     ) : null;
 
   // Layout conditionnel selon le mode
-  if (layoutMode === "sidebar") {
+  if (layoutMode === 'sidebar') {
     return (
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <AccountInfoSection />
         <SubscriptionInfoSection />
         <AnonymizationSection />
@@ -605,9 +538,9 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
     );
   }
 
-  if (layoutMode === "main") {
+  if (layoutMode === 'main') {
     return (
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <BasicInfoSection />
         {/* Ici on peut ajouter d'autres sections spécifiques au contenu principal */}
       </Box>
@@ -616,7 +549,7 @@ export const UserInfoSections: React.FC<UserInfoSectionsProps> = ({
 
   // Mode "full" - layout original
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <BasicInfoSection />
       <AccountInfoSection />
       <SubscriptionInfoSection />

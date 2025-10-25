@@ -12,7 +12,7 @@ import { useProfileModals } from './useProfileModals';
 
 /**
  * 🎯 Hook Principal - useProfile (ORCHESTRATEUR)
- * 
+ *
  * Combine :
  * - Profile state & logic (inline)
  * - useChangePassword (password management)
@@ -53,7 +53,6 @@ export const useProfile = () => {
       },
       isEditMode: false,
     }));
-
   };
 
   // Sauvegarde du profil
@@ -76,7 +75,6 @@ export const useProfile = () => {
         phone: state.formData.phone.trim() || null,
       });
 
-
       if (!result.success) {
         showError(result.error || 'Failed to update profile');
         return false;
@@ -85,15 +83,13 @@ export const useProfile = () => {
       showSuccess('Profile updated successfully!');
       setState((prev) => ({ ...prev, isEditMode: false }));
 
-      
       // Refetch direct depuis Supabase pour être sûr d'avoir les données fraîches
       const { data: freshProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
-      
-      
+
       if (!fetchError && freshProfile) {
         // Mettre à jour le formData avec les données fraîches
         setState((prev) => ({
@@ -103,14 +99,14 @@ export const useProfile = () => {
             phone: freshProfile.phone || '',
           },
         }));
-        
+
         // Appeler aussi le refetch du provider pour synchroniser l'état global
         await refetchUserProfile();
       } else {
         console.error('❌ Error fetching fresh profile:', fetchError);
         // Fallback sur le refetch du provider
         await refetchUserProfile();
-        
+
         // Forcer une mise à jour du formData
         setState((prev) => ({
           ...prev,

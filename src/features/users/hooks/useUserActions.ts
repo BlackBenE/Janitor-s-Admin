@@ -10,19 +10,19 @@
  * PHASE 4B - FUSION ÉTAPE 3/4 - FUSION 1 TERMINÉE
  */
 
-import { useCallback } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/core/config/supabase";
-import { USER_QUERY_KEYS } from "./useUserQueries";
-import { dataProvider } from "@/core/api/data.provider";
-import { anonymizationService } from "@/core/services/anonymization.service";
-import type { UserProfile } from "@/types/userManagement";
+import { useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/core/config/supabase';
+import { USER_QUERY_KEYS } from './useUserQueries';
+import { dataProvider } from '@/core/api/data.provider';
+import { anonymizationService } from '@/core/services/anonymization.service';
+import type { UserProfile } from '@/types/userManagement';
 import {
   DeletionReason,
   AnonymizationLevel,
   AnonymizationResult,
   UserDeletionData,
-} from "@/types/dataRetention";
+} from '@/types/dataRetention';
 
 // ========================================
 // INTERFACES
@@ -31,7 +31,7 @@ interface UseBulkActionsProps {
   users: UserProfile[];
   selectedUsers: string[];
   clearUserSelection: () => void;
-  showNotification: (message: string, severity: "success" | "error") => void;
+  showNotification: (message: string, severity: 'success' | 'error') => void;
   updateUser: any; // Référence vers updateUser mutation
   softDeleteUser: any; // Référence vers softDeleteUser mutation
 }
@@ -56,10 +56,10 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
       profile_validated?: boolean;
       vip_subscription?: boolean;
     }) => {
-      const { data, error } = await supabase.functions.invoke("create-user", {
+      const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
           email: userData.email,
-          role: userData.role || "traveler",
+          role: userData.role || 'traveler',
           full_name: userData.full_name || null,
           phone: userData.phone || null,
           profile_validated: userData.profile_validated || false,
@@ -68,9 +68,7 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
       });
 
       if (error) {
-        throw new Error(
-          `Erreur lors de la création de l'utilisateur: ${error.message}`
-        );
+        throw new Error(`Erreur lors de la création de l'utilisateur: ${error.message}`);
       }
 
       return data;
@@ -83,17 +81,11 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
 
   // Mettre à jour un utilisateur
   const updateUser = useMutation({
-    mutationFn: async ({
-      userId,
-      updates,
-    }: {
-      userId: string;
-      updates: Partial<UserProfile>;
-    }) => {
+    mutationFn: async ({ userId, updates }: { userId: string; updates: Partial<UserProfile> }) => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update(updates)
-        .eq("id", userId)
+        .eq('id', userId)
         .select()
         .single();
 
@@ -113,12 +105,12 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
   const deleteUser = useMutation({
     mutationFn: async (userId: string) => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({
           is_deleted: true,
           deleted_at: new Date().toISOString(),
         })
-        .eq("id", userId)
+        .eq('id', userId)
         .select()
         .single();
 
@@ -139,18 +131,16 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
   const deleteManyUsers = useMutation({
     mutationFn: async (userIds: string[]) => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({
           is_deleted: true,
           deleted_at: new Date().toISOString(),
         })
-        .in("id", userIds)
+        .in('id', userIds)
         .select();
 
       if (error) {
-        throw new Error(
-          `Erreur lors de la suppression multiple: ${error.message}`
-        );
+        throw new Error(`Erreur lors de la suppression multiple: ${error.message}`);
       }
 
       return data;
@@ -168,12 +158,12 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
   const restoreUser = useMutation({
     mutationFn: async (userId: string) => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({
           is_deleted: false,
           deleted_at: null,
         })
-        .eq("id", userId)
+        .eq('id', userId)
         .select()
         .single();
 
@@ -204,13 +194,13 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
       const lockedUntil = new Date(Date.now() + duration * 60000);
 
       const { data, error } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({
           account_locked: true,
           locked_until: lockedUntil.toISOString(),
-          lock_reason: reason || "Verrouillage par un administrateur",
+          lock_reason: reason || 'Verrouillage par un administrateur',
         })
-        .eq("id", userId)
+        .eq('id', userId)
         .select()
         .single();
 
@@ -230,13 +220,13 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
   const unlockUser = useMutation({
     mutationFn: async (userId: string) => {
       const { data, error } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({
           account_locked: false,
           locked_until: null,
           lock_reason: null,
         })
-        .eq("id", userId)
+        .eq('id', userId)
         .select()
         .single();
 
@@ -264,12 +254,12 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
       amount: number;
     }) => {
       const { data, error } = await supabase
-        .from("subscriptions")
+        .from('subscriptions')
         .update({
           period_end: newPeriodEnd,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", subscriptionId)
+        .eq('id', subscriptionId)
         .select()
         .single();
 
@@ -281,7 +271,7 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [...USER_QUERY_KEYS.all, "subscriptions"],
+        queryKey: [...USER_QUERY_KEYS.all, 'subscriptions'],
       });
     },
   });
@@ -305,12 +295,9 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
     },
     onSuccess: (result) => {
       if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ["users"] });
+        queryClient.invalidateQueries({ queryKey: ['users'] });
       } else {
-        console.error(
-          `Erreur lors de l'anonymisation de ${result.user_id}:`,
-          result.error
-        );
+        console.error(`Erreur lors de l'anonymisation de ${result.user_id}:`, result.error);
       }
     },
   });
@@ -330,11 +317,7 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
 
       for (const userId of userIds) {
         try {
-          const result = await anonymizationService.anonymizeUser(
-            userId,
-            reason,
-            level
-          );
+          const result = await anonymizationService.anonymizeUser(userId, reason, level);
           results.push(result);
           // Pause entre chaque traitement
           await new Promise((resolve) => setTimeout(resolve, 100));
@@ -343,7 +326,7 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
           results.push({
             success: false,
             user_id: userId,
-            error: error instanceof Error ? error.message : "Erreur inconnue",
+            error: error instanceof Error ? error.message : 'Erreur inconnue',
           } as AnonymizationResult);
         }
       }
@@ -353,7 +336,7 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
     onSuccess: (results) => {
       const successful = results.filter((r) => r.success).length;
       const failed = results.filter((r) => !r.success).length;
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 
@@ -384,27 +367,21 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
       customReason?: string;
     }): Promise<UserDeletionData> => {
       // Étape 1: Soft delete classique
-      const deletionResponse = await dataProvider.update("profiles", userId, {
+      const deletionResponse = await dataProvider.update('profiles', userId, {
         deleted_at: new Date().toISOString(),
         deletion_reason: customReason || reason,
       });
 
       if (!deletionResponse.success) {
-        throw new Error(
-          deletionResponse.error?.message || "Failed to soft delete user"
-        );
+        throw new Error(deletionResponse.error?.message || 'Failed to soft delete user');
       }
 
       // Étape 2: Anonymisation selon la stratégie
-      const anonymizationResult = await anonymizeAndSoftDelete(
-        userId,
-        reason,
-        anonymizationLevel
-      );
+      const anonymizationResult = await anonymizeAndSoftDelete(userId, reason, anonymizationLevel);
 
       if (!anonymizationResult.success) {
         // Rollback du soft delete si l'anonymisation échoue
-        await dataProvider.update("profiles", userId, {
+        await dataProvider.update('profiles', userId, {
           deleted_at: null,
           deletion_reason: null,
         });
@@ -451,8 +428,7 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
           });
           results.push(result);
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : "Erreur inconnue";
+          const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
           errors.push(`${userId}: ${errorMessage}`);
         }
 
@@ -461,9 +437,7 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
       }
 
       if (errors.length > 0) {
-        throw new Error(
-          `Erreurs lors de la suppression en lot: ${errors.join(", ")}`
-        );
+        throw new Error(`Erreurs lors de la suppression en lot: ${errors.join(', ')}`);
       }
 
       return results;
@@ -487,7 +461,7 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
         userId,
         reason: DeletionReason.USER_REQUEST,
         anonymizationLevel: AnonymizationLevel.PARTIAL,
-        customReason: customReason || "Demande de suppression utilisateur",
+        customReason: customReason || 'Demande de suppression utilisateur',
       }),
 
     // Suppression admin (conservation pour audit)
@@ -496,7 +470,7 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
         userId,
         reason: DeletionReason.ADMIN_ACTION,
         anonymizationLevel: AnonymizationLevel.PARTIAL,
-        customReason: customReason || "Suppression administrative",
+        customReason: customReason || 'Suppression administrative',
       }),
 
     // Suppression pour violation (purge complète)
@@ -515,9 +489,7 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
 
   const getSelectedUsersList = useCallback(() => {
     if (!bulkActionsProps) return [];
-    return bulkActionsProps.users.filter((u) =>
-      bulkActionsProps.selectedUsers.includes(u.id)
-    );
+    return bulkActionsProps.users.filter((u) => bulkActionsProps.selectedUsers.includes(u.id));
   }, [bulkActionsProps]);
 
   const handleBulkValidate = useCallback(async () => {
@@ -533,16 +505,10 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
         });
       }
 
-      bulkActionsProps.showNotification(
-        "Utilisateurs validés en masse",
-        "success"
-      );
+      bulkActionsProps.showNotification('Utilisateurs validés en masse', 'success');
       bulkActionsProps.clearUserSelection();
     } catch (error) {
-      bulkActionsProps.showNotification(
-        "Erreur lors de la validation en masse",
-        "error"
-      );
+      bulkActionsProps.showNotification('Erreur lors de la validation en masse', 'error');
     }
   }, [getSelectedUsersList, updateUser, bulkActionsProps]);
 
@@ -559,16 +525,10 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
         });
       }
 
-      bulkActionsProps.showNotification(
-        "Utilisateurs mis en attente en masse",
-        "success"
-      );
+      bulkActionsProps.showNotification('Utilisateurs mis en attente en masse', 'success');
       bulkActionsProps.clearUserSelection();
     } catch (error) {
-      bulkActionsProps.showNotification(
-        "Erreur lors de la mise en attente en masse",
-        "error"
-      );
+      bulkActionsProps.showNotification('Erreur lors de la mise en attente en masse', 'error');
     }
   }, [getSelectedUsersList, updateUser, bulkActionsProps]);
 
@@ -585,16 +545,10 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
         });
       }
 
-      bulkActionsProps.showNotification(
-        "Utilisateurs suspendus en masse",
-        "success"
-      );
+      bulkActionsProps.showNotification('Utilisateurs suspendus en masse', 'success');
       bulkActionsProps.clearUserSelection();
     } catch (error) {
-      bulkActionsProps.showNotification(
-        "Erreur lors de la suspension en masse",
-        "error"
-      );
+      bulkActionsProps.showNotification('Erreur lors de la suspension en masse', 'error');
     }
   }, [getSelectedUsersList, updateUser, bulkActionsProps]);
 
@@ -615,16 +569,10 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
         });
       }
 
-      bulkActionsProps.showNotification(
-        "Utilisateurs débloqués en masse",
-        "success"
-      );
+      bulkActionsProps.showNotification('Utilisateurs débloqués en masse', 'success');
       bulkActionsProps.clearUserSelection();
     } catch (error) {
-      bulkActionsProps.showNotification(
-        "Erreur lors du déblocage en masse",
-        "error"
-      );
+      bulkActionsProps.showNotification('Erreur lors du déblocage en masse', 'error');
     }
   }, [getSelectedUsersList, updateUser, bulkActionsProps]);
 

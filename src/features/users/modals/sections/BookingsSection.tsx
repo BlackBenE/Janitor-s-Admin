@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 import {
   Alert,
   Avatar,
@@ -18,7 +18,7 @@ import {
   TableHead,
   TableRow,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 import {
   CalendarToday,
   Cancel,
@@ -27,16 +27,10 @@ import {
   Pending,
   Person,
   TrendingUp,
-} from "@mui/icons-material";
-import {
-  useUserStatsIndividual,
-  useUserBookings,
-} from "../../hooks/useUserQueries";
-import { formatCurrency, formatDate, getStatusColor } from "@/utils";
-import {
-  getPaymentStatusLabel,
-  getPaymentStatusColor,
-} from "@/utils/statusHelpers";
+} from '@mui/icons-material';
+import { useUserStatsIndividual, useUserBookings } from '../../hooks/useUserQueries';
+import { formatCurrency, formatDate, getStatusColor } from '@/utils';
+import { getPaymentStatusLabel, getPaymentStatusColor } from '@/utils/statusHelpers';
 
 interface BookingsSectionProps {
   userId: string;
@@ -77,7 +71,7 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
   const calculateRoleSpecificStats = () => {
     if (!stats) return null;
 
-    if (userRole === "property_owner") {
+    if (userRole === 'property_owner') {
       // stats.totalSpent contient maintenant les revenus reçus (via payee_id)
       const totalReceived = stats.totalSpent || 0;
 
@@ -91,19 +85,19 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
 
       return {
         primary: netRevenue,
-        primaryLabel: "Revenus nets (après commission)",
+        primaryLabel: 'Revenus nets (après commission)',
         primaryIcon: Payment,
         secondary: platformCommission,
-        secondaryLabel: "Commission plateforme",
+        secondaryLabel: 'Commission plateforme',
       };
     } else {
       // Pour les travelers : totalSpent est correct (paiements effectués via payer_id)
       return {
         primary: stats.totalSpent,
-        primaryLabel: "Total dépensé",
+        primaryLabel: 'Total dépensé',
         primaryIcon: Payment,
         secondary: stats.averageBookingValue,
-        secondaryLabel: "Valeur moyenne par réservation",
+        secondaryLabel: 'Valeur moyenne par réservation',
       };
     }
   };
@@ -113,11 +107,11 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
   // Fonctions utilitaires
   const getStatusIcon = (status: string) => {
     switch (status?.toLowerCase()) {
-      case "confirmed":
+      case 'confirmed':
         return <CheckCircle fontSize="small" />;
-      case "pending":
+      case 'pending':
         return <Pending fontSize="small" />;
-      case "cancelled":
+      case 'cancelled':
         return <Cancel fontSize="small" />;
       default:
         return null;
@@ -127,7 +121,7 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
   // États de chargement et d'erreur
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
         <CircularProgress size={24} />
         <Typography variant="body2" sx={{ ml: 2 }}>
           Chargement des réservations...
@@ -147,18 +141,14 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
   return (
     <Box sx={{ mt: 2 }}>
       {/* En-tête de la section */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <CalendarToday color="primary" />
         <Typography variant="h6" color="primary">
-          {userRole === "property_owner"
-            ? "Propriétés & Réservations"
-            : "Réservations"}{" "}
-          de {userName}
+          {userRole === 'property_owner' ? 'Propriétés & Réservations' : 'Réservations'} de{' '}
+          {userName}
         </Typography>
         <Chip
-          label={`${bookings.length} réservation${
-            bookings.length > 1 ? "s" : ""
-          }`}
+          label={`${bookings.length} réservation${bookings.length > 1 ? 's' : ''}`}
           size="small"
           color="primary"
           variant="outlined"
@@ -170,13 +160,11 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
         <Grid container spacing={2} sx={{ mb: 3 }}>
           {/* Stat principale (Revenus nets ou Total dépensé) */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Card variant="outlined" sx={{ height: "100%" }}>
+            <Card variant="outlined" sx={{ height: '100%' }}>
               <CardContent>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <roleStats.primaryIcon color="primary" />
-                  <Typography variant="h6">
-                    {formatCurrency(roleStats.primary)}
-                  </Typography>
+                  <Typography variant="h6">{formatCurrency(roleStats.primary)}</Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary">
                   {roleStats.primaryLabel}
@@ -187,9 +175,9 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
 
           {/* Réservations totales */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Card variant="outlined" sx={{ height: "100%" }}>
+            <Card variant="outlined" sx={{ height: '100%' }}>
               <CardContent>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <CalendarToday color="success" />
                   <Typography variant="h6">{stats.totalBookings}</Typography>
                 </Box>
@@ -202,13 +190,11 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
 
           {/* Réservations terminées */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Card variant="outlined" sx={{ height: "100%" }}>
+            <Card variant="outlined" sx={{ height: '100%' }}>
               <CardContent>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <CheckCircle color="success" />
-                  <Typography variant="h6">
-                    {stats.completedBookings}
-                  </Typography>
+                  <Typography variant="h6">{stats.completedBookings}</Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary">
                   Terminées
@@ -219,15 +205,11 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
 
           {/* Stat secondaire (Commission ou Valeur moyenne) */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Card variant="outlined" sx={{ height: "100%" }}>
+            <Card variant="outlined" sx={{ height: '100%' }}>
               <CardContent>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <TrendingUp
-                    color={userRole === "property_owner" ? "warning" : "info"}
-                  />
-                  <Typography variant="h6">
-                    {formatCurrency(roleStats.secondary)}
-                  </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <TrendingUp color={userRole === 'property_owner' ? 'warning' : 'info'} />
+                  <Typography variant="h6">{formatCurrency(roleStats.secondary)}</Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary">
                   {roleStats.secondaryLabel}
@@ -257,7 +239,7 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
                 <TableRow key={booking.id} hover>
                   <TableCell>
                     <Typography variant="body2" fontWeight="medium">
-                      {booking.properties?.title || "Propriété inconnue"}
+                      {booking.properties?.title || 'Propriété inconnue'}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {booking.properties?.city}
@@ -266,23 +248,19 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
                   <TableCell>
                     <Typography variant="body2">
                       {booking.check_in && formatDate(booking.check_in)}
-                      {booking.check_out && (
-                        <> - {formatDate(booking.check_out)}</>
-                      )}
+                      {booking.check_out && <> - {formatDate(booking.check_out)}</>}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={booking.status || "Unknown"}
-                      color={getStatusColor(booking.status, "booking")}
+                      label={booking.status || 'Unknown'}
+                      color={getStatusColor(booking.status, 'booking')}
                       size="small"
                     />
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" fontWeight="medium">
-                      {booking.total_amount
-                        ? formatCurrency(booking.total_amount)
-                        : "N/A"}
+                      {booking.total_amount ? formatCurrency(booking.total_amount) : 'N/A'}
                     </Typography>
                   </TableCell>
                   <TableCell>
@@ -304,17 +282,16 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
           </Table>
 
           {bookings.length > 5 && (
-            <Box sx={{ p: 2, textAlign: "center" }}>
+            <Box sx={{ p: 2, textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">
-                {bookings.length - 5} réservation(s) supplémentaire(s) non
-                affichée(s)
+                {bookings.length - 5} réservation(s) supplémentaire(s) non affichée(s)
               </Typography>
             </Box>
           )}
         </TableContainer>
       ) : (
-        <Paper variant="outlined" sx={{ p: 3, textAlign: "center" }}>
-          <CalendarToday sx={{ fontSize: 48, color: "text.disabled", mb: 2 }} />
+        <Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
+          <CalendarToday sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
           <Typography variant="body1" color="text.secondary">
             Aucune réservation trouvée
           </Typography>

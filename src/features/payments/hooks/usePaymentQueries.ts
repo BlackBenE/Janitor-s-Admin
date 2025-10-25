@@ -109,7 +109,6 @@ export const usePayments = (options?: {
   return useQuery({
     queryKey: PAYMENT_QUERY_KEYS.list(options?.filters),
     queryFn: async () => {
-
       let query = supabase.from('payments').select(`
           *,
           payer:profiles!payments_payer_id_fkey (
@@ -207,7 +206,6 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: PAYMENT_QUERY_KEYS.stats(),
     queryFn: async () => {
-
       // Récupérer les statistiques avec payment_type pour le calcul des revenus
       const { data: payments, error } = await supabase
         .from('payments')
@@ -259,7 +257,6 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
         return sum + revenue;
       }, 0);
 
-
       // Montant moyen
       const totalAmount = paymentsArray.reduce((sum, p) => sum + (p.amount || 0), 0);
       const averageAmount = totalPayments > 0 ? totalAmount / totalPayments : 0;
@@ -274,7 +271,6 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
         averageAmount,
         totalAmount,
       };
-
 
       return stats;
     },

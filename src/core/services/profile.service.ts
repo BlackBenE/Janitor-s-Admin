@@ -53,10 +53,8 @@ export class ProfileService {
         updated_at: new Date().toISOString(),
       };
 
-
       // Utiliser le dataProvider qui gère mieux les erreurs et utilise supabaseAdmin
       const response = await dataProvider.update('profiles', userId, updateData);
-
 
       if (!response.success || response.error) {
         console.error('❌ Update profile error:', response.error);

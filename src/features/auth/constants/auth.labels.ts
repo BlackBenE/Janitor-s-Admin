@@ -1,5 +1,5 @@
 /**
- * 🔐 Labels du domaine Auth
+ * Labels du domaine Auth
  *
  * Labels et textes pour l'authentification et la gestion de session.
  *

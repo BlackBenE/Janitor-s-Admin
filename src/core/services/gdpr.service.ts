@@ -51,7 +51,6 @@ export class GDPRTestService {
    */
   static async testPurgeFunction() {
     try {
-
       const { data, error } = await supabase.rpc('execute_gdpr_purges');
 
       if (error) {
@@ -71,7 +70,6 @@ export class GDPRTestService {
    */
   static async simulateUserDeletion(userId: string) {
     try {
-
       // 1. Soft delete
       const { error: deleteError } = await supabase
         .from('profiles')
@@ -90,7 +88,6 @@ export class GDPRTestService {
         return false;
       }
 
-
       return true;
     } catch (error) {
       console.error('❌ Erreur lors de la simulation:', error);
@@ -108,6 +105,7 @@ export class GDPRTestService {
 
   // Helper pour voir les commandes disponibles
   help: () => {
+    console.log(`
 🧪 Commandes de test GDPR disponibles:
 
 gdprTest.preview()     - Voir les purges à venir
@@ -121,6 +119,5 @@ gdprTest.preview()
 `);
   },
 };
-
 
 export default GDPRTestService;

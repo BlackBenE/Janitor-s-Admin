@@ -122,7 +122,7 @@ export const FinancialOwnersReportSection: React.FC<FinancialOwnersReportSection
       title={FINANCIAL_LABELS.owners.title}
       description="Vue consolidée des performances financières par propriétaire. Les propriétaires sont triés par revenus décroissants. Seuls les propriétaires actifs avec au moins une propriété sont affichés."
     >
-      {/* 🔍 Barre de recherche */}
+      {/* Barre de recherche */}
       <DataTableSearch
         searchValue={searchValue}
         onSearchChange={setSearchValue}
@@ -130,7 +130,7 @@ export const FinancialOwnersReportSection: React.FC<FinancialOwnersReportSection
         showAdvancedFilters={false}
       />
 
-      {/* 📊 Tableau sans onglets */}
+      {/* Tableau sans onglets */}
       <DataTableView
         columns={columns}
         data={transformedData}

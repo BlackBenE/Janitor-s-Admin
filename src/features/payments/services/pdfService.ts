@@ -1,11 +1,11 @@
-import html2pdf from "html2pdf.js";
-import { PaymentWithDetails } from "../../../types/payments";
+import html2pdf from 'html2pdf.js';
+import { PaymentWithDetails } from '../../../types/payments';
 
 export interface PdfGenerationOptions {
   filename?: string;
   scale?: number;
-  format?: "a4" | "letter";
-  orientation?: "portrait" | "landscape";
+  format?: 'a4' | 'letter';
+  orientation?: 'portrait' | 'landscape';
 }
 
 /**
@@ -24,55 +24,42 @@ export class PaymentPdfService {
     try {
       const filename =
         options.filename ||
-        `facture-${
-          payment.stripe_payment_intent_id || payment.id
-        }-${Date.now()}.pdf`;
-
-        filename,
-        elementId: element.id,
-        elementSize: {
-          width: element.scrollWidth,
-          height: element.scrollHeight,
-          offsetWidth: element.offsetWidth,
-          offsetHeight: element.offsetHeight,
-        },
-        hasContent: element.innerHTML.length > 0,
-      });
+        `facture-${payment.stripe_payment_intent_id || payment.id}-${Date.now()}.pdf`;
 
       const opt = {
         filename,
         image: {
-          type: "jpeg" as const,
+          type: 'jpeg' as const,
           quality: 1,
         },
         html2canvas: {
           scale: options.scale || 2,
           useCORS: true,
           letterRendering: true,
-          backgroundColor: "#ffffff",
+          backgroundColor: '#ffffff',
           height: element.scrollHeight || element.offsetHeight,
           width: element.scrollWidth || element.offsetWidth,
           logging: true, // Activer les logs html2canvas
         },
         jsPDF: {
-          unit: "mm",
-          format: options.format || "a4",
-          orientation: options.orientation || ("portrait" as const),
+          unit: 'mm',
+          format: options.format || 'a4',
+          orientation: options.orientation || ('portrait' as const),
           compress: true,
         },
         pagebreak: {
-          mode: ["avoid-all", "css", "legacy"],
-          before: ".page-break-before",
-          after: ".page-break-after",
-          avoid: ".page-break-avoid",
+          mode: ['avoid-all', 'css', 'legacy'],
+          before: '.page-break-before',
+          after: '.page-break-after',
+          avoid: '.page-break-avoid',
         },
       };
 
       await html2pdf().set(opt).from(element).save();
       return Promise.resolve();
     } catch (error) {
-      console.error("❌ Error generating PDF:", error);
-      throw new Error("Échec de la génération du PDF. Veuillez réessayer.");
+      console.error('❌ Error generating PDF:', error);
+      throw new Error('Échec de la génération du PDF. Veuillez réessayer.');
     }
   }
 
@@ -81,14 +68,11 @@ export class PaymentPdfService {
    */
   static generateFilename(payment: PaymentWithDetails): string {
     const payerName = payment.payer
-      ? `${payment.payer.first_name}-${payment.payer.last_name}`
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-      : "client";
+      ? `${payment.payer.first_name}-${payment.payer.last_name}`.toLowerCase().replace(/\s+/g, '-')
+      : 'client';
 
-    const invoiceId =
-      payment.stripe_payment_intent_id || `inv-${payment.id.slice(-8)}`;
-    const date = new Date().toISOString().split("T")[0];
+    const invoiceId = payment.stripe_payment_intent_id || `inv-${payment.id.slice(-8)}`;
+    const date = new Date().toISOString().split('T')[0];
 
     return `facture-${payerName}-${invoiceId}-${date}.pdf`;
   }
@@ -97,10 +81,10 @@ export class PaymentPdfService {
    * Formate une date pour l'affichage dans le PDF
    */
   static formatDateForPdf(dateString: string): string {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     });
   }
 
@@ -108,9 +92,9 @@ export class PaymentPdfService {
    * Formate un montant pour l'affichage dans le PDF
    */
   static formatAmountForPdf(amount: number): string {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'EUR',
     }).format(amount);
   }
 

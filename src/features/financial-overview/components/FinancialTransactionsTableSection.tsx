@@ -239,7 +239,7 @@ export const FinancialTransactionsTableSection: React.FC<
         showAdvancedFilters={false}
       />
 
-      {/* 📑 Onglets */}
+      {/* Onglets */}
       <DataTableTabs
         tabs={tabs}
         activeTab={activeTab}
@@ -247,7 +247,7 @@ export const FinancialTransactionsTableSection: React.FC<
         data={transactions}
       />
 
-      {/* 📊 Tableau */}
+      {/* Tableau */}
       <DataTableView
         columns={columns}
         data={transformedData}

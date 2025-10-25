@@ -15,7 +15,6 @@ import {
 /**
  * Hook principal pour récupérer et générer les données analytics depuis Supabase
  *
- * ✅ REFACTORÉ : Utilise les hooks partagés pour bénéficier du cache global
  */
 export const useAnalyticsData = (dateRange: DateRange) => {
   const queryClient = useQueryClient();

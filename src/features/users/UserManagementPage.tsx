@@ -137,18 +137,6 @@ export const UserManagementPage: React.FC = () => {
   // Utiliser directement les utilisateurs du hook (plus besoin de filtrage manuel)
   const finalUsers = allUsers || [];
 
-  // Debug: log des données
-    activeTab,
-    isDeletedTab,
-    isAdminTab,
-    deletedUsersCount: deletedUsers?.length,
-    activeUsersCount: activeUsers?.length,
-    adminUsersCount: adminUsers?.length,
-    currentTabRole,
-    currentUsersCount: finalUsers.length,
-    allUsersToDisplay: allUsers?.length,
-  });
-
   // Les bulk actions et activity data sont maintenant dans le hook unifié
   const activityData = users.activityData || {};
 
@@ -178,15 +166,15 @@ export const UserManagementPage: React.FC = () => {
     onUnlockAccount: async (userId: string) => {
       try {
         // Récupérer l'email de l'utilisateur pour l'audit
-        const targetUser = usersData?.find(u => u.id === userId);
+        const targetUser = usersData?.find((u) => u.id === userId);
         const targetEmail = targetUser?.email || userId;
-        
+
         // 🎯 Utilisation de notre nouveau hook au lieu de securityActions
         await updateUser.mutateAsync({
           userId: userId,
           updates: { account_locked: false },
         });
-        
+
         // 🎯 Créer le log d'audit
         await createAuditLog({
           actionType: 'unlock_account',
@@ -198,7 +186,7 @@ export const UserManagementPage: React.FC = () => {
             admin_email: getEmail(),
           },
         });
-        
+
         showNotification('Compte déverrouillé avec succès', 'success');
         // Le refetch est déjà géré automatiquement par la mutation
       } catch (error) {
@@ -403,26 +391,29 @@ export const UserManagementPage: React.FC = () => {
           onSaveUser={async () => {
             try {
               if (!selectedUser) return;
-              
+
               // Garder une copie des anciennes valeurs pour l'audit
               const oldValues = { ...selectedUser };
-              
+
               await updateUser.mutateAsync({
                 userId: selectedUser.id,
                 updates: editForm,
               });
-              
+
               // 🎯 Créer le log d'audit avec les changements
               const changes: Record<string, any> = {};
-              Object.keys(editForm).forEach(key => {
-                if (editForm[key as keyof typeof editForm] !== oldValues[key as keyof typeof oldValues]) {
+              Object.keys(editForm).forEach((key) => {
+                if (
+                  editForm[key as keyof typeof editForm] !==
+                  oldValues[key as keyof typeof oldValues]
+                ) {
                   changes[key] = {
                     from: oldValues[key as keyof typeof oldValues],
                     to: editForm[key as keyof typeof editForm],
                   };
                 }
               });
-              
+
               if (Object.keys(changes).length > 0) {
                 await createAuditLog({
                   actionType: 'update_user',
@@ -436,7 +427,7 @@ export const UserManagementPage: React.FC = () => {
                   },
                 });
               }
-              
+
               showNotification('Utilisateur mis à jour', 'success');
               modals.closeUserDetailsModal();
             } catch (error) {
@@ -451,13 +442,13 @@ export const UserManagementPage: React.FC = () => {
           onUnlockAccount={async () => {
             try {
               if (!selectedUser) return;
-              
+
               // 🎯 Utilisation de notre nouveau hook au lieu de securityActions
               await updateUser.mutateAsync({
                 userId: selectedUser.id,
                 updates: { account_locked: false },
               });
-              
+
               // 🎯 Créer le log d'audit
               await createAuditLog({
                 actionType: 'unlock_account',
@@ -469,7 +460,7 @@ export const UserManagementPage: React.FC = () => {
                   admin_email: getEmail(),
                 },
               });
-              
+
               showNotification('Compte déverrouillé avec succès', 'success');
               modals.closeUserDetailsModal(); // Ferme la modal après unlock
             } catch (error) {
@@ -495,7 +486,7 @@ export const UserManagementPage: React.FC = () => {
               showNotification(USERS_LABELS.messages.securityAdminDeletionBlocked, 'error');
               return;
             }
-            
+
             // Ouvrir la modale de suppression intelligente au lieu de supprimer directement
             if (selectedUser) {
               modals.openSmartDeleteModal(selectedUser);
@@ -542,7 +533,7 @@ export const UserManagementPage: React.FC = () => {
                     admin_email: getEmail(),
                   },
                 });
-                
+
                 showNotification('Utilisateur créé avec succès', 'success');
                 modals.closeCreateUserModal();
                 resetEditForm();
@@ -573,15 +564,11 @@ export const UserManagementPage: React.FC = () => {
               if (!modals.lockAccount.userId) {
                 return;
               }
-                userId: modals.lockAccount.userId,
-                duration: modals.lockAccount.duration,
-                reason: modals.lockAccount.reason,
-              });
-              
+
               // Récupérer l'email de l'utilisateur pour l'audit
-              const targetUser = usersData?.find(u => u.id === modals.lockAccount.userId);
+              const targetUser = usersData?.find((u) => u.id === modals.lockAccount.userId);
               const targetEmail = targetUser?.email || modals.lockAccount.userId;
-              
+
               // 🎯 Utilisation de notre nouveau hook au lieu de securityActions
               await updateUser.mutateAsync({
                 userId: modals.lockAccount.userId,
@@ -590,7 +577,7 @@ export const UserManagementPage: React.FC = () => {
                   // Note: duration et reason pourraient être ajoutés si nécessaire
                 },
               });
-              
+
               // 🎯 Créer le log d'audit
               await createAuditLog({
                 actionType: 'lock_account',
@@ -604,7 +591,7 @@ export const UserManagementPage: React.FC = () => {
                   admin_email: getEmail(),
                 },
               });
-              
+
               showNotification('Compte verrouillé avec succès', 'success');
               modals.closeLockModal();
             } catch (error) {
@@ -624,19 +611,19 @@ export const UserManagementPage: React.FC = () => {
           onSmartDelete={async (userId: string, reason: any, level: any, customReason?: string) => {
             try {
               // Récupérer l'email de l'utilisateur pour l'audit
-              const targetUser = usersData?.find(u => u.id === userId);
-              
+              const targetUser = usersData?.find((u) => u.id === userId);
+
               // 🔒 SÉCURITÉ: Bloquer la suppression d'un administrateur
               if (targetUser?.role === 'admin') {
                 showNotification(USERS_LABELS.messages.securityAdminDeletionBlocked, 'error');
                 modals.closeSmartDeleteModal();
                 return;
               }
-              
+
               const targetEmail = targetUser?.email || userId;
-              
+
               await anonymization.anonymizeUser({ userId, reason, level });
-              
+
               // 🎯 Créer le log d'audit
               await createAuditLog({
                 actionType: 'smart_delete_user',
@@ -659,19 +646,19 @@ export const UserManagementPage: React.FC = () => {
             try {
               // Le composant passe les userIds via selectedUserIds prop
               const userIds = modals.selectedUserIdsForBulkDelete || [];
-              
+
               // 🔒 SÉCURITÉ: Vérifier qu'aucun admin n'est dans la sélection
-              const selectedUsersList = usersData?.filter(u => userIds.includes(u.id)) || [];
-              const hasAdmins = selectedUsersList.some(u => u.role === 'admin');
-              
+              const selectedUsersList = usersData?.filter((u) => userIds.includes(u.id)) || [];
+              const hasAdmins = selectedUsersList.some((u) => u.role === 'admin');
+
               if (hasAdmins) {
                 showNotification(USERS_LABELS.messages.securityAdminDeletionBlocked, 'error');
                 modals.closeBulkSmartDeleteModal();
                 return;
               }
-              
+
               await anonymization.anonymizeUsers({ userIds, reason, level });
-              
+
               // 🎯 Créer le log d'audit pour la suppression en masse
               await createAuditLog({
                 actionType: 'bulk_smart_delete',
@@ -694,11 +681,11 @@ export const UserManagementPage: React.FC = () => {
           onRestoreUser={async (userId: string) => {
             try {
               // Récupérer l'email de l'utilisateur pour l'audit
-              const targetUser = usersData?.find(u => u.id === userId);
+              const targetUser = usersData?.find((u) => u.id === userId);
               const targetEmail = targetUser?.email || userId;
-              
+
               await restoreUser.mutateAsync(userId);
-              
+
               // 🎯 Créer le log d'audit
               await createAuditLog({
                 actionType: 'restore_user',

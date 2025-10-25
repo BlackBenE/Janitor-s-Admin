@@ -1,7 +1,6 @@
 /**
  * Service pour calculer les données financières
  *
- * ⚠️ REFACTORÉ : Ce service ne fait PLUS de fetch Supabase
  * Il reçoit les données en paramètres et fait uniquement les calculs
  *
  * Les données sont récupérées via les hooks partagés :
@@ -67,16 +66,6 @@ export const calculateFinancialOverview = (
   );
 
   const totalRevenue = bookingRevenue + subscriptionRevenue + serviceRevenue;
-
-    paidBookings: paidBookings.length,
-    bookingRevenue,
-    activeSubscriptions: activeSubscriptions.length,
-    subscriptionRevenue,
-    completedServices: completedServices.length,
-    serviceRevenue,
-    totalRevenue,
-    note: 'Financial Overview calcule sur TOUS les paiements/bookings/services (pas de filtre de date)',
-  });
 
   // Calculer les dépenses
   // 1. Paiements aux prestataires (85% du total_amount des service_requests)
@@ -312,7 +301,6 @@ export const calculateOwnersReport = (
     return [];
   }
 
-
   const ownersReport: OwnerFinancialReport[] = [];
 
   for (const owner of owners) {
@@ -354,7 +342,6 @@ export const calculateOwnersReport = (
       subscription_fee: SUBSCRIPTION_FEE,
     });
   }
-
 
   // Trier par revenus décroissants
   return ownersReport.sort((a, b) => b.total_revenue - a.total_revenue);

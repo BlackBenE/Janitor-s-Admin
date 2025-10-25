@@ -1,5 +1,5 @@
 /**
- * 🏷️ Labels du domaine Dashboard
+ * Labels du domaine Dashboard
  */
 
 export const DASHBOARD_LABELS = {

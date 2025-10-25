@@ -32,7 +32,7 @@ import {
 /**
  * Hook principal pour la page Financial Overview
  *
- * ✅ REFACTORÉ : Utilise les hooks partagés au lieu de faire des fetch directs
+ * REFACTORÉ : Utilise les hooks partagés au lieu de faire des fetch directs
  *
  * Avantages :
  * - Cache global React Query partagé entre toutes les pages
@@ -43,7 +43,7 @@ import {
 export const useFinancialOverview = () => {
   const queryClient = useQueryClient();
 
-  // 🔥 Récupération des données via hooks partagés (cache global)
+  // Récupération des données via hooks partagés (cache global)
   const { data: payments = [], isLoading: paymentsLoading } = usePayments();
   const { data: bookings = [], isLoading: bookingsLoading } = useBookings();
   const { data: profiles = [], isLoading: profilesLoading } = useProfiles();
@@ -57,16 +57,6 @@ export const useFinancialOverview = () => {
     subscriptionsLoading ||
     serviceRequestsLoading;
 
-  // Debug: Vérifier ce qu'on reçoit
-    payments: payments.length,
-    bookings: bookings.length,
-    profiles: profiles.length,
-    subscriptions: subscriptions.length,
-    serviceRequests: serviceRequests.length,
-    isLoading,
-  });
-
-  // 🧮 Calculs des données financières (en mémoire, pas de fetch)
   const overview: FinancialOverview | null = useMemo(() => {
     if (isLoading) return null;
     const result = calculateFinancialOverview(payments, bookings, subscriptions, serviceRequests);
@@ -93,7 +83,7 @@ export const useFinancialOverview = () => {
     return calculateOwnersReport(profiles, bookings);
   }, [profiles, bookings, isLoading]);
 
-  // ♻️ Rafraîchir toutes les données
+  // Rafraîchir toutes les données
   const refetch = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: PAYMENTS_QUERY_KEYS.all }),
@@ -104,7 +94,7 @@ export const useFinancialOverview = () => {
     ]);
   };
 
-  // 📤 Export des données
+  // Export des données
   const exportData = async (format?: 'csv' | 'pdf' | 'excel') => {
     // TODO: Implémenter l'export avec les données réelles
   };

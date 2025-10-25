@@ -1,5 +1,5 @@
 /**
- * 🏷️ Labels du domaine Financial Overview
+ * Labels du domaine Financial Overview
  *
  * Labels et textes pour la vue d'ensemble financière.
  *

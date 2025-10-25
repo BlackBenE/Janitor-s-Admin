@@ -45,10 +45,6 @@ export const useProfile = () => {
   };
 
   const resetForm = () => {
-      fullName: getUserFullName(),
-      phone: getUserPhone(),
-    });
-
     setState((prev) => ({
       ...prev,
       formData: {
@@ -73,14 +69,6 @@ export const useProfile = () => {
     }
 
     try {
-        userId: user.id,
-        formData: state.formData,
-        currentUserData: {
-          fullName: getUserFullName(),
-          phone: getUserPhone(),
-        },
-      });
-
       setState((prev) => ({ ...prev, isLoading: true }));
 
       const result = await ProfileService.updateProfile(user.id, {
@@ -132,11 +120,6 @@ export const useProfile = () => {
           },
         }));
       }
-
-        fullName: getUserFullName(),
-        phone: getUserPhone(),
-        formDataFullName: state.formData.full_name,
-      });
 
       return true;
     } catch (err) {

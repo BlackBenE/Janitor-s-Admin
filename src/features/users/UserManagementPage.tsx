@@ -137,18 +137,6 @@ export const UserManagementPage: React.FC = () => {
   // Utiliser directement les utilisateurs du hook (plus besoin de filtrage manuel)
   const finalUsers = allUsers || [];
 
-  // Debug: log des données
-    activeTab,
-    isDeletedTab,
-    isAdminTab,
-    deletedUsersCount: deletedUsers?.length,
-    activeUsersCount: activeUsers?.length,
-    adminUsersCount: adminUsers?.length,
-    currentTabRole,
-    currentUsersCount: finalUsers.length,
-    allUsersToDisplay: allUsers?.length,
-  });
-
   // Les bulk actions et activity data sont maintenant dans le hook unifié
   const activityData = users.activityData || {};
 
@@ -573,10 +561,6 @@ export const UserManagementPage: React.FC = () => {
               if (!modals.lockAccount.userId) {
                 return;
               }
-                userId: modals.lockAccount.userId,
-                duration: modals.lockAccount.duration,
-                reason: modals.lockAccount.reason,
-              });
               
               // Récupérer l'email de l'utilisateur pour l'audit
               const targetUser = usersData?.find(u => u.id === modals.lockAccount.userId);

@@ -248,14 +248,8 @@ export const usePaymentStats = (options?: { enabled?: boolean }) => {
           );
         });
 
-
       const monthlyRevenue = paidThisMonth.reduce((sum, p) => {
         const amount = p.amount || 0;
-          id: p.id,
-          type: p.payment_type,
-          amount: amount,
-          status: p.status,
-        });
 
         // Utilise le service centralisé pour les règles de calcul
         // 20% pour les bookings, 100% pour les subscriptions

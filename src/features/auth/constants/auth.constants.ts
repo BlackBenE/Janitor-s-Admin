@@ -1,7 +1,7 @@
 import { AuthFormField } from '@/types/auth';
 
 /**
- * 🔐 Constantes du domaine Auth
+ * Constantes du domaine Auth
  *
  * Ce fichier centralise toutes les configurations et constantes
  * liées à l'authentification.

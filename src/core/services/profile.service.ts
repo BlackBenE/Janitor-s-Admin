@@ -46,10 +46,6 @@ export class ProfileService {
     }
   ): Promise<{ success: boolean; error?: string }> {
     try {
-        userId,
-        data,
-      });
-
       const updateData = {
         ...data,
         // Convertir undefined en null pour le phone

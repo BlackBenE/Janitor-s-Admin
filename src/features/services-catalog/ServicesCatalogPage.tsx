@@ -238,10 +238,6 @@ export const ServicesCatalogPage: React.FC = () => {
           }
 
           try {
-              '💾 Saving service:',
-              serviceManagement.selectedService.id,
-              serviceManagement.editForm
-            );
             await updateService(serviceManagement.selectedService.id, serviceManagement.editForm);
             serviceManagement.showNotification('Service modifié avec succès', 'success');
             serviceManagement.closeModal();

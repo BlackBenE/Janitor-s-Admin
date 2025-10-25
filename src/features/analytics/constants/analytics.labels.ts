@@ -1,5 +1,5 @@
 /**
- * 🏷️ Labels du domaine Analytics
+ * Labels du domaine Analytics
  *
  * Labels et textes pour les analytics et rapports.
  *

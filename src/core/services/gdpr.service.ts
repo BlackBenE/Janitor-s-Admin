@@ -108,6 +108,7 @@ export class GDPRTestService {
 
   // Helper pour voir les commandes disponibles
   help: () => {
+    console.log(`
 🧪 Commandes de test GDPR disponibles:
 
 gdprTest.preview()     - Voir les purges à venir

@@ -34,15 +34,6 @@ export const useAnalyticsQueries = (dateRange: DateRange) => {
     });
   }, [allBookings, dateRange]);
 
-    profiles: allProfiles.length,
-    bookings: bookings.length,
-    allBookings: allBookings.length,
-    payments: allPayments.length,
-    services: allServices.length,
-    serviceRequests: allServiceRequests.length,
-    dateRange: { from: dateRange.from.toISOString(), to: dateRange.to.toISOString() },
-  });
-
   return {
     profiles: (allProfiles as Profile[]) || [],
     bookings: (bookings as Booking[]) || [],

@@ -215,29 +215,6 @@ export const useUserStatsIndividual = (
         const bookings = bookingsResponse.data || [];
         const paymentsReceived = paymentsReceivedResponse.data || [];
 
-        // 🔍 Debug pour property owner - bookings seulement
-        console.group(
-          "🔍 Debug useUserStatsIndividual - Property Owner (Bookings only)"
-        );
-          "Bookings via properties:",
-          bookings.map((b) => ({
-            id: b.id,
-            total_amount: b.total_amount,
-            status: b.status,
-            property_title: b.properties?.title,
-          }))
-        );
-          "Payments BOOKING reçus (payee_id):",
-          paymentsReceived.map((p) => ({
-            id: p.id,
-            amount: p.amount,
-            booking_id: p.booking_id,
-            payment_type: p.payment_type,
-            status: p.status,
-          }))
-        );
-        console.groupEnd();
-
         return {
           totalBookings: bookings.length,
           totalSpent: paymentsReceived.reduce(
@@ -272,63 +249,14 @@ export const useUserStatsIndividual = (
         const bookings = bookingsResponse.data || [];
         const payments = paymentsResponse.data || [];
 
-        // 🔍 Debug pour traveler - bookings seulement
-        console.group(
-          "🔍 Debug useUserStatsIndividual - Traveler (Bookings only)"
-        );
-          "Bookings du traveler:",
-          bookings.map((b) => ({
-            id: b.id,
-            total_amount: b.total_amount,
-            status: b.status,
-            traveler_id: b.traveler_id,
-          }))
-        );
-          "Payments BOOKING du traveler (payer_id):",
-          payments.map((p) => ({
-            id: p.id,
-            amount: p.amount,
-            booking_id: p.booking_id,
-            payment_type: p.payment_type,
-            status: p.status,
-          }))
-        );
-        console.groupEnd(); // ✅ FIX: Ne compter que les paiements liés aux bookings affichés
+        // ✅ FIX: Ne compter que les paiements liés aux bookings affichés
         const bookingIds = bookings.map((b) => b.id);
         const paymentsForBookings = payments.filter(
           (p) => p.booking_id && bookingIds.includes(p.booking_id)
         );
-        const paymentsForServices = payments.filter(
-          (p) => p.service_request_id && !p.booking_id
-        );
-        const orphanPayments = payments.filter(
-          (p) => !p.booking_id && !p.service_request_id
-        );
         const correctTotal = paymentsForBookings.reduce(
           (sum, p) => sum + (p.amount || 0),
           0
-        );
-
-          "- Paiements pour bookings affichés:",
-          paymentsForBookings.map((p) => ({
-            amount: p.amount,
-            booking_id: p.booking_id,
-          }))
-        );
-          "- Paiements pour services:",
-          paymentsForServices.map((p) => ({
-            amount: p.amount,
-            service_request_id: p.service_request_id,
-          }))
-        );
-          "- Paiements orphelins:",
-          orphanPayments.map((p) => ({
-            amount: p.amount,
-            payment_type: p.payment_type,
-          }))
-        );
-          "- Total INCORRECT (tous paiements):",
-          payments.reduce((sum, p) => sum + (p.amount || 0), 0)
         );
 
         return {

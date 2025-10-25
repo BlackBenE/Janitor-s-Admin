@@ -28,17 +28,6 @@ export class PaymentPdfService {
           payment.stripe_payment_intent_id || payment.id
         }-${Date.now()}.pdf`;
 
-        filename,
-        elementId: element.id,
-        elementSize: {
-          width: element.scrollWidth,
-          height: element.scrollHeight,
-          offsetWidth: element.offsetWidth,
-          offsetHeight: element.offsetHeight,
-        },
-        hasContent: element.innerHTML.length > 0,
-      });
-
       const opt = {
         filename,
         image: {

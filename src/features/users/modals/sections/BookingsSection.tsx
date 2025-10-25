@@ -110,46 +110,6 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
 
   const roleStats = calculateRoleSpecificStats();
 
-  // 🔍 Debug temporaire pour comprendre l'incohérence des données
-  console.group("🔍 Debug BookingsSection - Incohérence des données");
-    totalSpent: stats?.totalSpent,
-    totalBookings: stats?.totalBookings,
-    averageBookingValue: stats?.averageBookingValue,
-    completedBookings: stats?.completedBookings,
-  });
-    count: bookings.length,
-    bookings: bookings.map((b) => ({
-      id: b.id,
-      total_amount: b.total_amount,
-      status: b.status,
-      payment_status: b.payment_status,
-      property_title: b.properties?.title,
-    })),
-  });
-
-  // Calcul manuel basé sur le tableau
-  const manualTotal = bookings.reduce(
-    (sum, booking) => sum + (booking.total_amount || 0),
-    0
-  );
-  const completedBookingsFromTable = bookings.filter(
-    (b) => b.status === "completed" || b.status === "confirmed"
-  );
-  const manualTotalCompleted = completedBookingsFromTable.reduce(
-    (sum, booking) => sum + (booking.total_amount || 0),
-    0
-  );
-
-    manualTotal,
-    manualTotalCompleted,
-    completedBookingsCount: completedBookingsFromTable.length,
-    manualAverage:
-      completedBookingsFromTable.length > 0
-        ? manualTotalCompleted / completedBookingsFromTable.length
-        : 0,
-  });
-  console.groupEnd();
-
   // Fonctions utilitaires
   const getStatusIcon = (status: string) => {
     switch (status?.toLowerCase()) {

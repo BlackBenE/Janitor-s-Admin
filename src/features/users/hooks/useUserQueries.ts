@@ -219,7 +219,6 @@ export const useUserStatsIndividual = (
         console.group(
           "🔍 Debug useUserStatsIndividual - Property Owner (Bookings only)"
         );
-        console.log(
           "Bookings via properties:",
           bookings.map((b) => ({
             id: b.id,
@@ -228,7 +227,6 @@ export const useUserStatsIndividual = (
             property_title: b.properties?.title,
           }))
         );
-        console.log(
           "Payments BOOKING reçus (payee_id):",
           paymentsReceived.map((p) => ({
             id: p.id,
@@ -278,7 +276,6 @@ export const useUserStatsIndividual = (
         console.group(
           "🔍 Debug useUserStatsIndividual - Traveler (Bookings only)"
         );
-        console.log(
           "Bookings du traveler:",
           bookings.map((b) => ({
             id: b.id,
@@ -287,7 +284,6 @@ export const useUserStatsIndividual = (
             traveler_id: b.traveler_id,
           }))
         );
-        console.log(
           "Payments BOOKING du traveler (payer_id):",
           payments.map((p) => ({
             id: p.id,
@@ -313,30 +309,24 @@ export const useUserStatsIndividual = (
           0
         );
 
-        console.log("🔍 ANALYSE DES PAIEMENTS:");
-        console.log(
           "- Paiements pour bookings affichés:",
           paymentsForBookings.map((p) => ({
             amount: p.amount,
             booking_id: p.booking_id,
           }))
         );
-        console.log(
           "- Paiements pour services:",
           paymentsForServices.map((p) => ({
             amount: p.amount,
             service_request_id: p.service_request_id,
           }))
         );
-        console.log(
           "- Paiements orphelins:",
           orphanPayments.map((p) => ({
             amount: p.amount,
             payment_type: p.payment_type,
           }))
         );
-        console.log("- Total CORRECT (bookings uniquement):", correctTotal);
-        console.log(
           "- Total INCORRECT (tous paiements):",
           payments.reduce((sum, p) => sum + (p.amount || 0), 0)
         );

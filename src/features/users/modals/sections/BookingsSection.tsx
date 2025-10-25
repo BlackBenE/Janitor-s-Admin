@@ -112,13 +112,11 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
 
   // 🔍 Debug temporaire pour comprendre l'incohérence des données
   console.group("🔍 Debug BookingsSection - Incohérence des données");
-  console.log("Stats from useUserStatsIndividual:", {
     totalSpent: stats?.totalSpent,
     totalBookings: stats?.totalBookings,
     averageBookingValue: stats?.averageBookingValue,
     completedBookings: stats?.completedBookings,
   });
-  console.log("Bookings from useUserBookings:", {
     count: bookings.length,
     bookings: bookings.map((b) => ({
       id: b.id,
@@ -142,7 +140,6 @@ export const BookingsSection: React.FC<BookingsSectionProps> = ({
     0
   );
 
-  console.log("Calcul manuel depuis le tableau:", {
     manualTotal,
     manualTotalCompleted,
     completedBookingsCount: completedBookingsFromTable.length,

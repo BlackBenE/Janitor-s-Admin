@@ -1,25 +1,25 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   PaymentWithDetails,
   PaymentFilters,
   PaymentNotificationState,
-} from "../../../types/payments";
-import { useExport } from "../../../hooks/shared/useExport";
+} from '../../../types/payments';
+import { useExport } from '@/shared/hooks';
 
 const initialFilters: PaymentFilters = {
-  search: "",
-  status: "",
-  dateFrom: "",
-  dateTo: "",
-  minAmount: "",
-  maxAmount: "",
-  paymentType: "",
+  search: '',
+  status: '',
+  dateFrom: '',
+  dateTo: '',
+  minAmount: '',
+  maxAmount: '',
+  paymentType: '',
 };
 
 const initialNotification: PaymentNotificationState = {
   open: false,
-  message: "",
-  severity: "success",
+  message: '',
+  severity: 'success',
 };
 
 /**
@@ -30,15 +30,13 @@ export const usePaymentManagement = () => {
   const { exportToCSV, commonColumns, formatters } = useExport();
 
   // États principaux
-  const [selectedPayment, setSelectedPayment] =
-    useState<PaymentWithDetails | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentWithDetails | null>(null);
   const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
   const [editForm, setEditForm] = useState<Partial<PaymentWithDetails>>({});
 
   // États de l'interface
   const [filters, setFilters] = useState<PaymentFilters>(initialFilters);
-  const [notification, setNotification] =
-    useState<PaymentNotificationState>(initialNotification);
+  const [notification, setNotification] = useState<PaymentNotificationState>(initialNotification);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -49,9 +47,7 @@ export const usePaymentManagement = () => {
 
   const togglePaymentSelection = (paymentId: string) => {
     setSelectedPayments((prev) =>
-      prev.includes(paymentId)
-        ? prev.filter((id) => id !== paymentId)
-        : [...prev, paymentId]
+      prev.includes(paymentId) ? prev.filter((id) => id !== paymentId) : [...prev, paymentId]
     );
   };
 
@@ -90,39 +86,25 @@ export const usePaymentManagement = () => {
       const matchesSearch =
         !filters.search ||
         payment.id.toLowerCase().includes(filters.search.toLowerCase()) ||
-        payment.payer?.email
-          ?.toLowerCase()
-          .includes(filters.search.toLowerCase()) ||
-        payment.payee?.email
-          ?.toLowerCase()
-          .includes(filters.search.toLowerCase()) ||
-        payment.booking?.property?.title
-          ?.toLowerCase()
-          .includes(filters.search.toLowerCase());
+        payment.payer?.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        payment.payee?.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        payment.booking?.property?.title?.toLowerCase().includes(filters.search.toLowerCase());
 
-      const matchesStatus =
-        !filters.status || payment.status === filters.status;
+      const matchesStatus = !filters.status || payment.status === filters.status;
 
       const matchesPaymentType =
         !filters.paymentType || payment.payment_type === filters.paymentType;
 
       const matchesAmount =
-        (!filters.minAmount ||
-          payment.amount >= parseFloat(filters.minAmount)) &&
+        (!filters.minAmount || payment.amount >= parseFloat(filters.minAmount)) &&
         (!filters.maxAmount || payment.amount <= parseFloat(filters.maxAmount));
 
       const matchesDateRange =
-        (!filters.dateFrom ||
-          new Date(payment.created_at!) >= new Date(filters.dateFrom)) &&
-        (!filters.dateTo ||
-          new Date(payment.created_at!) <= new Date(filters.dateTo));
+        (!filters.dateFrom || new Date(payment.created_at!) >= new Date(filters.dateFrom)) &&
+        (!filters.dateTo || new Date(payment.created_at!) <= new Date(filters.dateTo));
 
       return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesPaymentType &&
-        matchesAmount &&
-        matchesDateRange
+        matchesSearch && matchesStatus && matchesPaymentType && matchesAmount && matchesDateRange
       );
     });
   };
@@ -169,7 +151,7 @@ export const usePaymentManagement = () => {
 
   const showNotification = (
     message: string,
-    severity: "success" | "error" | "warning" | "info" = "success"
+    severity: 'success' | 'error' | 'warning' | 'info' = 'success'
   ) => {
     setNotification({ open: true, message, severity });
   };
@@ -203,7 +185,7 @@ export const usePaymentManagement = () => {
     );
 
     if (selectedPaymentDetails.length === 0) {
-      showNotification("Aucun paiement sélectionné à exporter", "warning");
+      showNotification('Aucun paiement sélectionné à exporter', 'warning');
       return;
     }
 
@@ -211,46 +193,36 @@ export const usePaymentManagement = () => {
     const transformedData = selectedPaymentDetails.map((payment) => ({
       ...payment,
       payer_name: payment.payer
-        ? `${payment.payer.first_name || ""} ${
-            payment.payer.last_name || ""
-          }`.trim()
-        : "N/A",
+        ? `${payment.payer.first_name || ''} ${payment.payer.last_name || ''}`.trim()
+        : 'N/A',
       payee_name: payment.payee
-        ? `${payment.payee.first_name || ""} ${
-            payment.payee.last_name || ""
-          }`.trim()
-        : "N/A",
-      service_name:
-        payment.service_request?.service?.title || "Service général",
-      stripe_id: payment.stripe_payment_intent_id || "N/A",
+        ? `${payment.payee.first_name || ''} ${payment.payee.last_name || ''}`.trim()
+        : 'N/A',
+      service_name: payment.service_request?.service?.title || 'Service général',
+      stripe_id: payment.stripe_payment_intent_id || 'N/A',
     }));
 
     const columns = [
-      { key: "id", label: "ID" },
-      { key: "stripe_id", label: "Stripe ID" },
-      { key: "payer_name", label: "Client" },
-      { key: "payee_name", label: "Prestataire" },
-      commonColumns.currency("amount", "Montant"),
-      { key: "status", label: "Statut" },
-      { key: "service_name", label: "Service" },
-      commonColumns.date("created_at", "Date de création"),
+      { key: 'id', label: 'ID' },
+      { key: 'stripe_id', label: 'Stripe ID' },
+      { key: 'payer_name', label: 'Client' },
+      { key: 'payee_name', label: 'Prestataire' },
+      commonColumns.currency('amount', 'Montant'),
+      { key: 'status', label: 'Statut' },
+      { key: 'service_name', label: 'Service' },
+      commonColumns.date('created_at', 'Date de création'),
     ];
 
     exportToCSV(transformedData, columns, {
-      filename: `paiements_selection_${
-        new Date().toISOString().split("T")[0]
-      }.csv`,
+      filename: `paiements_selection_${new Date().toISOString().split('T')[0]}.csv`,
     });
 
-    showNotification(
-      `${selectedPaymentDetails.length} paiements exportés`,
-      "success"
-    );
+    showNotification(`${selectedPaymentDetails.length} paiements exportés`, 'success');
   };
 
   const exportAllToCSV = (allPayments: PaymentWithDetails[]) => {
     if (!allPayments || allPayments.length === 0) {
-      showNotification("Aucun paiement à exporter", "warning");
+      showNotification('Aucun paiement à exporter', 'warning');
       return;
     }
 
@@ -258,53 +230,40 @@ export const usePaymentManagement = () => {
     const transformedData = allPayments.map((payment) => ({
       ...payment,
       payer_name: payment.payer
-        ? `${payment.payer.first_name || ""} ${
-            payment.payer.last_name || ""
-          }`.trim()
-        : "N/A",
+        ? `${payment.payer.first_name || ''} ${payment.payer.last_name || ''}`.trim()
+        : 'N/A',
       payee_name: payment.payee
-        ? `${payment.payee.first_name || ""} ${
-            payment.payee.last_name || ""
-          }`.trim()
-        : "N/A",
-      service_name:
-        payment.service_request?.service?.title || "Service général",
-      stripe_id: payment.stripe_payment_intent_id || "N/A",
+        ? `${payment.payee.first_name || ''} ${payment.payee.last_name || ''}`.trim()
+        : 'N/A',
+      service_name: payment.service_request?.service?.title || 'Service général',
+      stripe_id: payment.stripe_payment_intent_id || 'N/A',
     }));
 
     const columns = [
-      { key: "id", label: "ID" },
-      { key: "stripe_id", label: "Stripe ID" },
-      { key: "payer_name", label: "Client" },
-      { key: "payee_name", label: "Prestataire" },
-      commonColumns.currency("amount", "Montant"),
-      { key: "status", label: "Statut" },
-      { key: "service_name", label: "Service" },
-      commonColumns.date("created_at", "Date de création"),
+      { key: 'id', label: 'ID' },
+      { key: 'stripe_id', label: 'Stripe ID' },
+      { key: 'payer_name', label: 'Client' },
+      { key: 'payee_name', label: 'Prestataire' },
+      commonColumns.currency('amount', 'Montant'),
+      { key: 'status', label: 'Statut' },
+      { key: 'service_name', label: 'Service' },
+      commonColumns.date('created_at', 'Date de création'),
     ];
 
     exportToCSV(transformedData, columns, {
-      filename: `tous_paiements_${new Date().toISOString().split("T")[0]}.csv`,
+      filename: `tous_paiements_${new Date().toISOString().split('T')[0]}.csv`,
     });
 
-    showNotification(`${allPayments.length} paiements exportés`, "success");
+    showNotification(`${allPayments.length} paiements exportés`, 'success');
   };
 
   const markSelectedAsPaid = () => {
-    console.log("Mark selected payments as paid:", selectedPayments);
-    showNotification(
-      `${selectedPayments.length} paiements marqués comme payés`,
-      "success"
-    );
+    showNotification(`${selectedPayments.length} paiements marqués comme payés`, 'success');
     clearSelection();
   };
 
   const refundSelectedPayments = () => {
-    console.log("Refund selected payments:", selectedPayments);
-    showNotification(
-      `${selectedPayments.length} paiements remboursés`,
-      "success"
-    );
+    showNotification(`${selectedPayments.length} paiements remboursés`, 'success');
     clearSelection();
   };
 

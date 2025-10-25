@@ -1,17 +1,14 @@
-import React from "react";
-import { Box, Button, Divider } from "@mui/material";
+import React from 'react';
+import { Box, Button, Divider } from '@mui/material';
 import {
   Edit as EditIcon,
-  Lock as LockIcon,
+  Block as BlockIcon,
   Delete as DeleteIcon,
-  Security as SecurityIcon,
+  LockReset as LockResetIcon,
   Shield as ShieldIcon,
   Restore as RestoreIcon,
-} from "@mui/icons-material";
-import {
-  UserProfile,
-  UserProfileWithAnonymization,
-} from "@/types/userManagement";
+} from '@mui/icons-material';
+import { UserProfile, UserProfileWithAnonymization } from '@/types/userManagement';
 
 interface UserActionsProps {
   user: UserProfileWithAnonymization;
@@ -46,23 +43,22 @@ export const UserActions: React.FC<UserActionsProps> = ({
     return (
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          gap: 1,
           p: 2,
           borderTop: 1,
-          borderColor: "divider",
-          bgcolor: "grey.50",
+          borderColor: 'divider',
+          bgcolor: 'grey.50',
         }}
       >
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Button onClick={onCancelEdit} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button onClick={onSaveEdit} variant="contained" disabled={isLoading}>
-            {isLoading ? "Saving..." : "Save Changes"}
-          </Button>
-        </Box>
+        <Button onClick={onCancelEdit} disabled={isLoading}>
+          Annuler
+        </Button>
+        <Button onClick={onSaveEdit} variant="contained" disabled={isLoading}>
+          {isLoading ? 'Enregistrement...' : 'Enregistrer'}
+        </Button>
       </Box>
     );
   }
@@ -70,97 +66,96 @@ export const UserActions: React.FC<UserActionsProps> = ({
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        gap: 1,
         p: 2,
         borderTop: 1,
-        borderColor: "divider",
-        bgcolor: "grey.50",
+        borderColor: 'divider',
+        bgcolor: 'grey.50',
       }}
     >
-      <Button onClick={onClose}>Close</Button>
+      <Button onClick={onClose}>Fermer</Button>
 
-      <Box sx={{ display: "flex", gap: 1 }}>
-        {/* Actions pour utilisateur supprimé */}
-        {user.deleted_at && onRestore && (
-          <Button
-            startIcon={<RestoreIcon />}
-            onClick={onRestore}
-            color="success"
-            variant="contained"
-            size="small"
-          >
-            Restaurer
-          </Button>
-        )}
+      {/* Actions pour utilisateur supprimé */}
+      {user.deleted_at && onRestore && (
+        <Button
+          startIcon={<RestoreIcon />}
+          onClick={onRestore}
+          color="success"
+          variant="contained"
+          size="small"
+        >
+          Restaurer
+        </Button>
+      )}
 
-        {/* Actions pour utilisateur actif uniquement */}
-        {!user.deleted_at && (
-          <>
-            {onSecurityActions && (
-              <Button
-                startIcon={<SecurityIcon />}
-                onClick={onSecurityActions}
-                color="primary"
-                variant="outlined"
-                size="small"
-              >
-                Security
-              </Button>
-            )}
+      {/* Actions pour utilisateur actif uniquement */}
+      {!user.deleted_at && (
+        <>
+          {onSecurityActions && (
+            <Button
+              startIcon={<LockResetIcon />}
+              onClick={onSecurityActions}
+              color="primary"
+              variant="outlined"
+              size="small"
+            >
+              Réinitialiser mot de passe
+            </Button>
+          )}
 
-            {onEditUser && (
-              <Button
-                startIcon={<EditIcon />}
-                onClick={onEditUser}
-                color="primary"
-                variant="outlined"
-                size="small"
-              >
-                Edit
-              </Button>
-            )}
+          {onEditUser && (
+            <Button
+              startIcon={<EditIcon />}
+              onClick={onEditUser}
+              color="primary"
+              variant="outlined"
+              size="small"
+            >
+              Modifier
+            </Button>
+          )}
 
-            {onSuspend && (
-              <Button
-                startIcon={<LockIcon />}
-                onClick={onSuspend}
-                color="warning"
-                variant="outlined"
-                size="small"
-              >
-                {user.account_locked ? "Unlock" : "Lock"}
-              </Button>
-            )}
+          {onSuspend && (
+            <Button
+              startIcon={<BlockIcon />}
+              onClick={onSuspend}
+              color="warning"
+              variant="outlined"
+              size="small"
+            >
+              {user.account_locked ? 'Débloquer' : 'Bloquer'}
+            </Button>
+          )}
 
-            {/* Suppression intelligente avec anonymisation RGPD */}
-            {onSmartDelete && (
-              <Button
-                startIcon={<ShieldIcon />}
-                onClick={onSmartDelete}
-                color="warning"
-                variant="outlined"
-                size="small"
-              >
-                Smart Delete
-              </Button>
-            )}
+          {/* Suppression intelligente avec anonymisation RGPD */}
+          {onSmartDelete && (
+            <Button
+              startIcon={<ShieldIcon />}
+              onClick={onSmartDelete}
+              color="warning"
+              variant="outlined"
+              size="small"
+            >
+              Suppression RGPD
+            </Button>
+          )}
 
-            {onDelete && (
-              <Button
-                startIcon={<DeleteIcon />}
-                onClick={onDelete}
-                color="error"
-                variant="outlined"
-                size="small"
-              >
-                Delete
-              </Button>
-            )}
-          </>
-        )}
-      </Box>
+          {onDelete && (
+            <Button
+              startIcon={<DeleteIcon />}
+              onClick={onDelete}
+              color="error"
+              variant="outlined"
+              size="small"
+            >
+              Supprimer
+            </Button>
+          )}
+        </>
+      )}
     </Box>
   );
 };

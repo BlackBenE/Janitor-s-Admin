@@ -7,7 +7,7 @@ import {
   DeleteOutlined as DeleteIcon,
 } from '@mui/icons-material';
 import { Database } from './database.types';
-import { LABELS } from '@/core/config/labels';
+import { USERS_LABELS } from '@/features/users/constants';
 
 // Types helpers pour Supabase
 type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
@@ -49,39 +49,39 @@ export interface UserTab {
 export const USER_TABS: UserTab[] = [
   {
     role: null, // Pour afficher tous les utilisateurs
-    label: LABELS.users.tabs.all,
+    label: USERS_LABELS.tabs.all,
     icon: GroupIcon,
-    description: LABELS.users.tabs.allDescription,
+    description: USERS_LABELS.tabs.allDescription,
   },
   {
     role: UserRole.TRAVELER,
-    label: LABELS.users.tabs.travelers,
+    label: USERS_LABELS.tabs.travelers,
     icon: GroupIcon,
-    description: LABELS.users.tabs.travelersDescription,
+    description: USERS_LABELS.tabs.travelersDescription,
   },
   {
     role: UserRole.PROPERTY_OWNER,
-    label: LABELS.users.tabs.propertyOwners,
+    label: USERS_LABELS.tabs.propertyOwners,
     icon: PropertyIcon,
-    description: LABELS.users.tabs.propertyOwnersDescription,
+    description: USERS_LABELS.tabs.propertyOwnersDescription,
   },
   {
     role: UserRole.SERVICE_PROVIDER,
-    label: LABELS.users.tabs.serviceProviders,
+    label: USERS_LABELS.tabs.serviceProviders,
     icon: ServiceIcon,
-    description: LABELS.users.tabs.serviceProvidersDescription,
+    description: USERS_LABELS.tabs.serviceProvidersDescription,
   },
   {
     role: UserRole.ADMIN,
-    label: LABELS.users.tabs.admins,
+    label: USERS_LABELS.tabs.admins,
     icon: AdminIcon,
-    description: LABELS.users.tabs.adminsDescription,
+    description: USERS_LABELS.tabs.adminsDescription,
   },
   {
     role: 'deleted' as any, // Type spécial pour les utilisateurs supprimés
-    label: LABELS.users.tabs.deleted,
+    label: USERS_LABELS.tabs.deleted,
     icon: DeleteIcon,
-    description: LABELS.users.tabs.deletedDescription,
+    description: USERS_LABELS.tabs.deletedDescription,
   },
 ];
 

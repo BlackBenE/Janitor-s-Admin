@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Accordion,
   AccordionSummary,
@@ -14,7 +14,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-} from "@mui/material";
+} from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
   Info as InfoIcon,
@@ -24,43 +24,39 @@ import {
   People as PeopleIcon,
   Star as StarIcon,
   Verified as VerifiedIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
-import { PropertyWithOwner } from "@/types";
-import { LABELS } from "@/core/config/labels";
-import { getStatusLabel } from "@/utils/statusHelpers";
+import { PropertyWithOwner } from '@/types';
+import { COMMON_LABELS } from "@/shared/constants";
+import { PROPERTY_APPROVALS_LABELS } from "../constants";
+import { getStatusLabel } from '@/utils/statusHelpers';
 
 interface PropertyBasicInfoProps {
   property: PropertyWithOwner;
 }
 
-export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
-  property,
-}) => {
+export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({ property }) => {
   return (
     <>
       {/* Basic Information */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography
-            variant="h6"
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <InfoIcon /> {LABELS.propertyApprovals.modals.sections.basicInfo}
+          <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <InfoIcon /> {PROPERTY_APPROVALS_LABELS.modals.sections.basicInfo}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack spacing={2}>
             <Box
               sx={{
-                display: "flex",
+                display: 'flex',
                 gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
+                flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.propertyId}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.propertyId}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.id}
@@ -68,131 +64,131 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.title}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.title}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  {property?.title || "N/A"}
+                  {property?.title || 'N/A'}
                 </Typography>
               </Box>
             </Box>
             <Box>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.description}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.description}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 {property?.description ||
-                  LABELS.propertyApprovals.modals.placeholders.noDescription}
+                  PROPERTY_APPROVALS_LABELS.modals.placeholders.noDescription}
               </Typography>
             </Box>
             <Box
               sx={{
-                display: "flex",
+                display: 'flex',
                 gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
+                flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.nightlyRate}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.nightlyRate}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  {property?.nightly_rate ? `€${property.nightly_rate}` : "N/A"}
+                  {property?.nightly_rate ? `€${property.nightly_rate}` : 'N/A'}
                 </Typography>
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.maxCapacity}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.maxCapacity}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.capacity
-                    ? `${property.capacity} ${LABELS.propertyApprovals.modals.units.guests}`
-                    : "N/A"}
+                    ? `${property.capacity} ${PROPERTY_APPROVALS_LABELS.modals.units.guests}`
+                    : 'N/A'}
                 </Typography>
               </Box>
             </Box>
             <Box
               sx={{
-                display: "flex",
+                display: 'flex',
                 gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
+                flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.imagesCount}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.imagesCount}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.images && property.images.length > 0
-                    ? `${property.images.length} ${LABELS.propertyApprovals.modals.units.images}`
-                    : LABELS.propertyApprovals.modals.placeholders.noImages}
+                    ? `${property.images.length} ${PROPERTY_APPROVALS_LABELS.modals.units.images}`
+                    : PROPERTY_APPROVALS_LABELS.modals.placeholders.noImages}
                 </Typography>
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.ownerId}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.ownerId}
                 </Typography>
                 <Typography
                   variant="body2"
                   gutterBottom
                   sx={{
-                    fontFamily: "monospace",
-                    fontSize: "0.8rem",
-                    color: "text.secondary",
+                    fontFamily: 'monospace',
+                    fontSize: '0.8rem',
+                    color: 'text.secondary',
                   }}
                 >
-                  {property?.owner_id || "N/A"}
+                  {property?.owner_id || 'N/A'}
                 </Typography>
               </Box>
             </Box>
             <Box
               sx={{
-                display: "flex",
+                display: 'flex',
                 gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
+                flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.bedrooms}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.bedrooms}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  {property?.bedrooms !== null ? property.bedrooms : "N/A"}
+                  {property?.bedrooms !== null ? property.bedrooms : 'N/A'}
                 </Typography>
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.bathrooms}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.bathrooms}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  {property?.bathrooms !== null ? property.bathrooms : "N/A"}
+                  {property?.bathrooms !== null ? property.bathrooms : 'N/A'}
                 </Typography>
               </Box>
             </Box>
             <Box
               sx={{
-                display: "flex",
+                display: 'flex',
                 gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
+                flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.createdDate}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.createdDate}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.created_at
                     ? new Date(property.created_at).toLocaleDateString()
-                    : "N/A"}
+                    : 'N/A'}
                 </Typography>
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.lastUpdated}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.lastUpdated}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.updated_at
                     ? new Date(property.updated_at).toLocaleDateString()
-                    : "N/A"}
+                    : 'N/A'}
                 </Typography>
               </Box>
             </Box>
@@ -203,53 +199,50 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
       {/* Location Details */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography
-            variant="h6"
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <LocationIcon /> {LABELS.propertyApprovals.modals.sections.location}
+          <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LocationIcon /> {PROPERTY_APPROVALS_LABELS.modals.sections.location}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack spacing={2}>
             <Box
               sx={{
-                display: "flex",
+                display: 'flex',
                 gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
+                flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.address}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.address}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  {property?.address || LABELS.common.messages.noAddress}
+                  {property?.address || COMMON_LABELS.messages.noAddress}
                 </Typography>
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.city}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.city}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  {property?.city || "N/A"}
+                  {property?.city || 'N/A'}
                 </Typography>
               </Box>
             </Box>
             <Box
               sx={{
-                display: "flex",
+                display: 'flex',
                 gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
+                flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
               {/* Country field supprimé - n'existe pas dans le schéma Supabase */}
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.postalCode}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.postalCode}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  {property?.postal_code || "N/A"}
+                  {property?.postal_code || 'N/A'}
                 </Typography>
               </Box>
             </Box>
@@ -260,20 +253,17 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
       {/* Property Amenities */}
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography
-            variant="h6"
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <StarIcon /> {LABELS.propertyApprovals.modals.sections.amenities}
+          <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <StarIcon /> {PROPERTY_APPROVALS_LABELS.modals.sections.amenities}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack spacing={2}>
             <Box>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.availableAmenities}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.availableAmenities}
               </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
                 {property?.amenities && property.amenities.length > 0 ? (
                   property.amenities.map((amenity, index) => (
                     <Chip
@@ -286,10 +276,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                   ))
                 ) : (
                   <Typography variant="body2" color="text.secondary">
-                    {
-                      LABELS.propertyApprovals.modals.placeholders
-                        .noAmenitiesListed
-                    }
+                    {PROPERTY_APPROVALS_LABELS.modals.placeholders.noAmenitiesListed}
                   </Typography>
                 )}
               </Box>
@@ -301,28 +288,24 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
       {/* Validation & Status Information */}
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography
-            variant="h6"
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <VerifiedIcon />{" "}
-            {LABELS.propertyApprovals.modals.sections.validation}
+          <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <VerifiedIcon /> {PROPERTY_APPROVALS_LABELS.modals.sections.validation}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack spacing={2}>
             <Box
               sx={{
-                display: "flex",
+                display: 'flex',
                 gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
+                flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.status}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.status}
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Typography
                     variant="body1"
                     sx={{
@@ -330,33 +313,33 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                       py: 0.5,
                       borderRadius: 1,
                       bgcolor:
-                        property?.validation_status === "approved"
-                          ? "success.100"
-                          : property?.validation_status === "rejected"
-                          ? "error.100"
-                          : "warning.100",
+                        property?.validation_status === 'approved'
+                          ? 'success.100'
+                          : property?.validation_status === 'rejected'
+                            ? 'error.100'
+                            : 'warning.100',
                       color:
-                        property?.validation_status === "approved"
-                          ? "success.800"
-                          : property?.validation_status === "rejected"
-                          ? "error.800"
-                          : "warning.800",
+                        property?.validation_status === 'approved'
+                          ? 'success.800'
+                          : property?.validation_status === 'rejected'
+                            ? 'error.800'
+                            : 'warning.800',
                       fontWeight: 500,
-                      textTransform: "capitalize",
+                      textTransform: 'capitalize',
                     }}
                   >
-                    {getStatusLabel(property?.validation_status, "property")}
+                    {getStatusLabel(property?.validation_status, 'property')}
                   </Typography>
                 </Box>
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.validatedDate}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.validatedDate}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   {property?.validated_at
                     ? new Date(property.validated_at).toLocaleDateString()
-                    : LABELS.propertyApprovals.modals.placeholders.notValidated}
+                    : PROPERTY_APPROVALS_LABELS.modals.placeholders.notValidated}
                 </Typography>
               </Box>
             </Box>
@@ -364,12 +347,12 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             {property?.validator && (
               <Box>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.validatedBy}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.validatedBy}
                 </Typography>
                 <Typography variant="body1">
-                  {`${property.validator.first_name || ""} ${
-                    property.validator.last_name || ""
-                  }`.trim() || LABELS.propertyApprovals.modals.unknownAdmin}
+                  {`${property.validator.first_name || ''} ${
+                    property.validator.last_name || ''
+                  }`.trim() || PROPERTY_APPROVALS_LABELS.modals.unknownAdmin}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {property.validator.email}
@@ -380,17 +363,17 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             {property?.moderation_notes && (
               <Box>
                 <Typography variant="subtitle2" color="text.secondary">
-                  {LABELS.propertyApprovals.modals.fields.moderationNotes}
+                  {PROPERTY_APPROVALS_LABELS.modals.fields.moderationNotes}
                 </Typography>
                 <Typography
                   variant="body2"
                   sx={{
-                    bgcolor: "grey.50",
+                    bgcolor: 'grey.50',
                     p: 2,
                     borderRadius: 1,
                     border: 1,
-                    borderColor: "grey.200",
-                    fontStyle: "italic",
+                    borderColor: 'grey.200',
+                    fontStyle: 'italic',
                   }}
                 >
                   {property.moderation_notes}
@@ -404,12 +387,8 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
       {/* Availability Calendar Information */}
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography
-            variant="h6"
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <CalendarIcon />{" "}
-            {LABELS.propertyApprovals.modals.sections.availability}
+          <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CalendarIcon /> {PROPERTY_APPROVALS_LABELS.modals.sections.availability}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -417,16 +396,14 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             (() => {
               try {
                 // Parse the availability calendar data
-                const calendarData = Array.isArray(
-                  property.availability_calendar
-                )
+                const calendarData = Array.isArray(property.availability_calendar)
                   ? property.availability_calendar
                   : JSON.parse(property.availability_calendar as string);
 
                 if (!Array.isArray(calendarData) || calendarData.length === 0) {
                   return (
                     <Typography variant="body2" color="text.secondary">
-                      {LABELS.propertyApprovals.modals.calendar.noPeriods}
+                      {PROPERTY_APPROVALS_LABELS.modals.calendar.noPeriods}
                     </Typography>
                   );
                 }
@@ -434,8 +411,8 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                 return (
                   <Stack spacing={2}>
                     <Typography variant="body2" color="text.secondary">
-                      {LABELS.propertyApprovals.modals.calendar.periodsConfigured.replace(
-                        "{{count}}",
+                      {PROPERTY_APPROVALS_LABELS.modals.calendar.periodsConfigured.replace(
+                        '{{count}}',
                         calendarData.length.toString()
                       )}
                     </Typography>
@@ -445,28 +422,13 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                         <TableHead>
                           <TableRow>
                             <TableCell>
-                              <strong>
-                                {
-                                  LABELS.propertyApprovals.modals.calendar
-                                    .period
-                                }
-                              </strong>
+                              <strong>{PROPERTY_APPROVALS_LABELS.modals.calendar.period}</strong>
                             </TableCell>
                             <TableCell>
-                              <strong>
-                                {
-                                  LABELS.propertyApprovals.modals.calendar
-                                    .status
-                                }
-                              </strong>
+                              <strong>{PROPERTY_APPROVALS_LABELS.modals.calendar.status}</strong>
                             </TableCell>
                             <TableCell>
-                              <strong>
-                                {
-                                  LABELS.propertyApprovals.modals.calendar
-                                    .reason
-                                }
-                              </strong>
+                              <strong>{PROPERTY_APPROVALS_LABELS.modals.calendar.reason}</strong>
                             </TableCell>
                           </TableRow>
                         </TableHead>
@@ -474,10 +436,10 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                           {calendarData.map((period: any, index: number) => {
                             const startDate = period.start
                               ? new Date(period.start).toLocaleDateString()
-                              : "N/A";
+                              : 'N/A';
                             const endDate = period.end
                               ? new Date(period.end).toLocaleDateString()
-                              : "N/A";
+                              : 'N/A';
 
                             return (
                               <TableRow key={index}>
@@ -491,25 +453,17 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                                     size="small"
                                     label={
                                       period.available
-                                        ? LABELS.propertyApprovals.modals
-                                            .calendar.available
-                                        : LABELS.propertyApprovals.modals
-                                            .calendar.unavailable
+                                        ? PROPERTY_APPROVALS_LABELS.modals.calendar.available
+                                        : PROPERTY_APPROVALS_LABELS.modals.calendar.unavailable
                                     }
-                                    color={
-                                      period.available ? "success" : "error"
-                                    }
+                                    color={period.available ? 'success' : 'error'}
                                     variant="outlined"
                                   />
                                 </TableCell>
                                 <TableCell>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                  >
+                                  <Typography variant="body2" color="text.secondary">
                                     {period.reason ||
-                                      LABELS.propertyApprovals.modals.calendar
-                                        .noReason}
+                                      PROPERTY_APPROVALS_LABELS.modals.calendar.noReason}
                                   </Typography>
                                 </TableCell>
                               </TableRow>
@@ -524,14 +478,11 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
                 return (
                   <Stack spacing={1}>
                     <Typography variant="body2" color="error">
-                      {LABELS.propertyApprovals.modals.calendar.parseError}
+                      {PROPERTY_APPROVALS_LABELS.modals.calendar.parseError}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {LABELS.propertyApprovals.modals.calendar.rawData}{" "}
-                      {JSON.stringify(property.availability_calendar).substring(
-                        0,
-                        100
-                      )}
+                      {PROPERTY_APPROVALS_LABELS.modals.calendar.rawData}{' '}
+                      {JSON.stringify(property.availability_calendar).substring(0, 100)}
                       ...
                     </Typography>
                   </Stack>
@@ -540,7 +491,7 @@ export const PropertyBasicInfo: React.FC<PropertyBasicInfoProps> = ({
             })()
           ) : (
             <Typography variant="body2" color="text.secondary">
-              {LABELS.propertyApprovals.modals.calendar.noCalendar}
+              {PROPERTY_APPROVALS_LABELS.modals.calendar.noCalendar}
             </Typography>
           )}
         </AccordionDetails>

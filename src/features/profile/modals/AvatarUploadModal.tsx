@@ -20,7 +20,7 @@ import {
 import { AvatarUploadData } from '../../../types/profile';
 import { AvatarService } from '@/core/services/avatar.service';
 import { useAuth } from '@/core/providers/auth.provider';
-import { useUINotifications } from '../../../hooks/shared';
+import { useUINotifications } from '@/shared/hooks';
 
 interface AvatarUploadModalProps {
   open: boolean;

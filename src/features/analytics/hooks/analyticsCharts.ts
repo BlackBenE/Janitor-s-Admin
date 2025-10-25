@@ -1,12 +1,13 @@
-import { useCallback } from "react";
-import { DateRange } from "../../../types/analytics";
-import { Database } from "../../../types/database.types";
+import { useCallback } from 'react';
+import { DateRange } from '../../../types/analytics';
+import { Database } from '../../../types/database.types';
+import { calculateRevenue } from '@/core/services/financialCalculations.service';
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-type Booking = Database["public"]["Tables"]["bookings"]["Row"];
-type Payment = Database["public"]["Tables"]["payments"]["Row"];
-type Service = Database["public"]["Tables"]["services"]["Row"];
-type ServiceRequest = Database["public"]["Tables"]["service_requests"]["Row"];
+type Profile = Database['public']['Tables']['profiles']['Row'];
+type Booking = Database['public']['Tables']['bookings']['Row'];
+type Payment = Database['public']['Tables']['payments']['Row'];
+type Service = Database['public']['Tables']['services']['Row'];
+type ServiceRequest = Database['public']['Tables']['service_requests']['Row'];
 
 interface AnalyticsChartsInput {
   profiles: Profile[];
@@ -25,24 +26,23 @@ export const useAnalyticsCharts = () => {
     const { profiles, payments, dateRange } = input;
 
     const months = [
-      "Janvier",
-      "Février",
-      "Mars",
-      "Avril",
-      "Mai",
-      "Juin",
-      "Juillet",
-      "Août",
-      "Septembre",
-      "Octobre",
-      "Novembre",
-      "Décembre",
+      'Janvier',
+      'Février',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Août',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'Décembre',
     ];
 
     const userGrowthData = [];
     const monthsDifference = Math.ceil(
-      (dateRange.to.getTime() - dateRange.from.getTime()) /
-        (1000 * 60 * 60 * 24 * 30)
+      (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24 * 30)
     );
     const maxMonths = Math.min(6, Math.max(1, monthsDifference));
 
@@ -67,7 +67,7 @@ export const useAnalyticsCharts = () => {
 
       const monthlyRevenue = payments
         .filter((p) => {
-          if (!p.created_at || p.status !== "paid") return false;
+          if (!p.created_at || !['succeeded', 'paid'].includes(p.status || '')) return false;
           const paymentDate = new Date(p.created_at);
           return (
             paymentDate >= dateRange.from &&
@@ -76,7 +76,10 @@ export const useAnalyticsCharts = () => {
             paymentDate.getFullYear() === date.getFullYear()
           );
         })
-        .reduce((sum, p) => sum + p.amount, 0);
+        .reduce((sum, p) => {
+          const paymentType = (p.payment_type as any) || 'other';
+          return sum + calculateRevenue(p.amount, paymentType);
+        }, 0);
 
       userGrowthData.push({
         month: `${month} ${date.getFullYear()}`,
@@ -93,8 +96,7 @@ export const useAnalyticsCharts = () => {
     const bookingTrends = [];
 
     const daysDifference = Math.ceil(
-      (dateRange.to.getTime() - dateRange.from.getTime()) /
-        (1000 * 60 * 60 * 24)
+      (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)
     );
     const maxDays = Math.min(30, Math.max(1, daysDifference));
 
@@ -118,8 +120,8 @@ export const useAnalyticsCharts = () => {
 
         weeksData.push({
           date: `${currentDate.toLocaleDateString(
-            "fr-FR"
-          )} - ${weekEnd.toLocaleDateString("fr-FR")}`,
+            'fr-FR'
+          )} - ${weekEnd.toLocaleDateString('fr-FR')}`,
           bookings: weeklyBookings,
         });
 
@@ -135,7 +137,7 @@ export const useAnalyticsCharts = () => {
 
         if (date < dateRange.from) continue;
 
-        const dateStr = date.toLocaleDateString("fr-FR");
+        const dateStr = date.toLocaleDateString('fr-FR');
 
         const dailyBookings = bookings.filter((b) => {
           if (!b.created_at) return false;
@@ -171,7 +173,8 @@ export const useAnalyticsCharts = () => {
             revenue: 0,
           };
           current.bookings++;
-          current.revenue += sr.total_amount;
+          // Calculer le revenu avec calculateRevenue (100% pour les services)
+          current.revenue += calculateRevenue(sr.total_amount, 'service');
           serviceStats.set(service.name, current);
         }
       });
@@ -182,29 +185,24 @@ export const useAnalyticsCharts = () => {
       .slice(0, 5);
   }, []);
 
-  const generateBookingsByStatus = useCallback(
-    (input: AnalyticsChartsInput) => {
-      const { bookings } = input;
+  const generateBookingsByStatus = useCallback((input: AnalyticsChartsInput) => {
+    const { bookings } = input;
 
-      return [
-        {
-          status: "Terminées",
-          count: bookings.filter((b) => b.status === "completed").length,
-        },
-        {
-          status: "En cours",
-          count: bookings.filter(
-            (b) => b.status === "pending" || b.status === "confirmed"
-          ).length,
-        },
-        {
-          status: "Annulées",
-          count: bookings.filter((b) => b.status === "cancelled").length,
-        },
-      ].filter((item) => item.count > 0);
-    },
-    []
-  );
+    return [
+      {
+        status: 'Terminées',
+        count: bookings.filter((b) => b.status === 'completed').length,
+      },
+      {
+        status: 'En cours',
+        count: bookings.filter((b) => b.status === 'pending' || b.status === 'confirmed').length,
+      },
+      {
+        status: 'Annulées',
+        count: bookings.filter((b) => b.status === 'cancelled').length,
+      },
+    ].filter((item) => item.count > 0);
+  }, []);
 
   return {
     generateUserGrowthData,

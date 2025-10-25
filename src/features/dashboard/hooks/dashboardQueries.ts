@@ -1,6 +1,6 @@
 import { supabase } from '@/core/config/supabase';
 import { ChartDataPoint, DashboardStats, RecentActivity } from '@/types/dashboard';
-import { LABELS } from '@/core/config/labels';
+import { DASHBOARD_LABELS } from '@/features/dashboard/constants';
 import { ACTIVE_USER_FILTERS } from '@/utils/userMetrics';
 import { calculateRevenue } from '@/core/services/financialCalculations.service';
 
@@ -51,7 +51,8 @@ export const fetchStats = async (): Promise<DashboardStats> => {
           .neq('role', 'admin'), // Exclure les admins
         supabase
           .from('payments')
-          .select('amount')
+          .select('amount, payment_type, status')
+          .in('status', ['succeeded', 'paid']) // Filtrer uniquement les paiements réussis
           .gte('created_at', startOfCurrentMonth.toISOString()),
       ]);
 
@@ -61,7 +62,7 @@ export const fetchStats = async (): Promise<DashboardStats> => {
     if (currentRevenues.error) throw currentRevenues.error;
 
     // Calculate monthly revenue with proper commission rules
-    // 20% pour les bookings, 100% pour les subscriptions
+    // 20% pour les bookings, 100% pour les subscriptions et services
     const currentMonthlyRevenue =
       currentRevenues.data?.reduce((sum: number, payment: any) => {
         const amount = Number(payment.amount) || 0;
@@ -273,12 +274,12 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(recentProperties.data?.map((property) => ({
         id: property.id,
         status: 'pending' as const,
-        title: LABELS.dashboard.activities.types.property.title,
-        description: formatActivityMessage(LABELS.dashboard.activities.types.property.description, {
+        title: DASHBOARD_LABELS.activities.types.property.title,
+        description: formatActivityMessage(DASHBOARD_LABELS.activities.types.property.description, {
           title: property.title,
           city: property.city,
         }),
-        actionLabel: LABELS.dashboard.activities.types.property.action,
+        actionLabel: DASHBOARD_LABELS.activities.types.property.action,
         timestamp: property.created_at,
         type: 'property' as const,
       })) || []),
@@ -287,11 +288,11 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(recentProviders.data?.map((provider) => ({
         id: provider.id,
         status: 'pending' as const,
-        title: LABELS.dashboard.activities.types.provider.title,
-        description: formatActivityMessage(LABELS.dashboard.activities.types.provider.description, {
+        title: DASHBOARD_LABELS.activities.types.provider.title,
+        description: formatActivityMessage(DASHBOARD_LABELS.activities.types.provider.description, {
           name: provider.full_name || provider.email,
         }),
-        actionLabel: LABELS.dashboard.activities.types.provider.action,
+        actionLabel: DASHBOARD_LABELS.activities.types.provider.action,
         timestamp: provider.created_at,
         type: 'provider' as const,
       })) || []),
@@ -302,14 +303,14 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
         status: service.status === 'cancelled' ? ('cancelled' as const) : ('pending' as const),
         title:
           service.status === 'cancelled'
-            ? LABELS.dashboard.activities.types.serviceCancelled.title
-            : LABELS.dashboard.activities.types.serviceIssue.title,
+            ? DASHBOARD_LABELS.activities.types.serviceCancelled.title
+            : DASHBOARD_LABELS.activities.types.serviceIssue.title,
         description:
-          service.cancellation_reason || LABELS.dashboard.activities.types.serviceIssue.description,
+          service.cancellation_reason || DASHBOARD_LABELS.activities.types.serviceIssue.description,
         actionLabel:
           service.status === 'cancelled'
-            ? LABELS.dashboard.activities.types.serviceCancelled.action
-            : LABELS.dashboard.activities.types.serviceIssue.action,
+            ? DASHBOARD_LABELS.activities.types.serviceCancelled.action
+            : DASHBOARD_LABELS.activities.types.serviceIssue.action,
         timestamp: service.updated_at || service.created_at,
         type: 'service' as const,
       })) || []),
@@ -318,11 +319,11 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(recentPayments.data?.map((payment: any) => ({
         id: payment.id,
         status: 'pending' as const,
-        title: LABELS.dashboard.activities.types.payment.title,
-        description: formatActivityMessage(LABELS.dashboard.activities.types.payment.description, {
+        title: DASHBOARD_LABELS.activities.types.payment.title,
+        description: formatActivityMessage(DASHBOARD_LABELS.activities.types.payment.description, {
           amount: payment.amount,
         }),
-        actionLabel: LABELS.dashboard.activities.types.payment.action,
+        actionLabel: DASHBOARD_LABELS.activities.types.payment.action,
         timestamp: payment.created_at,
         type: 'payment' as const,
       })) || []),
@@ -331,12 +332,12 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(chatReports.data?.map((report: any) => ({
         id: report.id,
         status: 'review_required' as const,
-        title: LABELS.dashboard.activities.types.chatReport.title,
+        title: DASHBOARD_LABELS.activities.types.chatReport.title,
         description: formatActivityMessage(
-          LABELS.dashboard.activities.types.chatReport.description,
+          DASHBOARD_LABELS.activities.types.chatReport.description,
           { reason: report.reason }
         ),
-        actionLabel: LABELS.dashboard.activities.types.chatReport.action,
+        actionLabel: DASHBOARD_LABELS.activities.types.chatReport.action,
         timestamp: report.created_at,
         type: 'chat_report' as const,
       })) || []),
@@ -345,12 +346,12 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(failedPayments.data?.map((payment: any) => ({
         id: payment.id,
         status: 'failed' as const,
-        title: LABELS.dashboard.activities.types.paymentFailed.title,
+        title: DASHBOARD_LABELS.activities.types.paymentFailed.title,
         description: formatActivityMessage(
-          LABELS.dashboard.activities.types.paymentFailed.description,
+          DASHBOARD_LABELS.activities.types.paymentFailed.description,
           { reason: payment.failure_reason }
         ),
-        actionLabel: LABELS.dashboard.activities.types.paymentFailed.action,
+        actionLabel: DASHBOARD_LABELS.activities.types.paymentFailed.action,
         timestamp: payment.created_at,
         type: 'failed_payment' as const,
       })) || []),
@@ -363,12 +364,12 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
         return {
           id: payment.id,
           status: 'review_required' as const,
-          title: LABELS.dashboard.activities.types.paymentOverdue.title,
+          title: DASHBOARD_LABELS.activities.types.paymentOverdue.title,
           description: formatActivityMessage(
-            LABELS.dashboard.activities.types.paymentOverdue.description,
+            DASHBOARD_LABELS.activities.types.paymentOverdue.description,
             { amount: payment.amount, days: daysSinceCreation }
           ),
-          actionLabel: LABELS.dashboard.activities.types.paymentOverdue.action,
+          actionLabel: DASHBOARD_LABELS.activities.types.paymentOverdue.action,
           timestamp: payment.created_at,
           type: 'overdue_payment' as const,
         };
@@ -378,11 +379,11 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(pendingRefunds.data?.map((payment: any) => ({
         id: payment.id,
         status: 'pending' as const,
-        title: LABELS.dashboard.activities.types.refund.title,
-        description: formatActivityMessage(LABELS.dashboard.activities.types.refund.description, {
+        title: DASHBOARD_LABELS.activities.types.refund.title,
+        description: formatActivityMessage(DASHBOARD_LABELS.activities.types.refund.description, {
           amount: payment.refund_amount,
         }),
-        actionLabel: LABELS.dashboard.activities.types.refund.action,
+        actionLabel: DASHBOARD_LABELS.activities.types.refund.action,
         timestamp: payment.created_at,
         type: 'pending_refund' as const,
       })) || []),
@@ -398,17 +399,17 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
                 ? 'admin'
                 : 'user';
         const roleDisplay =
-          LABELS.dashboard.activities.roles[roleKey] || LABELS.dashboard.activities.roles.user;
+          DASHBOARD_LABELS.activities.roles[roleKey] || DASHBOARD_LABELS.activities.roles.user;
 
         return {
           id: user.id,
           status: 'pending' as const,
-          title: LABELS.dashboard.activities.types.userRegistration[roleKey],
+          title: DASHBOARD_LABELS.activities.types.userRegistration[roleKey],
           description: formatActivityMessage(
-            LABELS.dashboard.activities.types.userRegistration.description,
+            DASHBOARD_LABELS.activities.types.userRegistration.description,
             { name: user.full_name || user.email, role: roleDisplay }
           ),
-          actionLabel: LABELS.dashboard.activities.types.userRegistration.action,
+          actionLabel: DASHBOARD_LABELS.activities.types.userRegistration.action,
           timestamp: user.created_at,
           type: 'pending_user' as const,
         };
@@ -418,15 +419,15 @@ export const fetchRecentActivities = async (): Promise<RecentActivity[]> => {
       ...(lockedAccounts.data?.map((account: any) => ({
         id: account.id,
         status: 'review_required' as const,
-        title: LABELS.dashboard.activities.types.accountLocked.title,
+        title: DASHBOARD_LABELS.activities.types.accountLocked.title,
         description: formatActivityMessage(
-          LABELS.dashboard.activities.types.accountLocked.description,
+          DASHBOARD_LABELS.activities.types.accountLocked.description,
           {
             name: account.full_name || account.email,
             reason: account.lock_reason,
           }
         ),
-        actionLabel: LABELS.dashboard.activities.types.accountLocked.action,
+        actionLabel: DASHBOARD_LABELS.activities.types.accountLocked.action,
         timestamp: account.updated_at || account.created_at,
         type: 'locked_account' as const,
       })) || []),
@@ -454,7 +455,8 @@ export const fetchChartData = async (): Promise<ChartData> => {
     const [revenueData, userData] = await Promise.all([
       supabase
         .from('payments')
-        .select('amount, created_at')
+        .select('amount, payment_type, created_at, status')
+        .in('status', ['succeeded', 'paid']) // Filtrer uniquement les paiements réussis
         .gte('created_at', startDate.toISOString())
         .lte('created_at', endDate.toISOString()),
       supabase
@@ -472,14 +474,15 @@ export const fetchChartData = async (): Promise<ChartData> => {
     const revenueByMonth = new Map<string, number>();
     const usersByMonth = new Map<string, number>();
 
-    revenueData.data?.forEach((item: { amount: number; created_at: string }) => {
-      const date = new Date(item.created_at);
-      const monthKey = date.toLocaleString('default', { month: 'short' });
-      revenueByMonth.set(
-        monthKey,
-        (revenueByMonth.get(monthKey) || 0) + (Number(item.amount) || 0)
-      );
-    });
+    revenueData.data?.forEach(
+      (item: { amount: number; created_at: string; payment_type?: string }) => {
+        const date = new Date(item.created_at);
+        const monthKey = date.toLocaleString('default', { month: 'short' });
+        const paymentType = item.payment_type || 'other';
+        const revenue = calculateRevenue(Number(item.amount) || 0, paymentType as any);
+        revenueByMonth.set(monthKey, (revenueByMonth.get(monthKey) || 0) + revenue);
+      }
+    );
 
     userData.data?.forEach((item: { created_at: string }) => {
       const date = new Date(item.created_at);

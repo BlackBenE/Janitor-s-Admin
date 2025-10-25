@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -18,7 +18,7 @@ import {
   CircularProgress,
   Tooltip,
   IconButton,
-} from "@mui/material";
+} from '@mui/material';
 import {
   DeleteForever as DeleteIcon,
   Security as GdprIcon,
@@ -26,12 +26,9 @@ import {
   AdminPanelSettings as AdminIcon,
   Warning as WarningIcon,
   InfoOutlined as InfoIcon,
-} from "@mui/icons-material";
-import {
-  DeletionReason,
-  AnonymizationLevel,
-} from "@/types/dataRetention";
-import { UserProfile } from "@/types/userManagement";
+} from '@mui/icons-material';
+import { DeletionReason, AnonymizationLevel } from '@/types/dataRetention';
+import { UserProfile } from '@/types/userManagement';
 
 // Types pour la configuration des stratégies
 interface DeletionStrategy {
@@ -41,7 +38,7 @@ interface DeletionStrategy {
   label: string;
   description: string;
   icon: React.ReactNode;
-  color: "primary" | "warning" | "error" | "info";
+  color: 'primary' | 'warning' | 'error' | 'info';
   details: string[];
   legalBasis?: string;
 }
@@ -49,49 +46,48 @@ interface DeletionStrategy {
 // Stratégies simplifiées
 const DELETION_STRATEGIES: DeletionStrategy[] = [
   {
-    id: "gdpr",
+    id: 'gdpr',
     reason: DeletionReason.GDPR_COMPLIANCE,
     level: AnonymizationLevel.PARTIAL,
-    label: "Suppression RGPD",
+    label: 'Suppression RGPD',
     description: "Droit à l'effacement - Anonymisation immédiate",
     icon: <GdprIcon />,
-    color: "primary",
+    color: 'primary',
     details: [
-      "Anonymisation immédiate des données personnelles",
-      "Conservation des données métier anonymisées",
-      "Purge finale automatique selon les durées légales",
+      'Anonymisation immédiate des données personnelles',
+      'Conservation des données métier anonymisées',
+      'Purge finale automatique selon les durées légales',
     ],
     legalBasis: "Droit à l'effacement",
   },
   {
-    id: "admin_action",
+    id: 'admin_action',
     reason: DeletionReason.ADMIN_ACTION,
     level: AnonymizationLevel.PARTIAL,
-    label: "Suppression administrative",
-    description:
-      "Suppression par l'administrateur avec conservation pour audit",
+    label: 'Suppression administrative',
+    description: "Suppression par l'administrateur avec conservation pour audit",
     icon: <AdminIcon />,
-    color: "warning",
+    color: 'warning',
     details: [
-      "Anonymisation des données personnelles",
-      "Conservation pour audit (3 ans)",
-      "Traçabilité administrative maintenue",
-      "Données conservées pour conformité légale",
+      'Anonymisation des données personnelles',
+      'Conservation pour audit (3 ans)',
+      'Traçabilité administrative maintenue',
+      'Données conservées pour conformité légale',
     ],
   },
   {
-    id: "policy_violation",
+    id: 'policy_violation',
     reason: DeletionReason.POLICY_VIOLATION,
     level: AnonymizationLevel.FULL,
-    label: "Suppression disciplinaire",
-    description: "Suppression immédiate des données",
+    label: 'Suppression disciplinaire',
+    description: 'Suppression immédiate des données',
     icon: <WarningIcon />,
-    color: "error",
+    color: 'error',
     details: [
-      "Suppression immédiate de toutes les données personnelles",
-      "Suppression des données métier non-légales",
-      "Conservation minimale des données financières (obligation légale)",
-      "Action irréversible - Aucune restauration possible",
+      'Suppression immédiate de toutes les données personnelles',
+      'Suppression des données métier non-légales',
+      'Conservation minimale des données financières (obligation légale)',
+      'Action irréversible - Aucune restauration possible',
     ],
   },
 ];
@@ -116,19 +112,17 @@ export const SmartDeleteModal: React.FC<SmartDeleteModalProps> = ({
   onConfirm,
   isDeleting,
 }) => {
-  const [selectedStrategy, setSelectedStrategy] = useState<string>("gdpr");
-  const [customReason, setCustomReason] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [selectedStrategy, setSelectedStrategy] = useState<string>('gdpr');
+  const [customReason, setCustomReason] = useState<string>('');
+  const [error, setError] = useState<string>('');
 
-  const selectedStrategyConfig = DELETION_STRATEGIES.find(
-    (s) => s.id === selectedStrategy
-  );
+  const selectedStrategyConfig = DELETION_STRATEGIES.find((s) => s.id === selectedStrategy);
 
   const handleConfirm = async () => {
     if (!user || !selectedStrategyConfig) return;
 
     try {
-      setError("");
+      setError('');
       await onConfirm(
         user.id,
         selectedStrategyConfig.reason,
@@ -137,25 +131,23 @@ export const SmartDeleteModal: React.FC<SmartDeleteModalProps> = ({
       );
       onClose();
       // Reset form
-      setSelectedStrategy("gdpr");
-      setCustomReason("");
+      setSelectedStrategy('gdpr');
+      setCustomReason('');
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Erreur lors de la suppression"
-      );
+      setError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
     }
   };
 
   const handleClose = () => {
     if (!isDeleting) {
       onClose();
-      setError("");
+      setError('');
     }
   };
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <DeleteIcon color="error" />
         Suppression intelligente d'utilisateur
       </DialogTitle>
@@ -165,19 +157,19 @@ export const SmartDeleteModal: React.FC<SmartDeleteModalProps> = ({
           <Box sx={{ mb: 3 }}>
             <Alert severity="warning" sx={{ mb: 2 }}>
               <Typography variant="body2">
-                Vous êtes sur le point de supprimer l'utilisateur{" "}
-                <strong>{user.full_name || user.email}</strong>. Cette action
-                déclenchera une anonymisation selon la stratégie sélectionnée.
+                Vous êtes sur le point de supprimer l'utilisateur{' '}
+                <strong>{user.full_name || user.email}</strong>. Cette action déclenchera une
+                anonymisation selon la stratégie sélectionnée.
               </Typography>
             </Alert>
 
             <Box
               sx={{
                 p: 2,
-                bgcolor: "background.paper",
+                bgcolor: 'background.paper',
                 borderRadius: 1,
                 border: 1,
-                borderColor: "divider",
+                borderColor: 'divider',
               }}
             >
               <Typography variant="subtitle2" gutterBottom>
@@ -186,7 +178,7 @@ export const SmartDeleteModal: React.FC<SmartDeleteModalProps> = ({
               <Typography variant="body2">Email : {user.email}</Typography>
               <Typography variant="body2">Rôle : {user.role}</Typography>
               <Typography variant="body2">
-                Créé le : {new Date(user.created_at || "").toLocaleDateString()}
+                Créé le : {new Date(user.created_at || '').toLocaleDateString()}
               </Typography>
             </Box>
           </Box>
@@ -212,8 +204,8 @@ export const SmartDeleteModal: React.FC<SmartDeleteModalProps> = ({
                     <Box sx={{ ml: 1 }}>
                       <Box
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
+                          display: 'flex',
+                          alignItems: 'center',
                           gap: 1,
                           mb: 0.5,
                         }}
@@ -225,9 +217,7 @@ export const SmartDeleteModal: React.FC<SmartDeleteModalProps> = ({
                         <Chip
                           size="small"
                           label={
-                            strategy.level === AnonymizationLevel.PARTIAL
-                              ? "Partielle"
-                              : "Complète"
+                            strategy.level === AnonymizationLevel.PARTIAL ? 'Partielle' : 'Complète'
                           }
                           color={strategy.color}
                         />
@@ -248,7 +238,7 @@ export const SmartDeleteModal: React.FC<SmartDeleteModalProps> = ({
                                 <Typography
                                   variant="caption"
                                   display="block"
-                                  sx={{ mt: 1, fontStyle: "italic" }}
+                                  sx={{ mt: 1, fontStyle: 'italic' }}
                                 >
                                   Base légale : {strategy.legalBasis}
                                 </Typography>
@@ -262,11 +252,7 @@ export const SmartDeleteModal: React.FC<SmartDeleteModalProps> = ({
                           </IconButton>
                         </Tooltip>
                       </Box>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ ml: 4 }}
-                      >
+                      <Typography variant="body2" color="text.secondary" sx={{ ml: 4 }}>
                         {strategy.description}
                       </Typography>
                     </Box>
@@ -297,40 +283,34 @@ export const SmartDeleteModal: React.FC<SmartDeleteModalProps> = ({
 
         {selectedStrategyConfig && (
           <Alert
-            severity={
-              selectedStrategyConfig.id === "policy_violation"
-                ? "error"
-                : "info"
-            }
+            severity={selectedStrategyConfig.id === 'policy_violation' ? 'error' : 'info'}
             sx={{ mb: 2 }}
           >
             <Typography variant="body2">
-              <strong>Attention :</strong> Cette action est{" "}
-              {selectedStrategyConfig.id === "policy_violation"
-                ? "irréversible"
-                : "partiellement réversible"}
+              <strong>Attention :</strong> Cette action est{' '}
+              {selectedStrategyConfig.id === 'policy_violation'
+                ? 'irréversible'
+                : 'partiellement réversible'}
               .
-              {selectedStrategyConfig.id !== "policy_violation" &&
+              {selectedStrategyConfig.id !== 'policy_violation' &&
                 " Vous pourrez restaurer les données depuis l'onglet 'Utilisateurs supprimés' avant la purge finale."}
             </Typography>
           </Alert>
         )}
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ p: 3, justifyContent: 'flex-end' }}>
         <Button onClick={handleClose} disabled={isDeleting}>
           Annuler
         </Button>
         <Button
           variant="contained"
-          color={selectedStrategyConfig?.color || "primary"}
+          color={selectedStrategyConfig?.color || 'primary'}
           onClick={handleConfirm}
           disabled={isDeleting || !user}
-          startIcon={
-            isDeleting ? <CircularProgress size={16} /> : <DeleteIcon />
-          }
+          startIcon={isDeleting ? <CircularProgress size={16} /> : <DeleteIcon />}
         >
-          {isDeleting ? "Suppression..." : "Confirmer la suppression"}
+          {isDeleting ? 'Suppression...' : 'Confirmer la suppression'}
         </Button>
       </DialogActions>
     </Dialog>

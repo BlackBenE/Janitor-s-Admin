@@ -1,15 +1,16 @@
-import React from "react";
-import { Box, Chip, Checkbox } from "@mui/material";
-import { GridRenderCellParams, GridColDef } from "@mui/x-data-grid";
-import { PaymentWithDetails } from "../../../types/payments";
+import React from 'react';
+import { Box, Chip, Checkbox, Typography } from '@mui/material';
+import { Lock as LockIcon } from '@mui/icons-material';
+import { GridRenderCellParams, GridColDef } from '@mui/x-data-grid';
+import { PaymentWithDetails } from '../../../types/payments';
 import {
   formatCurrency,
   formatDate,
   getPaymentStatusColor,
   getPaymentTypeColor,
-} from "../../../utils";
-import { PaymentTableActions } from "./PaymentTableActions";
-import { LABELS } from "../../../constants";
+} from '../../../utils';
+import { PaymentTableActions } from './PaymentTableActions';
+import { PAYMENTS_LABELS } from '../constants';
 
 interface PaymentTableColumnsProps {
   selectedPayments: string[];
@@ -24,23 +25,23 @@ interface PaymentTableColumnsProps {
 
 const getStatusLabel = (status: string): string => {
   switch (status?.toLowerCase()) {
-    case "paid":
-      return "Payé";
-    case "succeeded":
-    case "success":
-      return "Réussi";
-    case "pending":
-    case "processing":
-      return "En attente";
-    case "refunded":
-    case "refund":
-      return "Remboursé";
-    case "failed":
-    case "error":
-    case "cancelled":
-      return "Échoué";
+    case 'paid':
+      return 'Payé';
+    case 'succeeded':
+    case 'success':
+      return 'Réussi';
+    case 'pending':
+    case 'processing':
+      return 'En attente';
+    case 'refunded':
+    case 'refund':
+      return 'Remboursé';
+    case 'failed':
+    case 'error':
+    case 'cancelled':
+      return 'Échoué';
     default:
-      return status || "Inconnu";
+      return status || 'Inconnu';
   }
 };
 
@@ -69,8 +70,8 @@ export const createPaymentTableColumns = ({
   highlightId,
 }: PaymentTableColumnsProps): GridColDef[] => [
   {
-    field: "select",
-    headerName: "",
+    field: 'select',
+    headerName: '',
     width: 50,
     sortable: false,
     filterable: false,
@@ -83,48 +84,78 @@ export const createPaymentTableColumns = ({
     ),
   },
   {
-    field: "invoice_id",
-    headerName: LABELS.payments.table.headers.reference,
+    field: 'invoice_id',
+    headerName: PAYMENTS_LABELS.table.headers.reference,
     width: 140,
     renderCell: (params: GridRenderCellParams) => (
-      <Box sx={{ fontFamily: "monospace", fontWeight: "medium" }}>
-        {params.row.stripe_payment_intent_id ||
-          `INV-${params.row.id.slice(-8)}`}
+      <Box sx={{ fontFamily: 'monospace', fontWeight: 'medium' }}>
+        {params.row.stripe_payment_intent_id || `INV-${params.row.id.slice(-8)}`}
       </Box>
     ),
   },
   {
-    field: "provider_name",
-    headerName: "Prestataire",
+    field: 'provider_name',
+    headerName: 'Prestataire',
     minWidth: 160,
     flex: 1,
     renderCell: (params: GridRenderCellParams) => {
       // Si c'est une subscription, c'est toujours Paris Janitor
-      if (params.row.payment_type === "subscription") {
+      if (params.row.payment_type === 'subscription') {
         return (
           <Box>
-            <Box sx={{ fontWeight: "medium" }}>Paris Janitor</Box>
+            <Box sx={{ fontWeight: 'medium' }}>Paris Janitor</Box>
           </Box>
         );
       }
 
       const payee = params.row.payee;
-      const name = payee
-        ? `${payee.first_name || ""} ${payee.last_name || ""}`.trim()
-        : "N/A";
+
+      // Cas 1: Utilisateur supprimé
+      if (payee?.deleted_at) {
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                fontStyle: 'italic',
+                color: 'text.disabled',
+                lineHeight: 1.2,
+              }}
+            >
+              [Prestataire supprimé]
+            </Typography>
+          </Box>
+        );
+      }
+
+      // Cas 2: Compte bloqué
+      if (payee?.account_locked) {
+        const name = `${payee.first_name || ''} ${payee.last_name || ''}`.trim();
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <LockIcon fontSize="small" color="error" />
+            <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+              {name}
+            </Typography>
+          </Box>
+        );
+      }
+
+      // Cas 3: Normal
+      const name = payee ? `${payee.first_name || ''} ${payee.last_name || ''}`.trim() : 'N/A';
       return (
         <Box>
-          <Box sx={{ fontWeight: "medium" }}>{name}</Box>
+          <Box sx={{ fontWeight: 'medium' }}>{name}</Box>
         </Box>
       );
     },
   },
   {
-    field: "service_name",
-    headerName: "Service",
+    field: 'service_name',
+    headerName: 'Service',
     minWidth: 180,
     renderCell: (params: GridRenderCellParams) => {
-      const paymentType = params.row.payment_type || "N/A";
+      const paymentType = params.row.payment_type || 'N/A';
       return (
         <Chip
           label={paymentType}
@@ -132,57 +163,84 @@ export const createPaymentTableColumns = ({
           color={getPaymentTypeColor(paymentType)}
           sx={{
             fontWeight: 500,
-            textTransform: "capitalize",
+            textTransform: 'capitalize',
           }}
         />
       );
     },
   },
   {
-    field: "client_name",
-    headerName: LABELS.payments.table.headers.user,
+    field: 'client_name',
+    headerName: PAYMENTS_LABELS.table.headers.user,
     minWidth: 160,
     renderCell: (params: GridRenderCellParams) => {
       const payer = params.row.payer;
-      const name = payer
-        ? `${payer.first_name || ""} ${payer.last_name || ""}`.trim()
-        : "Client";
+
+      // Cas 1: Utilisateur supprimé
+      if (payer?.deleted_at) {
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                fontStyle: 'italic',
+                color: 'text.disabled',
+                lineHeight: 1.2,
+              }}
+            >
+              [Utilisateur supprimé]
+            </Typography>
+          </Box>
+        );
+      }
+
+      // Cas 2: Compte bloqué
+      if (payer?.account_locked) {
+        const name = `${payer.first_name || ''} ${payer.last_name || ''}`.trim();
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <LockIcon fontSize="small" color="error" />
+            <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+              {name}
+            </Typography>
+          </Box>
+        );
+      }
+
+      // Cas 3: Normal
+      const name = payer ? `${payer.first_name || ''} ${payer.last_name || ''}`.trim() : 'Client';
       return (
         <Box>
-          <Box sx={{ fontWeight: "medium" }}>{name}</Box>
+          <Box sx={{ fontWeight: 'medium' }}>{name}</Box>
         </Box>
       );
     },
   },
   {
-    field: "amount",
-    headerName: LABELS.payments.table.headers.amount,
+    field: 'amount',
+    headerName: PAYMENTS_LABELS.table.headers.amount,
     width: 120,
     renderCell: (params: GridRenderCellParams) => (
-      <Box sx={{ fontWeight: "medium", textAlign: "right" }}>
+      <Box sx={{ fontWeight: 'medium', textAlign: 'right' }}>
         {formatCurrency(params.row.amount)}
       </Box>
     ),
   },
   {
-    field: "status",
-    headerName: LABELS.payments.table.headers.status,
+    field: 'status',
+    headerName: PAYMENTS_LABELS.table.headers.status,
     width: 130,
     renderCell: (params: GridRenderCellParams) => {
       const status = params.row.status;
       const dueDate = params.row.created_at
-        ? new Date(
-            new Date(params.row.created_at).getTime() + 30 * 24 * 60 * 60 * 1000
-          )
+        ? new Date(new Date(params.row.created_at).getTime() + 30 * 24 * 60 * 60 * 1000)
         : new Date();
-      const isOverdue = status === "pending" && dueDate < new Date();
+      const isOverdue = status === 'pending' && dueDate < new Date();
 
       return (
         <Chip
-          label={
-            isOverdue ? LABELS.payments.status.overdue : getStatusLabel(status)
-          }
-          color={isOverdue ? "error" : getPaymentStatusColor(status)}
+          label={isOverdue ? PAYMENTS_LABELS.status.overdue : getStatusLabel(status)}
+          color={isOverdue ? 'error' : getPaymentStatusColor(status)}
           size="small"
           variant="filled"
         />
@@ -190,22 +248,20 @@ export const createPaymentTableColumns = ({
     },
   },
   {
-    field: "due_date",
-    headerName: LABELS.payments.table.headers.date,
+    field: 'due_date',
+    headerName: PAYMENTS_LABELS.table.headers.date,
     width: 120,
     renderCell: (params: GridRenderCellParams) => {
       const dueDate = params.row.created_at
-        ? new Date(
-            new Date(params.row.created_at).getTime() + 30 * 24 * 60 * 60 * 1000
-          )
+        ? new Date(new Date(params.row.created_at).getTime() + 30 * 24 * 60 * 60 * 1000)
         : new Date();
-      const isOverdue = params.row.status === "pending" && dueDate < new Date();
+      const isOverdue = params.row.status === 'pending' && dueDate < new Date();
 
       return (
         <Box
           sx={{
-            color: isOverdue ? "error.main" : "text.primary",
-            fontWeight: isOverdue ? "medium" : "normal",
+            color: isOverdue ? 'error.main' : 'text.primary',
+            fontWeight: isOverdue ? 'medium' : 'normal',
           }}
         >
           {formatDate(dueDate.toISOString())}
@@ -214,8 +270,8 @@ export const createPaymentTableColumns = ({
     },
   },
   {
-    field: "actions",
-    headerName: LABELS.payments.table.headers.actions,
+    field: 'actions',
+    headerName: PAYMENTS_LABELS.table.headers.actions,
     width: 200,
     sortable: false,
     filterable: false,

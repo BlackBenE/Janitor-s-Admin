@@ -306,7 +306,6 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ["users"] });
-        console.log(`Utilisateur ${result.user_id} anonymisé avec succès`, {
           level: result.anonymization_level,
           fields: result.anonymized_fields,
           preservedUntil: result.preserved_data_until,
@@ -360,7 +359,6 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
       const successful = results.filter((r) => r.success).length;
       const failed = results.filter((r) => !r.success).length;
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      console.log(
         `Anonymisation en lot terminée: ${successful} succès, ${failed} échecs`
       );
     },
@@ -431,7 +429,6 @@ export const useUserActions = (bulkActionsProps?: UseBulkActionsProps) => {
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
-      console.log(
         `✅ Suppression intelligente réussie pour ${result.user_id}`,
         {
           deletedAt: result.deleted_at,

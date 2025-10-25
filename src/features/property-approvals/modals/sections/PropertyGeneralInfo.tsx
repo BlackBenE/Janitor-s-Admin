@@ -10,7 +10,8 @@ import {
 import { ExpandMore as ExpandMoreIcon, Info as InfoIcon } from '@mui/icons-material';
 
 import { PropertyWithOwner } from '@/types';
-import { LABELS } from '@/core/config/labels';
+import { COMMON_LABELS } from '@/shared/constants';
+import { PROPERTY_APPROVALS_LABELS } from '../../constants';
 import { getStatusLabel } from '@/utils/statusHelpers';
 
 interface PropertyGeneralInfoProps {
@@ -22,7 +23,7 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({ proper
     <Accordion defaultExpanded>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <InfoIcon /> {LABELS.propertyApprovals.modals.sections.basicInfo}
+          <InfoIcon /> {PROPERTY_APPROVALS_LABELS.modals.sections.basicInfo}
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
@@ -36,15 +37,15 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({ proper
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.propertyTitle}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.propertyTitle}
               </Typography>
               <Typography variant="body1" gutterBottom>
-                {property?.title || LABELS.propertyApprovals.modals.placeholders.noTitle}
+                {property?.title || PROPERTY_APPROVALS_LABELS.modals.placeholders.noTitle}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.city}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.city}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 {property?.city || 'N/A'}
@@ -54,10 +55,10 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({ proper
 
           <Box>
             <Typography variant="subtitle2" color="text.secondary">
-              {LABELS.propertyApprovals.modals.fields.description}
+              {PROPERTY_APPROVALS_LABELS.modals.fields.description}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              {property?.description || LABELS.propertyApprovals.modals.placeholders.noDescription}
+              {property?.description || PROPERTY_APPROVALS_LABELS.modals.placeholders.noDescription}
             </Typography>
           </Box>
 
@@ -70,21 +71,21 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({ proper
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.nightlyRate}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.nightlyRate}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 {property?.nightly_rate
-                  ? `$${property.nightly_rate}${LABELS.propertyApprovals.modals.units.perNight}`
-                  : LABELS.propertyApprovals.modals.placeholders.priceNotSet}
+                  ? `$${property.nightly_rate}${PROPERTY_APPROVALS_LABELS.modals.units.perNight}`
+                  : PROPERTY_APPROVALS_LABELS.modals.placeholders.priceNotSet}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.maxCapacity}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.maxCapacity}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 {property?.capacity
-                  ? `${property.capacity} ${LABELS.propertyApprovals.modals.units.guests}`
+                  ? `${property.capacity} ${PROPERTY_APPROVALS_LABELS.modals.units.guests}`
                   : 'N/A'}
               </Typography>
             </Box>
@@ -99,17 +100,17 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({ proper
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.imagesCount}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.imagesCount}
               </Typography>
               <Typography variant="body1" gutterBottom>
                 {property?.images && property.images.length > 0
-                  ? `${property.images.length} ${LABELS.propertyApprovals.modals.units.images}`
-                  : LABELS.propertyApprovals.modals.placeholders.noImages}
+                  ? `${property.images.length} ${PROPERTY_APPROVALS_LABELS.modals.units.images}`
+                  : PROPERTY_APPROVALS_LABELS.modals.placeholders.noImages}
               </Typography>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.ownerId}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.ownerId}
               </Typography>
               <Typography
                 variant="body2"
@@ -134,7 +135,7 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({ proper
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.createdAt}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.createdAt}
               </Typography>
               <Typography variant="body2" gutterBottom>
                 {property?.created_at ? new Date(property.created_at).toLocaleDateString() : 'N/A'}
@@ -142,7 +143,7 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({ proper
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.updatedAt}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.updatedAt}
               </Typography>
               <Typography variant="body2" gutterBottom>
                 {property?.updated_at ? new Date(property.updated_at).toLocaleDateString() : 'N/A'}
@@ -159,7 +160,7 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({ proper
           >
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.validationStatus}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.validationStatus}
               </Typography>
               <Typography
                 variant="body1"
@@ -181,22 +182,22 @@ export const PropertyGeneralInfo: React.FC<PropertyGeneralInfoProps> = ({ proper
             </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {LABELS.propertyApprovals.modals.fields.validatedBy}
+                {PROPERTY_APPROVALS_LABELS.modals.fields.validatedBy}
               </Typography>
               <Typography variant="body2" gutterBottom>
                 {property?.validated_by ||
-                  LABELS.propertyApprovals.modals.placeholders.notValidated}
+                  PROPERTY_APPROVALS_LABELS.modals.placeholders.notValidated}
               </Typography>
             </Box>
           </Box>
 
           <Box>
             <Typography variant="subtitle2" color="text.secondary">
-              {LABELS.propertyApprovals.modals.fields.moderationNotes}
+              {PROPERTY_APPROVALS_LABELS.modals.fields.moderationNotes}
             </Typography>
             <Typography variant="body2" gutterBottom>
               {property?.moderation_notes ||
-                LABELS.propertyApprovals.modals.placeholders.noModerationNotes}
+                PROPERTY_APPROVALS_LABELS.modals.placeholders.noModerationNotes}
             </Typography>
           </Box>
         </Stack>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { AdminLayout } from '@/shared/components/layout';
 // Hooks
-import { usePayments, usePaymentManagement, usePaymentModals, usePaymentPdf } from './hooks';
+import { usePaymentsFeature, usePaymentManagement, usePaymentModals, usePaymentPdf } from './hooks';
 // Components
 import {
   PaymentHeader,
@@ -15,7 +15,7 @@ import {
 import { LoadingIndicator } from '@/shared/components/feedback';
 import { useHighlightFromUrl } from '@/shared/hooks';
 // Configuration
-import { paymentTabConfigs } from '@/shared/config'; // TODO: À migrer vers @/shared/config
+import { paymentTabConfigs } from '@/shared/config';
 import { formatCurrency } from '@/shared/utils';
 
 // Types
@@ -35,7 +35,7 @@ export const PaymentsPage: React.FC = () => {
     error,
     refetch,
     updatePayment,
-  } = usePayments();
+  } = usePaymentsFeature();
 
   const paymentManagement = usePaymentManagement();
   const modals = usePaymentModals();
@@ -125,11 +125,9 @@ export const PaymentsPage: React.FC = () => {
     onTogglePaymentSelection: paymentManagement.togglePaymentSelection || (() => {}),
     highlightId: highlightId || undefined, // Ajout pour l'highlighting
     onViewDetails: (payment: PaymentWithDetails) => {
-      console.log('🔍 View Details clicked for payment:', payment);
       modals.openPaymentDetailsModal(payment);
     },
     onDownloadPdf: async (paymentId: string) => {
-      console.log('📄 Download PDF for payment:', paymentId);
       try {
         const payment = payments.find((p) => p.id === paymentId);
         if (payment) {
@@ -142,15 +140,12 @@ export const PaymentsPage: React.FC = () => {
       }
     },
     onMarkPaid: async (paymentId: string) => {
-      console.log('✅ Mark as paid:', paymentId);
       await updatePayment(paymentId, { status: 'paid' });
     },
     onRefund: async (paymentId: string) => {
-      console.log('🔄 Refund payment:', paymentId);
       await updatePayment(paymentId, { status: 'refunded' });
     },
     onRetry: async (paymentId: string) => {
-      console.log('🔄 Retry payment:', paymentId);
       // TODO: Implémenter la relance de paiement
       await updatePayment(paymentId, { status: 'pending' });
     },
@@ -231,7 +226,6 @@ export const PaymentsPage: React.FC = () => {
           onClosePaymentDetailsModal={modals.closePaymentDetailsModal}
           onSavePayment={async () => {
             // TODO: Implémenter la sauvegarde
-            console.log('Save payment:', paymentManagement.editForm);
             modals.closePaymentDetailsModal();
           }}
           onMarkPaid={async (paymentId: string) => {
@@ -241,7 +235,6 @@ export const PaymentsPage: React.FC = () => {
             await updatePayment(paymentId, { status: 'refunded' });
           }}
           onDownloadPdf={async (paymentId: string) => {
-            console.log('Download PDF for payment:', paymentId);
             try {
               const payment = payments.find((p) => p.id === paymentId);
               if (payment) {

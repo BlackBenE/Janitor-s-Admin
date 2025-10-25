@@ -1,21 +1,21 @@
-import React from "react";
+import React from 'react';
 import {
   Pending as PendingIcon,
   CheckCircle as ApprovedIcon,
   Cancel as RejectedIcon,
   Visibility as ReviewIcon,
   Home as AllIcon,
-} from "@mui/icons-material";
-import { Property } from "./supabase";
+} from '@mui/icons-material';
+import { Property } from './supabase';
 
 // =====================================================
 // PROPERTY STATUS & CONFIGURATION
 // =====================================================
 export enum PropertyStatus {
-  ALL = "all",
-  PENDING = "pending",
-  APPROVED = "approved",
-  REJECTED = "rejected",
+  ALL = 'all',
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
 }
 
 export interface PropertyTab {
@@ -29,27 +29,27 @@ export interface PropertyTab {
 export const PROPERTY_TABS: PropertyTab[] = [
   {
     status: PropertyStatus.ALL,
-    label: "All Properties",
+    label: 'Toutes les propriétés',
     icon: AllIcon,
     description: "Vue d'ensemble de toutes les propriétés",
   },
   {
     status: PropertyStatus.PENDING,
-    label: "Pending",
+    label: 'En attente',
     icon: PendingIcon,
     description: "Propriétés en attente d'approbation",
   },
   {
     status: PropertyStatus.APPROVED,
-    label: "Approved",
+    label: 'Approuvées',
     icon: ApprovedIcon,
-    description: "Propriétés approuvées et publiées",
+    description: 'Propriétés approuvées et publiées',
   },
   {
     status: PropertyStatus.REJECTED,
-    label: "Rejected",
+    label: 'Rejetées',
     icon: RejectedIcon,
-    description: "Propriétés rejetées",
+    description: 'Propriétés rejetées',
   },
 ];
 
@@ -58,7 +58,7 @@ export const PROPERTY_TABS: PropertyTab[] = [
 // =====================================================
 
 // Utilisation directe des types Supabase
-export type { Property } from "./supabase";
+export type { Property } from './supabase';
 
 // Type de validation basé sur le champ validation_status de Supabase (string | null)
 export type ValidationStatus = string | null;
@@ -133,5 +133,5 @@ export interface PropertyStats {
 export interface PropertyNotificationState {
   open: boolean;
   message: string;
-  severity: "success" | "error" | "warning" | "info";
+  severity: 'success' | 'error' | 'warning' | 'info';
 }

@@ -1,5 +1,5 @@
-import React from "react";
-import { DialogActions, Button, Box, Divider } from "@mui/material";
+import React from 'react';
+import { Button, Box } from '@mui/material';
 import {
   Edit as EditIcon,
   Save as SaveIcon,
@@ -7,8 +7,8 @@ import {
   CheckCircle as ApproveIcon,
   Cancel as RejectIcon,
   Delete as DeleteIcon,
-} from "@mui/icons-material";
-import { ServiceWithDetails } from "@/types/services";
+} from '@mui/icons-material';
+import { ServiceWithDetails } from '@/types/services';
 
 interface ServiceActionsProps {
   service: ServiceWithDetails;
@@ -35,109 +35,113 @@ export const ServiceActions: React.FC<ServiceActionsProps> = ({
   isEditMode = false,
   isLoading = false,
 }) => {
+  // Mode édition - Boutons Annuler et Sauvegarder
+  if (isEditMode) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          gap: 1,
+          p: 2,
+          borderTop: 1,
+          borderColor: 'divider',
+          bgcolor: 'grey.50',
+        }}
+      >
+        <Button
+          onClick={onCancelEdit}
+          startIcon={<CancelIcon />}
+          disabled={isLoading}
+          color="inherit"
+        >
+          Annuler
+        </Button>
+        <Button
+          onClick={onSaveEdit}
+          variant="contained"
+          startIcon={<SaveIcon />}
+          disabled={isLoading}
+        >
+          Sauvegarder
+        </Button>
+      </Box>
+    );
+  }
+
+  // Mode visualisation - Tous les boutons alignés à droite
   return (
-    <DialogActions
+    <Box
       sx={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        gap: 1,
         p: 2,
-        borderTop: "1px solid",
-        borderColor: "divider",
-        backgroundColor: "grey.50",
-        justifyContent: "space-between",
+        borderTop: 1,
+        borderColor: 'divider',
+        bgcolor: 'grey.50',
       }}
     >
-      {/* Actions de gauche - Actions sur le service */}
-      <Box sx={{ display: "flex", gap: 1 }}>
-        {!isEditMode && (
-          <>
-            {/* Approuver/Activer le service */}
-            {!service.is_active && onApproveService && (
-              <Button
-                variant="contained"
-                color="success"
-                startIcon={<ApproveIcon />}
-                onClick={() => onApproveService(service.id)}
-                disabled={isLoading}
-                size="small"
-              >
-                Activer
-              </Button>
-            )}
+      {/* Supprimer (action dangereuse - en premier) */}
+      {onDeleteService && (
+        <Button
+          onClick={() => onDeleteService(service.id)}
+          startIcon={<DeleteIcon />}
+          variant="outlined"
+          color="error"
+          disabled={isLoading}
+          size="small"
+        >
+          Supprimer
+        </Button>
+      )}
 
-            {/* Rejeter/Désactiver le service */}
-            {onRejectService && (
-              <Button
-                variant="outlined"
-                color="error"
-                startIcon={<RejectIcon />}
-                onClick={() => onRejectService(service.id)}
-                disabled={isLoading}
-                size="small"
-              >
-                Désactiver
-              </Button>
-            )}
-          </>
-        )}
-      </Box>
+      {/* Désactiver le service */}
+      {onRejectService && (
+        <Button
+          variant="outlined"
+          color="error"
+          startIcon={<RejectIcon />}
+          onClick={() => onRejectService(service.id)}
+          disabled={isLoading}
+          size="small"
+        >
+          Désactiver
+        </Button>
+      )}
 
-      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+      {/* Activer le service (si inactif) */}
+      {!service.is_active && onApproveService && (
+        <Button
+          variant="contained"
+          color="success"
+          startIcon={<ApproveIcon />}
+          onClick={() => onApproveService(service.id)}
+          disabled={isLoading}
+          size="small"
+        >
+          Activer
+        </Button>
+      )}
 
-      {/* Actions de droite - Actions de modal */}
-      <Box sx={{ display: "flex", gap: 1 }}>
-        {isEditMode ? (
-          <>
-            {/* Mode édition - Sauvegarder et annuler */}
-            <Button
-              onClick={onCancelEdit}
-              startIcon={<CancelIcon />}
-              disabled={isLoading}
-              color="inherit"
-            >
-              Annuler
-            </Button>
-            <Button
-              onClick={onSaveEdit}
-              variant="contained"
-              startIcon={<SaveIcon />}
-              disabled={isLoading}
-            >
-              Sauvegarder
-            </Button>
-          </>
-        ) : (
-          <>
-            {/* Mode visualisation - Éditer et fermer */}
-            {onEditService && (
-              <Button
-                onClick={onEditService}
-                startIcon={<EditIcon />}
-                variant="outlined"
-                disabled={isLoading}
-              >
-                Éditer
-              </Button>
-            )}
+      {/* Éditer */}
+      {onEditService && (
+        <Button
+          onClick={onEditService}
+          startIcon={<EditIcon />}
+          variant="outlined"
+          disabled={isLoading}
+        >
+          Éditer
+        </Button>
+      )}
 
-            {/* Supprimer (dangereux) */}
-            {onDeleteService && (
-              <Button
-                onClick={() => onDeleteService(service.id)}
-                startIcon={<DeleteIcon />}
-                variant="outlined"
-                color="error"
-                disabled={isLoading}
-                size="small"
-              >
-                Supprimer
-              </Button>
-            )}
-
-            <Button onClick={onClose} variant="contained" disabled={isLoading}>
-              Fermer
-            </Button>
-          </>
-        )}
-      </Box>
-    </DialogActions>
+      {/* Fermer (action standard - en dernier) */}
+      <Button onClick={onClose} variant="contained" disabled={isLoading}>
+        Fermer
+      </Button>
+    </Box>
   );
 };

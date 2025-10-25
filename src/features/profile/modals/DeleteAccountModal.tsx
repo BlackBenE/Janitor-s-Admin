@@ -14,10 +14,11 @@ import {
 } from '@mui/material';
 import { Warning as WarningIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { ProfileService } from '@/core/services/profile.service';
-import { useUINotifications } from '../../../hooks/shared';
+import { useUINotifications } from '@/shared/hooks';
 import { useAuth } from '@/core/providers/auth.provider';
 import { useNavigate } from 'react-router-dom';
-import { LABELS } from '../../../constants/labels';
+import { COMMON_LABELS } from '@/shared/constants';
+import { PROFILE_LABELS } from '../constants';
 
 interface DeleteAccountModalProps {
   open: boolean;
@@ -82,7 +83,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <WarningIcon color="error" />
           <Typography variant="h6" color="error">
-            {LABELS.common.messages.deleteAccount}
+            {PROFILE_LABELS.deleteAccount.title}
           </Typography>
         </Box>
       </DialogTitle>
@@ -91,23 +92,23 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
         <Stack spacing={3} sx={{ mt: 1 }}>
           <Alert severity="error">
             <Typography variant="h6" gutterBottom>
-              {LABELS.common.messages.thisActionCannotBeUndone}
+              {PROFILE_LABELS.deleteAccount.warning}
             </Typography>
-            <Typography variant="body2">{LABELS.common.messages.deleteAccountWarning}</Typography>
+            <Typography variant="body2">{PROFILE_LABELS.deleteAccount.description}</Typography>
           </Alert>
 
           <Box>
             <Typography variant="body1" gutterBottom>
-              {LABELS.common.messages.youAreAboutToDelete}: <strong>{userEmail}</strong>
+              {PROFILE_LABELS.deleteAccount.aboutToDelete}: <strong>{userEmail}</strong>
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {LABELS.common.messages.deleteAccountInfo}
+              {PROFILE_LABELS.deleteAccount.info}
             </Typography>
           </Box>
 
           <Box>
             <Typography variant="body2" gutterBottom>
-              {LABELS.common.messages.reasonForDeletion}:
+              {PROFILE_LABELS.deleteAccount.reason}:
             </Typography>
             <TextField
               fullWidth
@@ -115,26 +116,26 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
               rows={2}
               value={deleteReason}
               onChange={(e) => setDeleteReason(e.target.value)}
-              placeholder={LABELS.common.messages.tellUsWhyLeaving}
+              placeholder={PROFILE_LABELS.deleteAccount.tellUsWhy}
               disabled={isDeleting}
             />
           </Box>
 
           <Box>
             <Typography variant="body2" gutterBottom>
-              {LABELS.common.messages.pleaseType} <strong>DELETE</strong>{' '}
-              {LABELS.common.messages.toConfirm}:
+              {PROFILE_LABELS.deleteAccount.pleaseType} <strong>DELETE</strong>{' '}
+              {PROFILE_LABELS.deleteAccount.toConfirm}:
             </Typography>
             <TextField
               fullWidth
               value={confirmationText}
               onChange={(e) => setConfirmationText(e.target.value)}
-              placeholder={LABELS.common.messages.typeDeleteToConfirm}
+              placeholder={PROFILE_LABELS.deleteAccount.typeDelete}
               disabled={isDeleting}
               error={confirmationText.length > 0 && !isConfirmed}
               helperText={
                 confirmationText.length > 0 && !isConfirmed
-                  ? LABELS.common.messages.pleaseTypeExactly.replace('{{text}}', expectedText)
+                  ? PROFILE_LABELS.deleteAccount.pleaseTypeExactly.replace('{{text}}', expectedText)
                   : ''
               }
             />
@@ -144,7 +145,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
 
       <DialogActions>
         <Button onClick={handleClose} variant="outlined" disabled={isDeleting}>
-          {LABELS.common.actions.cancel}
+          {COMMON_LABELS.actions.cancel}
         </Button>
         <Button
           onClick={handleSubmit}
@@ -153,7 +154,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
           disabled={!isConfirmed || isDeleting}
           startIcon={isDeleting ? <CircularProgress size={16} /> : <DeleteIcon />}
         >
-          {isDeleting ? LABELS.common.messages.deleting : LABELS.common.messages.deleteAccount}
+          {isDeleting ? PROFILE_LABELS.deleteAccount.deleting : PROFILE_LABELS.deleteAccount.title}
         </Button>
       </DialogActions>
     </Dialog>

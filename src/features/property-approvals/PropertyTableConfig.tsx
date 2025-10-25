@@ -19,7 +19,8 @@ import {
   createDateColumn,
 } from '@/shared/components/data-display';
 import { PropertyWithOwner } from '@/types';
-import { LABELS } from '@/core/config/labels';
+import { COMMON_LABELS } from '@/shared/constants';
+import { PROPERTY_APPROVALS_LABELS } from './constants';
 import { getStatusLabel, getStatusColor } from '@/utils/statusHelpers';
 
 // =====================================================
@@ -58,7 +59,7 @@ export interface PropertyTableConfig {
 const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
   {
     field: 'title',
-    headerName: LABELS.propertyApprovals.table.headers.property,
+    headerName: PROPERTY_APPROVALS_LABELS.table.headers.property,
     flex: 1,
     renderCell: (params: GridRenderCellParams) => {
       const imageCount = params.row.images?.length || 0;
@@ -83,7 +84,7 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
               fontWeight="medium"
               sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
             >
-              {params.value || LABELS.propertyApprovals.table.untitled}
+              {params.value || PROPERTY_APPROVALS_LABELS.table.untitled}
             </Typography>
             <Typography
               variant="caption"
@@ -91,8 +92,8 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
               sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
             >
               {imageCount > 0
-                ? `${imageCount} ${LABELS.propertyApprovals.table.headers.images.toLowerCase()}`
-                : `0 ${LABELS.propertyApprovals.table.headers.images.toLowerCase()}`}
+                ? `${imageCount} ${PROPERTY_APPROVALS_LABELS.table.headers.images.toLowerCase()}`
+                : `0 ${PROPERTY_APPROVALS_LABELS.table.headers.images.toLowerCase()}`}
             </Typography>
           </Box>
         </Box>
@@ -101,81 +102,94 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
   },
   {
     field: 'owner_name',
-    headerName: LABELS.propertyApprovals.table.headers.owner,
-    renderCell: (params: GridRenderCellParams) => (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 0,
-          height: '100%',
-          justifyContent: 'center',
-        }}
-      >
-        <Typography
-          variant="body2"
-          fontWeight="medium"
-          sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
-        >
-          {params.value || LABELS.propertyApprovals.modals.unknownOwner}
-        </Typography>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
-        >
-          {params.row.owner_email || LABELS.propertyApprovals.modals.noEmail}
-        </Typography>
-      </Box>
-    ),
-  },
-  {
-    field: 'location',
-    headerName: LABELS.propertyApprovals.table.headers.location,
-    width: 200,
-    renderCell: (params: GridRenderCellParams) => (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          height: '100%',
-        }}
-      >
+    headerName: PROPERTY_APPROVALS_LABELS.table.headers.owner,
+    renderCell: (params: GridRenderCellParams) => {
+      const ownerName =
+        params.row.profiles?.full_name || params.row.owner?.full_name || params.value;
+      const ownerEmail =
+        params.row.profiles?.email || params.row.owner?.email || params.row.owner_email;
+
+      return (
         <Box
           sx={{
             display: 'flex',
             flexDirection: 'column',
             gap: 0,
+            height: '100%',
             justifyContent: 'center',
           }}
         >
-          <Typography variant="body2" sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}>
-            {params.value || 'N/A'}
+          <Typography
+            variant="body2"
+            fontWeight="medium"
+            sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
+          >
+            {ownerName || PROPERTY_APPROVALS_LABELS.modals.unknownOwner}
           </Typography>
           <Typography
             variant="caption"
             color="text.secondary"
             sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
           >
-            {params.row.address || LABELS.common.messages.noAddress}
+            {ownerEmail || PROPERTY_APPROVALS_LABELS.modals.noEmail}
           </Typography>
         </Box>
-      </Box>
-    ),
+      );
+    },
   },
   {
-    field: 'rent_amount',
-    headerName: LABELS.propertyApprovals.table.headers.price,
+    field: 'location',
+    headerName: PROPERTY_APPROVALS_LABELS.table.headers.location,
+    width: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const city = params.row.city || '';
+      const country = params.row.country || '';
+      const location = `${city}, ${country}`.trim().replace(/^,\s*|,\s*$/g, '');
+
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            height: '100%',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 0,
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="body2" sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}>
+              {location || 'N/A'}
+            </Typography>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
+            >
+              {params.row.address || COMMON_LABELS.messages.noAddress}
+            </Typography>
+          </Box>
+        </Box>
+      );
+    },
+  },
+  {
+    field: 'nightly_rate',
+    headerName: PROPERTY_APPROVALS_LABELS.table.headers.price,
     width: 120,
     renderCell: (params: GridRenderCellParams) => (
       <Typography variant="body2" fontWeight="medium">
-        {params.value ? `$${params.value}` : 'N/A'}
+        {params.value ? `${params.value}€/nuit` : 'Non défini'}
       </Typography>
     ),
   },
   {
     field: 'validation_status',
-    headerName: LABELS.propertyApprovals.table.headers.status,
+    headerName: PROPERTY_APPROVALS_LABELS.table.headers.status,
     width: 130,
     renderCell: (params: GridRenderCellParams) => {
       const status = params.value || 'pending';
@@ -185,7 +199,7 @@ const createPropertyColumns = (config: PropertyTableConfig): ColumnConfig[] => [
       return <Chip color={color} variant="filled" label={label} size="small" />;
     },
   },
-  createDateColumn('created_at', LABELS.common.messages.submitted),
+  createDateColumn('created_at', COMMON_LABELS.messages.submitted),
   createActionsColumn(config),
 ];
 
@@ -197,7 +211,7 @@ import { PropertyTableActions } from './components/PropertyTableActions';
 
 const createActionsColumn = (config: PropertyTableConfig): ColumnConfig => ({
   field: 'actions',
-  headerName: LABELS.propertyApprovals.table.headers.actions,
+  headerName: PROPERTY_APPROVALS_LABELS.table.headers.actions,
   width: 120,
   renderCell: (params: GridRenderCellParams) => (
     <PropertyTableActions

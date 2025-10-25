@@ -1,4 +1,3 @@
-// Export des hooks analytics
-export { useAnalytics } from "./useAnalytics";
-export { useAnalyticsExport } from "./useAnalyticsExport";
-export { useAnalyticsData } from "./analyticsDataGenerator";
+// Export all analytics hooks
+export { useAnalytics } from './useAnalytics';
+export { useAnalyticsData } from './analyticsDataGenerator';

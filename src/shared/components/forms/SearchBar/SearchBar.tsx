@@ -6,7 +6,7 @@ import { debounce } from 'lodash';
 import { Box } from '@mui/material';
 import SearchResults from '@/shared/components/search/SearchResults';
 import { searchEntities, useSearchNavigation, SearchResult } from '@/core/services/search.service';
-import { LABELS } from '@/core/config/labels';
+import { COMMON_LABELS } from '@/shared/constants';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -64,7 +64,7 @@ const StyledInputBase = styled(memo(InputBase))(({ theme }) => ({
 }));
 
 const SearchBar: FC<SearchBarProps> = ({
-  placeholder = LABELS.searchBar.placeholder,
+  placeholder = COMMON_LABELS.searchBar.placeholder,
   debounceMs = 300,
   minWidth = '12ch',
   expandedWidth = '20ch',
@@ -134,7 +134,7 @@ const SearchBar: FC<SearchBarProps> = ({
           onFocus={() => setShowResults(true)}
           placeholder={placeholder}
           inputProps={{
-            'aria-label': LABELS.searchBar.ariaLabel,
+            'aria-label': COMMON_LABELS.searchBar.ariaLabel,
             style: {
               minWidth,
             },

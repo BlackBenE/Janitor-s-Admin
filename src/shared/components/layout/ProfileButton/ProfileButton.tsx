@@ -21,7 +21,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { SxProps, Theme } from '@mui/material/styles';
 import { useAuth } from '@/core/providers/auth.provider';
-import { LABELS } from '@/core/config/labels';
+import { COMMON_LABELS } from '@/shared/constants';
 
 interface ProfileButtonProps {
   className?: string;
@@ -36,9 +36,9 @@ const ProfileButton: FC<ProfileButtonProps> = ({ className, sx, compact = false 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Récupérer les données utilisateur du contexte d'authentification
-  const userName = getUserFullName() || LABELS.profileMenu.adminUser;
-  const userEmail = getEmail() || LABELS.profileMenu.adminEmail;
-  const userRole = getUserRole() || LABELS.profileMenu.adminRole;
+  const userName = getUserFullName() || COMMON_LABELS.profileMenu.adminUser;
+  const userEmail = getEmail() || COMMON_LABELS.profileMenu.adminEmail;
+  const userRole = getUserRole() || COMMON_LABELS.profileMenu.adminRole;
 
   // Générer les initiales pour l'avatar
   const getInitials = (name: string) => {
@@ -70,12 +70,12 @@ const ProfileButton: FC<ProfileButtonProps> = ({ className, sx, compact = false 
     try {
       const { error } = await signOut();
       if (error) {
-        console.error(LABELS.profileMenu.logoutError, error);
+        console.error(COMMON_LABELS.profileMenu.logoutError, error);
         // Naviguer vers auth même en cas d'erreur
       }
       navigate('/auth', { replace: true });
     } catch (err) {
-      console.error(LABELS.profileMenu.logoutFailed, err);
+      console.error(COMMON_LABELS.profileMenu.logoutFailed, err);
       navigate('/auth', { replace: true });
     } finally {
       setIsLoggingOut(false);
@@ -131,7 +131,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({ className, sx, compact = false 
             {isAdmin() && (
               <Chip
                 icon={<AdminIcon />}
-                label={LABELS.profileMenu.adminRole}
+                label={COMMON_LABELS.profileMenu.adminRole}
                 size="small"
                 color="primary"
                 sx={{ height: 20, fontSize: '0.7rem' }}
@@ -176,7 +176,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({ className, sx, compact = false 
                 fontWeight: 500,
               }}
             >
-              {LABELS.profileMenu.adminRole}
+              {COMMON_LABELS.profileMenu.adminRole}
             </Typography>
           )}
         </Box>
@@ -195,7 +195,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({ className, sx, compact = false 
             color: 'primary.main',
           },
         }}
-        aria-label={LABELS.profileMenu.userMenu}
+        aria-label={COMMON_LABELS.profileMenu.userMenu}
         disabled={isLoggingOut}
       >
         <MoreVertIcon fontSize={compact ? 'small' : 'medium'} />
@@ -225,7 +225,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({ className, sx, compact = false 
             {userEmail}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {LABELS.profileMenu.roleLabel}: {userRole}
+            {COMMON_LABELS.profileMenu.roleLabel}: {userRole}
           </Typography>
         </Box>
 
@@ -236,7 +236,7 @@ const ProfileButton: FC<ProfileButtonProps> = ({ className, sx, compact = false 
           <ListItemIcon>
             <PersonIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>{LABELS.profileMenu.profile}</ListItemText>
+          <ListItemText>{COMMON_LABELS.profileMenu.profile}</ListItemText>
         </MenuItem>
 
         <Divider />
@@ -256,7 +256,9 @@ const ProfileButton: FC<ProfileButtonProps> = ({ className, sx, compact = false 
             <LogoutIcon fontSize="small" sx={{ color: 'inherit' }} />
           </ListItemIcon>
           <ListItemText>
-            {isLoggingOut ? LABELS.profileMenu.signingOut : LABELS.profileMenu.signOut}
+            {isLoggingOut
+              ? COMMON_LABELS.profileMenu.signingOut
+              : COMMON_LABELS.profileMenu.signOut}
           </ListItemText>
         </MenuItem>
       </Menu>

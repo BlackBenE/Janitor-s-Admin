@@ -1,20 +1,22 @@
-import { useState, useCallback } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import {
-  AnalyticsData,
-  DateRange,
-  ExportFormat,
-} from "../../../types/analytics";
-import { useUINotifications } from "../../../hooks/shared";
-import { useAnalyticsExport } from "./useAnalyticsExport";
-import { useAnalyticsData } from "./analyticsDataGenerator";
+import { useState, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { AnalyticsData, DateRange, ExportFormat } from '../../../types/analytics';
+import { useUINotifications, useExport } from '@/shared/hooks';
+import { useAnalyticsData } from './analyticsDataGenerator';
 
 /**
- * Hook principal pour gérer les analytics
+ * 🎯 Hook Principal - useAnalytics (ORCHESTRATEUR)
+ *
+ * ⚠️ TODO: Séparer en modules pour suivre le pattern
+ * - useAnalyticsQueries.ts → queries (useAnalyticsData, etc.)
+ * - useAnalyticsManagement.ts → UI state (tabs, dates, filters)
+ * - useAnalytics.ts → orchestrateur
+ *
+ * Pour l'instant, tout est dans ce fichier (fonctionne mais moins scalable)
  */
 export const useAnalytics = () => {
   const { showNotification } = useUINotifications();
-  const { exportData: exportDataUtil } = useAnalyticsExport();
+  const { exportToCSV } = useExport();
   const queryClient = useQueryClient();
 
   // État de base
@@ -27,41 +29,57 @@ export const useAnalytics = () => {
   });
 
   // Récupérer les données analytics depuis Supabase
-  const {
-    data: analyticsData,
-    isLoading,
-    refetch,
-  } = useAnalyticsData(state.dateRange);
+  const { data: analyticsData, isLoading, refetch } = useAnalyticsData(state.dateRange);
 
   // Handlers pour l'état
   const handleTabChange = useCallback((newValue: number) => {
     setState((prev) => ({ ...prev, tabValue: newValue }));
   }, []);
 
-  const handleDateRangeChange = useCallback(
-    (dateRange: DateRange) => {
-      setState((prev) => ({ ...prev, dateRange }));
-      // Forcer le rechargement des données analytics avec les nouvelles dates
-      queryClient.invalidateQueries({ queryKey: ["analytics"] });
-    },
-    [queryClient]
-  );
+  const handleDateRangeChange = useCallback((dateRange: DateRange) => {
+    setState((prev) => ({ ...prev, dateRange }));
+    // Le changement de dateRange va automatiquement recalculer les données filtrées
+    // Pas besoin d'invalider le cache car le filtrage se fait en mémoire dans analyticsQueries
+  }, []);
 
-  // Export des données
+  // Export des données - simplifié en CSV uniquement
   const exportData = useCallback(
     async (format: ExportFormat) => {
       try {
         if (!analyticsData) {
-          showNotification("Aucune donnée à exporter", "warning");
+          showNotification('Aucune donnée à exporter', 'warning');
           return;
         }
-        await exportDataUtil(format, analyticsData, state.dateRange);
+
+        // Pour l'instant, on supporte uniquement CSV avec useExport
+        // Les autres formats nécessiteraient une implémentation spécifique
+        if (format !== 'csv') {
+          showNotification(`Le format ${format} n'est pas encore supporté`, 'warning');
+          return;
+        }
+
+        // Préparer les données pour l'export
+        const columns = [
+          { key: 'metric', label: 'Métrique' },
+          { key: 'value', label: 'Valeur' },
+        ];
+
+        const flatData = [
+          { metric: 'Total Users', value: analyticsData.userMetrics.totalUsers },
+          { metric: 'Active Users', value: analyticsData.userMetrics.activeUsers },
+          { metric: 'Total Revenue', value: analyticsData.revenueMetrics.totalRevenue },
+          { metric: 'Total Bookings', value: analyticsData.activityMetrics.totalBookings },
+          { metric: 'Active Services', value: analyticsData.activityMetrics.activeServices },
+        ];
+
+        exportToCSV(flatData, columns, { filename: `analytics-${Date.now()}` });
+        showNotification('Export réussi', 'success');
       } catch (err) {
-        console.error("Export error:", err);
-        showNotification("Erreur lors de l'export", "error");
+        console.error('Export error:', err);
+        showNotification("Erreur lors de l'export", 'error');
       }
     },
-    [exportDataUtil, analyticsData, state.dateRange, showNotification]
+    [exportToCSV, analyticsData, showNotification]
   );
 
   // Refresh des données

@@ -11,13 +11,6 @@ type AuthContextType = {
   error: string | null;
   signOut: () => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (
-    email: string,
-    password: string,
-    full_name: string,
-    phone: string
-  ) => Promise<{ error: Error | null }>;
-  resetPassword: (email: string) => Promise<{ error: Error | null }>;
 
   // Utility functions for user metadata
   getUserFullName: () => string | null;
@@ -224,69 +217,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, full_name: string, phone: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Sign up the user with metadata
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name,
-            phone,
-            role: 'admin', // All signups are admin for this panel
-          },
-        },
-      });
-
-      if (error) {
-        setError(error.message);
-        return { error };
-      }
-
-      // If user is created but needs email confirmation
-      if (data.user && !data.session) {
-        setError('Please check your email to confirm your account');
-        return { error: new Error('Email confirmation required') };
-      }
-
-      return { error: null };
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Sign up failed');
-      setError(error.message);
-      return { error };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetPassword = async (email: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Spécifier explicitement la redirection vers la page reset password
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://janitor-s-admin.vercel.app/reset-password',
-      });
-
-      if (error) {
-        setError(error.message);
-        return { error };
-      }
-      return { error: null };
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Password reset failed');
-      setError(error.message);
-      return { error };
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Utility functions for accessing user metadata
   const getUserFullName = () => userProfile?.full_name || user?.user_metadata?.full_name || null;
   const getEmail = () => user?.email || null;
@@ -311,8 +241,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error,
         signOut,
         signIn,
-        signUp,
-        resetPassword,
         getUserFullName,
         getEmail,
         getUserPhone,

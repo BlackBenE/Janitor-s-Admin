@@ -4,3 +4,4 @@ export * from './Sidebar';
 export * from './CustomAppBar';
 export * from './ProfileMenu';
 export * from './ProfileButton';
+export * from './PageHeader';

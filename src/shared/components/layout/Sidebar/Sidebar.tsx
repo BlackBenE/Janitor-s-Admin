@@ -10,7 +10,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { routes } from '@/routes/routes';
 import { alpha, useTheme } from '@mui/material/styles';
 import { SvgIconComponent } from '@mui/icons-material';
-import { LABELS } from '@/core/config/labels';
+import { COMMON_LABELS } from '@/shared/constants';
 
 interface Route {
   path: string;
@@ -57,7 +57,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
               mt: 1,
             }}
           >
-            {LABELS.navigation.adminDashboard}
+            {COMMON_LABELS.navigation.adminDashboard}
           </Box>
         </Box>
         <Divider sx={{ mb: 2 }} />
@@ -67,22 +67,22 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
               (route: Route) =>
                 route.path !== '/auth' &&
                 route.path !== '/reset-password' &&
-                route.path !== '/profile' &&
-                route.path !== '/financial-overview'
+                route.path !== '/profile'
             )
             .map((route: Route) => {
               const isSelected = location.pathname === route.path;
 
               // Mapping des routes vers les labels
               const routeLabelMap: Record<string, string> = {
-                '/': LABELS.navigation.dashboard,
-                '/user-management': LABELS.navigation.userManagement,
-                '/payments': LABELS.navigation.payments,
-                '/analytics': LABELS.navigation.analytics,
-                '/services': LABELS.navigation.services,
-                '/property-approvals': LABELS.navigation.propertyApprovals,
-                '/quote-requests': LABELS.navigation.quoteRequests,
-                '/services-catalog': LABELS.navigation.servicesCatalog,
+                '/': COMMON_LABELS.navigation.dashboard,
+                '/user-management': COMMON_LABELS.navigation.userManagement,
+                '/payments': COMMON_LABELS.navigation.payments,
+                '/analytics': COMMON_LABELS.navigation.analytics,
+                '/services': COMMON_LABELS.navigation.services,
+                '/property-approvals': COMMON_LABELS.navigation.propertyApprovals,
+                '/quote-requests': COMMON_LABELS.navigation.quoteRequests,
+                '/services-catalog': COMMON_LABELS.navigation.servicesCatalog,
+                '/financial-overview': COMMON_LABELS.navigation.financialOverview,
               };
 
               const formattedLabel =
@@ -91,7 +91,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
                   .replace('/', '')
                   .replace(/-/g, ' ')
                   .replace(/\b\w/g, (l) => l.toUpperCase()) ||
-                LABELS.navigation.dashboard;
+                COMMON_LABELS.navigation.dashboard;
 
               return (
                 <ListItem

@@ -2,7 +2,8 @@ import React from 'react';
 import { SvgIconTypeMap } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
 import { DashboardPage } from '@/features/dashboard';
-import { AuthPage as RefactoredAuthPage, ResetPasswordPage } from '@/features/auth';
+import { AuthPage as RefactoredAuthPage } from '@/features/auth';
+import { ResetPasswordPage } from '@/features/password-reset';
 import { ProfilePage as RefactoredProfilePage } from '@/features/profile';
 import { PropertyApprovalsPage } from '@/features/property-approvals';
 import { FinancialOverviewPage } from '@/features/financial-overview';
@@ -97,7 +98,7 @@ export const routes: Route[] = [
         <FinancialOverviewPage />
       </ProtectedRoute>
     ),
-    // icon: ChatBubbleOutlineOutlinedIcon, // Caché de la navigation
+    icon: ChatBubbleOutlineOutlinedIcon,
     protected: true,
   },
   {

@@ -7,6 +7,12 @@ export * from './layout';
 // Data Display
 export * from './data-display';
 
+// Data Table (NEW - tableau avec recherche, filtres, onglets)
+export * from './data-table';
+
+// Cards
+export * from './cards';
+
 // Forms
 export * from './forms';
 
@@ -27,6 +33,3 @@ export * from './search';
 
 // UI
 export * from './ui';
-
-// Communication
-export * from './communication';

@@ -1,15 +1,6 @@
 import React from 'react';
 import { Box, TextField, Button, Typography, Paper, CircularProgress } from '@mui/material';
-import { LABELS } from '@/core/config/labels';
-
-// Simple message formatter
-const formatMessage = (message: string, params?: Record<string, any>): string => {
-  if (!params) return message;
-  return Object.entries(params).reduce(
-    (msg, [key, value]) => msg.replace(`{${key}}`, String(value)),
-    message
-  );
-};
+import { COMMON_LABELS, formatMessage } from '@/shared/constants';
 
 export type FormField = {
   name: string;
@@ -55,20 +46,20 @@ export const Form: React.FC<FormProps> = ({
       const value = formData[field.name] || '';
 
       if (field.required && !value) {
-        newErrors[field.name] = formatMessage(LABELS.validation.required, {
+        newErrors[field.name] = formatMessage(COMMON_LABELS.validation.required, {
           field: field.label,
         });
       } else if (field.type === 'email' && value) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) {
-          newErrors[field.name] = LABELS.validation.emailInvalid;
+          newErrors[field.name] = COMMON_LABELS.validation.emailInvalid;
         }
       } else if (field.minLength && value.length < field.minLength) {
-        newErrors[field.name] = formatMessage(LABELS.validation.minCharsRequired, {
+        newErrors[field.name] = formatMessage(COMMON_LABELS.validation.minCharsRequired, {
           min: field.minLength,
         });
       } else if (field.maxLength && value.length > field.maxLength) {
-        newErrors[field.name] = formatMessage(LABELS.validation.maxCharsAllowed, {
+        newErrors[field.name] = formatMessage(COMMON_LABELS.validation.maxCharsAllowed, {
           max: field.maxLength,
         });
       }
@@ -87,7 +78,7 @@ export const Form: React.FC<FormProps> = ({
         // Réinitialiser le formulaire après succès
         setFormData({});
       } catch (error) {
-        console.error(LABELS.forms.submissionError, error);
+        console.error(COMMON_LABELS.forms.submissionError, error);
       }
     }
   };

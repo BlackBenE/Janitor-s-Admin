@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Box,
   IconButton,
@@ -7,7 +7,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-} from "@mui/material";
+} from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
   RemoveRedEyeOutlined as RemoveRedEyeOutlinedIcon,
@@ -19,9 +19,9 @@ import {
   StarBorder as StarBorderIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
-} from "@mui/icons-material";
-import { GridRenderCellParams } from "@mui/x-data-grid";
-import { UserProfile, UserRole } from "@/types/userManagement";
+} from '@mui/icons-material';
+import { GridRenderCellParams } from '@mui/x-data-grid';
+import { UserProfile, UserRole } from '@/types/userManagement';
 
 interface UserTableActionsHubProps {
   params: GridRenderCellParams<UserProfile>;
@@ -46,7 +46,7 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
   onToggleVIP,
   onValidateProvider,
 }) => {
-  const userName = params.row?.full_name || "Unnamed User";
+  const userName = params.row?.full_name || 'Unnamed User';
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -70,13 +70,13 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
       anchorEl={anchorEl}
       open={Boolean(anchorEl)}
       onClose={handleMenuClose}
-      transformOrigin={{ horizontal: "right", vertical: "top" }}
-      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       slotProps={{
         paper: {
           sx: {
             maxHeight: 400,
-            width: "220px",
+            width: '220px',
           },
         },
       }}
@@ -91,14 +91,14 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
         <ListItemIcon>
           <HistoryIcon fontSize="small" />
         </ListItemIcon>
-        <ListItemText primary="View Audit History" />
+        <ListItemText primary="Voir l'historique d'audit" />
       </MenuItem>
 
       {/* Toggle VIP - Disponible pour Property Owners et Tenants */}
-      {(params.row.role === "PROPERTY_OWNER" ||
-        params.row.role === "property_owner" ||
-        params.row.role === "TENANT" ||
-        params.row.role === "tenant") && (
+      {(params.row.role === 'PROPERTY_OWNER' ||
+        params.row.role === 'property_owner' ||
+        params.row.role === 'TENANT' ||
+        params.row.role === 'tenant') && (
         <MenuItem
           onClick={() => {
             onToggleVIP(params.row.id, !!params.row.vip_subscription);
@@ -112,15 +112,12 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
               <StarBorderIcon fontSize="small" />
             )}
           </ListItemIcon>
-          <ListItemText
-            primary={params.row.vip_subscription ? "Remove VIP" : "Make VIP"}
-          />
+          <ListItemText primary={params.row.vip_subscription ? 'Retirer le VIP' : 'Rendre VIP'} />
         </MenuItem>
       )}
 
       {/* Actions spécifiques aux Service Providers - Validation */}
-      {(params.row.role === "SERVICE_PROVIDER" ||
-        params.row.role === "service_provider") && (
+      {(params.row.role === 'SERVICE_PROVIDER' || params.row.role === 'service_provider') && (
         <MenuItem
           onClick={() => {
             onValidateProvider(params.row.id, !params.row.profile_validated);
@@ -136,9 +133,7 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
           </ListItemIcon>
           <ListItemText
             primary={
-              params.row.profile_validated
-                ? "Reject Provider"
-                : "Approve Provider"
+              params.row.profile_validated ? 'Rejeter le prestataire' : 'Approuver le prestataire'
             }
           />
         </MenuItem>
@@ -153,14 +148,12 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
         <ListItemIcon>
           <LockResetIcon fontSize="small" />
         </ListItemIcon>
-        <ListItemText primary="Reset password" />
+        <ListItemText primary="Réinitialiser le mot de passe" />
       </MenuItem>
 
       <MenuItem
         onClick={() => {
-          params.row.account_locked
-            ? onUnlockAccount(params.row.id)
-            : onLockAccount(params.row.id);
+          params.row.account_locked ? onUnlockAccount(params.row.id) : onLockAccount(params.row.id);
           handleMenuClose();
         }}
       >
@@ -172,41 +165,37 @@ export const UserTableActionsHub: React.FC<UserTableActionsHubProps> = ({
           )}
         </ListItemIcon>
         <ListItemText
-          primary={
-            params.row.account_locked ? "Unlock account" : "Lock account"
-          }
+          primary={params.row.account_locked ? 'Débloquer le compte' : 'Bloquer le compte'}
         />
       </MenuItem>
     </Menu>
   );
 
   return (
-    <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
-      <Tooltip title="See details">
+    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+      <Tooltip title="Voir les détails">
         <IconButton
           size="small"
           onClick={() => onShowUser(params.row)}
-          sx={{ color: "text.secondary", "&:hover": { color: "primary.main" } }}
+          sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}
         >
           <RemoveRedEyeOutlinedIcon fontSize="small" />
         </IconButton>
       </Tooltip>
 
       {params.row?.account_locked && (
-        <Tooltip title="Account locked">
-          <Box
-            sx={{ color: "error.main", display: "flex", alignItems: "center" }}
-          >
+        <Tooltip title="Compte bloqué">
+          <Box sx={{ color: 'error.main', display: 'flex', alignItems: 'center' }}>
             <LockIcon fontSize="small" />
           </Box>
         </Tooltip>
       )}
 
-      <Tooltip title="More actions">
+      <Tooltip title="Plus d'actions">
         <IconButton
           size="small"
           onClick={handleMenuClick}
-          sx={{ color: "text.secondary", "&:hover": { color: "primary.main" } }}
+          sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}
         >
           <MoreVertIcon fontSize="small" />
         </IconButton>

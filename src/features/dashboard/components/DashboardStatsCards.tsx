@@ -1,50 +1,49 @@
-import React from "react";
-import Box from "@mui/material/Box";
-import { DashboardItem } from "@/shared/components/data-display";
-import { InfoCard } from "@/shared/components/data-display";
-import { DashboardStats as DashboardStatsType } from "@/types/dashboard";
-import { LABELS } from "@/core/config/labels";
+import React from 'react';
+import Box from '@mui/material/Box';
+import { DashboardItem } from '@/shared/components/data-display';
+import { StatsCard } from '@/shared/components/cards';
+import { DashboardStats as DashboardStatsType } from '@/types/dashboard';
+import { DASHBOARD_LABELS } from '../constants';
 
 interface DashboardStatsCardsProps {
   stats: DashboardStatsType;
 }
 
-export const DashboardStatsCards: React.FC<DashboardStatsCardsProps> = ({
-  stats,
-}) => {
+export const DashboardStatsCards: React.FC<DashboardStatsCardsProps> = ({ stats }) => {
   const statCards = [
     {
-      title: LABELS.dashboard.stats.propertyValidations,
+      title: DASHBOARD_LABELS.stats.propertyValidations,
       value: stats.pendingValidations,
-      bottomLeft: LABELS.dashboard.stats.pendingTotal,
+      bottomLeft: DASHBOARD_LABELS.stats.pendingTotal,
     },
     {
-      title: LABELS.dashboard.stats.providerModeration,
+      title: DASHBOARD_LABELS.stats.providerModeration,
       value: stats.moderationCases,
-      bottomLeft: LABELS.dashboard.stats.toValidate,
+      bottomLeft: DASHBOARD_LABELS.stats.toValidate,
     },
     {
-      title: LABELS.dashboard.stats.activeUsers,
+      title: DASHBOARD_LABELS.stats.activeUsers,
       value: stats.activeUsers,
-      bottomLeft: LABELS.dashboard.stats.last30Days,
+      bottomLeft: DASHBOARD_LABELS.stats.last30Days,
     },
     {
-      title: LABELS.dashboard.stats.monthlyRevenue,
+      title: DASHBOARD_LABELS.stats.monthlyRevenue,
       value: `${stats.monthlyRevenue}€`,
-      bottomLeft: LABELS.dashboard.stats.thisMonth,
+      bottomLeft: DASHBOARD_LABELS.stats.thisMonth,
     },
   ];
 
   return (
-    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
       {statCards.map((card, index) => (
-        <Box key={index} sx={{ flex: "1 1 220px" }}>
+        <Box key={index} sx={{ flex: '1 1 220px' }}>
           <DashboardItem>
-            <InfoCard
+            <StatsCard
               title={card.title}
               value={card.value}
-              progressText={card.bottomLeft}
+              description={card.bottomLeft}
               showTrending={false}
+              variant="outlined"
             />
           </DashboardItem>
         </Box>

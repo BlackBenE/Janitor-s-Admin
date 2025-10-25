@@ -1,10 +1,24 @@
 import React from 'react';
-import { Box, Chip, Checkbox, Tooltip } from '@mui/material';
+import { Box, Chip, Checkbox, Tooltip, Typography } from '@mui/material';
 import { Lock as LockIcon } from '@mui/icons-material';
+import {
+  Delete as DeleteIcon,
+  CheckCircle as ValidateIcon,
+  Pending as PendingIcon,
+  Block as SuspendIcon,
+  CheckCircleOutline as UnsuspendIcon,
+  SupervisorAccount as RoleIcon,
+  WorkspacePremium as VipIcon,
+} from '@mui/icons-material';
 import { GridRenderCellParams } from '@mui/x-data-grid';
-import { Table as DataTable } from '@/shared/components/data-display';
+import {
+  DataTableContainer,
+  DataTableSearch,
+  DataTableTabs,
+  DataTableView,
+  DataTableTab,
+} from '@/shared/components';
 import { UserProfile, USER_TABS, UserActivityData, UserRole } from '@/types/userManagement';
-import { UserFiltersSection } from './UserFiltersSection';
 import { UserTableActionsHub } from './UserTableActionsHub';
 import {
   getRoleColor,
@@ -12,9 +26,9 @@ import {
   calculateLockTimeRemaining,
   getActivityHeaderName,
 } from '../utils/userManagementUtils';
-import { createUserTableColumns } from './UserTableColumns';
 import { formatDate, formatCurrency } from '@/utils';
-import { LABELS } from '@/core/config';
+import { USERS_LABELS } from '@/features/users/constants';
+import { COMMON_LABELS } from '@/shared/constants';
 
 interface UserTableSectionProps {
   // Filters & Tabs
@@ -35,6 +49,7 @@ interface UserTableSectionProps {
   // Selection & Actions
   selectedUsers: string[];
   onToggleUserSelection: (userId: string) => void;
+  onClearSelection: () => void;
   onBulkValidate: () => void;
   onBulkSetPending: () => void;
   onBulkSuspend: () => void;
@@ -83,9 +98,25 @@ const SelectCell: React.FC<{
 const UserInfoCell: React.FC<{
   params: GridRenderCellParams<UserProfile>;
 }> = ({ params }) => (
-  <Box>
-    <Box sx={{ fontWeight: 'medium' }}>{params.row.full_name || LABELS.users.unnamedUser}</Box>
-    <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{params.row.email}</Box>
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 0,
+      height: '100%',
+      justifyContent: 'center',
+    }}
+  >
+    <Typography variant="body2" fontWeight="medium" sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}>
+      {params.row.full_name || USERS_LABELS.unnamedUser}
+    </Typography>
+    <Typography
+      variant="caption"
+      color="text.secondary"
+      sx={{ lineHeight: 1.1, margin: 0, padding: 0 }}
+    >
+      {params.row.email}
+    </Typography>
   </Box>
 );
 
@@ -110,7 +141,7 @@ const SubscriptionCell: React.FC<{
   params: GridRenderCellParams<UserProfile>;
 }> = ({ params }) => (
   <Chip
-    label={params.row.vip_subscription ? 'VIP' : LABELS.users.subscription.standard}
+    label={params.row.vip_subscription ? 'VIP' : USERS_LABELS.subscription.standard}
     color={params.row.vip_subscription ? 'warning' : 'default'}
     size="small"
   />
@@ -127,14 +158,14 @@ const StatusCell: React.FC<{
 
     return (
       <Tooltip
-        title={`${LABELS.users.status.unlockAt}: ${
+        title={`${USERS_LABELS.status.unlockAt}: ${
           params.row.locked_until
             ? new Date(params.row.locked_until).toLocaleString()
-            : LABELS.users.status.permanent
+            : USERS_LABELS.status.permanent
         }`}
       >
         <Chip
-          label={`${LABELS.common.status.locked} (${timeRemaining})`}
+          label={`${COMMON_LABELS.status.locked} (${timeRemaining})`}
           color="error"
           size="small"
           icon={<LockIcon fontSize="small" />}
@@ -146,7 +177,7 @@ const StatusCell: React.FC<{
   return (
     <Chip
       label={
-        params.row.profile_validated ? LABELS.users.status.validated : LABELS.users.status.pending
+        params.row.profile_validated ? USERS_LABELS.status.validated : USERS_LABELS.status.pending
       }
       color={params.row.profile_validated ? 'success' : 'warning'}
       size="small"
@@ -165,17 +196,17 @@ const ActivityCell: React.FC<{
   const activity = activityData?.[params.row.id];
 
   if (!activity) {
-    return <Box sx={{ color: 'text.secondary' }}>{LABELS.common.messages.loading}</Box>;
+    return <Box sx={{ color: 'text.secondary' }}>{COMMON_LABELS.messages.loading}</Box>;
   }
 
   if (currentUserRole === UserRole.TRAVELER) {
     return (
       <Box>
         <Box sx={{ fontWeight: 'medium', fontSize: '0.875rem' }}>
-          {activity.totalBookings} {LABELS.users.activity.bookings.toLowerCase()}
+          {activity.totalBookings} {USERS_LABELS.activity.bookings.toLowerCase()}
         </Box>
         <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-          {LABELS.users.activity.lastBooking}: {formatDate(activity.lastBookingDate)}
+          {USERS_LABELS.activity.lastBooking}: {formatDate(activity.lastBookingDate)}
         </Box>
       </Box>
     );
@@ -183,10 +214,10 @@ const ActivityCell: React.FC<{
     return (
       <Box>
         <Box sx={{ fontWeight: 'medium', fontSize: '0.875rem' }}>
-          {activity.totalProperties || 0} {LABELS.users.activity.properties.toLowerCase()}
+          {activity.totalProperties || 0} {USERS_LABELS.activity.properties.toLowerCase()}
         </Box>
         <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-          {LABELS.users.activity.earnings}: {formatCurrency(activity.totalEarned || 0)}
+          {USERS_LABELS.activity.earnings}: {formatCurrency(activity.totalEarned || 0)}
         </Box>
       </Box>
     );
@@ -194,10 +225,10 @@ const ActivityCell: React.FC<{
     return (
       <Box>
         <Box sx={{ fontWeight: 'medium', fontSize: '0.875rem' }}>
-          {activity.totalServices || 0} {LABELS.users.activity.services.toLowerCase()}
+          {activity.totalServices || 0} {USERS_LABELS.activity.services.toLowerCase()}
         </Box>
         <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-          {activity.totalInterventions || 0} {LABELS.users.activity.interventions.toLowerCase()}
+          {activity.totalInterventions || 0} {USERS_LABELS.activity.interventions.toLowerCase()}
         </Box>
       </Box>
     );
@@ -206,10 +237,10 @@ const ActivityCell: React.FC<{
   return (
     <Box>
       <Box sx={{ fontWeight: 'medium', fontSize: '0.875rem' }}>
-        {activity.totalBookings} {LABELS.users.activity.bookings.toLowerCase()}
+        {activity.totalBookings} {USERS_LABELS.activity.bookings.toLowerCase()}
       </Box>
       <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-        {LABELS.users.activity.lastBooking}: {formatDate(activity.lastBookingDate)}
+        {USERS_LABELS.activity.lastBooking}: {formatDate(activity.lastBookingDate)}
       </Box>
     </Box>
   );
@@ -225,7 +256,7 @@ const SpendingCell: React.FC<{
   const activity = activityData?.[params.row.id];
 
   if (!activity) {
-    return <Box sx={{ color: 'text.secondary' }}>{LABELS.common.messages.loading}</Box>;
+    return <Box sx={{ color: 'text.secondary' }}>{COMMON_LABELS.messages.loading}</Box>;
   }
 
   return <Box sx={{ fontWeight: 'medium' }}>{formatCurrency(activity.totalSpent)}</Box>;
@@ -245,6 +276,7 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
   onTabChange,
   selectedUsers,
   onToggleUserSelection,
+  onClearSelection,
   onBulkValidate,
   onBulkSetPending,
   onBulkSuspend,
@@ -274,6 +306,7 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
       width: 50,
       sortable: false,
       filterable: false,
+      disableColumnMenu: true,
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
         <SelectCell
           params={params}
@@ -284,33 +317,33 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
     },
     {
       field: 'full_name',
-      headerName: LABELS.users.table.headers.name,
+      headerName: USERS_LABELS.table.headers.name,
       minWidth: 200,
       flex: 1,
       valueGetter: (value: string | null, row: UserProfile) =>
-        `${row.full_name || LABELS.users.unnamedUser} ${row.email}`,
+        `${row.full_name || USERS_LABELS.unnamedUser} ${row.email}`,
       renderCell: (params: GridRenderCellParams<UserProfile>) => <UserInfoCell params={params} />,
     },
     {
       field: 'role',
-      headerName: LABELS.users.table.headers.role,
+      headerName: USERS_LABELS.table.headers.role,
       valueGetter: (value: string) => value?.replace('_', ' ') || '',
       renderCell: (params: GridRenderCellParams<UserProfile>) => <RoleCell params={params} />,
     },
     {
       field: 'vip_subscription',
-      headerName: LABELS.users.table.headers.subscription,
-      valueGetter: (value: boolean) => (value ? 'VIP' : LABELS.users.subscription.standard),
+      headerName: USERS_LABELS.table.headers.subscription,
+      valueGetter: (value: boolean) => (value ? 'VIP' : USERS_LABELS.subscription.standard),
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
         <SubscriptionCell params={params} />
       ),
     },
     {
       field: 'profile_validated',
-      headerName: LABELS.users.table.headers.status,
+      headerName: USERS_LABELS.table.headers.status,
       valueGetter: (value: boolean, row: UserProfile) => {
-        if (row.account_locked) return LABELS.common.status.locked;
-        return value ? LABELS.users.status.validated : LABELS.users.status.pending;
+        if (row.account_locked) return COMMON_LABELS.status.locked;
+        return value ? USERS_LABELS.status.validated : USERS_LABELS.status.pending;
       },
       renderCell: (params: GridRenderCellParams<UserProfile>) => <StatusCell params={params} />,
     },
@@ -323,20 +356,20 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
         const activity = activityData?.[row.id];
         if (currentUserRole === UserRole.TRAVELER) {
           return activity
-            ? `${activity.totalBookings} ${LABELS.users.activity.bookings.toLowerCase()}`
-            : `0 ${LABELS.users.activity.bookings.toLowerCase()}`;
+            ? `${activity.totalBookings} ${USERS_LABELS.activity.bookings.toLowerCase()}`
+            : `0 ${USERS_LABELS.activity.bookings.toLowerCase()}`;
         } else if (currentUserRole === UserRole.PROPERTY_OWNER) {
           return activity
-            ? `${activity.totalProperties || 0} ${LABELS.users.activity.properties.toLowerCase()}`
-            : `0 ${LABELS.users.activity.properties.toLowerCase()}`;
+            ? `${activity.totalProperties || 0} ${USERS_LABELS.activity.properties.toLowerCase()}`
+            : `0 ${USERS_LABELS.activity.properties.toLowerCase()}`;
         } else if (currentUserRole === UserRole.SERVICE_PROVIDER) {
           return activity
-            ? `${activity.totalServices || 0} ${LABELS.users.activity.services.toLowerCase()}`
-            : `0 ${LABELS.users.activity.services.toLowerCase()}`;
+            ? `${activity.totalServices || 0} ${USERS_LABELS.activity.services.toLowerCase()}`
+            : `0 ${USERS_LABELS.activity.services.toLowerCase()}`;
         }
         return activity
-          ? `${activity.totalBookings} ${LABELS.users.activity.bookings.toLowerCase()}`
-          : `0 ${LABELS.users.activity.bookings.toLowerCase()}`;
+          ? `${activity.totalBookings} ${USERS_LABELS.activity.bookings.toLowerCase()}`
+          : `0 ${USERS_LABELS.activity.bookings.toLowerCase()}`;
       },
       renderCell: (params: GridRenderCellParams<UserProfile>) => (
         <ActivityCell
@@ -348,7 +381,7 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
     },
     {
       field: 'spending',
-      headerName: LABELS.users.table.headers.spending,
+      headerName: USERS_LABELS.table.headers.spending,
       sortable: false,
       filterable: false,
       valueGetter: (value: string | null, row: UserProfile) => {
@@ -361,7 +394,7 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
     },
     {
       field: 'Actions',
-      headerName: LABELS.users.table.headers.actions,
+      headerName: USERS_LABELS.table.headers.actions,
       width: 200,
       sortable: false,
       filterable: false,
@@ -380,46 +413,125 @@ export const UserTableSection: React.FC<UserTableSectionProps> = ({
       ),
     },
   ];
-  return (
-    <Box sx={{ mt: 2, border: '1px solid #ddd', borderRadius: 4, p: 2 }}>
-      {/* Section Title */}
-      <h3>Tous les utilisateurs</h3>
-      <p>Gérez les utilisateurs de toutes les catégories grâce à des vues spécialisées.</p>
 
-      {/* Filters, Tabs, and Actions */}
-      <UserFiltersSection
-        filters={filters}
-        onUpdateFilter={onUpdateFilter}
-        activeTab={activeTab}
-        users={allUsers}
-        activeUsers={activeUsers}
-        deletedUsers={deletedUsers}
-        adminUsers={adminUsers}
-        rawActiveUsers={rawActiveUsers}
-        rawDeletedUsers={rawDeletedUsers}
-        rawAdminUsers={rawAdminUsers}
-        onTabChange={onTabChange}
-        selectedUsers={selectedUsers}
-        onBulkValidate={onBulkValidate}
-        onBulkSetPending={onBulkSetPending}
-        onBulkSuspend={onBulkSuspend}
-        onBulkUnsuspend={onBulkUnsuspend}
-        onBulkAction={onBulkAction}
-        onBulkAddVip={onBulkAddVip}
-        onBulkRemoveVip={onBulkRemoveVip}
+  const tabs: DataTableTab[] = USER_TABS.map((tab) => {
+    const isDeletedTab = (tab.role as any) === 'deleted';
+    const isAdminTab = tab.role === 'admin';
+    const isAllTab = tab.role === null;
+
+    return {
+      key: tab.role?.toString() || 'all',
+      label: tab.label,
+      icon: React.createElement(tab.icon),
+      filterFn: isAllTab
+        ? (user: UserProfile) => user.role !== 'admin' && !user.deleted_at
+        : isDeletedTab
+          ? (user: UserProfile) => !!user.deleted_at
+          : (user: UserProfile) => user.role === tab.role && !user.deleted_at,
+      badge: (data: UserProfile[]) => {
+        if (isDeletedTab) return rawDeletedUsers?.length || 0;
+        if (isAdminTab) return rawAdminUsers?.length || 0;
+        if (isAllTab) return (rawActiveUsers || []).filter((u) => u.role !== 'admin').length;
+        return (rawActiveUsers || []).filter((u) => u.role === tab.role).length;
+      },
+      badgeColor: isDeletedTab ? 'error' : isAdminTab ? 'warning' : 'primary',
+    };
+  });
+
+  return (
+    <DataTableContainer
+      title="Tous les utilisateurs"
+      description="Gérez les utilisateurs de toutes les catégories grâce à des vues spécialisées."
+    >
+      {/* 🆕 Recherche avec filtres */}
+      <DataTableSearch
+        searchValue={filters.search || ''}
+        onSearchChange={(value) => onUpdateFilter('search', value)}
+        searchPlaceholder="Rechercher par nom, email..."
       />
 
-      {/* Table des utilisateurs */}
-      <DataTable columns={columns} data={filteredUsers} />
+      {/* 🆕 Onglets avec badges */}
+      <DataTableTabs tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} data={allUsers} />
 
-      {/* Loading & Empty States */}
-      {isLoading && <Box sx={{ textAlign: 'center', py: 2 }}>Chargement...</Box>}
-
-      {filteredUsers.length === 0 && !isLoading && (
-        <Box sx={{ textAlign: 'center', py: 2, color: 'text.secondary' }}>
-          Aucun {USER_TABS[activeTab]?.label?.toLowerCase() || 'utilisateur'} trouvé
-        </Box>
-      )}
-    </Box>
+      {/* 🆕 Tableau avec états et bulk actions */}
+      <DataTableView
+        columns={columns}
+        data={filteredUsers}
+        loading={isLoading}
+        emptyStateMessage={`Aucun ${USER_TABS[activeTab]?.label?.toLowerCase() || 'utilisateur'} trouvé`}
+        height={500}
+        selectionModel={selectedUsers}
+        onSelectionChange={(newSelection) => {
+          // La sélection est gérée manuellement via les checkboxes dans les cellules
+        }}
+        onClearSelection={onClearSelection}
+        bulkActions={[
+          {
+            key: 'validate',
+            label: 'Valider',
+            icon: <ValidateIcon />,
+            onClick: (ids) => onBulkValidate(),
+            color: 'success',
+            variant: 'outlined',
+          },
+          {
+            key: 'pending',
+            label: 'En attente',
+            icon: <PendingIcon />,
+            onClick: (ids) => onBulkSetPending(),
+            color: 'warning',
+            variant: 'outlined',
+          },
+          {
+            key: 'suspend',
+            label: 'Suspendre',
+            icon: <SuspendIcon />,
+            onClick: (ids) => onBulkSuspend(),
+            color: 'error',
+            variant: 'outlined',
+          },
+          {
+            key: 'unsuspend',
+            label: 'Réactiver',
+            icon: <UnsuspendIcon />,
+            onClick: (ids) => onBulkUnsuspend(),
+            color: 'info',
+            variant: 'outlined',
+          },
+          {
+            key: 'role',
+            label: 'Changer rôle',
+            icon: <RoleIcon />,
+            onClick: (ids) => onBulkAction('role'),
+            color: 'info',
+            variant: 'outlined',
+          },
+          {
+            key: 'add-vip',
+            label: 'Ajouter VIP',
+            icon: <VipIcon />,
+            onClick: (ids) => onBulkAddVip(),
+            color: 'warning',
+            variant: 'outlined',
+          },
+          {
+            key: 'remove-vip',
+            label: 'Retirer VIP',
+            icon: <VipIcon />,
+            onClick: (ids) => onBulkRemoveVip(),
+            color: 'secondary',
+            variant: 'outlined',
+          },
+          {
+            key: 'delete',
+            label: 'Supprimer',
+            icon: <DeleteIcon />,
+            onClick: (ids) => onBulkAction('delete'),
+            color: 'error',
+            variant: 'contained',
+          },
+        ]}
+      />
+    </DataTableContainer>
   );
 };

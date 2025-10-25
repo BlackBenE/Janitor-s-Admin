@@ -9,6 +9,9 @@ export * from './components';
 // Hooks partagés
 export * from './hooks';
 
+// Constants partagés
+export * from './constants';
+
 // Utilitaires partagés
 // NOTE: Commenté temporairement à cause d'un conflit de noms (FilterConfig)
 // Utilisez les imports directs: import { ... } from '@/shared/utils';

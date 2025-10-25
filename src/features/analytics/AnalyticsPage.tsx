@@ -1,17 +1,17 @@
-import React, { useState } from "react";
-import { Box, Typography, Button } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { fr } from "date-fns/locale";
-import { AdminLayout } from "@/shared/components/layout";
+import React, { useState } from 'react';
+import { Box, Typography, Button } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { fr } from 'date-fns/locale';
+import { AdminLayout } from '@/shared/components/layout';
 import {
   AnalyticsHeader,
   AnalyticsFiltersSection,
   AnalyticsStatsSection,
   AnalyticsTabsSection,
-} from "./components";
-import { useAnalytics } from "./hooks";
-import { LABELS } from "@/core/config/labels";
+} from './components';
+import { useAnalytics } from './hooks';
+import { ANALYTICS_LABELS } from './constants';
 
 /**
  * Page Analytics - Refactorisée en sections modulaires
@@ -32,18 +32,15 @@ export const AnalyticsPage: React.FC = () => {
     refreshData,
   } = useAnalytics();
 
-  const handleExport = (format: "csv" | "pdf" | "excel") => {
+  const handleExport = (format: 'csv' | 'pdf' | 'excel') => {
     try {
       exportData(format);
     } catch (error) {
-      console.error("Export error:", error);
+      console.error('Export error:', error);
     }
   };
 
-  const handleTabChangeWrapper = (
-    _: React.SyntheticEvent,
-    newValue: number
-  ) => {
+  const handleTabChangeWrapper = (_: React.SyntheticEvent, newValue: number) => {
     handleTabChange(newValue);
   };
 
@@ -60,10 +57,10 @@ export const AnalyticsPage: React.FC = () => {
       <AdminLayout>
         <Box sx={{ p: 3 }}>
           <Typography color="error">
-            {LABELS.analytics.messages.loadingError}: {error}
+            {ANALYTICS_LABELS.messages.loadingError}: {error}
           </Typography>
           <Button onClick={refreshData} sx={{ mt: 2 }}>
-            {LABELS.analytics.messages.retry}
+            {ANALYTICS_LABELS.messages.retry}
           </Button>
         </Box>
       </AdminLayout>
@@ -74,17 +71,19 @@ export const AnalyticsPage: React.FC = () => {
     <AdminLayout>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}>
         <Box sx={{ p: 3 }}>
-          {/* Header */}
-          <AnalyticsHeader />
-
-          {/* Filters and Controls */}
-          <AnalyticsFiltersSection
-            dateRange={state.dateRange}
-            onDateRangeChange={handleDateRangeChangeWrapper}
+          {/* Header avec actions */}
+          <AnalyticsHeader
             onRefresh={refreshData}
             onExport={handleExport}
             isLoading={loading}
             hasData={!!data}
+          />
+
+          {/* Filters (seulement les filtres de date) */}
+          <AnalyticsFiltersSection
+            dateRange={state.dateRange}
+            onDateRangeChange={handleDateRangeChangeWrapper}
+            isLoading={loading}
           />
 
           {/* Metrics Summary */}

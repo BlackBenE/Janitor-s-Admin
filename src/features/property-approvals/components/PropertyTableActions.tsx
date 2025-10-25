@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Box,
   IconButton,
@@ -7,7 +7,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Visibility as VisibilityIcon,
   Check as CheckIcon,
@@ -16,9 +16,10 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   MoreVert as MoreVertIcon,
-} from "@mui/icons-material";
-import { GridRenderCellParams, GridCellParams } from "@mui/x-data-grid";
-import { LABELS } from "@/core/config/labels";
+} from '@mui/icons-material';
+import { GridRenderCellParams, GridCellParams } from '@mui/x-data-grid';
+import { COMMON_LABELS } from "@/shared/constants";
+import { PROPERTY_APPROVALS_LABELS } from "../constants";
 
 // Import du type depuis PropertyTableConfig pour éviter la duplication
 interface PropertyTableItem {
@@ -83,12 +84,12 @@ const PropertyActionsMenu: React.FC<{
     open={open}
     onClose={onClose}
     anchorOrigin={{
-      vertical: "bottom",
-      horizontal: "right",
+      vertical: 'bottom',
+      horizontal: 'right',
     }}
     transformOrigin={{
-      vertical: "top",
-      horizontal: "right",
+      vertical: 'top',
+      horizontal: 'right',
     }}
   >
     {/* Approve */}
@@ -102,7 +103,7 @@ const PropertyActionsMenu: React.FC<{
       <ListItemIcon>
         <CheckIcon fontSize="small" />
       </ListItemIcon>
-      <ListItemText primary={LABELS.propertyApprovals.actions.approve} />
+      <ListItemText primary={PROPERTY_APPROVALS_LABELS.actions.approve} />
     </MenuItem>
 
     {/* Reject */}
@@ -116,7 +117,7 @@ const PropertyActionsMenu: React.FC<{
       <ListItemIcon>
         <CloseIcon fontSize="small" />
       </ListItemIcon>
-      <ListItemText primary={LABELS.propertyApprovals.actions.reject} />
+      <ListItemText primary={PROPERTY_APPROVALS_LABELS.actions.reject} />
     </MenuItem>
 
     {/* Set Pending */}
@@ -130,7 +131,7 @@ const PropertyActionsMenu: React.FC<{
       <ListItemIcon>
         <ScheduleIcon fontSize="small" />
       </ListItemIcon>
-      <ListItemText primary={LABELS.propertyApprovals.actions.setPending} />
+      <ListItemText primary={PROPERTY_APPROVALS_LABELS.actions.setPending} />
     </MenuItem>
 
     {/* Delete */}
@@ -144,7 +145,7 @@ const PropertyActionsMenu: React.FC<{
       <ListItemIcon>
         <DeleteIcon fontSize="small" />
       </ListItemIcon>
-      <ListItemText primary={LABELS.propertyApprovals.actions.deleteProperty} />
+      <ListItemText primary={PROPERTY_APPROVALS_LABELS.actions.deleteProperty} />
     </MenuItem>
   </Menu>
 );
@@ -167,8 +168,7 @@ export const PropertyTableActions: React.FC<PropertyTableActionsProps> = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const propertyTitle =
-    params.row.title || LABELS.propertyApprovals.table.unknownProperty;
+  const propertyTitle = params.row.title || PROPERTY_APPROVALS_LABELS.table.unknownProperty;
 
   const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -179,15 +179,15 @@ export const PropertyTableActions: React.FC<PropertyTableActionsProps> = ({
   };
 
   return (
-    <Box sx={{ display: "flex", gap: 0.5 }}>
+    <Box sx={{ display: 'flex', gap: 0.5 }}>
       {/* Action principale : View Details */}
-      <Tooltip title={LABELS.propertyApprovals.actions.viewDetails}>
+      <Tooltip title={PROPERTY_APPROVALS_LABELS.actions.viewDetails}>
         <IconButton
           size="small"
           onClick={() => onViewProperty(params.row)}
           sx={{
-            color: "text.secondary",
-            "&:hover": { color: "primary.main" },
+            color: 'text.secondary',
+            '&:hover': { color: 'primary.main' },
           }}
         >
           <VisibilityIcon fontSize="small" />
@@ -195,13 +195,13 @@ export const PropertyTableActions: React.FC<PropertyTableActionsProps> = ({
       </Tooltip>
 
       {/* Menu des actions secondaires */}
-      <Tooltip title={LABELS.propertyApprovals.actions.moreActions}>
+      <Tooltip title={PROPERTY_APPROVALS_LABELS.actions.moreActions}>
         <IconButton
           size="small"
           onClick={handleMenuClick}
           sx={{
-            color: "text.secondary",
-            "&:hover": { color: "primary.main" },
+            color: 'text.secondary',
+            '&:hover': { color: 'primary.main' },
           }}
         >
           <MoreVertIcon fontSize="small" />

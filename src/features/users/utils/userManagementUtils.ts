@@ -1,11 +1,6 @@
-import { UserRole } from "@/types/userManagement";
-import {
-  formatCurrency,
-  formatDate,
-  formatPhoneNumber,
-  searchInFields,
-} from "@/utils";
-import { LABELS } from "@/core/config";
+import { UserRole } from '@/types/userManagement';
+import { formatCurrency, formatDate, formatPhoneNumber, searchInFields } from '@/utils';
+import { USERS_LABELS } from '@/features/users/constants';
 
 /**
 
@@ -16,25 +11,18 @@ import { LABELS } from "@/core/config";
  */
 export const getRoleColor = (
   role: string
-):
-  | "default"
-  | "primary"
-  | "secondary"
-  | "error"
-  | "info"
-  | "success"
-  | "warning" => {
+): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
   switch (role.toLowerCase()) {
-    case "admin":
-      return "error";
-    case "property_owner":
-      return "primary";
-    case "service_provider":
-      return "info";
-    case "traveler":
-      return "default";
+    case 'admin':
+      return 'error';
+    case 'property_owner':
+      return 'primary';
+    case 'service_provider':
+      return 'info';
+    case 'traveler':
+      return 'default';
     default:
-      return "default";
+      return 'default';
   }
 };
 
@@ -43,27 +31,24 @@ export const getRoleColor = (
  */
 export const getRoleLabel = (role: string): string => {
   switch (role.toLowerCase()) {
-    case "admin":
-      return LABELS.users.roles.admin;
-    case "property_owner":
-      return LABELS.users.roles.property_owner;
-    case "service_provider":
-      return LABELS.users.roles.service_provider;
-    case "traveler":
-      return LABELS.users.roles.traveler;
+    case 'admin':
+      return USERS_LABELS.roles.admin;
+    case 'property_owner':
+      return USERS_LABELS.roles.property_owner;
+    case 'service_provider':
+      return USERS_LABELS.roles.service_provider;
+    case 'traveler':
+      return USERS_LABELS.roles.traveler;
     default:
-      return role.replace("_", " ");
+      return role.replace('_', ' ');
   }
 };
 
 /**
  * Formate un nom d'utilisateur pour l'affichage
  */
-export const formatUserName = (
-  fullName: string | null,
-  email: string
-): string => {
-  return fullName || email.split("@")[0] || LABELS.users.unnamedUser;
+export const formatUserName = (fullName: string | null, email: string): string => {
+  return fullName || email.split('@')[0] || USERS_LABELS.unnamedUser;
 };
 
 // ======================== HELPERS MÉTIER ========================
@@ -71,32 +56,25 @@ export const formatUserName = (
 /**
  * Obtient le nom de l'en-tête d'activité selon le rôle
  */
-export const getActivityHeaderName = (
-  currentUserRole: UserRole | null
-): string => {
-  if (currentUserRole === UserRole.TRAVELER)
-    return LABELS.users.activity.bookings;
-  if (currentUserRole === UserRole.PROPERTY_OWNER)
-    return LABELS.users.activity.properties;
-  if (currentUserRole === UserRole.SERVICE_PROVIDER)
-    return LABELS.users.activity.services;
-  return LABELS.users.table.headers.activity;
+export const getActivityHeaderName = (currentUserRole: UserRole | null): string => {
+  if (currentUserRole === UserRole.TRAVELER) return USERS_LABELS.activity.bookings;
+  if (currentUserRole === UserRole.PROPERTY_OWNER) return USERS_LABELS.activity.properties;
+  if (currentUserRole === UserRole.SERVICE_PROVIDER) return USERS_LABELS.activity.services;
+  return USERS_LABELS.table.headers.activity;
 };
 
 /**
  * Calcule le temps restant avant le déverrouillage d'un compte
  */
-export const calculateLockTimeRemaining = (
-  lockedUntil: string | null
-): string => {
-  if (!lockedUntil) return LABELS.users.status.permanent;
+export const calculateLockTimeRemaining = (lockedUntil: string | null): string => {
+  if (!lockedUntil) return USERS_LABELS.status.permanent;
 
   const now = new Date();
   const unlockDate = new Date(lockedUntil);
   const diffMs = unlockDate.getTime() - now.getTime();
 
   if (diffMs <= 0) {
-    return LABELS.users.status.expired;
+    return USERS_LABELS.status.expired;
   }
 
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -113,7 +91,7 @@ export const calculateLockTimeRemaining = (
  * Vérifie si un utilisateur peut être promu VIP selon son rôle
  */
 export const canBeVip = (role: string): boolean => {
-  const vipEligibleRoles = ["property_owner", "tenant", "traveler"];
+  const vipEligibleRoles = ['property_owner', 'tenant', 'traveler'];
   return vipEligibleRoles.includes(role.toLowerCase());
 };
 
@@ -121,7 +99,7 @@ export const canBeVip = (role: string): boolean => {
  * Vérifie si un utilisateur peut avoir des réservations
  */
 export const canHaveBookings = (role: string): boolean => {
-  const bookingRoles = ["property_owner", "tenant", "traveler"];
+  const bookingRoles = ['property_owner', 'tenant', 'traveler'];
   return bookingRoles.includes(role.toLowerCase());
 };
 
@@ -129,7 +107,7 @@ export const canHaveBookings = (role: string): boolean => {
  * Vérifie si un utilisateur peut être validé en tant que prestataire
  */
 export const canBeValidatedAsProvider = (role: string): boolean => {
-  return role.toLowerCase() === "service_provider";
+  return role.toLowerCase() === 'service_provider';
 };
 
 // ======================== VALIDATIONS ========================
@@ -147,7 +125,7 @@ export const isValidEmail = (email: string): boolean => {
  */
 export const isValidPhoneNumber = (phone: string): boolean => {
   const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-  return phoneRegex.test(phone.replace(/\D/g, ""));
+  return phoneRegex.test(phone.replace(/\D/g, ''));
 };
 
 /**
@@ -163,13 +141,11 @@ export const isValidName = (name: string): boolean => {
  * Filtre les utilisateurs par terme de recherche (nom, email)
  * Utilise la fonction générique searchInFields pour la cohérence
  */
-export const filterUsersBySearch = <
-  T extends { full_name?: string; email: string }
->(
+export const filterUsersBySearch = <T extends { full_name?: string; email: string }>(
   users: T[],
   searchTerm: string
 ): T[] => {
-  return searchInFields(users, searchTerm, ["full_name", "email"]);
+  return searchInFields(users, searchTerm, ['full_name', 'email']);
 };
 
 /**
@@ -179,40 +155,38 @@ export const filterUsersByRole = <T extends { role: string }>(
   users: T[],
   role: string | null
 ): T[] => {
-  if (!role || role === "all") return users;
+  if (!role || role === 'all') return users;
   return users.filter((user) => user.role.toLowerCase() === role.toLowerCase());
 };
 
 /**
  * Trie les utilisateurs par critère
  */
-export const sortUsers = <
-  T extends { created_at?: string; full_name?: string; email: string }
->(
+export const sortUsers = <T extends { created_at?: string; full_name?: string; email: string }>(
   users: T[],
-  sortBy: "name" | "email" | "date",
-  sortOrder: "asc" | "desc" = "asc"
+  sortBy: 'name' | 'email' | 'date',
+  sortOrder: 'asc' | 'desc' = 'asc'
 ): T[] => {
   return [...users].sort((a, b) => {
     let comparison = 0;
 
     switch (sortBy) {
-      case "name":
+      case 'name':
         const nameA = a.full_name || a.email;
         const nameB = b.full_name || b.email;
         comparison = nameA.localeCompare(nameB);
         break;
-      case "email":
+      case 'email':
         comparison = a.email.localeCompare(b.email);
         break;
-      case "date":
+      case 'date':
         const dateA = new Date(a.created_at || 0);
         const dateB = new Date(b.created_at || 0);
         comparison = dateA.getTime() - dateB.getTime();
         break;
     }
 
-    return sortOrder === "desc" ? -comparison : comparison;
+    return sortOrder === 'desc' ? -comparison : comparison;
   });
 };
 
@@ -226,38 +200,38 @@ export const getAccountStatus = (user: {
   profile_validated?: boolean;
   deleted_at?: string;
 }): {
-  status: "active" | "locked" | "unverified" | "deleted";
+  status: 'active' | 'locked' | 'unverified' | 'deleted';
   label: string;
-  color: "success" | "error" | "warning" | "default";
+  color: 'success' | 'error' | 'warning' | 'default';
 } => {
   if (user.deleted_at) {
     return {
-      status: "deleted",
-      label: LABELS.users.status.deleted,
-      color: "default",
+      status: 'deleted',
+      label: USERS_LABELS.status.deleted,
+      color: 'default',
     };
   }
 
   if (user.account_locked) {
     return {
-      status: "locked",
-      label: LABELS.users.status.locked,
-      color: "error",
+      status: 'locked',
+      label: USERS_LABELS.status.locked,
+      color: 'error',
     };
   }
 
   if (!user.profile_validated) {
     return {
-      status: "unverified",
-      label: LABELS.users.status.unverified,
-      color: "warning",
+      status: 'unverified',
+      label: USERS_LABELS.status.unverified,
+      color: 'warning',
     };
   }
 
   return {
-    status: "active",
-    label: LABELS.users.status.active,
-    color: "success",
+    status: 'active',
+    label: USERS_LABELS.status.active,
+    color: 'success',
   };
 };
 
@@ -270,32 +244,32 @@ export const getUserBadges = (user: {
   account_locked?: boolean;
 }): Array<{
   label: string;
-  color: "primary" | "success" | "warning" | "error";
+  color: 'primary' | 'success' | 'warning' | 'error';
   icon?: string;
 }> => {
   const badges = [];
 
   if (user.vip_subscription) {
     badges.push({
-      label: LABELS.users.chips.vip,
-      color: "primary" as const,
-      icon: "star",
+      label: USERS_LABELS.chips.vip,
+      color: 'primary' as const,
+      icon: 'star',
     });
   }
 
   if (user.profile_validated) {
     badges.push({
-      label: LABELS.users.chips.verified,
-      color: "success" as const,
-      icon: "check",
+      label: USERS_LABELS.chips.verified,
+      color: 'success' as const,
+      icon: 'check',
     });
   }
 
   if (user.account_locked) {
     badges.push({
-      label: LABELS.users.chips.locked,
-      color: "error" as const,
-      icon: "lock",
+      label: USERS_LABELS.chips.locked,
+      color: 'error' as const,
+      icon: 'lock',
     });
   }
 

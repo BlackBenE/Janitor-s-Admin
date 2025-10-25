@@ -5,8 +5,19 @@ import { ProfileService } from '@/core/services/profile.service';
 import { useUINotifications } from '@/shared/hooks';
 import { supabase } from '@/core/config/supabase';
 
+// Import sous-hooks spécialisés
+import { useChangePassword } from './useChangePassword';
+import { useTwoFactor } from './useTwoFactor';
+import { useProfileModals } from './useProfileModals';
+
 /**
- * Hook principal pour la gestion de l'état de la page Profile
+ * 🎯 Hook Principal - useProfile (ORCHESTRATEUR)
+ * 
+ * Combine :
+ * - Profile state & logic (inline)
+ * - useChangePassword (password management)
+ * - useTwoFactor (2FA management)
+ * - useProfileModals (modal states)
  */
 export const useProfile = () => {
   const { user, userProfile, getUserFullName, getUserPhone, refetchUserProfile } = useAuth();
@@ -34,7 +45,6 @@ export const useProfile = () => {
   };
 
   const resetForm = () => {
-    console.log('🔄 resetForm called. Current user data:', {
       fullName: getUserFullName(),
       phone: getUserPhone(),
     });
@@ -48,7 +58,6 @@ export const useProfile = () => {
       isEditMode: false,
     }));
 
-    console.log('✅ Form reset completed');
   };
 
   // Sauvegarde du profil
@@ -64,7 +73,6 @@ export const useProfile = () => {
     }
 
     try {
-      console.log('🚀 saveProfile called with:', {
         userId: user.id,
         formData: state.formData,
         currentUserData: {
@@ -80,7 +88,6 @@ export const useProfile = () => {
         phone: state.formData.phone.trim() || null,
       });
 
-      console.log('📝 ProfileService result:', result);
 
       if (!result.success) {
         showError(result.error || 'Failed to update profile');
@@ -90,7 +97,6 @@ export const useProfile = () => {
       showSuccess('Profile updated successfully!');
       setState((prev) => ({ ...prev, isEditMode: false }));
 
-      console.log('🔄 Refetching user profile from database...');
       
       // Refetch direct depuis Supabase pour être sûr d'avoir les données fraîches
       const { data: freshProfile, error: fetchError } = await supabase
@@ -99,7 +105,6 @@ export const useProfile = () => {
         .eq('id', user.id)
         .single();
       
-      console.log('📥 Fresh profile data from DB:', freshProfile);
       
       if (!fetchError && freshProfile) {
         // Mettre à jour le formData avec les données fraîches
@@ -128,7 +133,6 @@ export const useProfile = () => {
         }));
       }
 
-      console.log('✅ Profile update completed. New data:', {
         fullName: getUserFullName(),
         phone: getUserPhone(),
         formDataFullName: state.formData.full_name,
@@ -188,13 +192,18 @@ export const useProfile = () => {
     );
   };
 
+  // Importer les sous-hooks spécialisés
+  const changePassword = useChangePassword();
+  const twoFactor = useTwoFactor();
+  const modals = useProfileModals();
+
   return {
-    // État
+    // État principal
     ...state,
     user,
     userProfile,
 
-    // Actions
+    // Actions principales
     updateFormData,
     toggleEditMode,
     resetForm,
@@ -205,6 +214,11 @@ export const useProfile = () => {
     getProfileStats,
     isFormValid,
     hasChanges,
+
+    // Sous-features
+    changePassword,
+    twoFactor,
+    modals,
   };
 };
 

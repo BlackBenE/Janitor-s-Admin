@@ -28,7 +28,6 @@ export class PaymentPdfService {
           payment.stripe_payment_intent_id || payment.id
         }-${Date.now()}.pdf`;
 
-      console.log("🔍 Génération PDF:", {
         filename,
         elementId: element.id,
         elementSize: {
@@ -69,9 +68,7 @@ export class PaymentPdfService {
         },
       };
 
-      console.log("📋 Options PDF:", opt);
       await html2pdf().set(opt).from(element).save();
-      console.log("✅ PDF généré avec succès");
       return Promise.resolve();
     } catch (error) {
       console.error("❌ Error generating PDF:", error);

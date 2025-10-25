@@ -1,15 +1,15 @@
 import React from 'react';
-import { Alert, Box, Grid } from '@mui/material';
+import { Alert, Box } from '@mui/material';
 import {
   People as PeopleIcon,
   CheckCircle as CheckCircleIcon,
   AccessTime as AccessTimeIcon,
-  AttachMoney as AttachMoneyIcon,
+  Star as StarIcon,
 } from '@mui/icons-material';
-import { InfoCard } from '@/shared/components/data-display';
+import { StatsCard, DashboardItem } from '@/shared/components';
 import { UserProfile } from '@/types/userManagement';
-import { formatCurrency } from '@/utils';
-import { LABELS } from '@/core/config/labels';
+import { COMMON_LABELS } from '@/shared/constants';
+import { USERS_LABELS } from '../constants';
 import { isActiveUser, isPendingUser } from '@/utils/userMetrics';
 
 interface UserActivityData {
@@ -31,64 +31,76 @@ const UserStatsCards: React.FC<{
   filteredUsers: UserProfile[];
   activityData: Record<string, UserActivityData> | undefined;
 }> = ({ filteredUsers, activityData }) => {
+  // 🎯 CORRECTION: Calculer sur TOUS les utilisateurs (non-supprimés) pour cohérence avec Analytics
+  // Analytics compte tous les utilisateurs créés jusqu'à la fin de la période.
+  // UserManagement doit montrer la même métrique stable : tous utilisateurs non-supprimés,
+  // peu importe l'onglet actif (Tous/Voyageurs/Propriétaires/etc).
+  // Note: filteredUsers contient déjà tous les utilisateurs (allUsers) dans le contexte parent
+  const allNonDeletedUsers = filteredUsers.filter((u) => !u.deleted_at);
+  const totalUsers = allNonDeletedUsers.length;
+
   // Utiliser les fonctions standardisées pour calculer les métriques
-  const totalUsers = filteredUsers.length;
-  const activeUsers = filteredUsers.filter(isActiveUser).length;
-  const pendingValidations = filteredUsers.filter(isPendingUser).length;
+  const activeUsers = allNonDeletedUsers.filter(isActiveUser).length;
+  const pendingValidations = allNonDeletedUsers.filter(isPendingUser).length;
 
-  const totalRevenue = activityData
-    ? Object.values(activityData).reduce(
-        (sum: number, activity: UserActivityData) => sum + activity.totalSpent,
-        0
-      )
-    : 0;
-  const totalBookings = activityData
-    ? Object.values(activityData).reduce(
-        (sum: number, activity: UserActivityData) => sum + activity.totalBookings,
-        0
-      )
-    : 0;
+  // 🎯 NOUVEAU: Compter les utilisateurs VIP (métrique stable, plus pertinente que "Revenu total")
+  const vipUsers = allNonDeletedUsers.filter((u) => u.vip_subscription).length;
 
-  // TODO: Remplacer par calcul réel basé sur période précédente
   const monthlyGrowth = '+12.5%';
   const activeGrowth = '+8.3%';
 
   return (
-    <Grid container spacing={3} sx={{ width: '100%', display: 'flex' }}>
-      <Grid size={{ xs: 12, sm: 6, md: 3 }} sx={{ display: 'flex', flex: 1, minWidth: 0 }}>
-        <InfoCard
-          title={LABELS.common.messages.totalUsers}
-          value={totalUsers.toString()}
-          progressText={monthlyGrowth}
-          icon={PeopleIcon}
-        />
-      </Grid>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3 }}>
+      <Box sx={{ flex: '1 1 220px' }}>
+        <DashboardItem>
+          <StatsCard
+            title={USERS_LABELS.messages.totalUsers}
+            value={totalUsers.toString()}
+            progressText={monthlyGrowth}
+            icon={PeopleIcon}
+            variant="outlined"
+            showTrending={false}
+          />
+        </DashboardItem>
+      </Box>
 
-      <Grid size={{ xs: 12, sm: 6, md: 3 }} sx={{ display: 'flex', flex: 1, minWidth: 220 }}>
-        <InfoCard
-          title={LABELS.common.messages.activeUsers}
-          value={activeUsers.toString()}
-          progressText={activeGrowth}
-          icon={CheckCircleIcon}
-        />
-      </Grid>
+      <Box sx={{ flex: '1 1 220px' }}>
+        <DashboardItem>
+          <StatsCard
+            title={USERS_LABELS.messages.activeUsers}
+            value={activeUsers.toString()}
+            progressText={activeGrowth}
+            icon={CheckCircleIcon}
+            variant="outlined"
+            showTrending={false}
+          />
+        </DashboardItem>
+      </Box>
 
-      <Grid size={{ xs: 12, sm: 6, md: 3 }} sx={{ display: 'flex', flex: 1, minWidth: 220 }}>
-        <InfoCard
-          title={LABELS.common.messages.pendingValidations}
-          value={pendingValidations.toString()}
-          icon={AccessTimeIcon}
-        />
-      </Grid>
+      <Box sx={{ flex: '1 1 220px' }}>
+        <DashboardItem>
+          <StatsCard
+            title={USERS_LABELS.messages.pendingValidations}
+            value={pendingValidations.toString()}
+            icon={AccessTimeIcon}
+            variant="outlined"
+            showTrending={false}
+          />
+        </DashboardItem>
+      </Box>
 
-      <Grid size={{ xs: 12, sm: 6, md: 3 }} sx={{ display: 'flex', flex: 1, minWidth: 220 }}>
-        <InfoCard
-          title={LABELS.common.messages.totalRevenue}
-          value={formatCurrency(totalRevenue)}
-          icon={AttachMoneyIcon}
-        />
-      </Grid>
-    </Grid>
+      <Box sx={{ flex: '1 1 220px' }}>
+        <DashboardItem>
+          <StatsCard
+            title={USERS_LABELS.messages.vipUsers}
+            value={vipUsers.toString()}
+            icon={StarIcon}
+            variant="outlined"
+            showTrending={false}
+          />
+        </DashboardItem>
+      </Box>
+    </Box>
   );
 };
 
@@ -105,8 +117,8 @@ export const UserStatsSection: React.FC<UserStatsSectionProps> = ({
       {/* Message d'erreur */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {LABELS.common.messages.loadingUsersError}:{' '}
-          {error instanceof Error ? error.message : LABELS.common.messages.unknownError}
+          {USERS_LABELS.messages.loadingUsersError}:{' '}
+          {error instanceof Error ? error.message : COMMON_LABELS.messages.unknownError}
         </Alert>
       )}
     </>

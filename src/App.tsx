@@ -99,34 +99,14 @@ const AppContent: React.FC = () => {
   // Activer l'audit et le session tracking automatiquement avec le nouveau système
   useAudit(); // Enhanced debugging for development avec le nouveau système d'audit partagé
 
-  if (import.meta.env.DEV) {
-    console.log('Auth State Debug:', {
-      session: !!session,
-      sessionUser: session?.user?.email,
-      isAdmin: isAdmin(),
-      loading,
-      error,
-      timestamp: new Date().toISOString(),
-      currentPath: window.location.pathname,
-    });
-  }
-
   // Show loading spinner while auth is initializing
   if (loading) {
-    // console.log("App is in loading state, showing LoadingScreen");
     return <LoadingScreen error={error} />;
   }
 
   // Log redirect decision
   const isAuthenticated = session && isAdmin();
   const redirectTo = isAuthenticated ? '/dashboard' : '/auth';
-
-  // console.log("Redirect Logic:", {
-  //   isAuthenticated,
-  //   redirectTo,
-  //   currentPath,
-  //   shouldRedirect: currentPath === "/",
-  // });
 
   return (
     <Router>
@@ -148,7 +128,6 @@ const AppContent: React.FC = () => {
         onVerify={async (code) => {
           const success = await twoFactorLogin.verifyCode(code);
           if (success) {
-            console.log('✅ 2FA vérifiée depuis App.tsx');
             // La redirection se fera automatiquement via le useEffect d'auth
           }
         }}

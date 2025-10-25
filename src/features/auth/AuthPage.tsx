@@ -1,18 +1,15 @@
 import React, { useEffect } from 'react';
-import { Box, Container, Paper } from '@mui/material';
+import { Box, Container, Paper, Typography } from '@mui/material';
 import { Navigate } from 'react-router-dom';
 
-// Sections modulaires
-import {
-  AuthHeader,
-  AuthMessageSection,
-  AuthNavigationSection,
-  AuthFormSection,
-  AuthBackNavigationSection,
-  AuthLoadingSection,
-} from './components';
+// Composants shared
+import { LoadingScreen, AlertMessage } from '@/shared/components/feedback';
+
+// Composants locaux
+import { SignInForm } from './components';
 
 import { useAuth } from './hooks/useAuth';
+
 export const AuthPage: React.FC = () => {
   const auth = useAuth();
 
@@ -34,7 +31,14 @@ export const AuthPage: React.FC = () => {
 
   // Afficher le chargement pendant l'initialisation de l'auth
   if (auth.loading) {
-    return <AuthLoadingSection />;
+    return (
+      <LoadingScreen
+        message="Vérification de la session..."
+        background="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        spinnerColor="white"
+        size="large"
+      />
+    );
   }
 
   return (
@@ -59,31 +63,32 @@ export const AuthPage: React.FC = () => {
           }}
         >
           {/* En-tête */}
-          <AuthHeader />
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            align="center"
+            sx={{
+              fontWeight: 700,
+              color: 'primary.main',
+              marginBottom: 3,
+            }}
+          >
+            Portail Admin
+          </Typography>
 
-          {/* Navigation par onglets */}
-          <AuthNavigationSection
-            currentView={auth.currentView}
-            onViewChange={auth.setCurrentView}
-          />
+          {/* Messages d'état (erreurs, succès) */}
+          {auth.message && (
+            <AlertMessage
+              severity={auth.message.type}
+              message={auth.message.text}
+              onClose={auth.clearMessage}
+              sx={{ marginBottom: 2 }}
+            />
+          )}
 
-          {/* Messages d'état */}
-          <AuthMessageSection message={auth.message} onClearMessage={auth.clearMessage} />
-
-          {/* Formulaires d'authentification */}
-          <AuthFormSection
-            currentView={auth.currentView}
-            isSubmitting={auth.isSubmitting}
-            onSignIn={auth.handleSignIn}
-            onSignUp={auth.handleSignUp}
-            onForgotPassword={auth.handleForgotPassword}
-          />
-
-          {/* Navigation de retour */}
-          <AuthBackNavigationSection
-            currentView={auth.currentView}
-            onBackToSignIn={() => auth.setCurrentView('signin')}
-          />
+          {/* Formulaire de connexion */}
+          <SignInForm isSubmitting={auth.isSubmitting} onSubmit={auth.handleSignIn} />
         </Paper>
       </Container>
     </Box>

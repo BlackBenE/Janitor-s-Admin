@@ -1,11 +1,5 @@
-import React, { useState } from "react";
-import {
-  DialogActions,
-  Button,
-  TextField,
-  Box,
-  Typography,
-} from "@mui/material";
+import React, { useState } from 'react';
+import { DialogActions, Button, TextField, Box, Typography } from '@mui/material';
 import {
   Check as CheckIcon,
   Close as CloseIcon,
@@ -13,10 +7,11 @@ import {
   Edit as EditIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
-import { Property } from "@/types";
-import { LABELS } from "@/core/config/labels";
+import { Property } from '@/types';
+import { COMMON_LABELS } from '@/shared/constants';
+import { PROPERTY_APPROVALS_LABELS } from '../constants';
 
 interface PropertyModerationActionsProps {
   property: Property;
@@ -34,9 +29,7 @@ interface PropertyModerationActionsProps {
   isUpdatePending?: boolean;
 }
 
-export const PropertyModerationActions: React.FC<
-  PropertyModerationActionsProps
-> = ({
+export const PropertyModerationActions: React.FC<PropertyModerationActionsProps> = ({
   property,
   onClose,
   onApprove,
@@ -51,7 +44,7 @@ export const PropertyModerationActions: React.FC<
   isPendingPending = false,
   isUpdatePending = false,
 }) => {
-  const [moderationNotes, setModerationNotes] = useState("");
+  const [moderationNotes, setModerationNotes] = useState('');
 
   const handleApprove = async () => {
     if (property?.id) {
@@ -60,7 +53,7 @@ export const PropertyModerationActions: React.FC<
         onClose(); // Auto-close modal on success
       } catch (error) {
         // Error will be handled by parent component
-        console.error("Error in approve action:", error);
+        console.error('Error in approve action:', error);
       }
     }
   };
@@ -72,7 +65,7 @@ export const PropertyModerationActions: React.FC<
         onClose(); // Auto-close modal on success
       } catch (error) {
         // Error will be handled by parent component
-        console.error("Error in reject action:", error);
+        console.error('Error in reject action:', error);
       }
     }
   };
@@ -84,7 +77,7 @@ export const PropertyModerationActions: React.FC<
         onClose(); // Auto-close modal on success
       } catch (error) {
         // Error will be handled by parent component
-        console.error("Error in set pending action:", error);
+        console.error('Error in set pending action:', error);
       }
     }
   };
@@ -92,44 +85,32 @@ export const PropertyModerationActions: React.FC<
   return (
     <>
       {/* Moderation Notes - Toujours visible */}
-      <Box sx={{ p: 3, borderTop: 1, borderColor: "divider" }}>
+      <Box sx={{ p: 3, borderTop: 1, borderColor: 'divider' }}>
         <Typography variant="h6" gutterBottom>
-          {LABELS.propertyApprovals.moderation.title}
+          {PROPERTY_APPROVALS_LABELS.moderation.title}
         </Typography>
         <TextField
           fullWidth
           multiline
           rows={3}
           variant="outlined"
-          placeholder={LABELS.propertyApprovals.moderation.placeholder}
+          placeholder={PROPERTY_APPROVALS_LABELS.moderation.placeholder}
           value={moderationNotes}
           onChange={(e) => setModerationNotes(e.target.value)}
         />
       </Box>
 
       <DialogActions sx={{ p: 3 }}>
-        <Button
-          onClick={onClose}
-          disabled={
-            isApprovePending ||
-            isRejectPending ||
-            isPendingPending ||
-            isUpdatePending
-          }
-        >
-          {LABELS.propertyApprovals.moderation.actions.close}
-        </Button>
-
         {isEditMode ? (
-          /* Edit Mode Actions */
-          <Box sx={{ display: "flex", gap: 1 }}>
+          /* Edit Mode Actions - Seulement Annuler et Enregistrer */
+          <Box sx={{ display: 'flex', gap: 1, width: '100%', justifyContent: 'flex-end' }}>
             <Button
               variant="outlined"
               startIcon={<CancelIcon />}
               onClick={onCancelEdit}
               disabled={isUpdatePending}
             >
-              {LABELS.propertyApprovals.moderation.actions.cancel}
+              {PROPERTY_APPROVALS_LABELS.moderation.actions.cancel}
             </Button>
             <Button
               type="submit"
@@ -140,62 +121,69 @@ export const PropertyModerationActions: React.FC<
               disabled={isUpdatePending}
             >
               {isUpdatePending
-                ? LABELS.propertyApprovals.moderation.actions.saving
-                : LABELS.propertyApprovals.moderation.actions.saveChanges}
+                ? PROPERTY_APPROVALS_LABELS.moderation.actions.saving
+                : PROPERTY_APPROVALS_LABELS.moderation.actions.saveChanges}
             </Button>
           </Box>
         ) : (
-          /* View Mode Actions */
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {/* Edit button - if edit functionality is available */}
-            {onEditProperty && (
-              <Button
-                variant="outlined"
-                startIcon={<EditIcon />}
-                onClick={onEditProperty}
-                disabled={
-                  isApprovePending || isRejectPending || isPendingPending
-                }
-              >
-                {LABELS.propertyApprovals.moderation.actions.editProperty}
-              </Button>
-            )}
-
-            {/* Moderation actions */}
+          /* View Mode Actions - Fermer + actions de modération */
+          <>
             <Button
-              variant="contained"
-              color="error"
-              startIcon={<CloseIcon />}
-              onClick={handleReject}
-              disabled={isRejectPending || isApprovePending || isPendingPending}
-            >
-              {isRejectPending
-                ? LABELS.propertyApprovals.moderation.actions.rejecting
-                : LABELS.propertyApprovals.moderation.actions.reject}
-            </Button>
-            <Button
-              variant="contained"
-              color="warning"
-              startIcon={<ScheduleIcon />}
-              onClick={handleSetPending}
-              disabled={isPendingPending || isApprovePending || isRejectPending}
-            >
-              {isPendingPending
-                ? LABELS.propertyApprovals.moderation.actions.settingPending
-                : LABELS.propertyApprovals.moderation.actions.setPending}
-            </Button>
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<CheckIcon />}
-              onClick={handleApprove}
+              onClick={onClose}
               disabled={isApprovePending || isRejectPending || isPendingPending}
             >
-              {isApprovePending
-                ? LABELS.propertyApprovals.moderation.actions.approving
-                : LABELS.propertyApprovals.moderation.actions.approve}
+              {PROPERTY_APPROVALS_LABELS.moderation.actions.close}
             </Button>
-          </Box>
+
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {/* Edit button - if edit functionality is available */}
+              {onEditProperty && (
+                <Button
+                  variant="outlined"
+                  startIcon={<EditIcon />}
+                  onClick={onEditProperty}
+                  disabled={isApprovePending || isRejectPending || isPendingPending}
+                >
+                  {PROPERTY_APPROVALS_LABELS.moderation.actions.editProperty}
+                </Button>
+              )}
+
+              {/* Moderation actions */}
+              <Button
+                variant="contained"
+                color="error"
+                startIcon={<CloseIcon />}
+                onClick={handleReject}
+                disabled={isRejectPending || isApprovePending || isPendingPending}
+              >
+                {isRejectPending
+                  ? PROPERTY_APPROVALS_LABELS.moderation.actions.rejecting
+                  : PROPERTY_APPROVALS_LABELS.moderation.actions.reject}
+              </Button>
+              <Button
+                variant="contained"
+                color="warning"
+                startIcon={<ScheduleIcon />}
+                onClick={handleSetPending}
+                disabled={isPendingPending || isApprovePending || isRejectPending}
+              >
+                {isPendingPending
+                  ? PROPERTY_APPROVALS_LABELS.moderation.actions.settingPending
+                  : PROPERTY_APPROVALS_LABELS.moderation.actions.setPending}
+              </Button>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<CheckIcon />}
+                onClick={handleApprove}
+                disabled={isApprovePending || isRejectPending || isPendingPending}
+              >
+                {isApprovePending
+                  ? PROPERTY_APPROVALS_LABELS.moderation.actions.approving
+                  : PROPERTY_APPROVALS_LABELS.moderation.actions.approve}
+              </Button>
+            </Box>
+          </>
         )}
       </DialogActions>
     </>

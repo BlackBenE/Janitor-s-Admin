@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,18 +10,15 @@ import {
   Alert,
   CircularProgress,
   Divider,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Restore as RestoreIcon,
   Warning as WarningIcon,
   Info as InfoIcon,
-} from "@mui/icons-material";
-import { UserProfile } from "@/types/userManagement";
-import {
-  AnonymizationStatus,
-  AnonymizationDetails,
-} from "../components/AnonymizationStatus";
-import { AnonymizationLevel } from "@/types/dataRetention";
+} from '@mui/icons-material';
+import { UserProfile } from '@/types/userManagement';
+import { AnonymizationStatus, AnonymizationDetails } from '../components/AnonymizationStatus';
+import { AnonymizationLevel } from '@/types/dataRetention';
 
 interface RestoreUserModalProps {
   open: boolean;
@@ -38,26 +35,24 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
   onConfirm,
   isRestoring,
 }) => {
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>('');
 
   const handleConfirm = async () => {
     if (!user) return;
 
     try {
-      setError("");
+      setError('');
       await onConfirm(user.id);
       onClose();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Erreur lors de la restauration"
-      );
+      setError(err instanceof Error ? err.message : 'Erreur lors de la restauration');
     }
   };
 
   const handleClose = () => {
     if (!isRestoring) {
       onClose();
-      setError("");
+      setError('');
     }
   };
 
@@ -72,10 +67,9 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
     if (scheduledPurgeAt && new Date(scheduledPurgeAt) < new Date()) {
       return {
         canRestore: false,
-        severity: "error" as const,
-        title: "Restauration impossible",
-        message:
-          "Les données ont été définitivement purgées et ne peuvent plus être restaurées.",
+        severity: 'error' as const,
+        title: 'Restauration impossible',
+        message: 'Les données ont été définitivement purgées et ne peuvent plus être restaurées.',
         details: [],
       };
     }
@@ -85,27 +79,27 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
       case AnonymizationLevel.FULL:
         return {
           canRestore: false,
-          severity: "error" as const,
-          title: "Restauration impossible",
+          severity: 'error' as const,
+          title: 'Restauration impossible',
           message:
             "L'utilisateur a été complètement anonymisé. Les données personnelles ne peuvent pas être restaurées.",
           details: [
-            "Les données personnelles ont été définitivement anonymisées",
-            "Seules les données métier anonymisées subsistent",
-            "La restauration nécessiterait une re-création manuelle du compte",
+            'Les données personnelles ont été définitivement anonymisées',
+            'Seules les données métier anonymisées subsistent',
+            'La restauration nécessiterait une re-création manuelle du compte',
           ],
         };
 
       case AnonymizationLevel.PARTIAL:
         return {
           canRestore: true,
-          severity: "warning" as const,
-          title: "Restauration possible avec limitations",
+          severity: 'warning' as const,
+          title: 'Restauration possible avec limitations',
           message:
             "L'utilisateur peut être restauré, mais certaines données personnelles ont été anonymisées.",
           details: [
-            "✅ Le compte utilisateur sera réactivé",
-            "❌ Les données personnelles anonymisées ne seront pas restaurées",
+            '✅ Le compte utilisateur sera réactivé',
+            '❌ Les données personnelles anonymisées ne seront pas restaurées',
             "✅ Les données métier et l'historique seront conservés",
             "⚠️ L'utilisateur devra mettre à jour ses informations personnelles",
           ],
@@ -114,10 +108,10 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
       case AnonymizationLevel.PURGED:
         return {
           canRestore: false,
-          severity: "error" as const,
-          title: "Utilisateur purgé",
+          severity: 'error' as const,
+          title: 'Utilisateur purgé',
           message:
-            "Cet utilisateur a été programmé pour purge définitive et ne peut plus être restauré.",
+            'Cet utilisateur a été programmé pour purge définitive et ne peut plus être restauré.',
           details: [],
         };
 
@@ -125,14 +119,13 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
         // Soft delete simple sans anonymisation
         return {
           canRestore: true,
-          severity: "info" as const,
-          title: "Restauration complète possible",
-          message:
-            "L'utilisateur peut être entièrement restauré avec toutes ses données.",
+          severity: 'info' as const,
+          title: 'Restauration complète possible',
+          message: "L'utilisateur peut être entièrement restauré avec toutes ses données.",
           details: [
-            "✅ Toutes les données personnelles seront restaurées",
-            "✅ Tous les historiques et données métier seront conservés",
-            "✅ Le compte sera immédiatement fonctionnel",
+            '✅ Toutes les données personnelles seront restaurées',
+            '✅ Tous les historiques et données métier seront conservés',
+            '✅ Le compte sera immédiatement fonctionnel',
           ],
         };
     }
@@ -142,7 +135,7 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <RestoreIcon color="primary" />
         Restauration d'utilisateur
       </DialogTitle>
@@ -152,7 +145,7 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
           <>
             <Alert severity="info" sx={{ mb: 3 }}>
               <Typography variant="body2">
-                Vous êtes sur le point de restaurer l'utilisateur{" "}
+                Vous êtes sur le point de restaurer l'utilisateur{' '}
                 <strong>{user.full_name || user.email}</strong>.
               </Typography>
             </Alert>
@@ -182,8 +175,7 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
                   • preserved_data_until → null
                 </Typography>
                 <Typography component="li" variant="caption">
-                  • scheduled_purge_at → null (annulation des purges
-                  programmées)
+                  • scheduled_purge_at → null (annulation des purges programmées)
                 </Typography>
               </Box>
             </Alert>
@@ -197,10 +189,10 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
               <Box
                 sx={{
                   p: 2,
-                  bgcolor: "background.paper",
+                  bgcolor: 'background.paper',
                   borderRadius: 1,
                   border: 1,
-                  borderColor: "divider",
+                  borderColor: 'divider',
                 }}
               >
                 <Typography variant="body2">
@@ -210,14 +202,13 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
                   <strong>Rôle :</strong> {user.role}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Supprimé le :</strong>{" "}
+                  <strong>Supprimé le :</strong>{' '}
                   {user.deleted_at
-                    ? new Date(user.deleted_at).toLocaleString("fr-FR")
-                    : "Non défini"}
+                    ? new Date(user.deleted_at).toLocaleString('fr-FR')
+                    : 'Non défini'}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Raison :</strong>{" "}
-                  {user.deletion_reason || "Non spécifiée"}
+                  <strong>Raison :</strong> {user.deletion_reason || 'Non spécifiée'}
                 </Typography>
 
                 <Box sx={{ mt: 2 }}>
@@ -237,9 +228,7 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
                   <Typography variant="subtitle2" gutterBottom>
                     {restorabilityStatus.title}
                   </Typography>
-                  <Typography variant="body2">
-                    {restorabilityStatus.message}
-                  </Typography>
+                  <Typography variant="body2">{restorabilityStatus.message}</Typography>
                 </Alert>
 
                 {restorabilityStatus.details.length > 0 && (
@@ -265,12 +254,11 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
 
             {restorabilityStatus?.canRestore && (
               <Alert severity="warning" sx={{ mb: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <WarningIcon />
                   <Typography variant="body2">
-                    <strong>Important :</strong> La restauration réactivera
-                    immédiatement le compte utilisateur. Assurez-vous que cette
-                    action est justifiée et documentée.
+                    <strong>Important :</strong> La restauration réactivera immédiatement le compte
+                    utilisateur. Assurez-vous que cette action est justifiée et documentée.
                   </Typography>
                 </Box>
               </Alert>
@@ -279,7 +267,7 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
         )}
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ p: 3, justifyContent: 'flex-end' }}>
         <Button onClick={handleClose} disabled={isRestoring}>
           Annuler
         </Button>
@@ -289,11 +277,9 @@ export const RestoreUserModal: React.FC<RestoreUserModalProps> = ({
             color="primary"
             onClick={handleConfirm}
             disabled={isRestoring || !user}
-            startIcon={
-              isRestoring ? <CircularProgress size={16} /> : <RestoreIcon />
-            }
+            startIcon={isRestoring ? <CircularProgress size={16} /> : <RestoreIcon />}
           >
-            {isRestoring ? "Restauration..." : "Confirmer la restauration"}
+            {isRestoring ? 'Restauration...' : 'Confirmer la restauration'}
           </Button>
         )}
       </DialogActions>
